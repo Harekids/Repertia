@@ -423,6 +423,60 @@ const PrintSettings = ({ prog, allPool }) => {
     navigator.clipboard.writeText(generateText());
   };
 
+  const downloadPDF = () => {
+    // Inject print styles and trigger browser print-to-PDF
+    const existing = document.getElementById("__repertia_print_style__");
+    if (existing) existing.remove();
+    const style = document.createElement("style");
+    style.id = "__repertia_print_style__";
+    style.textContent = `
+      @media print {
+        body > * { display: none !important; }
+        #repertia-print-area { display: block !important; position: fixed; top:0; left:0; width:100%; z-index:99999; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Build print content
+    const existing2 = document.getElementById("repertia-print-area");
+    if (existing2) existing2.remove();
+    const div = document.createElement("div");
+    div.id = "repertia-print-area";
+    div.style.cssText = "display:none; font-family:'Cormorant Garamond','EB Garamond',serif; color:#2A2010; padding:60px 80px; background:white; min-height:100vh;";
+
+    let html = "";
+    if (eventName) html += `<h1 style="font-size:26px;font-weight:400;letter-spacing:4px;text-align:center;margin-bottom:8px;">${eventName}</h1>`;
+    if (performer) html += `<p style="font-size:15px;text-align:center;color:#5A4A2A;margin:0 0 4px;">${performer}</p>`;
+    if (venue||date) html += `<p style="font-size:13px;text-align:center;color:#8A7050;margin:0 0 32px;">${[venue,date].filter(Boolean).join("　")}</p>`;
+    html += `<hr style="border:none;border-top:1px solid #D8D0C0;margin-bottom:32px;">`;
+    programPieces.forEach((p,i) => {
+      const eraColor = (ERAS[p.era]||ERAS.modern).color;
+      html += `<div style="margin-bottom:28px;padding-bottom:28px;${i<programPieces.length-1?"border-bottom:1px solid #F0EAE0;":""}">`;
+      html += `<div style="font-size:11px;color:${eraColor};letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;">${p.composer}</div>`;
+      let titleLine = formatPieceTitle(p, style);
+      if (showKey && style!=="ja") titleLine += `　${p.key}`;
+      if (showYear) titleLine += `　(${p.year})`;
+      if (showDuration) titleLine += `　[${p.duration}分]`;
+      html += `<div style="font-size:17px;margin-bottom:4px;line-height:1.5;">${titleLine}</div>`;
+      if (style==="ja") html += `<div style="font-size:12px;color:#A09070;">${p.key}　${p.year}年</div>`;
+      if (notes[p.id]) html += `<div style="font-size:12px;color:#6A5030;font-style:italic;margin-top:4px;">${notes[p.id]}</div>`;
+      html += `</div>`;
+    });
+    const total = programPieces.reduce((s,p2)=>s+p2.duration,0);
+    html += `<hr style="border:none;border-top:1px solid #E8E0D0;margin-top:16px;">`;
+    html += `<div style="display:flex;justify-content:space-between;padding-top:12px;font-size:11px;color:#C0B090;letter-spacing:2px;"><span>Repertia</span><span>合計 ${total}分</span></div>`;
+    div.innerHTML = html;
+    document.body.appendChild(div);
+
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        div.remove();
+        style.remove();
+      }, 500);
+    }, 100);
+  };
+
   const inp2 = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:"'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,serif",fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
 
   return (
@@ -463,11 +517,17 @@ const PrintSettings = ({ prog, allPool }) => {
         ))}
       </div>
 
-      {/* Copy button */}
+      {/* Action buttons */}
       <button onClick={copyText} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"12px",cursor:"pointer",fontSize:12,letterSpacing:3,fontFamily:"'Palatino Linotype',Palatino,serif",borderRadius:6}}>
         📋　テキストをコピー
       </button>
-      <div style={{fontSize:11,color:"#8A7050",textAlign:"center"}}>コピーしてWordやメモ帳に貼り付けられます</div>
+      <button onClick={downloadPDF} disabled={programPieces.length===0} style={{background:programPieces.length===0?"#EDE8DC":"#5A3A1A",border:"none",color:programPieces.length===0?"#B0A080":"#F5E8C8",padding:"12px",cursor:programPieces.length===0?"not-allowed":"pointer",fontSize:12,letterSpacing:3,fontFamily:"'Palatino Linotype',Palatino,serif",borderRadius:6}}>
+        🖨️　PDFとして保存
+      </button>
+      <div style={{fontSize:11,color:"#8A7050",textAlign:"center",lineHeight:1.7}}>
+        テキストはWordやメモ帳へ貼り付け可<br/>
+        <span style={{color:"#A09070"}}>PDF保存：印刷ダイアログで「PDFに保存」を選択</span>
+      </div>
 
       {/* Hidden state passthrough for preview */}
       <PrintPreviewData style={style} showKey={showKey} showYear={showYear} showDuration={showDuration} eventName={eventName} performer={performer} venue={venue} date={date} prog={prog} allPool={allPool} />
@@ -695,10 +755,10 @@ JSONのみ返してください:
     <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
       <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <span style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500}}>𝄞 Repertia</span>
-          <nav style={{display:"flex",gap:4}}>
-            {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
-              <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"5px 14px",cursor:"pointer",fontSize:12,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
+          <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+          <nav style={{display:"flex",gap:2}}>
+            {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+              <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
             ))}
           </nav>
         </div>
@@ -819,10 +879,10 @@ JSONのみ返してください:
       <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
         <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <span style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500}}>𝄞 Repertia</span>
-            <nav style={{display:"flex",gap:4}}>
-              {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
-                <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"5px 14px",cursor:"pointer",fontSize:12,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
+            <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+            <nav style={{display:"flex",gap:2}}>
+              {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+                <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
               ))}
             </nav>
           </div>
@@ -863,10 +923,10 @@ JSONのみ返してください:
       <FontLoader />
       {/* Header */}
       <header style={{background:"#2A2010",padding:"12px 20px",display:"flex",alignItems:"center",gap:16,flexShrink:0}}>
-        <span style={{fontSize:22,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,flexShrink:0}}>𝄞 Repertia</span>
-        <nav style={{display:"flex",gap:4,flexShrink:0}}>
-          {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
-            <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
+        <span onClick={()=>setPage("home")} style={{fontSize:22,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,flexShrink:0,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+        <nav style={{display:"flex",gap:2,flexShrink:0}}>
+          {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+            <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"4px 13px 3px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
           ))}
         </nav>
         <div style={{flex:1}} />
