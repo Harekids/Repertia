@@ -656,7 +656,7 @@ export default function App() {
     const piece = allPool.find(p=>p.id===id);
     if (!piece) return;
     if (prog.pieceIds.includes(id)) { updateProg({pieceIds:prog.pieceIds.filter(x=>x!==id)}); return; }
-    if (totalDuration+piece.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces)
+    if (totalDuration+piece.duration<=prog.maxDuration && (prog.maxPieces>=999||prog.pieceIds.length<prog.maxPieces))
       updateProg({pieceIds:[...prog.pieceIds,id]});
   };
 
@@ -786,7 +786,7 @@ JSONのみ返してください:
       return sortAsc ? diff : -diff;
     });
 
-  const showRuler = sortBy==="year";
+  const showRuler = sortBy==="year" && filterEra==="";
 
   const inp = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
   const sel = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
@@ -798,7 +798,7 @@ JSONのみ返してください:
         <div style={{display:"flex",alignItems:"center",gap:16}}>
           <span onClick={()=>setPage("home")} style={{fontSize:26,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
           <nav style={{display:"flex",gap:2}}>
-            {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
+            {[["manage","レパートリー"],["home","プログラム"],["print","Portfolio"]].map(([p,l])=>(
               <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
             ))}
           </nav>
@@ -878,20 +878,44 @@ JSONのみ返してください:
             </div>
           </div>
         )}
-        <div style={{fontSize:12,color:"#8A7050",marginBottom:14}}>{pieces.length}曲登録済み（曲数制限なし）</div>
-        {pieces.map(p=>{
+        {/* ⑤ 共通検索 & 並び替え */}
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginBottom:10}}>
+          <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pieces} />
+          <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+            {[["year","作曲年"],["composerBorn","作曲家"],["duration","時間"],["difficulty","難易度"],["readiness","仕上がり"]].map(([k,l])=>(
+              <button key={k} onClick={()=>{ if(sortBy===k) setSortAsc(v=>!v); else { setSortBy(k); setSortAsc(true); } }}
+                style={{background:sortBy===k?"#2A2010":"white",border:`1px solid ${sortBy===k?"#2A2010":"#D8D0C0"}`,color:sortBy===k?"#C8A860":"#6A5030",padding:"3px 7px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:2}}>
+                {l}{sortBy===k && <span style={{fontSize:9}}>{sortAsc?"▲":"▼"}</span>}
+              </button>
+            ))}
+          </div>
+          <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11}}>
+            <option value="">全時代</option>
+            {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+          </select>
+          <button onClick={()=>setFilterFav(!filterFav)} title="お気に入り" style={{background:filterFav?"#C03050":"white",border:`1px solid ${filterFav?"#C03050":"#D8D0C0"}`,color:filterFav?"white":"#8A7050",padding:"3px 8px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>♥</button>
+          <button onClick={()=>setFilterCand(!filterCand)} title="候補" style={{background:filterCand?"#C8A030":"white",border:`1px solid ${filterCand?"#C8A030":"#D8D0C0"}`,color:filterCand?"white":"#8A7050",padding:"3px 8px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>★</button>
+          <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{poolFiltered.length}曲</span>
+        </div>
+        {poolFiltered.map(p=>{
           const era=ERAS[p.era]||ERAS.modern;
           return (
             <div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 16px",background:"white",border:"1.5px solid #E8E0D0",borderLeft:`4px solid ${era.color}`,borderRadius:6,marginBottom:5}}>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,color:"#2A2010",marginBottom:2}}>{p.title}</div>
-                <div style={{fontSize:11,color:"#8A7050",display:"flex",gap:8,flexWrap:"wrap"}}>
+                <div style={{fontSize:13,color:"#2A2010",marginBottom:2,display:"flex",alignItems:"center",gap:4}}>
+                  {p.fav && <span style={{color:"#C03050",fontSize:12}}>♥</span>}
+                  {p.candidate && <span style={{color:"#C8A030",fontSize:12}}>★</span>}
+                  {p.title}
+                </div>
+                <div style={{fontSize:11,color:"#8A7050",display:"flex",gap:8,flexWrap:"wrap",fontFamily:SANS}}>
                   <span>{p.composer}</span><span>·</span><span>{p.year}年</span><span>·</span><span>{era.label}</span><span>·</span><span>{p.key}</span><span>·</span><span>{p.duration}分</span>
                 </div>
               </div>
+              <button onClick={()=>toggleFav(p.id)} style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8D0C0",fontSize:14,cursor:"pointer",padding:"0 2px"}}>♥</button>
+              <button onClick={()=>toggleCandidate(p.id)} style={{background:"none",border:"none",color:p.candidate?"#C8A030":"#D8D0C0",fontSize:14,cursor:"pointer",padding:"0 2px"}}>★</button>
               <DotRating value={p.difficulty} max={5} color="#E05030" />
-              <span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#B03020",width:32,textAlign:"right"}}>{p.readiness}%</span>
-              <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))} style={{background:"none",border:"1px solid #E8C0B0",color:"#C09090",padding:"3px 10px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:4}}>削除</button>
+              <span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#B03020",width:32,textAlign:"right",fontFamily:SANS}}>{p.readiness}%</span>
+              <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))} style={{background:"none",border:"1px solid #E8C0B0",color:"#C09090",padding:"3px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>削除</button>
             </div>
           );
         })}
@@ -922,7 +946,7 @@ JSONのみ返してください:
           <div style={{display:"flex",alignItems:"center",gap:16}}>
             <span onClick={()=>setPage("home")} style={{fontSize:26,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
             <nav style={{display:"flex",gap:2}}>
-              {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
+              {[["manage","レパートリー"],["home","プログラム"],["print","Portfolio"]].map(([p,l])=>(
                 <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
               ))}
             </nav>
@@ -966,21 +990,11 @@ JSONのみ返してください:
       <header style={{background:"#2A2010",padding:"12px 20px",display:"flex",alignItems:"center",gap:16,flexShrink:0}}>
         <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,flexShrink:0,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
         <nav style={{display:"flex",gap:2,flexShrink:0}}>
-          {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
+          {[["manage","レパートリー"],["home","プログラム"],["print","Portfolio"]].map(([p,l])=>(
             <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"4px 13px 3px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
           ))}
         </nav>
         <div style={{flex:1}} />
-        <div style={{display:"flex",gap:12,alignItems:"center"}}>
-          {[["TIME",prog.maxDuration,"maxDuration","分"],["曲数",prog.maxPieces,"maxPieces","曲"]].map(([l,val,k,u])=>(
-            <div key={k} style={{display:"flex",alignItems:"center",gap:5}}>
-              <span style={{fontSize:9,color:"#C8A860",letterSpacing:2,fontFamily:SANS}}>{l}</span>
-              <input type="number" value={val} onChange={e=>updateProg({[k]:+e.target.value})} style={{width:44,background:"#3A3020",border:"1px solid #C8A860",color:"#F5F0E8",fontSize:16,fontFamily:FONT,textAlign:"center",padding:"2px 4px",borderRadius:4}} />
-              <span style={{fontSize:10,color:"#C8A860",fontFamily:SANS}}>{u}</span>
-            </div>
-          ))}
-          <button onClick={()=>setShowConstraints(!showConstraints)} style={{background:showConstraints?"#C8A860":"transparent",border:"1px solid #C8A860",color:showConstraints?"#2A2010":"#C8A860",padding:"4px 10px",cursor:"pointer",fontSize:10,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>縛り</button>
-        </div>
       </header>
 
       {/* Program tabs */}
@@ -1006,28 +1020,65 @@ JSONのみ返してください:
         <button onClick={addProgram} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",cursor:"pointer",fontSize:11,fontFamily:"inherit",padding:"4px 12px",borderRadius:4,marginLeft:8,whiteSpace:"nowrap"}}>＋ 新規</button>
       </div>
 
-      {/* Constraints */}
-      {showConstraints && (
-        <div style={{background:"#EDE8DC",borderBottom:"1px solid #D8D0C0",padding:"10px 20px",display:"flex",gap:20,alignItems:"center",flexWrap:"wrap",flexShrink:0}}>
-          <div style={{fontSize:10,color:"#8A7050",letterSpacing:2}}>必須の時代：</div>
-          {Object.entries(ERAS).map(([k,v])=>(
-            <button key={k} onClick={()=>setConstraints(c=>({...c,requireEras:c.requireEras.includes(k)?c.requireEras.filter(x=>x!==k):[...c.requireEras,k]}))}
-              style={{background:constraints.requireEras.includes(k)?v.color:"white",border:`1px solid ${v.color}`,color:constraints.requireEras.includes(k)?"white":v.color,padding:"3px 10px",cursor:"pointer",fontSize:11,borderRadius:4,fontFamily:"inherit"}}>
-              {v.label}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* 2-column layout */}
       <div style={{display:"flex",flex:1,overflow:"hidden"}}>
 
         {/* LEFT: Program */}
         <div style={{width:"42%",borderRight:"2px solid #D8D0C0",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          <div style={{padding:"12px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-              <span style={{fontSize:10,letterSpacing:3,color:"#8A7050",fontFamily:SANS}}>{prog.pieceIds.length}/{prog.maxPieces}曲</span>
-              <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>{totalDuration}分 / {prog.maxDuration}分　<span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050"}}>{remaining>=0?`残り${remaining}分`:`${Math.abs(remaining)}分超過`}</span></span>
+
+          {/* ① Settings bar — TIME / 曲数 / 縛り */}
+          <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F0EBE0",display:"flex",gap:10,alignItems:"center",flexShrink:0,flexWrap:"wrap"}}>
+            {/* TIME */}
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS,letterSpacing:1}}>TIME</span>
+              <input type="number" min={1} value={prog.maxDuration}
+                onChange={e=>updateProg({maxDuration:Math.max(1,+e.target.value)})}
+                style={{width:48,background:"white",border:"1px solid #C8B890",color:"#2A2010",fontSize:13,fontFamily:FONT,textAlign:"center",padding:"3px 4px",borderRadius:4}} />
+              <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>分</span>
+            </div>
+            <div style={{width:1,height:18,background:"#D8D0C0"}} />
+            {/* ② 曲数 — 制限なし or 0以上の整数 */}
+            <div style={{display:"flex",alignItems:"center",gap:4}}>
+              <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS,letterSpacing:1}}>曲数</span>
+              <select value={prog.maxPieces===999?"unlimited":String(prog.maxPieces)}
+                onChange={e=>updateProg({maxPieces:e.target.value==="unlimited"?999:Math.max(0,+e.target.value)})}
+                style={{background:"white",border:"1px solid #C8B890",color:"#2A2010",fontSize:12,fontFamily:SANS,padding:"3px 6px",borderRadius:4}}>
+                <option value="unlimited">制限なし</option>
+                {[...Array(21)].map((_,i)=><option key={i} value={i}>{i}</option>)}
+              </select>
+            </div>
+            <div style={{width:1,height:18,background:"#D8D0C0"}} />
+            {/* 縛り */}
+            <button onClick={()=>setShowConstraints(!showConstraints)}
+              style={{background:showConstraints?"#8B5E3C":"white",border:`1px solid ${showConstraints?"#8B5E3C":"#C8B890"}`,color:showConstraints?"white":"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,letterSpacing:1,fontFamily:SANS,borderRadius:4}}>
+              縛り{showConstraints?" ▲":" ▼"}
+            </button>
+          </div>
+
+          {/* Constraints panel */}
+          {showConstraints && (
+            <div style={{background:"#EDE8DC",borderBottom:"1px solid #D8D0C0",padding:"8px 14px",display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",flexShrink:0}}>
+              <span style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>必須の時代：</span>
+              {Object.entries(ERAS).map(([k,v])=>(
+                <button key={k} onClick={()=>setConstraints(c=>({...c,requireEras:c.requireEras.includes(k)?c.requireEras.filter(x=>x!==k):[...c.requireEras,k]}))}
+                  style={{background:constraints.requireEras.includes(k)?v.color:"white",border:`1px solid ${v.color}`,color:constraints.requireEras.includes(k)?"white":v.color,padding:"2px 8px",cursor:"pointer",fontSize:10,borderRadius:4,fontFamily:SANS}}>
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <span style={{fontSize:10,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>
+                {prog.pieceIds.length}{prog.maxPieces===999?"":"/"+prog.maxPieces}曲
+              </span>
+              <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>
+                {totalDuration}分 / {prog.maxDuration}分
+                <span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
+                  　{remaining>=0?`残り${remaining}分`:`${Math.abs(remaining)}分超過`}
+                </span>
+              </span>
             </div>
             <div style={{height:5,background:"#D8D0C0",borderRadius:3,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${Math.min((totalDuration/prog.maxDuration)*100,100)}%`,background:remaining<0?"#C04030":remaining<5?"#C09030":"#3A8A4A",borderRadius:3,transition:"width 0.4s"}} />
@@ -1116,19 +1167,17 @@ JSONのみ返してください:
             <>
               <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
                 <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pieces} />
-                <div style={{display:"flex",gap:0,alignItems:"center"}}>
-                  <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{...sel(),borderRadius:"4px 0 0 4px",borderRight:"none",fontFamily:SANS,fontSize:11}}>
-                    <option value="year">作曲年順</option>
-                    <option value="composerBorn">作曲家（生まれ年）</option>
-                    <option value="duration">演奏時間順</option>
-                    <option value="difficulty">難易度順</option>
-                    <option value="readiness">仕上がり順</option>
-                  </select>
-                  <button onClick={()=>setSortAsc(v=>!v)}
-                    style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 8px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:"0 4px 4px 0",lineHeight:1}}>
-                    {sortAsc ? "▲" : "▼"}
-                  </button>
+                {/* ④ per-item sort buttons */}
+                <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+                  {[["year","作曲年"],["composerBorn","作曲家"],["duration","時間"],["difficulty","難易度"],["readiness","仕上がり"]].map(([k,l])=>(
+                    <button key={k} onClick={()=>{ if(sortBy===k) setSortAsc(v=>!v); else { setSortBy(k); setSortAsc(true); } }}
+                      style={{background:sortBy===k?"#2A2010":"white",border:`1px solid ${sortBy===k?"#2A2010":"#D8D0C0"}`,color:sortBy===k?"#C8A860":"#6A5030",padding:"3px 7px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:2}}>
+                      {l}
+                      {sortBy===k && <span style={{fontSize:9}}>{sortAsc?"▲":"▼"}</span>}
+                    </button>
+                  ))}
                 </div>
+                {/* Era filter */}
                 <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11}}>
                   <option value="">全時代</option>
                   {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
@@ -1151,7 +1200,7 @@ JSONのみ返してください:
                         {poolFiltered.map(p=>(
                           <PieceCard key={p.id} piece={p}
                             inProgram={prog.pieceIds.includes(p.id)}
-                            canAdd={totalDuration+p.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces && !prog.pieceIds.includes(p.id)}
+                            canAdd={totalDuration+p.duration<=prog.maxDuration && (prog.maxPieces>=999||prog.pieceIds.length<prog.maxPieces) && !prog.pieceIds.includes(p.id)}
                             onAdd={()=>toggle(p.id)}
                             onRemove={()=>toggle(p.id)}
                             expanded={expandedId===p.id}
@@ -1180,7 +1229,7 @@ JSONのみ返してください:
                 {aiPieces.filter(p=>searchMatch(p,searchQ)).map(p=>(
                   <PieceCard key={p.id} piece={p}
                     inProgram={prog.pieceIds.includes(p.id)}
-                    canAdd={totalDuration+p.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces && !prog.pieceIds.includes(p.id)}
+                    canAdd={totalDuration+p.duration<=prog.maxDuration && (prog.maxPieces>=999||prog.pieceIds.length<prog.maxPieces) && !prog.pieceIds.includes(p.id)}
                     onAdd={()=>toggle(p.id)}
                     onRemove={()=>toggle(p.id)}
                     expanded={expandedId===p.id}
