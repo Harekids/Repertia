@@ -5,12 +5,13 @@ const FontLoader = () => {
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Sans+JP:wght@400;500&display=swap";
     document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
   return null;
 };
+const SANS = "'Noto Sans JP','Hiragino Kaku Gothic Pro','Yu Gothic',sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
@@ -71,7 +72,7 @@ const SAMPLE_PIECES = [
   { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, rarity:3, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:1900, country:"ドイツ", key:"ハ長調", duration:10, readiness:80, difficulty:3, rarity:2, form:"小品", era:"romantic" };
+const EMPTY_PIECE = { title:"", composer:"", year:1900, country:"ドイツ", key:"ハ長調", duration:10, readiness:80, difficulty:3, rarity:2, form:"小品", era:"romantic", fav:false, candidate:false };
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:5, pieceIds:[] });
 
@@ -186,24 +187,36 @@ const DotRating = ({ value, max=5, color }) => (
 );
 
 // ── PieceCard ─────────────────────────────────────────────────────────────────
-const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI }) => {
+const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI, onToggleFav, onToggleCandidate }) => {
   const era = ERAS[piece.era] || ERAS.modern;
   return (
     <div style={{ background:inProgram?"#F5F0E6":"white", border:`1.5px solid ${inProgram?"#C8B890":"#E8E0D0"}`, borderLeft:`4px solid ${era.color}`, borderRadius:6, marginBottom:5, overflow:"hidden", opacity:inProgram?0.55:1, transition:"opacity 0.2s" }}>
       <div style={{ padding:"9px 12px", display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={onToggleExpand}>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:13, color:"#2A2010", marginBottom:2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+            {piece.fav && <span style={{marginRight:4,fontSize:11}}>♥</span>}
+            {piece.candidate && <span style={{marginRight:4,fontSize:11,color:"#C8A030"}}>★</span>}
             {piece.title}
             {isAI && <span style={{ marginLeft:6, fontSize:9, background:"#EDF5FB", color:"#2C6B82", padding:"1px 6px", borderRadius:8, border:"1px solid #BDD5E5" }}>AI</span>}
           </div>
-          <div style={{ fontSize:11, color:"#8A7050", display:"flex", gap:6, flexWrap:"wrap" }}>
+          <div style={{ fontSize:11, color:"#8A7050", display:"flex", gap:6, flexWrap:"wrap", fontFamily:SANS }}>
             <span>{piece.composer}</span><span style={{color:"#D8D0C0"}}>·</span>
             <span>{piece.year}年</span><span style={{color:"#D8D0C0"}}>·</span>
             <span>{piece.key}</span><span style={{color:"#D8D0C0"}}>·</span>
             <span>{piece.duration}分</span>
           </div>
         </div>
-        <div style={{ flexShrink:0, display:"flex", gap:6, alignItems:"center" }}>
+        <div style={{ flexShrink:0, display:"flex", gap:4, alignItems:"center" }}>
+          {onToggleFav && (
+            <button onClick={e=>{e.stopPropagation();onToggleFav();}}
+              title="お気に入り"
+              style={{ background:"none", border:"none", color:piece.fav?"#C03050":"#D8D0C0", fontSize:13, cursor:"pointer", padding:"0 1px", lineHeight:1 }}>♥</button>
+          )}
+          {onToggleCandidate && (
+            <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
+              title="候補に追加"
+              style={{ background:"none", border:"none", color:piece.candidate?"#C8A030":"#D8D0C0", fontSize:13, cursor:"pointer", padding:"0 1px", lineHeight:1 }}>★</button>
+          )}
           {inProgram
             ? <button onClick={e=>{e.stopPropagation();onRemove();}} style={{ background:"#FFF0EE", border:"1px solid #E8C0B0", color:"#A04030", width:24, height:24, borderRadius:"50%", cursor:"pointer", fontSize:13, fontFamily:"inherit" }}>×</button>
             : <button onClick={e=>{e.stopPropagation();onAdd();}} disabled={!canAdd} style={{ background:canAdd?"#2A2010":"#EDE8DC", border:"none", color:canAdd?"#E8D090":"#B0A080", width:24, height:24, borderRadius:"50%", cursor:canAdd?"pointer":"not-allowed", fontSize:17, fontFamily:"inherit", lineHeight:"24px", textAlign:"center" }}>+</button>
@@ -214,20 +227,20 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
       {expanded && (
         <div style={{ padding:"8px 12px 12px", borderTop:"1px solid #F0EAE0", background:"#FDFAF6" }}>
           <div style={{ display:"flex", gap:18, flexWrap:"wrap", marginBottom:8 }}>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3 }}>難易度</div><DotRating value={piece.difficulty} max={5} color="#E05030" /></div>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3 }}>レア度</div><DotRating value={piece.rarity} max={3} color="#E08030" /></div>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3 }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#8A7020":"#B03020", fontWeight:"bold" }}>{piece.readiness}%</span></div>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3 }}>形式</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.form}</span></div>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3 }}>国</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.country}</span></div>
+            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>難易度</div><DotRating value={piece.difficulty} max={5} color="#E05030" /></div>
+            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>レア度</div><DotRating value={piece.rarity} max={3} color="#E08030" /></div>
+            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#8A7020":"#B03020", fontWeight:"bold" }}>{piece.readiness}%</span></div>
+            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>形式</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.form}</span></div>
+            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>国</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.country}</span></div>
           </div>
-          {piece.reason && <div style={{ fontSize:12, color:"#6A5030", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #F0EAE0", paddingTop:8, marginBottom:8 }}>💡 {piece.reason}</div>}
+          {piece.reason && <div style={{ fontSize:12, color:"#6A5030", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #F0EAE0", paddingTop:8, marginBottom:8, fontFamily:SANS }}>💡 {piece.reason}</div>}
           <div style={{ display:"flex", gap:6 }}>
             {[
               [`https://ja.wikipedia.org/wiki/${encodeURIComponent(piece.composer)}`,"Wikipedia","#2C6B82","#BDD5E5"],
               [`https://imslp.org/wiki/Special:Search/${encodeURIComponent(piece.title)}`,"IMSLP","#5A3A8A","#C5B5D5"],
               [`https://www.youtube.com/results?search_query=${encodeURIComponent(piece.title+" "+piece.composer)}`,"YouTube ▶","#A03020","#E0B0A0"],
             ].map(([href,label,color,border])=>(
-              <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:`1px solid ${border}`, padding:"2px 8px", borderRadius:4 }}>{label}</a>
+              <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:`1px solid ${border}`, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
           </div>
         </div>
@@ -238,30 +251,51 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
 
 // ── Era Ruler ─────────────────────────────────────────────────────────────────
 const EraRuler = ({ pieces }) => {
+  const [heights, setHeights] = useState({});
+  const cardRefs = useRef({});
+
+  useEffect(() => {
+    // Measure actual card heights from the sibling list
+    const newH = {};
+    Object.entries(cardRefs.current).forEach(([id, el]) => {
+      if (el) newH[id] = el.getBoundingClientRect().height;
+    });
+    setHeights(newH);
+  });
+
   if (!pieces.length) return null;
   const groups = [];
   let cur = null;
   pieces.forEach(p => {
-    if (!cur || cur.era !== p.era) { cur = { era:p.era, count:1 }; groups.push(cur); }
-    else cur.count++;
+    if (!cur || cur.era !== p.era) { cur = { era:p.era, ids:[p.id] }; groups.push(cur); }
+    else cur.ids.push(p.id);
   });
+
   return (
-    <div style={{ display:"flex", flexDirection:"column", width:38, flexShrink:0, marginRight:4 }}>
-      {groups.map((g,i) => {
+    <div style={{ display:"flex", flexDirection:"column", width:34, flexShrink:0, marginRight:4 }}>
+      {groups.map((g, i) => {
         const era = ERAS[g.era] || ERAS.modern;
-        const CARD_H = 52; // approx height per card including margin
-        const h = g.count * CARD_H;
+        // Sum measured heights; fallback to 57px per card
+        const FALLBACK = 57;
+        const h = g.ids.reduce((s, id) => s + (heights[id] || FALLBACK), 0);
         return (
-          <div key={i} style={{ height:h, background:era.bg, border:`1px solid ${era.color}33`, borderRadius:4, marginBottom:0, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden", position:"relative" }}>
-            <div style={{ writingMode:"vertical-lr", textOrientation:"mixed", fontSize:10, color:era.color, fontWeight:"bold", letterSpacing:2, userSelect:"none" }}>
+          <div key={i} style={{ height:h, background:era.bg, border:`1px solid ${era.color}33`, borderRadius:4, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden", position:"relative", flexShrink:0 }}>
+            <div style={{ writingMode:"vertical-lr", textOrientation:"mixed", fontSize:10, color:era.color, fontWeight:"bold", letterSpacing:2, userSelect:"none", fontFamily:SANS }}>
               {era.short}
             </div>
-            {i < groups.length-1 && (
-              <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:era.color, opacity:0.3 }} />
-            )}
+            {i < groups.length-1 && <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:era.color, opacity:0.3 }} />}
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// Wrapper to attach refs for ruler height measurement
+const PieceCardWithRef = ({ piece, rulerRef, ...props }) => {
+  return (
+    <div ref={el => { if (rulerRef) rulerRef.current[piece.id] = el; }}>
+      <PieceCard piece={piece} {...props} />
     </div>
   );
 };
@@ -327,7 +361,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
           onFocus={()=>setOpen(true)}
           onKeyDown={handleKey}
           placeholder="曲名・作曲家を検索…"
-          style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"4px 24px 4px 26px",fontFamily:"'EB Garamond','Palatino Linotype',Palatino,serif",fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box",outline:"none"}}
+          style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {inputVal && (
           <span onClick={handleClear} style={{position:"absolute",right:7,fontSize:12,color:"#B0A080",cursor:"pointer",userSelect:"none"}}>×</span>
@@ -340,7 +374,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
             if (item.type==="composer") {
               return (
                 <div key={i} tabIndex={-1} onClick={()=>selectItem(item)}
-                  style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#2A2010",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0"}}
+                  style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#2A2010",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0",fontFamily:SANS}}
                   onMouseEnter={()=>setCursor(i)}>
                   <span style={{fontSize:10,color:"#A09070",background:"#F0EAE0",padding:"1px 6px",borderRadius:8}}>作曲家</span>
                   <span style={{fontWeight:"500"}}>{item.label}</span>
@@ -580,7 +614,7 @@ const PrintPreview = ({ prog, allPool }) => {
 const FONT = "'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,serif";
 
 export default function App() {
-  const [page, setPage] = useState("home");
+  const [page, setPage] = useState("manage");
   const [pieces, setPieces] = useState(SAMPLE_PIECES);
   const [aiPieces, setAiPieces] = useState([]);
   const [programs, setPrograms] = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
@@ -591,6 +625,9 @@ export default function App() {
   const [sortBy, setSortBy] = useState("year");
   const [sortAsc, setSortAsc] = useState(true);
   const [filterMine, setFilterMine] = useState(false);
+  const [filterFav, setFilterFav] = useState(false);
+  const [filterCand, setFilterCand] = useState(false);
+  const [poolStep, setPoolStep] = useState("repertoire");
   const [filterEra, setFilterEra] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -619,9 +656,12 @@ export default function App() {
     const piece = allPool.find(p=>p.id===id);
     if (!piece) return;
     if (prog.pieceIds.includes(id)) { updateProg({pieceIds:prog.pieceIds.filter(x=>x!==id)}); return; }
-    if (totalDuration+piece.duration<=prog.maxDuration)
+    if (totalDuration+piece.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces)
       updateProg({pieceIds:[...prog.pieceIds,id]});
   };
+
+  const toggleFav = (id) => setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:!p.fav}:p));
+  const toggleCandidate = (id) => setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:!p.candidate}:p));
 
   const onDragEnd = () => {
     if (dragId.current==null||dragOver.current==null||dragId.current===dragOver.current) return;
@@ -726,9 +766,10 @@ JSONのみ返してください:
     setSuggestions([]);
   };
 
-  const poolFiltered = allPool
-    .filter(p=>!filterMine||p.mine)
+  const poolFiltered = pieces
     .filter(p=>!filterEra||p.era===filterEra)
+    .filter(p=>!filterFav||p.fav)
+    .filter(p=>!filterCand||p.candidate)
     .filter(p=>searchMatch(p, searchQ))
     .sort((a,b)=>{
       let diff = 0;
@@ -755,9 +796,9 @@ JSONのみ返してください:
     <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
       <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+          <span onClick={()=>setPage("home")} style={{fontSize:26,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
           <nav style={{display:"flex",gap:2}}>
-            {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+            {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
               <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
             ))}
           </nav>
@@ -879,9 +920,9 @@ JSONのみ返してください:
       <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
         <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+            <span onClick={()=>setPage("home")} style={{fontSize:26,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
             <nav style={{display:"flex",gap:2}}>
-              {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+              {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
                 <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"5px 13px 4px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
               ))}
             </nav>
@@ -923,22 +964,21 @@ JSONのみ返してください:
       <FontLoader />
       {/* Header */}
       <header style={{background:"#2A2010",padding:"12px 20px",display:"flex",alignItems:"center",gap:16,flexShrink:0}}>
-        <span onClick={()=>setPage("home")} style={{fontSize:22,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,flexShrink:0,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
+        <span onClick={()=>setPage("home")} style={{fontSize:24,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,flexShrink:0,cursor:"pointer",userSelect:"none"}}>𝄞 Repertia</span>
         <nav style={{display:"flex",gap:2,flexShrink:0}}>
-          {[["home","プログラム"],["manage","レパートリー"],["print","印刷・出力"]].map(([p,l])=>(
+          {[["manage","レパートリー"],["home","プログラム"],["print","印刷・出力"]].map(([p,l])=>(
             <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"rgba(200,168,96,0.18)":"transparent",border:"none",borderBottom:page===p?"2px solid #C8A860":"2px solid transparent",color:"#F5F0E8",padding:"4px 13px 3px",cursor:"pointer",fontSize:12,letterSpacing:0.5,fontFamily:"'EB Garamond','Cormorant Garamond',serif",borderRadius:0,transition:"all 0.15s",opacity:page===p?1:0.75}}>{l}</button>
           ))}
         </nav>
         <div style={{flex:1}} />
         <div style={{display:"flex",gap:12,alignItems:"center"}}>
-          {[["TIME",prog.maxDuration,"maxDuration","分"]].map(([l,val,k,u])=>(
+          {[["TIME",prog.maxDuration,"maxDuration","分"],["曲数",prog.maxPieces,"maxPieces","曲"]].map(([l,val,k,u])=>(
             <div key={k} style={{display:"flex",alignItems:"center",gap:5}}>
-              <span style={{fontSize:9,color:"#C8A860",letterSpacing:2}}>{l}</span>
+              <span style={{fontSize:9,color:"#C8A860",letterSpacing:2,fontFamily:SANS}}>{l}</span>
               <input type="number" value={val} onChange={e=>updateProg({[k]:+e.target.value})} style={{width:44,background:"#3A3020",border:"1px solid #C8A860",color:"#F5F0E8",fontSize:16,fontFamily:FONT,textAlign:"center",padding:"2px 4px",borderRadius:4}} />
-              <span style={{fontSize:10,color:"#C8A860"}}>{u}</span>
+              <span style={{fontSize:10,color:"#C8A860",fontFamily:SANS}}>{u}</span>
             </div>
           ))}
-          <span style={{fontSize:10,color:"#C8A86088",letterSpacing:1}}>曲数制限なし</span>
           <button onClick={()=>setShowConstraints(!showConstraints)} style={{background:showConstraints?"#C8A860":"transparent",border:"1px solid #C8A860",color:showConstraints?"#2A2010":"#C8A860",padding:"4px 10px",cursor:"pointer",fontSize:10,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>縛り</button>
         </div>
       </header>
@@ -986,7 +1026,7 @@ JSONのみ返してください:
         <div style={{width:"42%",borderRight:"2px solid #D8D0C0",display:"flex",flexDirection:"column",overflow:"hidden"}}>
           <div style={{padding:"12px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-              <span style={{fontSize:10,letterSpacing:3,color:"#8A7050"}}>{prog.pieceIds.length}曲</span>
+              <span style={{fontSize:10,letterSpacing:3,color:"#8A7050",fontFamily:SANS}}>{prog.pieceIds.length}/{prog.maxPieces}曲</span>
               <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>{totalDuration}分 / {prog.maxDuration}分　<span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050"}}>{remaining>=0?`残り${remaining}分`:`${Math.abs(remaining)}分超過`}</span></span>
             </div>
             <div style={{height:5,background:"#D8D0C0",borderRadius:3,overflow:"hidden"}}>
@@ -1059,57 +1099,105 @@ JSONのみ返してください:
           </div>
         </div>
 
-        {/* RIGHT: Pool */}
+        {/* RIGHT: Pool — Step UI */}
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          {/* Filters */}
-          <div style={{padding:"10px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
-            {/* Search with dropdown */}
-            <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={allPool} />
-            <div style={{display:"flex",gap:0,alignItems:"center"}}>
-              <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{...sel(),borderRadius:"4px 0 0 4px",borderRight:"none"}}>
-                <option value="year">作曲年順</option>
-                <option value="composerBorn">作曲家順（生まれ年）</option>
-                <option value="duration">演奏時間順</option>
-                <option value="difficulty">難易度順</option>
-                <option value="readiness">仕上がり順</option>
-              </select>
-              <button onClick={()=>setSortAsc(v=>!v)} title={sortAsc?"昇順":"降順"}
-                style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 8px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:"0 4px 4px 0",lineHeight:1}}>
-                {sortAsc ? "▲" : "▼"}
+
+          {/* Step Tabs */}
+          <div style={{padding:"0 16px",background:"#F8F4EE",borderBottom:"1px solid #E8E0D0",display:"flex",gap:0,flexShrink:0}}>
+            {[["repertoire","① レパートリーから選ぶ"],["discover","② 新しい曲を探す（AI）"]].map(([k,l])=>(
+              <button key={k} onClick={()=>setPoolStep(k)}
+                style={{background:"none",border:"none",borderBottom:poolStep===k?"3px solid #8B5E3C":"3px solid transparent",color:poolStep===k?"#2A2010":"#8A7050",padding:"10px 14px 8px",cursor:"pointer",fontSize:11,fontFamily:SANS,fontWeight:poolStep===k?500:400,transition:"all 0.15s",whiteSpace:"nowrap"}}>
+                {l}
               </button>
-            </div>
-            <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={sel()}>
-              <option value="">全時代</option>
-              {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
-            </select>
-            <button onClick={()=>setFilterMine(!filterMine)} style={{background:filterMine?"#2A2010":"white",border:"1px solid #2A2010",color:filterMine?"#C8A860":"#2A2010",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:4}}>自分の曲のみ</button>
-            <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto"}}>{poolFiltered.length}曲</span>
+            ))}
           </div>
 
-          {/* Pool with optional era ruler */}
-          <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
-            {poolFiltered.length===0
-              ? <div style={{textAlign:"center",color:"#B0A080",padding:"48px",fontSize:13}}>該当する曲がありません</div>
-              : (
-                <div style={{display:"flex",gap:0}}>
-                  {showRuler && <EraRuler pieces={poolFiltered} />}
-                  <div style={{flex:1}}>
-                    {poolFiltered.map(p=>(
-                      <PieceCard key={p.id} piece={p}
-                        inProgram={prog.pieceIds.includes(p.id)}
-                        canAdd={totalDuration+p.duration<=prog.maxDuration && !prog.pieceIds.includes(p.id)}
-                        onAdd={()=>toggle(p.id)}
-                        onRemove={()=>toggle(p.id)}
-                        expanded={expandedId===p.id}
-                        onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
-                        isAI={!p.mine}
-                      />
-                    ))}
-                  </div>
+          {poolStep==="repertoire" ? (
+            <>
+              <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
+                <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pieces} />
+                <div style={{display:"flex",gap:0,alignItems:"center"}}>
+                  <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{...sel(),borderRadius:"4px 0 0 4px",borderRight:"none",fontFamily:SANS,fontSize:11}}>
+                    <option value="year">作曲年順</option>
+                    <option value="composerBorn">作曲家（生まれ年）</option>
+                    <option value="duration">演奏時間順</option>
+                    <option value="difficulty">難易度順</option>
+                    <option value="readiness">仕上がり順</option>
+                  </select>
+                  <button onClick={()=>setSortAsc(v=>!v)}
+                    style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 8px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:"0 4px 4px 0",lineHeight:1}}>
+                    {sortAsc ? "▲" : "▼"}
+                  </button>
                 </div>
-              )
-            }
-          </div>
+                <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11}}>
+                  <option value="">全時代</option>
+                  {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+                </select>
+                <button onClick={()=>setFilterFav(!filterFav)}
+                  title="お気に入りのみ"
+                  style={{background:filterFav?"#C03050":"white",border:`1px solid ${filterFav?"#C03050":"#D8D0C0"}`,color:filterFav?"white":"#8A7050",padding:"4px 9px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>♥</button>
+                <button onClick={()=>setFilterCand(!filterCand)}
+                  title="候補のみ"
+                  style={{background:filterCand?"#C8A030":"white",border:`1px solid ${filterCand?"#C8A030":"#D8D0C0"}`,color:filterCand?"white":"#8A7050",padding:"4px 9px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>★</button>
+                <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{poolFiltered.length}曲</span>
+              </div>
+              <div style={{flex:1,overflowY:"auto",padding:"10px 12px"}}>
+                {poolFiltered.length===0
+                  ? <div style={{textAlign:"center",color:"#B0A080",padding:"48px",fontSize:13,fontFamily:SANS}}>該当する曲がありません</div>
+                  : (
+                    <div style={{display:"flex",gap:0}}>
+                      {showRuler && <EraRuler pieces={poolFiltered} />}
+                      <div style={{flex:1}}>
+                        {poolFiltered.map(p=>(
+                          <PieceCard key={p.id} piece={p}
+                            inProgram={prog.pieceIds.includes(p.id)}
+                            canAdd={totalDuration+p.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces && !prog.pieceIds.includes(p.id)}
+                            onAdd={()=>toggle(p.id)}
+                            onRemove={()=>toggle(p.id)}
+                            expanded={expandedId===p.id}
+                            onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
+                            isAI={false}
+                            onToggleFav={()=>toggleFav(p.id)}
+                            onToggleCandidate={()=>toggleCandidate(p.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={aiPieces} />
+                <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{aiPieces.length}件</span>
+              </div>
+              <div style={{flex:1,overflowY:"auto",padding:"10px 12px"}}>
+                <button onClick={askAI} disabled={aiLoading} style={{width:"100%",marginBottom:12,padding:"11px",background:aiLoading?"#EDE8DC":"#2A2010",color:aiLoading?"#8A7050":"#C8A860",border:"none",cursor:aiLoading?"wait":"pointer",fontSize:11,letterSpacing:3,fontFamily:"inherit",borderRadius:6}}>
+                  {aiLoading?"✦ 考えています…":"✦ AIに曲を提案してもらう"}
+                </button>
+                {aiPieces.filter(p=>searchMatch(p,searchQ)).map(p=>(
+                  <PieceCard key={p.id} piece={p}
+                    inProgram={prog.pieceIds.includes(p.id)}
+                    canAdd={totalDuration+p.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces && !prog.pieceIds.includes(p.id)}
+                    onAdd={()=>toggle(p.id)}
+                    onRemove={()=>toggle(p.id)}
+                    expanded={expandedId===p.id}
+                    onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
+                    isAI={true}
+                    onToggleFav={null}
+                    onToggleCandidate={null}
+                  />
+                ))}
+                {aiPieces.length===0 && !aiLoading && (
+                  <div style={{textAlign:"center",color:"#B0A080",padding:"32px 16px",border:"2px dashed #D8D0C0",borderRadius:8,fontSize:13,lineHeight:2,fontFamily:SANS}}>
+                    上のボタンを押すとAIが<br/>プログラムに合う曲を提案します
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
