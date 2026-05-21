@@ -1025,7 +1025,9 @@ JSONのみ返してください:
                   {composerSuggestions.length>0 && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)"}}>
                       {composerSuggestions.map((name,i)=>(
-                        <div key={i} onClick={()=>selectComposer(name)}
+                        <div key={i}
+                          onMouseDown={e=>e.preventDefault()}
+                          onClick={()=>selectComposer(name)}
                           style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#2A2010",borderBottom:"1px solid #F0EAE0",fontFamily:SANS}}
                           onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
                           onMouseLeave={e=>e.currentTarget.style.background="white"}>{name}</div>
@@ -1046,7 +1048,9 @@ JSONのみ返してください:
                   {suggestions.length>0 && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",maxHeight:300,overflowY:"auto"}}>
                       {suggestions.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
-                        <div key={i} onClick={()=>selectSuggestion(s)}
+                        <div key={i}
+                          onMouseDown={e=>e.preventDefault()}
+                          onClick={()=>selectSuggestion(s)}
                           style={{padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid #F0EAE0",display:"flex",alignItems:"center",gap:10}}
                           onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
                           onMouseLeave={e=>e.currentTarget.style.background="white"}>
