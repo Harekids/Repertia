@@ -300,101 +300,162 @@ const PieceCardWithRef = ({ piece, rulerRef, ...props }) => {
   );
 };
 
-// ── SearchBox with keyboard navigation ────────────────────────────────────────
+// ── Multilingual composer prefix map (③ for fast prefix search) ──────────────
+const COMPOSER_PREFIXES = [
+  // C
+  { prefix:["c","ch","cho","chop","chopin"], name:"ショパン",  aliases:["Chopin","フレデリック"] },
+  { prefix:["c","cz","cze","czer","czern"], name:"ツェルニー", aliases:["Czerny","Carl"] },
+  { prefix:["c","cl","cla","clau"],          name:"ドビュッシー",aliases:["Claude","Debussy"] },
+  { prefix:["c","co","cor"],                 name:"コレッリ",   aliases:["Corelli"] },
+  // B
+  { prefix:["b","ba","bac","bach"],          name:"J.S.バッハ", aliases:["Bach","Johann"] },
+  { prefix:["b","be","bee","beet"],          name:"ベートーヴェン",aliases:["Beethoven","Ludwig"] },
+  { prefix:["b","br","bra","brah"],          name:"ブラームス", aliases:["Brahms","Johannes"] },
+  { prefix:["b","bo","bor"],                 name:"ボロディン",  aliases:["Borodin"] },
+  // S
+  { prefix:["s","sc","sch","schu","schub"],  name:"シューベルト",aliases:["Schubert","Franz"] },
+  { prefix:["s","sc","sch","schu","schum"],  name:"シューマン",  aliases:["Schumann","Robert"] },
+  { prefix:["s","sc","scr","scri"],          name:"スクリャービン",aliases:["Scriabin","Alexander"] },
+  { prefix:["s","sa","sai"],                 name:"サン＝サーンス",aliases:["Saint-Saens"] },
+  { prefix:["s","si","sib"],                 name:"シベリウス",  aliases:["Sibelius","Jean"] },
+  { prefix:["s","sk","ska","skal"],          name:"スカルラッティ",aliases:["Scarlatti","Domenico"] },
+  // M
+  { prefix:["m","mo","moz","moza"],          name:"モーツァルト",aliases:["Mozart","Wolfgang"] },
+  { prefix:["m","me","men","mend"],          name:"メンデルスゾーン",aliases:["Mendelssohn","Felix"] },
+  // L
+  { prefix:["l","li","lis","lisz"],          name:"リスト",      aliases:["Liszt","Franz"] },
+  // R
+  { prefix:["r","ra","rav","rave"],          name:"ラヴェル",    aliases:["Ravel","Maurice"] },
+  { prefix:["r","ra","rac","rach"],          name:"ラフマニノフ", aliases:["Rachmaninoff","Sergei"] },
+  // H
+  { prefix:["h","ha","hay","hayd"],          name:"ハイドン",    aliases:["Haydn","Joseph"] },
+  { prefix:["h","ha","han","hand"],          name:"ヘンデル",    aliases:["Handel","George"] },
+  // D
+  { prefix:["d","de","deb","debu"],          name:"ドビュッシー",aliases:["Debussy","Claude"] },
+  // P
+  { prefix:["p","pr","pro","prok"],          name:"プロコフィエフ",aliases:["Prokofiev","Sergei"] },
+  // T
+  { prefix:["t","tc","tch","tcha"],          name:"チャイコフスキー",aliases:["Tchaikovsky","Pyotr"] },
+  // G
+  { prefix:["g","gr","gri","grie"],          name:"グリーグ",    aliases:["Grieg","Edvard"] },
+  // F
+  { prefix:["f","fa","fau","faur"],          name:"フォーレ",    aliases:["Fauré","Gabriel"] },
+  // V
+  { prefix:["v","vi","viv","viva"],          name:"ヴィヴァルディ",aliases:["Vivaldi","Antonio"] },
+];
+
 const buildSuggestions = (q, pool) => {
-  if (!q.trim() || q.length < 1) return [];
-  const lower = q.toLowerCase();
+  if (!q.trim()) return [];
+  const lower = q.toLowerCase().trim();
+
+  // ③ prefix-based composer matches (works for "c"→Chopin/Czerny etc.)
+  const prefixComposers = COMPOSER_PREFIXES
+    .filter(entry => entry.prefix.some(p => lower === p || lower.startsWith(p) || p.startsWith(lower)))
+    .map(entry => entry.name)
+    .filter(name => pool.some(p => p.composer.includes(name) || name.includes(p.composer.split("").slice(0,2).join(""))));
+
+  // existing searchMatch-based matches
   const matched = pool.filter(p => searchMatch(p, q));
-  // Unique composers first, then titles
-  const composers = [...new Set(matched.map(p=>p.composer))].slice(0,3);
-  const titles = matched.map(p=>({type:"piece", piece:p})).slice(0,6);
+  const matchedComposers = [...new Set(matched.map(p=>p.composer))];
+
+  // merge, deduplicate
+  const allComposers = [...new Set([...prefixComposers, ...matchedComposers])].slice(0,4);
+  const titles = matched.slice(0,5).map(p=>({type:"piece", piece:p}));
+
   return [
-    ...composers.map(c=>({type:"composer", label:c})),
+    ...allComposers.map(c=>({type:"composer", label:c})),
     ...titles,
   ].slice(0,8);
 };
 
+// ② Fixed SearchBox — inputVal is fully controlled internally, no sync issue
 const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen]     = useState(false);
   const [cursor, setCursor] = useState(-1);
-  const [inputVal, setInputVal] = useState(searchQ);
-  const ref = useRef(null);
+  const inputRef = useRef(null);
+  const boxRef   = useRef(null);
 
-  const candidates = buildSuggestions(inputVal, allPool);
+  // ② Use a ref for the raw input value to avoid stale closure
+  const localVal = useRef(searchQ);
+  const [displayVal, setDisplayVal] = useState(searchQ);
+
+  const candidates = buildSuggestions(displayVal, allPool);
+
+  const handleChange = (e) => {
+    const v = e.target.value;
+    localVal.current = v;
+    setDisplayVal(v);
+    setSearchQ(v);
+    setOpen(true);
+    setCursor(-1);
+  };
 
   const handleKey = (e) => {
-    if (!open || candidates.length === 0) return;
-    if (e.key === "ArrowDown") { e.preventDefault(); setCursor(c=>Math.min(c+1,candidates.length-1)); }
+    if (e.key === "ArrowDown") { e.preventDefault(); setOpen(true); setCursor(c=>Math.min(c+1,(candidates.length||1)-1)); }
     else if (e.key === "ArrowUp") { e.preventDefault(); setCursor(c=>Math.max(c-1,-1)); }
     else if (e.key === "Enter") {
-      if (cursor >= 0) {
-        const sel = candidates[cursor];
-        const val = sel.type==="composer" ? sel.label : (sel.piece?.title || "");
-        setInputVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
-      } else {
-        setSearchQ(inputVal); setOpen(false);
-      }
+      if (cursor >= 0 && candidates[cursor]) {
+        const item = candidates[cursor];
+        const val = item.type==="composer" ? item.label : (item.piece?.title||"");
+        localVal.current = val; setDisplayVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
+      } else { setOpen(false); }
     } else if (e.key === "Escape") { setOpen(false); setCursor(-1); }
   };
 
   const selectItem = (item) => {
-    const val = item.type==="composer" ? item.label : (item.piece?.title || "");
-    setInputVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
+    const val = item.type==="composer" ? item.label : (item.piece?.title||"");
+    localVal.current = val; setDisplayVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
   };
 
-  const handleChange = (e) => {
-    setInputVal(e.target.value); setSearchQ(e.target.value); setOpen(true); setCursor(-1);
-  };
-
-  const handleClear = () => { setInputVal(""); setSearchQ(""); setOpen(false); };
-
-  // Close on outside click
-  const boxRef = useRef(null);
-  const handleBlur = (e) => { if (!boxRef.current?.contains(e.relatedTarget)) { setOpen(false); setCursor(-1); } };
+  const handleClear = () => { localVal.current=""; setDisplayVal(""); setSearchQ(""); setOpen(false); };
+  const handleBlur  = (e) => { if (!boxRef.current?.contains(e.relatedTarget)) { setOpen(false); setCursor(-1); } };
 
   return (
-    <div ref={boxRef} style={{position:"relative",width:180}} onBlur={handleBlur}>
+    <div ref={boxRef} style={{position:"relative",width:190}} onBlur={handleBlur}>
       <div style={{position:"relative",display:"flex",alignItems:"center"}}>
         <span style={{position:"absolute",left:8,fontSize:11,color:"#A09070",pointerEvents:"none"}}>🔍</span>
-        <input ref={ref} value={inputVal}
+        <input
+          ref={inputRef}
+          value={displayVal}
           onChange={handleChange}
-          onFocus={()=>setOpen(true)}
+          onFocus={()=>{ setOpen(true); }}
           onKeyDown={handleKey}
           placeholder="曲名・作曲家を検索…"
-          style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box",outline:"none"}}
+          autoComplete="off"
+          style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",
+            padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,
+            width:"100%",boxSizing:"border-box",outline:"none"}}
         />
-        {inputVal && (
+        {displayVal && (
           <span onClick={handleClear} style={{position:"absolute",right:7,fontSize:12,color:"#B0A080",cursor:"pointer",userSelect:"none"}}>×</span>
         )}
       </div>
       {open && candidates.length>0 && (
-        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:200,boxShadow:"0 4px 16px rgba(0,0,0,0.13)",maxHeight:260,overflowY:"auto",marginTop:2}}>
-          {candidates.map((item,i)=>{
+        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",
+          borderRadius:6,zIndex:200,boxShadow:"0 4px 16px rgba(0,0,0,0.13)",maxHeight:280,overflowY:"auto",marginTop:2}}>
+          {candidates.map((item,i) => {
             const isActive = i===cursor;
-            if (item.type==="composer") {
-              return (
-                <div key={i} tabIndex={-1} onClick={()=>selectItem(item)}
-                  style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#2A2010",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0",fontFamily:SANS}}
-                  onMouseEnter={()=>setCursor(i)}>
-                  <span style={{fontSize:10,color:"#A09070",background:"#F0EAE0",padding:"1px 6px",borderRadius:8}}>作曲家</span>
-                  <span style={{fontWeight:"500"}}>{item.label}</span>
+            if (item.type==="composer") return (
+              <div key={i} tabIndex={-1} onClick={()=>selectItem(item)} onMouseEnter={()=>setCursor(i)}
+                style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#2A2010",
+                  background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,
+                  borderBottom:"1px solid #F0EAE0",fontFamily:SANS}}>
+                <span style={{fontSize:10,color:"#A09070",background:"#F0EAE0",padding:"1px 6px",borderRadius:8}}>作曲家</span>
+                <span style={{fontWeight:500}}>{item.label}</span>
+              </div>
+            );
+            const p = item.piece; const era = ERAS[p.era]||ERAS.modern;
+            return (
+              <div key={i} tabIndex={-1} onClick={()=>selectItem(item)} onMouseEnter={()=>setCursor(i)}
+                style={{padding:"7px 12px",cursor:"pointer",background:isActive?"#FDF5ED":"white",
+                  display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0"}}>
+                <div style={{width:3,height:30,background:era.color,borderRadius:2,flexShrink:0}} />
+                <div>
+                  <div style={{fontSize:12,color:"#2A2010"}}>{p.title}</div>
+                  <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer}　{p.year}年</div>
                 </div>
-              );
-            } else {
-              const p = item.piece;
-              const era = ERAS[p.era]||ERAS.modern;
-              return (
-                <div key={i} tabIndex={-1} onClick={()=>selectItem(item)}
-                  style={{padding:"7px 12px",cursor:"pointer",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0"}}
-                  onMouseEnter={()=>setCursor(i)}>
-                  <div style={{width:3,height:30,background:era.color,borderRadius:2,flexShrink:0}} />
-                  <div>
-                    <div style={{fontSize:12,color:"#2A2010"}}>{p.title}</div>
-                    <div style={{fontSize:10,color:"#8A7050"}}>{p.composer}　{p.year}年</div>
-                  </div>
-                </div>
-              );
-            }
+              </div>
+            );
           })}
         </div>
       )}
@@ -630,7 +691,8 @@ export default function App() {
   const [filterEra, setFilterEra]             = useState("");
   const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
   const [searchQ, setSearchQ]                 = useState("");
-  const [poolMode, setPoolMode]               = useState("none"); // ③ "none"|"repertoire"|"ai"|"both"
+  const [poolMode, setPoolMode]               = useState("none");
+  const [editMode, setEditMode]               = useState(false); // ⑦ manage page edit mode
   const [aiLoading, setAiLoading]             = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [constraints, setConstraints]         = useState({ requireEras:[] });
@@ -797,23 +859,13 @@ JSONのみ返してください:
           </button>
         ))}
       </nav>
-      {page==="manage" && (
-        <div style={{marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:20}}>
-          <button onClick={()=>setShowAdd(!showAdd)}
-            style={{background:showAdd?"#C8A860":"transparent",border:"1px solid #C8A860",
-              color:showAdd?"#2A2010":"#C8A860",padding:"5px 14px",cursor:"pointer",
-              fontSize:11,fontFamily:SANS,borderRadius:4}}>
-            {showAdd ? "× 閉じる" : "＋ 曲を追加"}
-          </button>
-        </div>
-      )}
     </header>
   );
 
   // ── Sort buttons (shared between manage & program pages) ─────────────────────
   const SortButtons = () => (
     <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
-      {[["year","作曲年"],["composerBorn","作曲家"],["duration","時間"],["difficulty","難易度"],["readiness","仕上がり"]].map(([k,l])=>(
+      {[["year","作曲年"],["composerBorn","作曲家"],["duration","演奏時間"],["difficulty","難易度"]].map(([k,l])=>(
         <button key={k} onClick={()=>{ if(sortBy===k) setSortAsc(v=>!v); else{ setSortBy(k); setSortAsc(true); }}}
           style={{background:sortBy===k?"#2A2010":"white",border:`1px solid ${sortBy===k?"#2A2010":"#D8D0C0"}`,
             color:sortBy===k?"#C8A860":"#6A5030",padding:"3px 7px",cursor:"pointer",
@@ -835,12 +887,11 @@ JSONのみ返してください:
         <option value="">全時代</option>
         {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
       </select>
-      {/* ④ ♥★ まとめてプルダウン */}
+      {/* ① ❤️のみのフィルター */}
       <select value={filterMark} onChange={e=>setFilterMark(e.target.value)}
         style={{...sel(),fontFamily:SANS,fontSize:11,minWidth:80}}>
         <option value="all">すべて</option>
         <option value="fav">❤️ お気に入り</option>
-        <option value="candidate">⭐️ 候補</option>
       </select>
       <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{poolFiltered.length}曲</span>
     </div>
@@ -923,6 +974,23 @@ JSONのみ返してください:
   const ManagePage = () => (
     <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:900,margin:"0 auto",padding:"24px 28px"}}>
+
+        {/* ⑥ 曲を追加ボタン & 編集モードトグル — ページ内に移動 */}
+        <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
+          <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
+            style={{background:showAdd?"#C8A860":"#2A2010",border:"none",color:showAdd?"#2A2010":"#C8A860",
+              padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
+            {showAdd ? "× 閉じる" : "＋ 曲を追加"}
+          </button>
+          <button onClick={()=>{ setEditMode(!editMode); setShowAdd(false); }}
+            style={{background:editMode?"#8B3A3A":"white",border:`1px solid ${editMode?"#8B3A3A":"#D8D0C0"}`,
+              color:editMode?"white":"#6A5030",padding:"7px 16px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+            {editMode ? "✓ 完了" : "✎ 編集"}
+          </button>
+          <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,marginLeft:4}}>{pieces.length}曲</span>
+        </div>
+
+        {/* 曲追加フォーム */}
         {showAdd && (
           <div style={{background:"white",border:"1.5px solid #D4A574",borderRadius:8,padding:24,marginBottom:24}}>
             <div style={{fontSize:12,letterSpacing:2,color:"#8A7050",marginBottom:14,fontFamily:SANS}}>新しい曲を追加</div>
@@ -971,8 +1039,9 @@ JSONのみ返してください:
                 </div>
               </div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:12}}>
-              {[["year","作曲年"],["duration","時間(分)"],["readiness","仕上がり%"],["difficulty","難易度(1-5)"],["rarity","レア度(1-3)"]].map(([f,l])=>(
+            {/* ④ 仕上がり削除 — 4項目に */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:12}}>
+              {[["year","作曲年"],["duration","演奏時間(分)"],["difficulty","難易度(1-5)"],["rarity","レア度(1-3)"]].map(([f,l])=>(
                 <div key={f}><div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>{l}</div>
                   <input type="number" value={newPiece[f]} onChange={e=>setNewPiece({...newPiece,[f]:+e.target.value})} style={inp()} /></div>
               ))}
@@ -989,30 +1058,50 @@ JSONのみ返してください:
             </div>
           </div>
         )}
+
         {/* Filter bar */}
         <FilterBar pool={pieces} />
         <div style={{height:10}} />
+
+        {/* Piece list */}
         {poolFiltered.map(p => {
           const era = ERAS[p.era]||ERAS.modern;
           return (
-            <div key={p.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 16px",background:"white",border:"1.5px solid #E8E0D0",borderLeft:`4px solid ${era.color}`,borderRadius:6,marginBottom:5}}>
+            <div key={p.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",
+              background:"white",border:"1.5px solid #E8E0D0",borderLeft:`4px solid ${era.color}`,
+              borderRadius:6,marginBottom:5}}>
+
+              {/* ⑦ 編集モード：「－」ボタン */}
+              {editMode && (
+                <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))}
+                  style={{background:"#8B3A3A",border:"none",color:"white",width:22,height:22,
+                    borderRadius:"50%",cursor:"pointer",fontSize:14,lineHeight:"22px",textAlign:"center",
+                    flexShrink:0,fontFamily:"inherit"}}>－</button>
+              )}
+
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:13,color:"#2A2010",marginBottom:2,display:"flex",alignItems:"center",gap:4}}>
-                  {/* ⑤ badge */}
                   {p.mine ? <span title="自分の曲" style={{fontSize:11}}>🎹</span> : <span title="AIサンプル" style={{fontSize:10,color:"#5A3A8A",fontWeight:"bold"}}>✦</span>}
-                  {p.fav && <span style={{color:"#C03050",fontSize:11}}>❤️</span>}
-                  {p.candidate && <span style={{fontSize:11}}>⭐️</span>}
                   <span style={{marginLeft:2}}>{p.title}</span>
                 </div>
                 <div style={{fontSize:11,color:"#8A7050",display:"flex",gap:8,flexWrap:"wrap",fontFamily:SANS}}>
-                  <span>{p.composer}</span><span>·</span><span>{p.year}年</span><span>·</span><span>{era.label}</span><span>·</span><span>{p.key}</span><span>·</span><span>{p.duration}分</span>
+                  <span>{p.composer}</span><span>·</span><span>{p.year}年</span><span>·</span>
+                  <span>{era.label}</span><span>·</span><span>{p.key}</span><span>·</span><span>{p.duration}分</span>
                 </div>
               </div>
-              <button onClick={()=>toggleFav(p.id)} style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8D0C0",fontSize:14,cursor:"pointer",padding:"0 2px"}}>❤️</button>
-              <button onClick={()=>toggleCandidate(p.id)} style={{background:"none",border:"none",color:p.candidate?"#C8A030":"#D8D0C0",fontSize:14,cursor:"pointer",padding:"0 2px"}}>⭐️</button>
+
+              {/* ① ❤️ — 枠線のみ→クリックで塗りつぶし */}
+              <button onClick={()=>toggleFav(p.id)}
+                title={p.fav?"お気に入り解除":"お気に入りに追加"}
+                style={{background:"none",border:`1.5px solid ${p.fav?"#C03050":"#D8C0C8"}`,
+                  color:p.fav?"#C03050":"transparent",fontSize:13,cursor:"pointer",
+                  padding:"2px 6px",borderRadius:4,lineHeight:1,transition:"all 0.15s",
+                  textShadow:p.fav?"none":"none"}}>
+                {p.fav ? "❤️" : <span style={{color:"#C03050",opacity:0.35,fontSize:12}}>♡</span>}
+              </button>
+
+              {/* ④ 仕上がり削除済み */}
               <DotRating value={p.difficulty} max={5} color="#E05030" />
-              <span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#B03020",width:32,textAlign:"right",fontFamily:SANS}}>{p.readiness}%</span>
-              <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))} style={{background:"none",border:"1px solid #E8C0B0",color:"#C09090",padding:"3px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>削除</button>
             </div>
           );
         })}
