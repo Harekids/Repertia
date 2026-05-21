@@ -1,4 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+// ── Google Fonts ──────────────────────────────────────────────────────────────
+const FontLoader = () => {
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap";
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+  return null;
+};
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
@@ -13,6 +25,36 @@ const ERA_ORDER = ["baroque","classical","romantic","modern","contemporary"];
 const COUNTRIES = ["ドイツ","オーストリア","フランス","ポーランド","ロシア","イタリア","スペイン","ノルウェー","フィンランド","ハンガリー","チェコ","アメリカ","日本","その他"];
 const KEYS = ["ハ長調","ニ長調","ホ長調","ヘ長調","ト長調","イ長調","ロ長調","変ロ長調","変ホ長調","変イ長調","変ニ長調","嬰ヘ長調","イ短調","ロ短調","ハ短調","ニ短調","ホ短調","ヘ短調","ト短調","嬰ト短調","変ロ短調","嬰ハ短調","嬰ヘ短調","変ホ短調"];
 const FORMS = ["ソナタ","組曲","変奏曲","バラード","スケルツォ","夜想曲","即興曲","練習曲","前奏曲","幻想曲","舞曲","協奏曲","小品","その他"];
+
+// Composer birth years for born-year sorting
+const COMPOSER_BORN = {
+  "J.S.バッハ":1685, "バッハ":1685, "Bach":1685,
+  "ヘンデル":1685, "Handel":1685,
+  "ヴィヴァルディ":1678, "Vivaldi":1678,
+  "スカルラッティ":1685, "Scarlatti":1685,
+  "ハイドン":1732, "Haydn":1732,
+  "モーツァルト":1756, "Mozart":1756,
+  "ベートーヴェン":1770, "Beethoven":1770,
+  "シューベルト":1797, "Schubert":1797,
+  "メンデルスゾーン":1809, "Mendelssohn":1809,
+  "ショパン":1810, "Chopin":1810,
+  "シューマン":1810, "Schumann":1810,
+  "リスト":1811, "Liszt":1811,
+  "ブラームス":1833, "Brahms":1833,
+  "サン＝サーンス":1835, "Saint-Saëns":1835,
+  "チャイコフスキー":1840, "Tchaikovsky":1840,
+  "グリーグ":1843, "Grieg":1843,
+  "ファリャ":1876, "Falla":1876,
+  "ラフマニノフ":1873, "Rachmaninoff":1873,
+  "スクリャービン":1872, "Scriabin":1872,
+  "ドビュッシー":1862, "Debussy":1862,
+  "ラヴェル":1875, "Ravel":1875,
+  "フォーレ":1845, "Fauré":1845,
+  "シベリウス":1865, "Sibelius":1865,
+  "バルトーク":1881, "Bartók":1881,
+  "プロコフィエフ":1891, "Prokofiev":1891,
+  "ショスタコーヴィチ":1906, "Shostakovich":1906,
+};
 
 const SAMPLE_PIECES = [
   { id:1,  title:"平均律クラヴィーア第1巻 BWV846", composer:"J.S.バッハ",     year:1722, country:"ドイツ",      key:"ハ長調",   duration:4,  readiness:90, difficulty:3, rarity:1, form:"前奏曲", era:"baroque"   },
@@ -33,7 +75,103 @@ const EMPTY_PIECE = { title:"", composer:"", year:1900, country:"ドイツ", key
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:5, pieceIds:[] });
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Multilingual Search Aliases ───────────────────────────────────────────────
+const SEARCH_ALIASES = {
+  // J.S. Bach
+  "J.S.バッハ":  ["bach","バッハ","j.s.bach","ヨハン・ゼバスティアン・バッハ","バッハ・ヨハン","johannes sebastian"],
+  // Mozart
+  "モーツァルト": ["mozart","モーツアルト","ヴォルフガング・アマデウス","wolfgangamadjus","amadeus"],
+  // Beethoven
+  "ベートーヴェン":["beethoven","ベートーベン","ベートーヴェン","ludwig","ルートヴィヒ"],
+  // Chopin
+  "ショパン":     ["chopin","frédéric","frederic","フレデリック","フリデリク"],
+  // Liszt
+  "リスト":       ["liszt","franz","フランツ","フェレンツ"],
+  // Schumann
+  "シューマン":   ["schumann","robert","ロベルト"],
+  // Debussy
+  "ドビュッシー": ["debussy","claude","クロード","debussi"],
+  // Ravel
+  "ラヴェル":     ["ravel","maurice","モーリス"],
+  // Rachmaninoff
+  "ラフマニノフ":  ["rachmaninoff","rachmaninov","sergei","セルゲイ"],
+  // Prokofiev
+  "プロコフィエフ":["prokofiev","sergei","セルゲイ"],
+  // Schubert
+  "シューベルト": ["schubert","franz","フランツ"],
+  // Brahms
+  "ブラームス":   ["brahms","johannes","ヨハネス"],
+  // Haydn
+  "ハイドン":     ["haydn","joseph","ヨーゼフ"],
+  // Scriabin
+  "スクリャービン":["scriabin","alexander","アレクサンドル"],
+  // Bartók
+  "バルトーク":   ["bartok","bartók","béla","bela","ベーラ"],
+  // Grieg
+  "グリーグ":     ["grieg","edvard","エドヴァルド"],
+  // Fauré
+  "フォーレ":     ["faure","fauré","gabriel","ガブリエル"],
+  // Sibelius
+  "シベリウス":   ["sibelius","jean","ジャン"],
+  // Scarlatti
+  "スカルラッティ":["scarlatti","domenico","ドメニコ"],
+  // Handel
+  "ヘンデル":     ["handel","george frideric","ゲオルク"],
+  // Vivaldi
+  "ヴィヴァルディ":["vivaldi","antonio","アントニオ"],
+  // Tchaikovsky
+  "チャイコフスキー":["tchaikovsky","pyotr","ピョートル","peter"],
+  // Saint-Saëns
+  "サン＝サーンス":["saint-saens","saint-saëns","camille","カミーユ"],
+  // Shostakovich
+  "ショスタコーヴィチ":["shostakovich","dmitri","ドミトリ"],
+};
+
+// Title aliases (alternate/popular names)
+const TITLE_ALIASES = {
+  "月の光":              ["clair de lune","クレール・ド・リュンヌ","moonlight"],
+  "愛の夢":              ["liebestraum","リープトラウム","dream of love"],
+  "英雄":                ["heroique","ポロネーズ英雄"],
+  "革命":                ["revolution","étude op.10 no.12"],
+  "別れの曲":            ["tristesse","op.10 no.3"],
+  "幻想即興曲":          ["fantasie-impromptu","fantaisie impromptu"],
+  "子犬のワルツ":        ["minute waltz","小犬のワルツ"],
+  "雨だれ":              ["raindrop prelude","op.28 no.15"],
+  "悲愴":                ["pathetique","pathétique"],
+  "月光":                ["moonlight sonata","op.27 no.2"],
+  "田園":                ["pastorale","pastoral"],
+  "テンペスト":          ["tempest","storm","嵐"],
+  "熱情":                ["appassionata"],
+  "春":                  ["frühling","printemps","spring"],
+  "子供の情景":          ["kinderszenen","scenes from childhood","scenes d'enfants"],
+};
+
+const searchMatch = (p, q) => {
+  if (!q.trim()) return true;
+  const lower = q.toLowerCase().trim();
+  const title = p.title.toLowerCase();
+  const composer = p.composer.toLowerCase();
+
+  // Direct match
+  if (title.includes(lower) || composer.includes(lower)) return true;
+
+  // Title alias match
+  for (const [canonical, aliases] of Object.entries(TITLE_ALIASES)) {
+    if (canonical.includes(q) || p.title.includes(canonical)) {
+      if (aliases.some(a => a.includes(lower) || lower.includes(a.substring(0,3)))) return true;
+    }
+    if (aliases.some(a => a.includes(lower) || title.includes(a))) return true;
+  }
+
+  // Composer alias match
+  for (const [canonical, aliases] of Object.entries(SEARCH_ALIASES)) {
+    if (p.composer.includes(canonical) || canonical.includes(p.composer)) {
+      if (aliases.some(a => a.includes(lower) || lower.includes(a.substring(0,3)))) return true;
+    }
+  }
+  return false;
+};
+
 const eraFromYear = (y) => {
   for (const k of ERA_ORDER) { const v=ERAS[k]; if(y>=v.year[0]&&y<v.year[1]) return k; }
   return "modern";
@@ -128,7 +266,109 @@ const EraRuler = ({ pieces }) => {
   );
 };
 
-// ── Print Components ──────────────────────────────────────────────────────────
+// ── SearchBox with keyboard navigation ────────────────────────────────────────
+const buildSuggestions = (q, pool) => {
+  if (!q.trim() || q.length < 1) return [];
+  const lower = q.toLowerCase();
+  const matched = pool.filter(p => searchMatch(p, q));
+  // Unique composers first, then titles
+  const composers = [...new Set(matched.map(p=>p.composer))].slice(0,3);
+  const titles = matched.map(p=>({type:"piece", piece:p})).slice(0,6);
+  return [
+    ...composers.map(c=>({type:"composer", label:c})),
+    ...titles,
+  ].slice(0,8);
+};
+
+const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
+  const [open, setOpen] = useState(false);
+  const [cursor, setCursor] = useState(-1);
+  const [inputVal, setInputVal] = useState(searchQ);
+  const ref = useRef(null);
+
+  const candidates = buildSuggestions(inputVal, allPool);
+
+  const handleKey = (e) => {
+    if (!open || candidates.length === 0) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setCursor(c=>Math.min(c+1,candidates.length-1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setCursor(c=>Math.max(c-1,-1)); }
+    else if (e.key === "Enter") {
+      if (cursor >= 0) {
+        const sel = candidates[cursor];
+        const val = sel.type==="composer" ? sel.label : (sel.piece?.title || "");
+        setInputVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
+      } else {
+        setSearchQ(inputVal); setOpen(false);
+      }
+    } else if (e.key === "Escape") { setOpen(false); setCursor(-1); }
+  };
+
+  const selectItem = (item) => {
+    const val = item.type==="composer" ? item.label : (item.piece?.title || "");
+    setInputVal(val); setSearchQ(val); setOpen(false); setCursor(-1);
+  };
+
+  const handleChange = (e) => {
+    setInputVal(e.target.value); setSearchQ(e.target.value); setOpen(true); setCursor(-1);
+  };
+
+  const handleClear = () => { setInputVal(""); setSearchQ(""); setOpen(false); };
+
+  // Close on outside click
+  const boxRef = useRef(null);
+  const handleBlur = (e) => { if (!boxRef.current?.contains(e.relatedTarget)) { setOpen(false); setCursor(-1); } };
+
+  return (
+    <div ref={boxRef} style={{position:"relative",width:180}} onBlur={handleBlur}>
+      <div style={{position:"relative",display:"flex",alignItems:"center"}}>
+        <span style={{position:"absolute",left:8,fontSize:11,color:"#A09070",pointerEvents:"none"}}>🔍</span>
+        <input ref={ref} value={inputVal}
+          onChange={handleChange}
+          onFocus={()=>setOpen(true)}
+          onKeyDown={handleKey}
+          placeholder="曲名・作曲家を検索…"
+          style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"4px 24px 4px 26px",fontFamily:"'EB Garamond','Palatino Linotype',Palatino,serif",fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box",outline:"none"}}
+        />
+        {inputVal && (
+          <span onClick={handleClear} style={{position:"absolute",right:7,fontSize:12,color:"#B0A080",cursor:"pointer",userSelect:"none"}}>×</span>
+        )}
+      </div>
+      {open && candidates.length>0 && (
+        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:200,boxShadow:"0 4px 16px rgba(0,0,0,0.13)",maxHeight:260,overflowY:"auto",marginTop:2}}>
+          {candidates.map((item,i)=>{
+            const isActive = i===cursor;
+            if (item.type==="composer") {
+              return (
+                <div key={i} tabIndex={-1} onClick={()=>selectItem(item)}
+                  style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#2A2010",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0"}}
+                  onMouseEnter={()=>setCursor(i)}>
+                  <span style={{fontSize:10,color:"#A09070",background:"#F0EAE0",padding:"1px 6px",borderRadius:8}}>作曲家</span>
+                  <span style={{fontWeight:"500"}}>{item.label}</span>
+                </div>
+              );
+            } else {
+              const p = item.piece;
+              const era = ERAS[p.era]||ERAS.modern;
+              return (
+                <div key={i} tabIndex={-1} onClick={()=>selectItem(item)}
+                  style={{padding:"7px 12px",cursor:"pointer",background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,borderBottom:"1px solid #F0EAE0"}}
+                  onMouseEnter={()=>setCursor(i)}>
+                  <div style={{width:3,height:30,background:era.color,borderRadius:2,flexShrink:0}} />
+                  <div>
+                    <div style={{fontSize:12,color:"#2A2010"}}>{p.title}</div>
+                    <div style={{fontSize:10,color:"#8A7050"}}>{p.composer}　{p.year}年</div>
+                  </div>
+                </div>
+              );
+            }
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 const NOTATION_STYLES = {
   ja:     { label:"日本語（標準）",   example:"バラード 第1番 ト短調 Op.23" },
   ja_op:  { label:"日本語（Op.先）",  example:"バラード Op.23 No.1 ト短調" },
@@ -183,7 +423,7 @@ const PrintSettings = ({ prog, allPool }) => {
     navigator.clipboard.writeText(generateText());
   };
 
-  const inp2 = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:"'Palatino Linotype',Palatino,serif",fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inp2 = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:"'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,serif",fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -277,6 +517,8 @@ const PrintPreview = ({ prog, allPool }) => {
 };
 
 // ── Main App ──────────────────────────────────────────────────────────────────
+const FONT = "'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,serif";
+
 export default function App() {
   const [page, setPage] = useState("home");
   const [pieces, setPieces] = useState(SAMPLE_PIECES);
@@ -287,6 +529,7 @@ export default function App() {
   const [editingName, setEditingName] = useState("");
   const [expandedId, setExpandedId] = useState(null);
   const [sortBy, setSortBy] = useState("year");
+  const [sortAsc, setSortAsc] = useState(true);
   const [filterMine, setFilterMine] = useState(false);
   const [filterEra, setFilterEra] = useState("");
   const [searchQ, setSearchQ] = useState("");
@@ -316,7 +559,7 @@ export default function App() {
     const piece = allPool.find(p=>p.id===id);
     if (!piece) return;
     if (prog.pieceIds.includes(id)) { updateProg({pieceIds:prog.pieceIds.filter(x=>x!==id)}); return; }
-    if (totalDuration+piece.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces)
+    if (totalDuration+piece.duration<=prog.maxDuration)
       updateProg({pieceIds:[...prog.pieceIds,id]});
   };
 
@@ -426,27 +669,33 @@ JSONのみ返してください:
   const poolFiltered = allPool
     .filter(p=>!filterMine||p.mine)
     .filter(p=>!filterEra||p.era===filterEra)
-    .filter(p=>!searchQ||p.title.includes(searchQ)||p.composer.includes(searchQ))
+    .filter(p=>searchMatch(p, searchQ))
     .sort((a,b)=>{
-      if(sortBy==="year") return a.year-b.year;
-      if(sortBy==="duration") return a.duration-b.duration;
-      if(sortBy==="difficulty") return b.difficulty-a.difficulty;
-      if(sortBy==="readiness") return b.readiness-a.readiness;
-      if(sortBy==="composer") return a.composer.localeCompare(b.composer,"ja");
-      return 0;
+      let diff = 0;
+      if(sortBy==="year")       diff = a.year - b.year;
+      else if(sortBy==="composerBorn") {
+        const ba = COMPOSER_BORN[a.composer] ?? 9999;
+        const bb = COMPOSER_BORN[b.composer] ?? 9999;
+        diff = ba - bb;
+      }
+      else if(sortBy==="duration")   diff = a.duration - b.duration;
+      else if(sortBy==="difficulty") diff = a.difficulty - b.difficulty;
+      else if(sortBy==="readiness")  diff = a.readiness - b.readiness;
+      else if(sortBy==="composer")   diff = a.composer.localeCompare(b.composer,"ja");
+      return sortAsc ? diff : -diff;
     });
 
   const showRuler = sortBy==="year";
 
-  const inp = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:"'Palatino Linotype',Palatino,serif",fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
-  const sel = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:"'Palatino Linotype',Palatino,serif",fontSize:12,borderRadius:4,...ex});
+  const inp = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
+  const sel = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
 
   // ── MANAGE PAGE ──────────────────────────────────────────────────────────────
   if (page==="manage") return (
-    <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:"'Palatino Linotype',Palatino,serif",color:"#2A2010"}}>
+    <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
       <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
-          <span style={{fontSize:22,color:"#F5F0E8",letterSpacing:1}}>🎹 Repertia</span>
+          <span style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500}}>𝄞 Repertia</span>
           <nav style={{display:"flex",gap:4}}>
             {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
               <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"5px 14px",cursor:"pointer",fontSize:12,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
@@ -528,7 +777,7 @@ JSONのみ返してください:
             </div>
           </div>
         )}
-        <div style={{fontSize:12,color:"#8A7050",marginBottom:14}}>{pieces.length}曲登録済み</div>
+        <div style={{fontSize:12,color:"#8A7050",marginBottom:14}}>{pieces.length}曲登録済み（曲数制限なし）</div>
         {pieces.map(p=>{
           const era=ERAS[p.era]||ERAS.modern;
           return (
@@ -567,10 +816,10 @@ JSONのみ返してください:
     };
 
     return (
-      <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:"'Palatino Linotype',Palatino,serif",color:"#2A2010"}}>
+      <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010"}}>
         <header style={{background:"#2A2010",padding:"14px 28px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <span style={{fontSize:22,color:"#F5F0E8",letterSpacing:1}}>🎹 Repertia</span>
+            <span style={{fontSize:24,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500}}>𝄞 Repertia</span>
             <nav style={{display:"flex",gap:4}}>
               {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
                 <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"5px 14px",cursor:"pointer",fontSize:12,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
@@ -610,11 +859,11 @@ JSONのみ返してください:
 
   // ── HOME PAGE ────────────────────────────────────────────────────────────────
   return (
-    <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:"'Palatino Linotype',Palatino,serif",color:"#2A2010",display:"flex",flexDirection:"column"}}>
-
+    <div style={{minHeight:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010",display:"flex",flexDirection:"column"}}>
+      <FontLoader />
       {/* Header */}
       <header style={{background:"#2A2010",padding:"12px 20px",display:"flex",alignItems:"center",gap:16,flexShrink:0}}>
-        <span style={{fontSize:20,color:"#F5F0E8",letterSpacing:1,flexShrink:0}}>🎹 Repertia</span>
+        <span style={{fontSize:22,color:"#F5F0E8",letterSpacing:2,fontFamily:"'Cormorant Garamond',serif",fontWeight:500,flexShrink:0}}>𝄞 Repertia</span>
         <nav style={{display:"flex",gap:4,flexShrink:0}}>
           {[["home","プログラム"],["manage","レパートリー管理"],["print","印刷・出力"]].map(([p,l])=>(
             <button key={p} onClick={()=>setPage(p)} style={{background:page===p?"#C8A860":"transparent",border:"none",color:page===p?"#2A2010":"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>{l}</button>
@@ -622,13 +871,14 @@ JSONのみ返してください:
         </nav>
         <div style={{flex:1}} />
         <div style={{display:"flex",gap:12,alignItems:"center"}}>
-          {[["TIME",prog.maxDuration,"maxDuration","分"],["曲数",prog.maxPieces,"maxPieces","曲"]].map(([l,val,k,u])=>(
+          {[["TIME",prog.maxDuration,"maxDuration","分"]].map(([l,val,k,u])=>(
             <div key={k} style={{display:"flex",alignItems:"center",gap:5}}>
               <span style={{fontSize:9,color:"#C8A860",letterSpacing:2}}>{l}</span>
-              <input type="number" value={val} onChange={e=>updateProg({[k]:+e.target.value})} style={{width:44,background:"#3A3020",border:"1px solid #C8A860",color:"#F5F0E8",fontSize:16,fontFamily:"inherit",textAlign:"center",padding:"2px 4px",borderRadius:4}} />
+              <input type="number" value={val} onChange={e=>updateProg({[k]:+e.target.value})} style={{width:44,background:"#3A3020",border:"1px solid #C8A860",color:"#F5F0E8",fontSize:16,fontFamily:FONT,textAlign:"center",padding:"2px 4px",borderRadius:4}} />
               <span style={{fontSize:10,color:"#C8A860"}}>{u}</span>
             </div>
           ))}
+          <span style={{fontSize:10,color:"#C8A86088",letterSpacing:1}}>曲数制限なし</span>
           <button onClick={()=>setShowConstraints(!showConstraints)} style={{background:showConstraints?"#C8A860":"transparent",border:"1px solid #C8A860",color:showConstraints?"#2A2010":"#C8A860",padding:"4px 10px",cursor:"pointer",fontSize:10,letterSpacing:1,fontFamily:"inherit",borderRadius:4}}>縛り</button>
         </div>
       </header>
@@ -676,7 +926,7 @@ JSONのみ返してください:
         <div style={{width:"42%",borderRight:"2px solid #D8D0C0",display:"flex",flexDirection:"column",overflow:"hidden"}}>
           <div style={{padding:"12px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-              <span style={{fontSize:10,letterSpacing:3,color:"#8A7050"}}>{prog.pieceIds.length}/{prog.maxPieces}曲</span>
+              <span style={{fontSize:10,letterSpacing:3,color:"#8A7050"}}>{prog.pieceIds.length}曲</span>
               <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>{totalDuration}分 / {prog.maxDuration}分　<span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050"}}>{remaining>=0?`残り${remaining}分`:`${Math.abs(remaining)}分超過`}</span></span>
             </div>
             <div style={{height:5,background:"#D8D0C0",borderRadius:3,overflow:"hidden"}}>
@@ -753,14 +1003,21 @@ JSONのみ返してください:
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
           {/* Filters */}
           <div style={{padding:"10px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
-            <input value={searchQ} onChange={e=>setSearchQ(e.target.value)} placeholder="検索…" style={{...inp({width:150,padding:"4px 9px",fontSize:12})}} />
-            <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={sel()}>
-              <option value="year">作曲年順</option>
-              <option value="duration">時間順</option>
-              <option value="difficulty">難易度順</option>
-              <option value="readiness">仕上がり順</option>
-              <option value="composer">作曲家順</option>
-            </select>
+            {/* Search with dropdown */}
+            <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={allPool} />
+            <div style={{display:"flex",gap:0,alignItems:"center"}}>
+              <select value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{...sel(),borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+                <option value="year">作曲年順</option>
+                <option value="composerBorn">作曲家順（生まれ年）</option>
+                <option value="duration">演奏時間順</option>
+                <option value="difficulty">難易度順</option>
+                <option value="readiness">仕上がり順</option>
+              </select>
+              <button onClick={()=>setSortAsc(v=>!v)} title={sortAsc?"昇順":"降順"}
+                style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 8px",cursor:"pointer",fontSize:11,fontFamily:"inherit",borderRadius:"0 4px 4px 0",lineHeight:1}}>
+                {sortAsc ? "▲" : "▼"}
+              </button>
+            </div>
             <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={sel()}>
               <option value="">全時代</option>
               {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
@@ -780,7 +1037,7 @@ JSONのみ返してください:
                     {poolFiltered.map(p=>(
                       <PieceCard key={p.id} piece={p}
                         inProgram={prog.pieceIds.includes(p.id)}
-                        canAdd={totalDuration+p.duration<=prog.maxDuration && prog.pieceIds.length<prog.maxPieces && !prog.pieceIds.includes(p.id)}
+                        canAdd={totalDuration+p.duration<=prog.maxDuration && !prog.pieceIds.includes(p.id)}
                         onAdd={()=>toggle(p.id)}
                         onRemove={()=>toggle(p.id)}
                         expanded={expandedId===p.id}
