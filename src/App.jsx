@@ -721,8 +721,6 @@ export default function App() {
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
-  const composerInputRef = useRef(null); // force-focus on composer input
-  const titleInputRef    = useRef(null); // force-focus on title input
 
   // ── derived ──
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
@@ -788,11 +786,19 @@ JSONのみ返してください:
     if (!newPiece.title||!newPiece.composer) return;
     const era = eraFromYear(newPiece.year);
     setPieces(p=>[...p,{...newPiece,era,id:Date.now(),mine:true}]);
-    setNewPiece(EMPTY_PIECE); setShowAdd(false); setSuggestions([]); setComposerSuggestions([]); setComposerLocked(false); setDurationEdited(false);
+    setNewPiece(EMPTY_PIECE);
+    if (composerInputRef.current) composerInputRef.current.value = "";
+    if (titleInputRef.current)    titleInputRef.current.value   = "";
+    setShowAdd(false); setSuggestions([]); setComposerSuggestions([]); setComposerLocked(false); setDurationEdited(false);
   };
 
-  const onComposerChange = (val) => {
-    setNewPiece(p=>({...p,composer:val,title:""}));
+  const composerInputRef = useRef(null);
+  const titleInputRef    = useRef(null);
+
+  const onComposerKeyUp = () => {
+    const val = composerInputRef.current?.value ?? "";
+    setNewPiece(p=>({...p, composer:val, title:""}));
+    if (titleInputRef.current) titleInputRef.current.value = "";
     setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (val.length < 1) return;
@@ -808,10 +814,18 @@ JSONのみ返してください:
     }, 400);
   };
 
-  const selectComposer = (name) => { setNewPiece(p=>({...p,composer:name,title:""})); setComposerSuggestions([]); setComposerLocked(true); };
+  const selectComposer = (name) => {
+    if (composerInputRef.current) composerInputRef.current.value = name;
+    if (titleInputRef.current)    titleInputRef.current.value   = "";
+    setNewPiece(p=>({...p, composer:name, title:""}));
+    setComposerSuggestions([]); setComposerLocked(true);
+    // move focus to title input
+    setTimeout(() => titleInputRef.current?.focus(), 0);
+  };
 
-  const onTitleChange = (val) => {
-    setNewPiece(p=>({...p,title:val})); setSuggestions([]);
+  const onTitleKeyUp = () => {
+    const val = titleInputRef.current?.value ?? "";
+    setNewPiece(p=>({...p, title:val})); setSuggestions([]);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (val.length < 1) return;
     sugTimer.current = setTimeout(async () => {
@@ -828,8 +842,9 @@ JSONのみ返してください:
   };
 
   const selectSuggestion = (s) => {
-    setNewPiece(p=>({...p,...s, popularity: s.popularity ?? 3}));
-    setDurationEdited(false); // ⑥ reset so ※ shows again
+    if (titleInputRef.current) titleInputRef.current.value = s.title || "";
+    setNewPiece(p=>({...p, ...s, popularity: s.popularity ?? 3}));
+    setDurationEdited(false);
     setSuggestions([]);
   };
 
@@ -1023,10 +1038,10 @@ JSONのみ返してください:
                 <div style={{position:"relative"}}>
                   <input
                     ref={composerInputRef}
-                    value={newPiece.composer}
-                    onChange={e=>onComposerChange(e.target.value)}
-                    onBlur={()=>{ if(composerSuggestions.length>0) setTimeout(()=>composerInputRef.current?.focus(),0); }}
+                    defaultValue=""
+                    onKeyUp={onComposerKeyUp}
                     placeholder="作曲家名を入力…"
+                    autoComplete="off"
                     style={{...inp(), borderColor:composerLocked?"#C4A870":"#D8D0C0", background:composerLocked?"#FDFAF2":"white"}} />
                   {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#C4A870"}}>✓</span>}
                   {composerSuggestions.length>0 && (
@@ -1050,10 +1065,10 @@ JSONのみ返してください:
                 <div style={{position:"relative"}}>
                   <input
                     ref={titleInputRef}
-                    value={newPiece.title}
-                    onChange={e=>onTitleChange(e.target.value)}
-                    onBlur={()=>{ if(suggestions.length>0) setTimeout(()=>titleInputRef.current?.focus(),0); }}
+                    defaultValue=""
+                    onKeyUp={onTitleKeyUp}
                     placeholder={newPiece.composer?`${newPiece.composer}の曲を検索…`:"曲名を入力…"}
+                    autoComplete="off"
                     style={{...inp(), opacity:newPiece.composer?1:0.5}} />
                   {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#8A7050",fontFamily:SANS}}>検索中…</div>}
                   {suggestions.length>0 && (
@@ -1135,7 +1150,7 @@ JSONのみ返してください:
             {/* ⑥ ボタンをセンタリング */}
             <div style={{display:"flex",gap:10,justifyContent:"center"}}>
               <button onClick={addPiece} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
-              <button onClick={()=>{setShowAdd(false);setDurationEdited(false);}} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"10px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+              <button onClick={()=>{ setShowAdd(false); setDurationEdited(false); if(composerInputRef.current) composerInputRef.current.value=""; if(titleInputRef.current) titleInputRef.current.value=""; }} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"10px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
             </div>
           </div>
         )}
