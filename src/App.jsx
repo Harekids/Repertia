@@ -721,6 +721,8 @@ export default function App() {
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
+  const composerInputRef = useRef(null); // force-focus on composer input
+  const titleInputRef    = useRef(null); // force-focus on title input
 
   // ── derived ──
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
@@ -1019,7 +1021,12 @@ JSONのみ返してください:
               <div>
                 <div style={{fontSize:11,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>作曲家</div>
                 <div style={{position:"relative"}}>
-                  <input value={newPiece.composer} onChange={e=>onComposerChange(e.target.value)} placeholder="作曲家名を入力…"
+                  <input
+                    ref={composerInputRef}
+                    value={newPiece.composer}
+                    onChange={e=>onComposerChange(e.target.value)}
+                    onBlur={()=>{ if(composerSuggestions.length>0) setTimeout(()=>composerInputRef.current?.focus(),0); }}
+                    placeholder="作曲家名を入力…"
                     style={{...inp(), borderColor:composerLocked?"#C4A870":"#D8D0C0", background:composerLocked?"#FDFAF2":"white"}} />
                   {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#C4A870"}}>✓</span>}
                   {composerSuggestions.length>0 && (
@@ -1041,7 +1048,11 @@ JSONのみ返してください:
                   曲目{!newPiece.composer && <span style={{fontSize:10,color:"#C0A080",marginLeft:6}}>作曲家を先に入力</span>}
                 </div>
                 <div style={{position:"relative"}}>
-                  <input value={newPiece.title} onChange={e=>onTitleChange(e.target.value)}
+                  <input
+                    ref={titleInputRef}
+                    value={newPiece.title}
+                    onChange={e=>onTitleChange(e.target.value)}
+                    onBlur={()=>{ if(suggestions.length>0) setTimeout(()=>titleInputRef.current?.focus(),0); }}
                     placeholder={newPiece.composer?`${newPiece.composer}の曲を検索…`:"曲名を入力…"}
                     style={{...inp(), opacity:newPiece.composer?1:0.5}} />
                   {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#8A7050",fontFamily:SANS}}>検索中…</div>}
