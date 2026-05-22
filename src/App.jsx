@@ -496,7 +496,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     sugTimer.current = setTimeout(async () => {
       setSugLoading(true);
       try {
-        const res  = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を6名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を6名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setComposerSuggestions(JSON.parse(text.replace(/```json|```/g,"").trim()).composers||[]);
@@ -518,7 +518,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       setSugLoading(true);
       try {
         const composerStr = piece.composer ? `作曲家: ${piece.composer}の` : "";
-        const res  = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"form":"形式","difficulty":難易度1-5数値,"rarity":レア度1-3数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"form":"形式","difficulty":難易度1-5数値,"rarity":レア度1-3数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSuggestions(JSON.parse(text.replace(/```json|```/g,"").trim()).pieces||[]);
@@ -955,7 +955,7 @@ ${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras
 JSONのみ返してください:
 {"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"rarity":1-3数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
     try {
-      const res  = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
       const text = data.content.map(b=>b.text||"").join("");
       const parsed = JSON.parse(text.replace(/```json|```/g,"").trim());
