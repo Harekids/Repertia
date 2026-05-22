@@ -1220,11 +1220,11 @@ JSONのみ返してください:
                         (p.yearText||p.year)+"年",
                         p.key,
                         fmtDuration(p.duration, p.durationSecs),
-                        [1,2,3,4,5].map(n=>n<=p.difficulty?"🔴":"◯").join(""),
-                        [1,2,3,4,5].map(n=>n<=(p.frequency||0)?"🟡":"◯").join(""),
+                        <span key="diff" style={{letterSpacing:"-2px"}}>{[1,2,3,4,5].map(n=>n<=p.difficulty?"🔴":"◯").join("")}</span>,
+                        <span key="freq" style={{letterSpacing:"-2px"}}>{[1,2,3,4,5].map(n=>n<=(p.frequency||0)?"🟡":"◯").join("")}</span>,
                       ].map((item,i)=>(
                         <span key={i} style={{display:"flex",alignItems:"center"}}>
-                          {i>0 && <span style={{margin:"0 4px",color:"#D8D0C0"}}>／</span>}
+                          {i>0 && <span style={{margin:"0 4px",color:"#D8D0C0"}}>/</span>}
                           {item}
                         </span>
                       ))}
