@@ -1085,7 +1085,8 @@ JSONのみ返してください:
         title="お気に入りのみ"
         style={{background:"none",border:"none",
           color:filterMark==="fav"?"#B85C72":"#C8B8C0",
-          fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1}}>
+          fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
+          width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
         {filterMark==="fav"?"♥":"♡"}
       </button>
       <button onClick={()=>setEditMode(!editMode)}
@@ -1238,7 +1239,8 @@ JSONのみ返してください:
                       title={p.fav?"お気に入り解除":"お気に入りに追加"}
                       style={{background:"none",border:"none",
                         color:p.fav?"#B85C72":"#C8B8C0",
-                        fontSize:17,cursor:"pointer",padding:"2px 2px",lineHeight:1}}>
+                        fontSize:17,cursor:"pointer",padding:0,lineHeight:1,
+                        width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
                       {p.fav ? "♥" : "♡"}
                     </button>
                     {editMode && (
