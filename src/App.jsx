@@ -72,7 +72,7 @@ const SAMPLE_PIECES = [
   { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, rarity:3, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:1900, country:"ドイツ", key:"ハ長調", duration:10, difficulty:3, rarity:2, popularity:3, form:"小品", era:"romantic", fav:false, candidate:false };
+const EMPTY_PIECE = { title:"", composer:"", year:1900, yearText:"1900", country:"ドイツ", key:"ハ長調", duration:10, difficulty:3, rarity:2, frequency:3, keywords:"", form:"小品", era:"romantic", fav:false, candidate:false };
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:5, pieceIds:[] });
 
@@ -518,7 +518,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       setSugLoading(true);
       try {
         const composerStr = piece.composer ? `作曲家: ${piece.composer}の` : "";
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"form":"形式","difficulty":難易度1-5数値,"rarity":レア度1-3数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"rarity":レア度1-3数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSuggestions(JSON.parse(text.replace(/```json|```/g,"").trim()).pieces||[]);
@@ -528,13 +528,19 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   };
 
   const selectSuggestion = (s) => {
-    setPiece(p=>({...p, ...s, popularity: s.popularity ?? 3}));
+    setPiece(p=>({...p, ...s, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
     setDurationEdited(false); setSuggestions([]);
   };
 
   const handleAdd = () => {
     if (!piece.title || !piece.composer) return;
-    onAdd(piece);
+    // yearText → year の変換（不明・範囲対応）
+    let yearNum = piece.year;
+    const yt = (piece.yearText||"").trim();
+    if (yt === "不明") yearNum = 0;
+    else if (/^\d{4}-\d{4}$/.test(yt)) yearNum = parseInt(yt.split("-")[0]);
+    else if (/^\d{4}$/.test(yt)) yearNum = parseInt(yt);
+    onAdd({...piece, year:yearNum, yearText: yt||String(yearNum)});
     setPiece(EMPTY_PIECE); setComposerSuggestions([]); setSuggestions([]);
     setComposerLocked(false); setDurationEdited(false);
   };
@@ -543,27 +549,22 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   const sel2 = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
 
   return (
-    <div style={{background:"white",border:"1.5px solid #D4A574",borderRadius:8,padding:22,marginBottom:20}}>
-      <div style={{fontSize:12,letterSpacing:2,color:"#8A7050",marginBottom:14,fontFamily:SANS}}>新しい曲を追加</div>
+    <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:10,padding:22}}>
+      <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",marginBottom:14,fontFamily:SANS}}>NEW PIECE</div>
 
-      {/* 1段目: 作曲家・曲目 */}
+      {/* 1列目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
         <div>
           <div style={{fontSize:11,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>作曲家</div>
           <div style={{position:"relative"}}>
-            <input
-              value={piece.composer}
-              onChange={e=>onComposerChange(e.target.value)}
-              placeholder="作曲家名を入力…"
-              autoComplete="off"
+            <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
+              placeholder="作曲家名を入力…" autoComplete="off"
               style={{...inp2(), borderColor:composerLocked?"#C4A870":"#D8D0C0", background:composerLocked?"#FDFAF2":"white"}} />
             {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#C4A870"}}>✓</span>}
             {composerSuggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)"}}>
                 {composerSuggestions.map((name,i)=>(
-                  <div key={i}
-                    onMouseDown={e=>e.preventDefault()}
-                    onClick={()=>selectComposer(name)}
+                  <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectComposer(name)}
                     style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#2A2010",borderBottom:"1px solid #F0EAE0",fontFamily:SANS}}
                     onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>{name}</div>
@@ -574,22 +575,17 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
         <div>
           <div style={{fontSize:11,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>
-            曲目{!piece.composer && <span style={{fontSize:10,color:"#C0A080",marginLeft:6}}>作曲家を先に入力</span>}
+            曲名{!piece.composer && <span style={{fontSize:10,color:"#C0A080",marginLeft:6}}>作曲家を先に入力</span>}
           </div>
           <div style={{position:"relative"}}>
-            <input
-              value={piece.title}
-              onChange={e=>onTitleChange(e.target.value)}
+            <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?`${piece.composer}の曲を検索…`:"曲名を入力…"}
-              autoComplete="off"
-              style={{...inp2(), opacity:piece.composer?1:0.5}} />
+              autoComplete="off" style={{...inp2(), opacity:piece.composer?1:0.5}} />
             {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#8A7050",fontFamily:SANS}}>検索中…</div>}
             {suggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",maxHeight:300,overflowY:"auto"}}>
                 {suggestions.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
-                  <div key={i}
-                    onMouseDown={e=>e.preventDefault()}
-                    onClick={()=>selectSuggestion(s)}
+                  <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSuggestion(s)}
                     style={{padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid #F0EAE0",display:"flex",alignItems:"center",gap:10}}
                     onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>
@@ -606,57 +602,65 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      {/* 2段目: 国・作曲年・調性・形式・演奏時間 */}
-      <div style={{display:"grid",gridTemplateColumns:"1.2fr 0.8fr 1.4fr 1fr 1fr",gap:10,marginBottom:12}}>
+      {/* 2列目: 国・作曲年・調性・演奏時間 */}
+      <div style={{display:"grid",gridTemplateColumns:"1.2fr 1fr 1.4fr 1fr",gap:10,marginBottom:12}}>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>国</div>
           <select value={piece.country} onChange={e=>setPiece({...piece,country:e.target.value})} style={sel2({width:"100%"})}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div>
+          {/* 作曲年: 不明・範囲・通常 */}
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>作曲年</div>
-          <input type="number" value={piece.year} onChange={e=>setPiece({...piece,year:+e.target.value})} style={inp2({padding:"6px 8px",fontSize:13})} />
+          <input value={piece.yearText||String(piece.year)}
+            onChange={e=>setPiece({...piece, yearText:e.target.value})}
+            placeholder="例: 1810 / 1815-1820 / 不明"
+            style={inp2({padding:"6px 8px",fontSize:12})} />
         </div>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>調性</div>
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={sel2({width:"100%"})}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>形式</div>
-          <select value={piece.form} onChange={e=>setPiece({...piece,form:e.target.value})} style={sel2({width:"100%"})}>{FORMS.map(f=><option key={f} value={f}>{f}</option>)}</select>
-        </div>
-        <div>
+          {/* 演奏時間: 1分単位ドロップダウン */}
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS,display:"flex",alignItems:"center",gap:4}}>
-            演奏時間(分)
+            演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3}}>※</span>}
           </div>
-          <input type="number" min={1} value={piece.duration}
-            onChange={e=>{ setPiece({...piece,duration:Math.max(1,+e.target.value)}); setDurationEdited(true); }}
-            style={inp2({padding:"6px 8px",fontSize:13, borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})} />
+          <select value={piece.duration}
+            onChange={e=>{ setPiece({...piece,duration:+e.target.value}); setDurationEdited(true); }}
+            style={sel2({width:"100%", borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}>
+            {[...Array(60)].map((_,i)=><option key={i+1} value={i+1}>{i+1}分</option>)}
+          </select>
         </div>
       </div>
 
-      {/* 3段目: 難易度🔴 / 人気度🟡 / レア度🔵 */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14,marginBottom:18}}>
+      {/* 3列目: 難易度🔴・演奏頻度🟡・レア度🔵・キーワード */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1.5fr",gap:12,marginBottom:18}}>
         {[
           ["difficulty","難易度","🔴","#E05030"],
-          ["popularity","人気度","🟡","#C8A030"],
+          ["frequency", "演奏頻度","🟡","#C8A030"],
           ["rarity",    "レア度","🔵","#2C6B82"],
         ].map(([field,label,emoji,color])=>(
           <div key={field}>
             <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>{emoji} {label}</div>
-            <div style={{display:"flex",gap:4}}>
+            <div style={{display:"flex",gap:3}}>
               {[1,2,3,4,5].map(n=>(
-                <button key={n} type="button"
-                  onClick={()=>setPiece({...piece,[field]:n})}
+                <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
                   style={{flex:1,padding:"5px 0",background:piece[field]>=n?color:"white",
                     border:`1px solid ${color}`,color:piece[field]>=n?"white":color,
-                    cursor:"pointer",fontSize:11,borderRadius:3,fontFamily:SANS,lineHeight:1}}>
+                    cursor:"pointer",fontSize:10,borderRadius:3,fontFamily:SANS,lineHeight:1}}>
                   {n}
                 </button>
               ))}
             </div>
           </div>
         ))}
+        <div>
+          <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>🏷 キーワード</div>
+          <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
+            placeholder="例: 抒情的, 発表会向け"
+            style={inp2({padding:"6px 8px",fontSize:12})} />
+        </div>
       </div>
 
       <div style={{display:"flex",gap:10,justifyContent:"center"}}>
@@ -978,11 +982,12 @@ JSONのみ返してください:
     .filter(p => searchMatch(p, searchQ))
     .sort((a,b) => {
       let d = 0;
-      if      (sortBy==="year")         d = a.year - b.year;
+      if      (sortBy==="year")         d = (a.year||0) - (b.year||0);
       else if (sortBy==="composerBorn") d = (COMPOSER_BORN[a.composer]??9999) - (COMPOSER_BORN[b.composer]??9999);
       else if (sortBy==="duration")     d = a.duration - b.duration;
       else if (sortBy==="difficulty")   d = a.difficulty - b.difficulty;
-      else if (sortBy==="readiness")    d = a.readiness - b.readiness;
+      else if (sortBy==="frequency")    d = (a.frequency||0) - (b.frequency||0);
+      else if (sortBy==="rarity")       d = a.rarity - b.rarity;
       else if (sortBy==="composer")     d = a.composer.localeCompare(b.composer,"ja");
       return sortAsc ? d : -d;
     });
@@ -1022,36 +1027,53 @@ JSONのみ返してください:
   );
 
   // ── Sort buttons (shared between manage & program pages) ─────────────────────
-  const SortButtons = () => (
-    <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
-      {[["year","作曲年"],["composerBorn","作曲家"],["duration","演奏時間"],["difficulty","難易度"]].map(([k,l])=>(
-        <button key={k} onClick={()=>{ if(sortBy===k) setSortAsc(v=>!v); else{ setSortBy(k); setSortAsc(true); }}}
-          style={{background:sortBy===k?"#2A2010":"white",border:`1px solid ${sortBy===k?"#2A2010":"#D8D0C0"}`,
-            color:sortBy===k?"#C8A860":"#6A5030",padding:"3px 7px",cursor:"pointer",
-            fontSize:10,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:2}}>
-          {l}{sortBy===k && <span style={{fontSize:9}}>{sortAsc?"▲":"▼"}</span>}
-        </button>
-      ))}
-    </div>
-  );
-
   // ── Filter bar (shared) ───────────────────────────────────────────────────────
   const FilterBar = ({pool}) => (
     <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",
       display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
       <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
-      <SortButtons />
+      {/* 並べ替えドロップダウン1つ */}
+      <div style={{display:"flex",gap:0,alignItems:"center"}}>
+        <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+          style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+          <option value="composerBorn">作曲家</option>
+          <option value="year">作曲年</option>
+          <option value="composerBorn">時代</option>
+          <option value="duration">演奏時間</option>
+          <option value="difficulty">難易度</option>
+          <option value="frequency">演奏頻度</option>
+          <option value="rarity">レア度</option>
+        </select>
+        <button onClick={()=>setSortAsc(v=>!v)}
+          style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 7px",
+            cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",lineHeight:1}}>
+          {sortAsc?"▲":"▼"}
+        </button>
+      </div>
+      {/* 時代フィルター */}
       <select value={filterEra} onChange={e=>setFilterEra(e.target.value)}
         style={{...sel(),fontFamily:SANS,fontSize:11}}>
         <option value="">全時代</option>
         {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
       </select>
-      {/* ① ❤️のみのフィルター */}
-      <select value={filterMark} onChange={e=>setFilterMark(e.target.value)}
-        style={{...sel(),fontFamily:SANS,fontSize:11,minWidth:80}}>
-        <option value="all">すべて</option>
-        <option value="fav">❤️ お気に入り</option>
-      </select>
+      {/* 🤍 お気に入りトグル */}
+      <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
+        title="お気に入りのみ表示"
+        style={{background:filterMark==="fav"?"#FFF0F3":"white",
+          border:`1px solid ${filterMark==="fav"?"#C03050":"#D8D0C0"}`,
+          color:filterMark==="fav"?"#C03050":"#A09090",
+          fontSize:14,cursor:"pointer",padding:"3px 8px",borderRadius:4,lineHeight:1}}>
+        {filterMark==="fav"?"❤️":"🤍"}
+      </button>
+      {/* ➖ 削除モードトグル */}
+      <button onClick={()=>setEditMode(!editMode)}
+        title={editMode?"削除モード終了":"削除モード"}
+        style={{background:editMode?"#8B3A3A":"white",
+          border:`1px solid ${editMode?"#8B3A3A":"#D8D0C0"}`,
+          color:editMode?"white":"#A09090",
+          fontSize:13,cursor:"pointer",padding:"3px 8px",borderRadius:4,lineHeight:1}}>
+        ➖
+      </button>
       <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{poolFiltered.length}曲</span>
     </div>
   );
@@ -1073,17 +1095,20 @@ JSONのみ返してください:
         <div style={{padding:"9px 12px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
           onClick={()=>setExpandedId(expandedId===p.id?null:p.id)}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:13,color:"#2A2010",marginBottom:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-              {badge}
-              {p.fav   && <span style={{color:"#C03050",fontSize:11,marginRight:3}}>❤️</span>}
-              {p.candidate && <span style={{fontSize:11,marginRight:3}}>⭐️</span>}
-              {p.title}
+            {/* 上段: 作曲家 + 曲名 — 大きめ */}
+            <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
+              <span style={{fontSize:12,color:"#8A7050",fontFamily:SANS,flexShrink:0,fontWeight:500}}>{p.composer}</span>
+              <span style={{fontSize:14,color:"#2A2010",fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontFamily:FONT}}>
+                {badge}{p.fav && <span style={{color:"#C03050",fontSize:12,marginRight:2}}>❤️</span>}{p.title}
+              </span>
             </div>
-            <div style={{fontSize:11,color:"#8A7050",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS}}>
-              <span>{p.composer}</span><span style={{color:"#D8D0C0"}}>·</span>
-              <span>{p.year}年</span><span style={{color:"#D8D0C0"}}>·</span>
-              <span>{p.key}</span><span style={{color:"#D8D0C0"}}>·</span>
+            {/* 下段: 詳細 — 小さめ */}
+            <div style={{fontSize:10,color:"#A09070",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
+              <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:`1px solid ${era.color}33`}}>{era.label}</span>
+              <span>{p.yearText||p.year}年</span>
+              <span>{p.key}</span>
               <span>{p.duration}分</span>
+              <DotRating value={p.difficulty} max={5} color="#E05030" />
             </div>
           </div>
           {showControls && (
@@ -1129,84 +1154,75 @@ JSONのみ返してください:
     );
   };
 
-  // ── MANAGE PAGE ───────────────────────────────────────────────────────────────
   const ManagePage = () => (
     <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
-        {/* ③⑤ ボタン行 — 「曲を追加」は開いても同じラベル、「編集」は独立 */}
+        {/* ボタン行 — 「曲を追加」のみ */}
         <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
           <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
             style={{background:"#2A2010",border:"none",color:"#C8A860",
               padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
             ＋ 曲を追加
           </button>
-          <button onClick={()=>{ setEditMode(!editMode); setShowAdd(false); }}
-            style={{background:editMode?"#8B3A3A":"white",border:`1px solid ${editMode?"#8B3A3A":"#D8D0C0"}`,
-              color:editMode?"white":"#6A5030",padding:"7px 16px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-            {editMode ? "✓ 完了" : "✎ 編集"}
-          </button>
           <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,marginLeft:4}}>{pieces.length}曲</span>
         </div>
 
+        {/* 曲追加フォーム — 境界線で視覚的に分離 */}
         {showAdd && (
-          <AddPieceForm
-            onAdd={onAddPiece}
-            onCancel={()=>setShowAdd(false)}
-          />
+          <div style={{marginBottom:24}}>
+            <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} />
+          </div>
         )}
 
-        {/* Filter bar */}
-        <FilterBar pool={pieces} />
-        <div style={{height:10}} />
+        {/* 一覧エリア — フォームと分ける境界 */}
+        <div style={{background:"#F8F4EE",borderRadius:8,border:"1px solid #E8E0D0",overflow:"hidden"}}>
+          <FilterBar pool={pieces} />
+          <div style={{padding:"8px 8px"}}>
+            {poolFiltered.map(p => {
+              const era = ERAS[p.era]||ERAS.modern;
+              return (
+                <div key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",
+                  background:"white",border:"1.5px solid #E8E0D0",borderLeft:`4px solid ${era.color}`,
+                  borderRadius:6,marginBottom:4}}>
 
-        {/* ④⑤ Piece list */}
-        {poolFiltered.map(p => {
-          const era = ERAS[p.era]||ERAS.modern;
-          return (
-            <div key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",
-              background:"white",border:"1.5px solid #E8E0D0",borderLeft:`4px solid ${era.color}`,
-              borderRadius:6,marginBottom:5}}>
+                  {/* 削除モード */}
+                  {editMode && (
+                    <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))}
+                      style={{background:"#8B3A3A",border:"none",color:"white",width:22,height:22,
+                        borderRadius:"50%",cursor:"pointer",fontSize:15,lineHeight:"22px",textAlign:"center",
+                        flexShrink:0}}>－</button>
+                  )}
 
-              {/* ⑤ 編集モード：「－」 */}
-              {editMode && (
-                <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))}
-                  style={{background:"#8B3A3A",border:"none",color:"white",width:22,height:22,
-                    borderRadius:"50%",cursor:"pointer",fontSize:15,lineHeight:"22px",textAlign:"center",
-                    flexShrink:0}}>－</button>
-              )}
+                  <div style={{flex:1,minWidth:0}}>
+                    {/* 上段: 作曲家 + 曲名 — 大きめ */}
+                    <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
+                      <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
+                      <span style={{fontSize:14,color:"#2A2010",fontWeight:600,fontFamily:FONT}}>
+                        {p.mine ? "🎹 " : "✦ "}{p.title}
+                      </span>
+                    </div>
+                    {/* 下段: 詳細 — 小さめ */}
+                    <div style={{fontSize:10,color:"#A09070",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
+                      <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:`1px solid ${era.color}33`}}>{era.label}</span>
+                      <span>{p.yearText||p.year}年</span>
+                      <span>{p.key}</span>
+                      <span>{p.duration}分</span>
+                      <DotRating value={p.difficulty} max={5} color="#E05030" />
+                    </div>
+                  </div>
 
-              {/* ④ 2段レイアウト */}
-              <div style={{flex:1,minWidth:0}}>
-                {/* 上段: 作曲家 + 曲目 */}
-                <div style={{display:"flex",alignItems:"baseline",gap:6,marginBottom:3,flexWrap:"wrap"}}>
-                  <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
-                  <span style={{fontSize:13,color:"#2A2010",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                    {p.mine ? "🎹 " : "✦ "}{p.title}
-                  </span>
+                  {/* ❤️ */}
+                  <button onClick={()=>toggleFav(p.id)}
+                    style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8C0C8",
+                      fontSize:16,cursor:"pointer",padding:"2px 4px",lineHeight:1,flexShrink:0}}>
+                    {p.fav ? "❤️" : "♡"}
+                  </button>
                 </div>
-                {/* ④ 下段（少し大きめ）: 時代・作曲年・調性・演奏時間・難易度 */}
-                <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-                  <span style={{fontSize:11,background:era.bg,color:era.color,padding:"1px 7px",borderRadius:10,fontFamily:SANS,border:`1px solid ${era.color}44`}}>{era.label}</span>
-                  <span style={{fontSize:12,color:"#6A5030",fontFamily:SANS}}>{p.year}年</span>
-                  <span style={{fontSize:12,color:"#6A5030",fontFamily:SANS}}>{p.key}</span>
-                  <span style={{fontSize:12,color:"#6A5030",fontFamily:SANS}}>{p.duration}分</span>
-                  <DotRating value={p.difficulty} max={5} color="#E05030" />
-                </div>
-              </div>
-
-              {/* ② ❤️ ボックスなし・ハートのみ */}
-              <button onClick={()=>toggleFav(p.id)}
-                title={p.fav?"お気に入り解除":"お気に入りに追加"}
-                style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8C0C8",
-                  fontSize:16,cursor:"pointer",padding:"2px 4px",lineHeight:1,
-                  transition:"color 0.15s",flexShrink:0}}>
-                {p.fav ? "❤️" : "♡"}
-              </button>
-
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
