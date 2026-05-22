@@ -613,7 +613,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       </div>
 
       {/* 2列目: 国・作曲年・調性・演奏時間 */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:12}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>国</div>
           <select value={piece.country} onChange={e=>setPiece({...piece,country:e.target.value})} style={sel2({width:"100%"})}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>
@@ -666,17 +666,17 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       </div>
 
       {/* 3列目: 難易度・演奏頻度・キーワード 1行横並び */}
-      <div style={{display:"flex",gap:20,alignItems:"center",marginBottom:18,flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:24,flexWrap:"wrap"}}>
         {[
           ["difficulty","難易度","🔴","#E05030"],
           ["frequency", "演奏頻度","🟡","#C8A030"],
         ].map(([field,label,emoji,color])=>(
-          <div key={field} style={{display:"flex",alignItems:"center",gap:6}}>
+          <div key={field} style={{display:"flex",alignItems:"center",gap:4}}>
             <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>{label}</span>
-            <div style={{display:"flex",gap:3}}>
+            <div style={{display:"flex",gap:0}}>
               {[1,2,3,4,5].map(n=>(
                 <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
-                  style={{width:26,height:26,background:"none",border:"none",
+                  style={{width:24,height:24,background:"none",border:"none",
                     cursor:"pointer",fontSize:16,padding:0,lineHeight:1}}>
                   {piece[field]>=n ? emoji : "◯"}
                 </button>
@@ -691,7 +691,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      <div style={{display:"flex",gap:24,justifyContent:"center"}}>
+      <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:8,paddingBottom:4}}>
         <button onClick={handleAdd} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 22px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
         <button onClick={onCancel} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
       </div>
@@ -1179,7 +1179,7 @@ JSONのみ返してください:
       <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
         {/* ボタン行 — 「曲を追加」のみ */}
-        <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
+        <div style={{display:"flex",gap:8,marginBottom:20,marginTop:8,alignItems:"center"}}>
           <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
             style={{background:"#2A2010",border:"none",color:"#C8A860",
               padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
@@ -1213,13 +1213,21 @@ JSONのみ返してください:
                         {p.mine ? "🎹 " : "✦ "}{p.title}
                       </span>
                     </div>
-                    {/* 下段: 詳細 — 小さめ */}
-                    <div style={{fontSize:10,color:"#A09070",display:"flex",gap:6,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
-                      <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
-                      <span>{p.yearText||p.year}年</span>
-                      <span>{p.key}</span>
-                      <span>{fmtDuration(p.duration, p.durationSecs)}</span>
-                      <EmojiRating label="難易度" value={p.difficulty} max={5} filled="🔴" />
+                    {/* 下段: バロック / 1722年 / ハ長調 / 4分 / 🔴🔴🔴◯◯ / 🟡🟡🟡🟡🟡 */}
+                    <div style={{fontSize:11,color:"#8A7050",display:"flex",gap:0,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
+                      {[
+                        era.label,
+                        (p.yearText||p.year)+"年",
+                        p.key,
+                        fmtDuration(p.duration, p.durationSecs),
+                        [1,2,3,4,5].map(n=>n<=p.difficulty?"🔴":"◯").join(""),
+                        [1,2,3,4,5].map(n=>n<=(p.frequency||0)?"🟡":"◯").join(""),
+                      ].map((item,i)=>(
+                        <span key={i} style={{display:"flex",alignItems:"center"}}>
+                          {i>0 && <span style={{margin:"0 4px",color:"#D8D0C0"}}>／</span>}
+                          {item}
+                        </span>
+                      ))}
                     </div>
                   </div>
 
