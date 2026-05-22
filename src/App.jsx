@@ -1379,7 +1379,22 @@ JSONのみ返してください:
             <div style={{fontSize:10,letterSpacing:2,color:"#8A7050",marginBottom:8,fontFamily:SANS}}>STEP 1　条件を設定</div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
               <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={allPool} />
-              <SortButtons />
+              <div style={{display:"flex",gap:0,alignItems:"center"}}>
+                <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+                  style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+                  <option value="composerBorn">作曲家</option>
+                  <option value="year">作曲年</option>
+                  <option value="duration">演奏時間</option>
+                  <option value="difficulty">難易度</option>
+                  <option value="frequency">演奏頻度</option>
+                  <option value="rarity">レア度</option>
+                </select>
+                <button onClick={()=>setSortAsc(v=>!v)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"5px 7px",
+                    cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",lineHeight:1}}>
+                  {sortAsc?"▲":"▼"}
+                </button>
+              </div>
               <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11}}>
                 <option value="">全時代</option>
                 {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
