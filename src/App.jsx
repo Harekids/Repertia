@@ -562,7 +562,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
   return (
     <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:10,padding:22}}>
-      <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",marginBottom:14,fontFamily:SANS}}>NEW PIECE</div>
+      <div style={{fontSize:15,letterSpacing:3,color:"#6A5030",marginBottom:16,fontFamily:SANS,fontWeight:600}}>NEW PIECE</div>
 
       {/* 1列目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
@@ -635,49 +635,65 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
             演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3}}>※</span>}
           </div>
-          <div style={{display:"flex",gap:4,alignItems:"center"}}>
-            <select value={piece.duration}
-              onChange={e=>{ setPiece({...piece,duration:+e.target.value}); setDurationEdited(true); }}
-              style={sel2({flex:1, borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}>
-              {[...Array(60)].map((_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}
-            </select>
-            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>分</span>
-            <select value={piece.durationSecs||0}
-              onChange={e=>{ setPiece({...piece,durationSecs:+e.target.value}); setDurationEdited(true); }}
-              style={sel2({flex:1})}>
-              <option value={0}>00</option>
-              <option value={15}>15</option>
-              <option value={30}>30</option>
-              <option value={45}>45</option>
-            </select>
-            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>秒</span>
+          <div style={{position:"relative"}}>
+            <input
+              value={(piece.duration||0)+"分"+(piece.durationSecs>0?(piece.durationSecs+"秒"):"")}
+              onFocus={e=>e.target.select()}
+              onChange={e=>{
+                const v=e.target.value.replace(/[^\d]/g,"");
+                const n=parseInt(v)||0;
+                setPiece({...piece,duration:n,durationSecs:0});
+                setDurationEdited(true);
+              }}
+              onBlur={e=>{
+                // parse "5分30秒" or "5:30" or "5"
+                const raw=e.target.value;
+                const mMatch=raw.match(/(\d+)\s*分/);
+                const sMatch=raw.match(/(\d+)\s*秒/);
+                const colonMatch=raw.match(/^(\d+):(\d+)$/);
+                if(colonMatch){
+                  setPiece({...piece,duration:parseInt(colonMatch[1]),durationSecs:parseInt(colonMatch[2])});
+                }else{
+                  const m=mMatch?parseInt(mMatch[1]):(parseInt(raw)||piece.duration);
+                  const s=sMatch?parseInt(sMatch[1]):0;
+                  setPiece({...piece,duration:m,durationSecs:s});
+                }
+                setDurationEdited(true);
+              }}
+              placeholder="例: 5分30秒 / 5:30 / 5"
+              style={sel2({width:"100%",borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}
+            />
           </div>
         </div>
       </div>
 
-      {/* 3列目: 難易度🔴・演奏頻度🟡・レア度🔵・キーワード */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1.5fr",gap:12,marginBottom:18}}>
-        {[
-          ["difficulty","難易度","🔴","#E05030"],
-          ["frequency", "演奏頻度","🟡","#C8A030"],
-          ["rarity",    "レア度","🔵","#2C6B82"],
-        ].map(([field,label,emoji,color])=>(
-          <div key={field}>
-            <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>{emoji} {label}</div>
-            <div style={{display:"flex",gap:3}}>
-              {[1,2,3,4,5].map(n=>(
-                <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
-                  style={{flex:1,padding:"5px 0",background:piece[field]>=n?color:"white",
-                    border:"1px solid "+color,color:piece[field]>=n?"white":color,
-                    cursor:"pointer",fontSize:10,borderRadius:3,fontFamily:SANS,lineHeight:1}}>
-                  {n}
-                </button>
-              ))}
+      {/* 3列目: 難易度🔴・演奏頻度🟡・キーワード */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr",gap:14,marginBottom:18,alignItems:"center"}}>
+        {/* 難易度 + 演奏頻度 横並び */}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {[
+            ["difficulty","難易度","🔴","#E05030"],
+            ["frequency", "演奏頻度","🟡","#C8A030"],
+          ].map(([field,label,emoji,color])=>(
+            <div key={field} style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:52,flexShrink:0}}>{emoji} {label}</span>
+              <div style={{display:"flex",gap:4}}>
+                {[1,2,3,4,5].map(n=>(
+                  <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
+                    style={{width:26,height:26,background:piece[field]>=n?color:"white",
+                      border:"1px solid "+color,color:piece[field]>=n?"white":color,
+                      cursor:"pointer",fontSize:13,borderRadius:4,fontFamily:SANS,
+                      display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
+                    {piece[field]>=n?emoji:"◯"}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {/* ④ キーワード（絵文字なし） */}
         <div>
-          <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>🏷 キーワード</div>
+          <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>キーワード</div>
           <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
             placeholder="例: 抒情的, 発表会向け"
             style={inp2({padding:"6px 8px",fontSize:12})} />
@@ -1047,12 +1063,12 @@ JSONのみ返してください:
     </header>
   );
 
-  // ── Sort buttons (shared between manage & program pages) ─────────────────────
-  // ── Filter bar (shared) ───────────────────────────────────────────────────────
+  // ── Filter bar ───────────────────────────────────────────────────────────────
   const FilterBar = ({pool}) => (
-    <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",
-      display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",flexShrink:0}}>
+    <div style={{padding:"8px 12px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",
+      display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
       <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
+      {/* ⑦ 並べ替え（初期値「並べ替え」） */}
       <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
         <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
           style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
@@ -1071,12 +1087,24 @@ JSONのみ返してください:
           {sortAsc?"▲":"▼"}
         </button>
       </div>
-      <select value={filterMark} onChange={e=>setFilterMark(e.target.value)}
-        style={{...sel(),fontFamily:SANS,fontSize:11,minWidth:80}}>
-        <option value="all">すべて</option>
-        <option value="fav">❤️ お気に入り</option>
-      </select>
-      <span style={{fontSize:11,color:"#8A7050",marginLeft:"auto",fontFamily:SANS}}>{poolFiltered.length}曲</span>
+      <span style={{flex:1}} />
+      {/* ⑥ 🤍と➖を右端に並べて */}
+      <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
+        title="お気に入りのみ"
+        style={{background:filterMark==="fav"?"#FFF0F3":"none",
+          border:"1px solid "+(filterMark==="fav"?"#C03050":"#D8D0C0"),
+          color:filterMark==="fav"?"#C03050":"#A09090",
+          fontSize:15,cursor:"pointer",padding:"3px 7px",borderRadius:4,lineHeight:1}}>
+        {filterMark==="fav"?"❤️":"🤍"}
+      </button>
+      <button onClick={()=>setEditMode(!editMode)}
+        title={editMode?"削除モード終了":"削除モード"}
+        style={{background:editMode?"#8B3A3A":"none",
+          border:"1px solid "+(editMode?"#8B3A3A":"#D8D0C0"),
+          color:editMode?"white":"#A09090",
+          fontSize:13,cursor:"pointer",padding:"3px 7px",borderRadius:4,lineHeight:1}}>
+        ➖
+      </button>
     </div>
   );
 
@@ -1166,12 +1194,6 @@ JSONのみ返してください:
             style={{background:"#2A2010",border:"none",color:"#C8A860",
               padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
             ＋ 曲を追加
-          </button>
-          <button onClick={()=>{ setEditMode(!editMode); setShowAdd(false); }}
-            style={{background:editMode?"#8B3A3A":"white",
-              border:"1px solid "+(editMode?"#8B3A3A":"#D8D0C0"),
-              color:editMode?"white":"#6A5030",padding:"7px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-            {editMode ? "✓ 完了" : "➖ 削除"}
           </button>
           <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,marginLeft:4}}>{pieces.length}曲</span>
         </div>
