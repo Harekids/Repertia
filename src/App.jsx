@@ -668,18 +668,20 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       {/* 3列目: 難易度・演奏頻度・キーワード 1行横並び */}
       <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:24,flexWrap:"wrap"}}>
         {[
-          ["difficulty","難易度","🔴","#E05030"],
-          ["frequency", "演奏頻度","🟡","#C8A030"],
-        ].map(([field,label,emoji,color])=>(
+          ["difficulty","難易度","#C8963C"],
+          ["frequency", "演奏頻度","#5B7FA6"],
+        ].map(([field,label,dotColor])=>(
           <div key={field} style={{display:"flex",alignItems:"center",gap:4}}>
             <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>{label}</span>
-            <div style={{display:"flex",gap:0}}>
+            <div style={{display:"flex",gap:0,letterSpacing:0}}>
               {[1,2,3,4,5].map(n=>(
-                <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
-                  style={{width:24,height:24,background:"none",border:"none",
-                    cursor:"pointer",fontSize:16,padding:0,lineHeight:1}}>
-                  {piece[field]>=n ? emoji : "◯"}
-                </button>
+                <span key={n} onClick={()=>setPiece({...piece,[field]:n})}
+                  style={{width:14,height:14,borderRadius:"50%",
+                    background:piece[field]>=n?dotColor:"transparent",
+                    border:"1.5px solid "+dotColor,
+                    cursor:"pointer",display:"inline-block",
+                    marginRight:3}}>
+                </span>
               ))}
             </div>
           </div>
@@ -1081,18 +1083,17 @@ JSONのみ返してください:
       {/* ⑥ 🤍と➖を右端に並べて */}
       <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
         title="お気に入りのみ"
-        style={{background:filterMark==="fav"?"#FFF0F3":"none",
-          border:"1px solid "+(filterMark==="fav"?"#C03050":"#D8D0C0"),
-          color:filterMark==="fav"?"#C03050":"#A09090",
-          fontSize:15,cursor:"pointer",padding:"3px 7px",borderRadius:4,lineHeight:1}}>
-        {filterMark==="fav"?"❤️":"🤍"}
+        style={{background:"none",border:"none",
+          color:filterMark==="fav"?"#B85C72":"#C8B8C0",
+          fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1}}>
+        {filterMark==="fav"?"♥":"♡"}
       </button>
       <button onClick={()=>setEditMode(!editMode)}
         title={editMode?"削除モード終了":"削除モード"}
-        style={{background:editMode?"#8B3A3A":"none",
-          border:"1px solid "+(editMode?"#8B3A3A":"#D8D0C0"),
-          color:editMode?"white":"#A09090",
-          fontSize:13,cursor:"pointer",padding:"3px 7px",borderRadius:4,lineHeight:1}}>
+        style={{background:"none",border:"none",
+          color:editMode?"#8A8A8A":"#C8C8C8",
+          fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,
+          fontWeight:editMode?"bold":"normal"}}>
         ➖
       </button>
     </div>
@@ -1220,8 +1221,8 @@ JSONのみ返してください:
                         (p.yearText||p.year)+"年",
                         p.key,
                         fmtDuration(p.duration, p.durationSecs),
-                        <span key="diff" style={{letterSpacing:"-2px"}}>{[1,2,3,4,5].map(n=>n<=p.difficulty?"🔴":"◯").join("")}</span>,
-                        <span key="freq" style={{letterSpacing:"-2px"}}>{[1,2,3,4,5].map(n=>n<=(p.frequency||0)?"🟡":"◯").join("")}</span>,
+                        <span key="diff" style={{display:"inline-flex",gap:0}}>{[1,2,3,4,5].map(n=>(<span key={n} style={{width:10,height:10,borderRadius:"50%",background:n<=p.difficulty?"#C8963C":"transparent",border:"1.5px solid #C8963C",display:"inline-block",marginRight:2}}></span>))}</span>,
+                        <span key="freq" style={{display:"inline-flex",gap:0}}>{[1,2,3,4,5].map(n=>(<span key={n} style={{width:10,height:10,borderRadius:"50%",background:n<=(p.frequency||0)?"#5B7FA6":"transparent",border:"1.5px solid #5B7FA6",display:"inline-block",marginRight:2}}></span>))}</span>,
                       ].map((item,i)=>(
                         <span key={i} style={{display:"flex",alignItems:"center"}}>
                           {i>0 && <span style={{margin:"0 4px",color:"#D8D0C0"}}>/</span>}
@@ -1234,14 +1235,17 @@ JSONのみ返してください:
                   {/* 右端: 🤍 + 削除 */}
                   <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
                     <button onClick={()=>toggleFav(p.id)}
-                      style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8C0C8",
-                        fontSize:16,cursor:"pointer",padding:"2px 2px",lineHeight:1}}>
-                      {p.fav ? "❤️" : "🤍"}
+                      title={p.fav?"お気に入り解除":"お気に入りに追加"}
+                      style={{background:"none",border:"none",
+                        color:p.fav?"#B85C72":"#C8B8C0",
+                        fontSize:17,cursor:"pointer",padding:"2px 2px",lineHeight:1}}>
+                      {p.fav ? "♥" : "♡"}
                     </button>
                     {editMode && (
                       <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))}
-                        style={{background:"#8B3A3A",border:"none",color:"white",width:22,height:22,
-                          borderRadius:"50%",cursor:"pointer",fontSize:15,lineHeight:"22px",textAlign:"center",flexShrink:0}}>－</button>
+                        style={{background:"#8A8A8A",border:"none",color:"white",width:20,height:20,
+                          borderRadius:"50%",cursor:"pointer",fontSize:12,flexShrink:0,
+                          display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>－</button>
                     )}
                   </div>
                 </div>
