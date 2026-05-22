@@ -631,34 +631,32 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={sel2({width:"100%"})}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS,display:"flex",alignItems:"center",gap:4}}>
+          <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>
             演奏時間
-            {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3}}>※</span>}
+            {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
           </div>
           <div style={{position:"relative"}}>
             <input
-              value={(piece.duration||0)+"分"+(piece.durationSecs>0?(piece.durationSecs+"秒"):"")}
+              defaultValue={(piece.duration||0)+"分"+(piece.durationSecs>0?(piece.durationSecs+"秒"):"")}
+              key={piece.title}
               onFocus={e=>e.target.select()}
-              onChange={e=>{
-                const v=e.target.value.replace(/[^\d]/g,"");
-                const n=parseInt(v)||0;
-                setPiece({...piece,duration:n,durationSecs:0});
-                setDurationEdited(true);
-              }}
               onBlur={e=>{
-                // parse "5分30秒" or "5:30" or "5"
-                const raw=e.target.value;
+                const raw=e.target.value.trim();
+                const colonMatch=raw.match(/^(\d+):(\d+)$/);
                 const mMatch=raw.match(/(\d+)\s*分/);
                 const sMatch=raw.match(/(\d+)\s*秒/);
-                const colonMatch=raw.match(/^(\d+):(\d+)$/);
+                let m=piece.duration, s=0;
                 if(colonMatch){
-                  setPiece({...piece,duration:parseInt(colonMatch[1]),durationSecs:parseInt(colonMatch[2])});
+                  m=parseInt(colonMatch[1]); s=parseInt(colonMatch[2]);
+                }else if(mMatch||sMatch){
+                  if(mMatch) m=parseInt(mMatch[1]);
+                  if(sMatch) s=parseInt(sMatch[1]);
                 }else{
-                  const m=mMatch?parseInt(mMatch[1]):(parseInt(raw)||piece.duration);
-                  const s=sMatch?parseInt(sMatch[1]):0;
-                  setPiece({...piece,duration:m,durationSecs:s});
+                  const n=parseInt(raw); if(!isNaN(n)) m=n;
                 }
+                setPiece({...piece,duration:m,durationSecs:s});
                 setDurationEdited(true);
+                e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
               placeholder="例: 5分30秒 / 5:30 / 5"
               style={sel2({width:"100%",borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}
@@ -667,42 +665,35 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      {/* 3列目: 難易度🔴・演奏頻度🟡・キーワード */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1.5fr",gap:14,marginBottom:18,alignItems:"center"}}>
-        {/* 難易度 + 演奏頻度 横並び */}
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {[
-            ["difficulty","難易度","🔴","#E05030"],
-            ["frequency", "演奏頻度","🟡","#C8A030"],
-          ].map(([field,label,emoji,color])=>(
-            <div key={field} style={{display:"flex",alignItems:"center",gap:8}}>
-              <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:52,flexShrink:0}}>{emoji} {label}</span>
-              <div style={{display:"flex",gap:4}}>
-                {[1,2,3,4,5].map(n=>(
-                  <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
-                    style={{width:26,height:26,background:piece[field]>=n?color:"white",
-                      border:"1px solid "+color,color:piece[field]>=n?"white":color,
-                      cursor:"pointer",fontSize:13,borderRadius:4,fontFamily:SANS,
-                      display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>
-                    {piece[field]>=n?emoji:"◯"}
-                  </button>
-                ))}
-              </div>
+      {/* 3列目: 難易度・演奏頻度・キーワード 1行横並び */}
+      <div style={{display:"flex",gap:20,alignItems:"center",marginBottom:18,flexWrap:"wrap"}}>
+        {[
+          ["difficulty","難易度","🔴","#E05030"],
+          ["frequency", "演奏頻度","🟡","#C8A030"],
+        ].map(([field,label,emoji,color])=>(
+          <div key={field} style={{display:"flex",alignItems:"center",gap:6}}>
+            <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>{label}</span>
+            <div style={{display:"flex",gap:3}}>
+              {[1,2,3,4,5].map(n=>(
+                <button key={n} type="button" onClick={()=>setPiece({...piece,[field]:n})}
+                  style={{width:26,height:26,background:"none",border:"none",
+                    cursor:"pointer",fontSize:16,padding:0,lineHeight:1}}>
+                  {piece[field]>=n ? emoji : "◯"}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-        {/* ④ キーワード（絵文字なし） */}
-        <div>
-          <div style={{fontSize:10,color:"#6A5030",marginBottom:7,fontFamily:SANS}}>キーワード</div>
+          </div>
+        ))}
+        <div style={{flex:1,minWidth:120}}>
           <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
-            placeholder="例: 抒情的, 発表会向け"
-            style={inp2({padding:"6px 8px",fontSize:12})} />
+            placeholder="キーワード（例: 抒情的）"
+            style={inp2({padding:"5px 8px",fontSize:12})} />
         </div>
       </div>
 
-      <div style={{display:"flex",gap:10,justifyContent:"center"}}>
-        <button onClick={handleAdd} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
-        <button onClick={onCancel} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"10px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+      <div style={{display:"flex",gap:24,justifyContent:"center"}}>
+        <button onClick={handleAdd} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 22px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
+        <button onClick={onCancel} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
       </div>
     </div>
   );
@@ -1073,7 +1064,6 @@ JSONのみ返してください:
         <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
           style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
           <option value="" disabled>並べ替え</option>
-          <option value="composerBorn">作曲家</option>
           <option value="year">作曲年</option>
           <option value="duration">演奏時間</option>
           <option value="difficulty">難易度</option>
@@ -1192,10 +1182,9 @@ JSONのみ返してください:
         <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
           <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
             style={{background:"#2A2010",border:"none",color:"#C8A860",
-              padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
+              padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
             ＋ 曲を追加
           </button>
-          <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,marginLeft:4}}>{pieces.length}曲</span>
         </div>
 
         {/* 曲追加フォーム — 境界線で視覚的に分離 */}
@@ -1426,7 +1415,6 @@ JSONのみ返してください:
                 <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
                   style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
                   <option value="" disabled>並べ替え</option>
-                  <option value="composerBorn">作曲家</option>
                   <option value="year">作曲年</option>
                   <option value="duration">演奏時間</option>
                   <option value="difficulty">難易度</option>
