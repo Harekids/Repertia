@@ -934,6 +934,10 @@ export default function App() {
   const [showConstraints, setShowConstraints] = useState(false);
   const [constraints, setConstraints]         = useState({ requireEras:[] });
   const [showAdd, setShowAdd]                 = useState(false);
+  const [portfolioTab, setPortfolioTab]        = useState("analysis"); // "analysis"|"history"|"export"
+  const [events, setEvents]                    = useState([]); // History events
+  const [analysisAxis, setAnalysisAxis]        = useState("era"); // "era"|"difficulty"|"duration"
+  const [chartType, setChartType]              = useState("pie"); // "pie"|"bar"
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
@@ -1257,28 +1261,313 @@ JSONのみ返してください:
     </div>
   );
 
-  // ── PRINT PAGE ────────────────────────────────────────────────────────────────
-  const PrintPage = () => (
-    <div style={{flex:1,overflowY:"auto"}}>
-      <div style={{maxWidth:900,margin:"0 auto",padding:"28px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:28}}>
-        <div>
-          <div style={{fontSize:11,letterSpacing:4,color:"#8A7050",marginBottom:16,fontFamily:SANS}}>設定</div>
-          <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18,marginBottom:14}}>
-            <div style={{fontSize:11,color:"#6A5030",marginBottom:8,fontFamily:SANS}}>プログラム</div>
-            <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
-              style={{width:"100%",background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:SANS,fontSize:13,borderRadius:4}}>
-              {programs.map(p=><option key={p.id} value={p.id}>{p.name}（{p.pieceIds.length}曲）</option>)}
-            </select>
+  // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
+  const PrintPage = () => {
+
+    // ── Analysis helpers ──
+    const getAxisData = () => {
+      if (analysisAxis === "era") {
+        return ERA_ORDER.map(k => ({
+          label: ERAS[k].label, color: ERAS[k].color,
+          count: pieces.filter(p=>p.era===k).length,
+        })).filter(d=>d.count>0);
+      }
+      if (analysisAxis === "difficulty") {
+        return [1,2,3,4,5].map(n => ({
+          label: "難易度"+n, color: ["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],
+          count: pieces.filter(p=>p.difficulty===n).length,
+        })).filter(d=>d.count>0);
+      }
+      if (analysisAxis === "duration") {
+        const bands = [[1,5,"〜5分","#A8D5A2"],[6,10,"6〜10分","#7EC8A4"],[11,20,"11〜20分","#C8963C"],[21,999,"20分〜","#B85C72"]];
+        return bands.map(([lo,hi,label,color]) => ({
+          label, color, count: pieces.filter(p=>p.duration>=lo&&p.duration<=hi).length,
+        })).filter(d=>d.count>0);
+      }
+      return [];
+    };
+
+    const data = getAxisData();
+    const total = data.reduce((s,d)=>s+d.count,0);
+
+    // Simple SVG pie chart
+    const PieChart = () => {
+      let angle = -90;
+      const cx=80, cy=80, r=60;
+      const slices = data.map(d => {
+        const deg = (d.count/total)*360;
+        const start = angle;
+        angle += deg;
+        return {...d, startDeg:start, deg};
+      });
+      const toXY = (deg, radius=r) => ({
+        x: cx + radius * Math.cos(deg*Math.PI/180),
+        y: cy + radius * Math.sin(deg*Math.PI/180),
+      });
+      return (
+        <svg viewBox="0 0 160 160" style={{width:160,height:160}}>
+          {slices.map((s,i) => {
+            const s1 = toXY(s.startDeg), s2 = toXY(s.startDeg+s.deg);
+            const large = s.deg > 180 ? 1 : 0;
+            return (
+              <path key={i}
+                d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"}
+                fill={s.color} stroke="white" strokeWidth={1.5} />
+            );
+          })}
+          <text x={cx} y={cy-6} textAnchor="middle" fontSize={18} fontWeight="bold" fill="#2A2010">{total}</text>
+          <text x={cx} y={cy+12} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
+        </svg>
+      );
+    };
+
+    const BarChart = () => (
+      <div style={{display:"flex",alignItems:"flex-end",gap:8,height:120,padding:"0 8px"}}>
+        {data.map((d,i) => (
+          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:4}}>
+            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
+            <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",
+              height:Math.max(8,(d.count/Math.max(...data.map(x=>x.count)))*100)+"px",
+              transition:"height 0.3s"}} />
+            <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
           </div>
-          <PrintSettings prog={prog} allPool={allPool} />
-        </div>
-        <div>
-          <div style={{fontSize:11,letterSpacing:4,color:"#8A7050",marginBottom:16,fontFamily:SANS}}>プレビュー</div>
-          <PrintPreview prog={prog} allPool={allPool} />
-        </div>
+        ))}
       </div>
-    </div>
-  );
+    );
+
+    // ── History helpers ──
+    const EVENT_TYPES = {
+      recital:  {label:"発表会",  emoji:"🟡", color:"#C8963C"},
+      contest:  {label:"コンクール", emoji:"🔵", color:"#5B7FA6"},
+      concert:  {label:"コンサート", emoji:"🔴", color:"#B85C72"},
+    };
+    const [newEvent, setNewEvent]     = useState({date:"",venue:"",type:"recital",performers:"",notes:"",programId:null});
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [addingEvent, setAddingEvent] = useState(false);
+
+    const addEvent = () => {
+      if (!newEvent.date) return;
+      setEvents(prev=>[...prev,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date)));
+      setNewEvent({date:"",venue:"",type:"recital",performers:"",notes:"",programId:null});
+      setAddingEvent(false);
+    };
+
+    const inpPf = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
+    const selPf = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"};
+
+    return (
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+        {/* Portfolio inner tabs */}
+        <div style={{background:"#EDE8DC",borderBottom:"2px solid #D8D0C0",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
+          {[["analysis","Analysis"],["history","History"],["export","Export"]].map(([k,l])=>(
+            <button key={k} onClick={()=>setPortfolioTab(k)}
+              style={{background:"none",border:"none",
+                borderBottom:portfolioTab===k?"3px solid #8B5E3C":"3px solid transparent",
+                color:portfolioTab===k?"#2A2010":"#8A7050",
+                padding:"10px 20px",cursor:"pointer",fontSize:13,
+                fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
+                fontWeight:portfolioTab===k?600:400}}>
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {/* ── ANALYSIS ── */}
+        {portfolioTab==="analysis" && (
+          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+            <div style={{maxWidth:800,margin:"0 auto"}}>
+
+              {/* Stats row */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
+                {[
+                  ["総曲数", pieces.length+"曲", "#2A2010"],
+                  ["登録済み", pieces.filter(p=>p.mine).length+"曲", "#5B7FA6"],
+                  ["お気に入り", pieces.filter(p=>p.fav).length+"曲", "#B85C72"],
+                ].map(([label,value,color])=>(
+                  <div key={label} style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:"16px 20px",textAlign:"center"}}>
+                    <div style={{fontSize:24,fontWeight:600,color,fontFamily:FONT,marginBottom:4}}>{value}</div>
+                    <div style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Chart area */}
+              <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:20}}>
+                {/* Controls */}
+                <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
+                  <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,marginRight:4}}>表示軸：</span>
+                  {[["era","時代別"],["difficulty","難易度別"],["duration","演奏時間別"]].map(([k,l])=>(
+                    <button key={k} onClick={()=>setAnalysisAxis(k)}
+                      style={{background:analysisAxis===k?"#2A2010":"white",
+                        border:"1px solid "+(analysisAxis===k?"#2A2010":"#D8D0C0"),
+                        color:analysisAxis===k?"#C8A860":"#6A5030",
+                        padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                      {l}
+                    </button>
+                  ))}
+                  <div style={{marginLeft:"auto",display:"flex",gap:4}}>
+                    {[["pie","●"],["bar","▬"]].map(([k,icon])=>(
+                      <button key={k} onClick={()=>setChartType(k)}
+                        style={{background:chartType===k?"#2A2010":"white",
+                          border:"1px solid "+(chartType===k?"#2A2010":"#D8D0C0"),
+                          color:chartType===k?"#C8A860":"#6A5030",
+                          padding:"4px 10px",cursor:"pointer",fontSize:13,borderRadius:4}}>
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Chart + legend */}
+                <div style={{display:"flex",gap:24,alignItems:"center",flexWrap:"wrap"}}>
+                  {chartType==="pie" ? <PieChart /> : <BarChart />}
+                  <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                    {data.map((d,i)=>(
+                      <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:10,height:10,borderRadius:"50%",background:d.color,flexShrink:0}} />
+                        <span style={{fontSize:12,color:"#2A2010",fontFamily:SANS,flex:1}}>{d.label}</span>
+                        <span style={{fontSize:12,color:"#8A7050",fontFamily:SANS}}>{d.count}曲</span>
+                        <span style={{fontSize:11,color:"#B0A080",fontFamily:SANS}}>
+                          {Math.round(d.count/total*100)}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── HISTORY ── */}
+        {portfolioTab==="history" && (
+          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+            <div style={{maxWidth:800,margin:"0 auto"}}>
+
+              {/* Add event button */}
+              <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
+                <button onClick={()=>setAddingEvent(!addingEvent)}
+                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
+                  ＋ イベントを追加
+                </button>
+              </div>
+
+              {/* Add event form */}
+              {addingEvent && (
+                <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:8,padding:18,marginBottom:20}}>
+                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",marginBottom:12,fontFamily:SANS,fontWeight:600}}>NEW EVENT</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:10}}>
+                    <div>
+                      <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>日付</div>
+                      <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpPf} />
+                    </div>
+                    <div>
+                      <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>種別</div>
+                      <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={selPf}>
+                        {Object.entries(EVENT_TYPES).map(([k,v])=>(
+                          <option key={k} value={k}>{v.emoji} {v.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>会場</div>
+                      <input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpPf} />
+                    </div>
+                  </div>
+                  <div style={{marginBottom:10}}>
+                    <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>共演者</div>
+                    <input value={newEvent.performers} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者など" style={inpPf} />
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>メモ</div>
+                    <input value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})} placeholder="備考・感想など" style={inpPf} />
+                  </div>
+                  <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+                    <button onClick={addEvent} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,letterSpacing:1}}>追加する</button>
+                    <button onClick={()=>setAddingEvent(false)} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"7px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+                  </div>
+                </div>
+              )}
+
+              {events.length===0 ? (
+                <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
+                  「＋ イベントを追加」からコンサートや発表会を記録しましょう
+                </div>
+              ) : (
+                /* Timeline */
+                <div style={{position:"relative",paddingLeft:40}}>
+                  {/* Vertical line */}
+                  <div style={{position:"absolute",left:16,top:0,bottom:0,width:2,background:"#E8E0D0"}} />
+
+                  {events.map((ev,i)=>{
+                    const et = EVENT_TYPES[ev.type]||EVENT_TYPES.recital;
+                    const isSelected = selectedEvent===ev.id;
+                    return (
+                      <div key={ev.id} style={{position:"relative",marginBottom:20}}>
+                        {/* Marker */}
+                        <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
+                          style={{position:"absolute",left:-32,top:0,
+                            width:20,height:24,cursor:"pointer",
+                            display:"flex",flexDirection:"column",alignItems:"center"}}>
+                          {/* Teardrop marker */}
+                          <div style={{width:18,height:18,borderRadius:"50% 50% 50% 0",
+                            transform:"rotate(-45deg)",background:et.color,
+                            border:"2px solid white",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}} />
+                        </div>
+
+                        {/* Card */}
+                        <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
+                          style={{background:"white",border:"1px solid #E8E0D0",borderLeft:"3px solid "+et.color,
+                            borderRadius:6,padding:"10px 14px",cursor:"pointer",
+                            boxShadow:isSelected?"0 2px 12px rgba(0,0,0,0.1)":"none"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:isSelected?8:0}}>
+                            <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600}}>{et.emoji} {et.label}</span>
+                            <span style={{fontSize:12,color:"#2A2010",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
+                            {ev.venue && <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{ev.venue}</span>}
+                          </div>
+                          {isSelected && (
+                            <div style={{borderTop:"1px solid #F0EAE0",paddingTop:8,fontSize:12,color:"#6A5030",fontFamily:SANS,display:"flex",flexDirection:"column",gap:4}}>
+                              {ev.performers && <div><span style={{color:"#A09070"}}>共演者：</span>{ev.performers}</div>}
+                              {ev.notes && <div><span style={{color:"#A09070"}}>メモ：</span>{ev.notes}</div>}
+                              <button onClick={e=>{e.stopPropagation();setEvents(prev=>prev.filter(x=>x.id!==ev.id));setSelectedEvent(null);}}
+                                style={{marginTop:4,alignSelf:"flex-end",background:"none",border:"1px solid #E8C0C0",color:"#C09090",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
+                                削除
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── EXPORT ── */}
+        {portfolioTab==="export" && (
+          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+            <div style={{maxWidth:800,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:4}}>プログラムを選択</div>
+                <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:SANS,fontSize:13,borderRadius:4}}>
+                  {programs.map(p=><option key={p.id} value={p.id}>{p.name}（{p.pieceIds.length}曲）</option>)}
+                </select>
+                <PrintSettings prog={prog} allPool={allPool} />
+              </div>
+              <div>
+                <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:12}}>プレビュー</div>
+                <PrintPreview prog={prog} allPool={allPool} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // ── HOME PAGE ─────────────────────────────────────────────────────────────────
   const HomePage = () => (
