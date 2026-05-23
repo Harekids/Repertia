@@ -934,10 +934,18 @@ export default function App() {
   const [showConstraints, setShowConstraints] = useState(false);
   const [constraints, setConstraints]         = useState({ requireEras:[] });
   const [showAdd, setShowAdd]                 = useState(false);
-  const [portfolioTab, setPortfolioTab]        = useState("analysis"); // "analysis"|"history"|"export"
-  const [events, setEvents]                    = useState([]); // History events
-  const [analysisAxis, setAnalysisAxis]        = useState("era"); // "era"|"difficulty"|"duration"
-  const [chartType, setChartType]              = useState("pie"); // "pie"|"bar"
+  const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
+  const [events, setEvents]                    = useState([]);
+  const [analysisAxis, setAnalysisAxis]        = useState("era");
+  const [chartType, setChartType]              = useState("pie");
+  const [profile, setProfile]                  = useState({
+    nameJa:"", nameEn:"", birthDate:"", nationality:"ロシア",
+    photoUrl:"",
+    educations:[],   // {id, school, degree, year}
+    teachers:[],     // {id, name, role}
+    competitions:[],  // {id, name, year, result}
+    contact:{email:"", website:"", sns:""},
+  });
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
@@ -1544,151 +1552,78 @@ JSONのみ返してください:
 
   // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
   const PrintPage = () => {
+    const photoInputRef = useRef(null);
 
-    // ── Analysis helpers ──
-    const getAxisData = () => {
-      if (analysisAxis === "era") {
-        return ERA_ORDER.map(k => ({
-          label: ERAS[k].label, color: ERAS[k].color,
-          count: pieces.filter(p=>p.era===k).length,
-        })).filter(d=>d.count>0);
-      }
-      if (analysisAxis === "difficulty") {
-        return [1,2,3,4,5].map(n => ({
-          label: "難易度"+n, color: ["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],
-          count: pieces.filter(p=>p.difficulty===n).length,
-        })).filter(d=>d.count>0);
-      }
-      if (analysisAxis === "duration") {
-        const bands = [[1,5,"〜5分","#A8D5A2"],[6,10,"6〜10分","#7EC8A4"],[11,20,"11〜20分","#C8963C"],[21,999,"20分〜","#B85C72"]];
-        return bands.map(([lo,hi,label,color]) => ({
-          label, color, count: pieces.filter(p=>p.duration>=lo&&p.duration<=hi).length,
-        })).filter(d=>d.count>0);
-      }
-      return [];
-    };
+    // ── helpers for editable lists ──
+    const addListItem = (field, empty) =>
+      setProfile(p=>({...p,[field]:[...p[field],{id:Date.now(),...empty}]}));
+    const updateListItem = (field, id, patch) =>
+      setProfile(p=>({...p,[field]:p[field].map(x=>x.id===id?{...x,...patch}:x)}));
+    const removeListItem = (field, id) =>
+      setProfile(p=>({...p,[field]:p[field].filter(x=>x.id!==id)}));
 
-    const data = getAxisData();
-    const total = data.reduce((s,d)=>s+d.count,0);
-
-    // Simple SVG pie chart
-    const PieChart = () => {
-      let angle = -90;
-      const cx=80, cy=80, r=60;
-      const slices = data.map(d => {
-        const deg = (d.count/total)*360;
-        const start = angle;
-        angle += deg;
-        return {...d, startDeg:start, deg};
-      });
-      const toXY = (deg, radius=r) => ({
-        x: cx + radius * Math.cos(deg*Math.PI/180),
-        y: cy + radius * Math.sin(deg*Math.PI/180),
-      });
-      return (
-        <svg viewBox="0 0 160 160" style={{width:160,height:160}}>
-          {slices.map((s,i) => {
-            const s1 = toXY(s.startDeg), s2 = toXY(s.startDeg+s.deg);
-            const large = s.deg > 180 ? 1 : 0;
-            return (
-              <path key={i}
-                d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"}
-                fill={s.color} stroke="white" strokeWidth={1.5} />
-            );
-          })}
-          <text x={cx} y={cy-6} textAnchor="middle" fontSize={18} fontWeight="bold" fill="#2A2010">{total}</text>
-          <text x={cx} y={cy+12} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
-        </svg>
-      );
-    };
-
-    const BarChart = () => (
-      <div style={{display:"flex",alignItems:"flex-end",gap:8,height:120,padding:"0 8px"}}>
-        {data.map((d,i) => (
-          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:4}}>
-            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
-            <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",
-              height:Math.max(8,(d.count/Math.max(...data.map(x=>x.count)))*100)+"px",
-              transition:"height 0.3s"}} />
-            <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
-          </div>
-        ))}
-      </div>
-    );
-
-    // ── History helpers ──
-    const EVENT_TYPES = {
-      recital:  {label:"発表会",  emoji:"🟡", color:"#C8963C"},
-      contest:  {label:"コンクール", emoji:"🔵", color:"#5B7FA6"},
-      concert:  {label:"コンサート", emoji:"🔴", color:"#B85C72"},
-    };
-    const EMPTY_EVENT = {
-      date:"", type:"recital", title:"", organizer:"", venue:"",
-      openTime:"", startTime:"", contact:"",
-      items:[], // {id, kind:"piece"|"break", performer:"", pieceTitle:"", duration:""}
-      notes:"", greeting:"", profile:"", posterUrl:"",
-    };
-    const [newEvent, setNewEvent]         = useState(EMPTY_EVENT);
-    const [selectedEvent, setSelectedEvent] = useState(null);
-    const [addingEvent, setAddingEvent]   = useState(false);
-    const [dragItemId, setDragItemId]     = useState(null);
-    const [dragOverId, setDragOverId]     = useState(null);
-    const posterInputRef = useRef(null);
-
-    const addEvent = () => {
-      if (!newEvent.date) return;
-      setEvents(prev=>[...prev,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date)));
-      setNewEvent(EMPTY_EVENT);
-      setAddingEvent(false);
-    };
-
-    const addItem = (kind="piece") => {
-      const id = Date.now();
-      setNewEvent(ev=>({...ev, items:[...ev.items,{id,kind,performer:"",pieceTitle:"",duration:""}]}));
-    };
-
-    const updateItem = (id, patch) => {
-      setNewEvent(ev=>({...ev, items:ev.items.map(it=>it.id===id?{...it,...patch}:it)}));
-    };
-
-    const removeItem = (id) => {
-      setNewEvent(ev=>({...ev, items:ev.items.filter(it=>it.id!==id)}));
-    };
-
-    const onItemDragEnd = () => {
-      if (dragItemId==null||dragOverId==null||dragItemId===dragOverId) { setDragItemId(null); setDragOverId(null); return; }
-      setNewEvent(ev=>{
-        const arr=[...ev.items];
-        const from=arr.findIndex(x=>x.id===dragItemId), to=arr.findIndex(x=>x.id===dragOverId);
-        arr.splice(from,1); arr.splice(to,0,ev.items[from]);
-        return {...ev,items:arr};
-      });
-      setDragItemId(null); setDragOverId(null);
-    };
-
-    const handlePoster = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev2 => setNewEvent(ev=>({...ev, posterUrl:ev2.target.result}));
+    const handlePhoto = (e) => {
+      const file=e.target.files[0]; if(!file) return;
+      const reader=new FileReader();
+      reader.onload=ev2=>setProfile(p=>({...p,photoUrl:ev2.target.result}));
       reader.readAsDataURL(file);
     };
 
-    const inpPf = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
-    const selPf = {background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"};
-    const txPf  = {...inpPf, minHeight:64, resize:"vertical"};
+    // ── Output: generate bio text ──
+    const generateBio = (length) => {
+      const p = profile;
+      const name = p.nameJa || p.nameEn || "（氏名未入力）";
+      const edu  = p.educations.map(e=>e.school+(e.degree?" "+e.degree:"")+(e.year?" ("+e.year+")":"")).join("、");
+      const teach = p.teachers.map(t=>t.name+(t.role?" ("+t.role+")":"")).join("、");
+      const comp  = p.competitions.map(c=>c.name+(c.year?" "+c.year+"年":"")+(c.result?" "+c.result:"")).join("。");
+
+      if (length==="short") {
+        return name+"は"+(edu?edu+"を経て、":"")+(teach?""+teach+"に師事。":"")+"現在演奏活動を行っている。";
+      }
+      if (length==="medium") {
+        return name+"。"+(p.birthDate?p.birthDate+"生まれ。":"")+
+          (edu?"学歴："+edu+"。":"")+
+          (teach?teach+"に師事。":"")+
+          (comp?"コンクール等："+comp+"。":"");
+      }
+      return name+"。"+(p.birthDate?p.birthDate+"生まれ、"+p.nationality+"出身。":"")+
+        (edu?"\n\n【学歴】"+edu+"。":"")+
+        (teach?"\n\n【師事】"+teach+"。":"")+
+        (comp?"\n\n【コンクール歴・入賞歴】"+comp+"。":"")+
+        (p.contact.email?"\n\n【連絡先】"+p.contact.email:"");
+    };
+
+    // ── Styles ──
+    const inpS={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+    const lblS={fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS};
+    const secTitle=(t)=>( <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #E8E0D0",paddingBottom:4}}>{t}</div> );
+    const addBtn=(label,onClick)=>(
+      <button onClick={onClick} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginTop:6}}>
+        ＋ {label}
+      </button>
+    );
+
+    const copyText = (text) => navigator.clipboard.writeText(text).catch(()=>{});
+
+    const printSection = (id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const w = window.open("","_blank");
+      w.document.write("<html><head><style>body{font-family:serif;padding:40px;color:#2A2010;}h2{letter-spacing:3px;color:#6A5030;}</style></head><body>"+el.innerHTML+"</body></html>");
+      w.document.close(); w.print();
+    };
 
     return (
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-        {/* Portfolio inner tabs */}
+        {/* Inner tabs: Profile / Output */}
         <div style={{background:"#EDE8DC",borderBottom:"2px solid #D8D0C0",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
-          {[["analysis","Analysis"],["history","History"],["export","Export"]].map(([k,l])=>(
+          {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
             <button key={k} onClick={()=>setPortfolioTab(k)}
               style={{background:"none",border:"none",
                 borderBottom:portfolioTab===k?"3px solid #8B5E3C":"3px solid transparent",
                 color:portfolioTab===k?"#2A2010":"#8A7050",
-                padding:"10px 20px",cursor:"pointer",fontSize:13,
+                padding:"10px 22px",cursor:"pointer",fontSize:13,
                 fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
                 fontWeight:portfolioTab===k?600:400}}>
               {l}
@@ -1696,310 +1631,186 @@ JSONのみ返してください:
           ))}
         </div>
 
-        {/* ── ANALYSIS ── */}
-        {portfolioTab==="analysis" && (
+        {/* ── PROFILE ── */}
+        {portfolioTab==="profile" && (
           <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-            <div style={{maxWidth:800,margin:"0 auto"}}>
+            <div style={{maxWidth:720,margin:"0 auto"}}>
 
-              {/* Stats row */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:24}}>
-                {[
-                  ["総曲数", pieces.length+"曲", "#2A2010"],
-                  ["登録済み", pieces.filter(p=>p.mine).length+"曲", "#5B7FA6"],
-                  ["お気に入り", pieces.filter(p=>p.fav).length+"曲", "#B85C72"],
-                ].map(([label,value,color])=>(
-                  <div key={label} style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:"16px 20px",textAlign:"center"}}>
-                    <div style={{fontSize:24,fontWeight:600,color,fontFamily:FONT,marginBottom:4}}>{value}</div>
-                    <div style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{label}</div>
+              {/* 写真 + 基本情報 */}
+              <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:4}}>
+                {/* 写真 */}
+                <div style={{flexShrink:0}}>
+                  <div onClick={()=>photoInputRef.current?.click()}
+                    style={{width:90,height:90,borderRadius:"50%",border:"2px dashed #C8B890",
+                      background:profile.photoUrl?"transparent":"#F8F4EE",cursor:"pointer",
+                      display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+                    {profile.photoUrl
+                      ? <img src={profile.photoUrl} alt="photo" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      : <span style={{fontSize:28,color:"#C8B890"}}>👤</span>}
                   </div>
-                ))}
-              </div>
-
-              {/* Chart area */}
-              <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:20}}>
-                {/* Controls */}
-                <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
-                  <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,marginRight:4}}>表示軸：</span>
-                  {[["era","時代別"],["difficulty","難易度別"],["duration","演奏時間別"]].map(([k,l])=>(
-                    <button key={k} onClick={()=>setAnalysisAxis(k)}
-                      style={{background:analysisAxis===k?"#2A2010":"white",
-                        border:"1px solid "+(analysisAxis===k?"#2A2010":"#D8D0C0"),
-                        color:analysisAxis===k?"#C8A860":"#6A5030",
-                        padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                      {l}
-                    </button>
-                  ))}
-                  <div style={{marginLeft:"auto",display:"flex",gap:4}}>
-                    {[["pie","●"],["bar","▬"]].map(([k,icon])=>(
-                      <button key={k} onClick={()=>setChartType(k)}
-                        style={{background:chartType===k?"#2A2010":"white",
-                          border:"1px solid "+(chartType===k?"#2A2010":"#D8D0C0"),
-                          color:chartType===k?"#C8A860":"#6A5030",
-                          padding:"4px 10px",cursor:"pointer",fontSize:13,borderRadius:4}}>
-                        {icon}
-                      </button>
-                    ))}
-                  </div>
+                  <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
+                  <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:4,fontFamily:SANS}}>クリックして変更</div>
                 </div>
-
-                {/* Chart + legend */}
-                <div style={{display:"flex",gap:24,alignItems:"center",flexWrap:"wrap"}}>
-                  {chartType==="pie" ? <PieChart /> : <BarChart />}
-                  <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
-                    {data.map((d,i)=>(
-                      <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
-                        <div style={{width:10,height:10,borderRadius:"50%",background:d.color,flexShrink:0}} />
-                        <span style={{fontSize:12,color:"#2A2010",fontFamily:SANS,flex:1}}>{d.label}</span>
-                        <span style={{fontSize:12,color:"#8A7050",fontFamily:SANS}}>{d.count}曲</span>
-                        <span style={{fontSize:11,color:"#B0A080",fontFamily:SANS}}>
-                          {Math.round(d.count/total*100)}%
-                        </span>
-                      </div>
-                    ))}
+                {/* 氏名・基本 */}
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
+                    <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
+                    <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
                   </div>
                 </div>
               </div>
+
+              {/* 学歴 */}
+              {secTitle("学歴（音楽）")}
+              {profile.educations.map(ed=>(
+                <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                  <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
+                  <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1}}/>
+                  <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="卒業年" style={{...inpS,flex:"0 0 70px"}}/>
+                  <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              {addBtn("学歴を追加",()=>addListItem("educations",{school:"",degree:"",year:""}))}
+
+              {/* 師事者 */}
+              {secTitle("師事者")}
+              {profile.teachers.map(t=>(
+                <div key={t.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                  <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
+                  <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1}}/>
+                  <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              {addBtn("師事者を追加",()=>addListItem("teachers",{name:"",role:""}))}
+
+              {/* コンクール歴・入賞歴 */}
+              {secTitle("コンクール歴・入賞歴")}
+              {profile.competitions.map(c=>(
+                <div key={c.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                  <input value={c.name} onChange={e=>updateListItem("competitions",c.id,{name:e.target.value})} placeholder="コンクール名" style={{...inpS,flex:2}}/>
+                  <input value={c.year} onChange={e=>updateListItem("competitions",c.id,{year:e.target.value})} placeholder="年" style={{...inpS,flex:"0 0 60px"}}/>
+                  <input value={c.result} onChange={e=>updateListItem("competitions",c.id,{result:e.target.value})} placeholder="結果・受賞" style={{...inpS,flex:1}}/>
+                  <button onClick={()=>removeListItem("competitions",c.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              {addBtn("コンクール歴を追加",()=>addListItem("competitions",{name:"",year:"",result:""}))}
+
+              {/* 連絡先 */}
+              {secTitle("連絡先")}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+                <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
+                <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
+                <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
+              </div>
+
             </div>
           </div>
         )}
 
-        {/* ── HISTORY ── */}
-        {portfolioTab==="history" && (
+        {/* ── OUTPUT ── */}
+        {portfolioTab==="output" && (
           <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-            <div style={{maxWidth:800,margin:"0 auto"}}>
+            <div style={{maxWidth:720,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
 
-              {/* Add event button */}
-              <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
-                <button onClick={()=>setAddingEvent(!addingEvent)}
-                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-                  ＋ イベントを追加
-                </button>
+              {/* 経歴文 */}
+              <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+                <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:12,fontWeight:600}}>経歴文</div>
+                {[["short","短め"],["medium","中"],["long","長め"]].map(([len,label])=>{
+                  const bio=generateBio(len);
+                  return (
+                    <div key={len} style={{marginBottom:14}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                        <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{label}</span>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>copyText(bio)} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>コピー</button>
+                        </div>
+                      </div>
+                      <div style={{background:"#F8F4EE",borderRadius:6,padding:"10px 12px",fontSize:12,color:"#2A2010",fontFamily:SANS,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{bio}</div>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Add event form */}
-              {addingEvent && (
-                <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:8,padding:18,marginBottom:20}}>
-                  <div style={{fontSize:13,letterSpacing:2,color:"#6A5030",marginBottom:14,fontFamily:SANS,fontWeight:600}}>NEW EVENT</div>
-
-                  {/* ── 公演情報 ── */}
-                  <div style={{fontSize:10,color:"#8A7050",letterSpacing:2,fontFamily:SANS,marginBottom:8}}>公演情報</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:8}}>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div>
-                      <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpPf} />
-                    </div>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>種別</div>
-                      <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={selPf}>
-                        {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.emoji} {v.label}</option>))}
-                      </select>
-                    </div>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>公演名</div>
-                      <input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpPf} />
-                    </div>
+              {/* レパートリーリスト */}
+              <div id="output-repertoire" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>レパートリーリスト</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={()=>printSection("output-repertoire")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>主催者</div>
-                      <input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpPf} />
-                    </div>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>会場</div>
-                      <input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpPf} />
-                    </div>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開場</div>
-                      <input value={newEvent.openTime} onChange={e=>setNewEvent({...newEvent,openTime:e.target.value})} placeholder="例: 13:30" style={inpPf} />
-                    </div>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開演</div>
-                      <input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="例: 14:00" style={inpPf} />
-                    </div>
-                    <div>
-                      <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>問い合わせ</div>
-                      <input value={newEvent.contact} onChange={e=>setNewEvent({...newEvent,contact:e.target.value})} placeholder="連絡先" style={inpPf} />
-                    </div>
-                  </div>
-
-                  {/* ── 曲目（積み上げ方式） ── */}
-                  <div style={{fontSize:10,color:"#8A7050",letterSpacing:2,fontFamily:SANS,marginBottom:8}}>曲目</div>
-                  <div style={{marginBottom:8}}>
-                    {newEvent.items.map((it,idx)=>(
-                      <div key={it.id}
-                        draggable
-                        onDragStart={()=>setDragItemId(it.id)}
-                        onDragEnter={()=>setDragOverId(it.id)}
-                        onDragEnd={onItemDragEnd}
-                        onDragOver={e=>e.preventDefault()}
-                        style={{display:"flex",alignItems:"center",gap:6,marginBottom:5,
-                          background:dragOverId===it.id?"#FDF5ED":"white",
-                          border:"1px solid #E8E0D0",borderRadius:5,padding:"6px 8px",cursor:"grab"}}>
-                        <span style={{color:"#C8B890",fontSize:12,flexShrink:0}}>⠿</span>
-                        {it.kind==="break" ? (
-                          <span style={{flex:1,fontSize:12,color:"#8A7050",fontFamily:SANS,fontStyle:"italic"}}>― 休憩 ―</span>
-                        ) : (
-                          <>
-                            <span style={{fontSize:11,color:"#A09070",fontFamily:SANS,flexShrink:0,width:20,textAlign:"right"}}>{idx+1}</span>
-                            <input value={it.performer} onChange={e=>updateItem(it.id,{performer:e.target.value})}
-                              placeholder="演奏者名" style={{...inpPf,width:130,flex:"0 0 130px"}} />
-                            <input value={it.pieceTitle} onChange={e=>updateItem(it.id,{pieceTitle:e.target.value})}
-                              placeholder="曲名" style={{...inpPf,flex:1}} />
-                            <input value={it.duration} onChange={e=>updateItem(it.id,{duration:e.target.value})}
-                              placeholder="時間" style={{...inpPf,width:52,flex:"0 0 52px"}} />
-                          </>
-                        )}
-                        <button onClick={()=>removeItem(it.id)}
-                          style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{display:"flex",gap:8,marginBottom:16}}>
-                    <button onClick={()=>addItem("piece")}
-                      style={{background:"white",border:"1px dashed #C8B890",color:"#8A7050",padding:"5px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                      ＋ 曲を追加
-                    </button>
-                    <button onClick={()=>addItem("break")}
-                      style={{background:"white",border:"1px dashed #C8B890",color:"#8A7050",padding:"5px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                      ― 休憩を追加
-                    </button>
-                  </div>
-
-                  {/* ── オプション ── */}
-                  <div style={{fontSize:10,color:"#8A7050",letterSpacing:2,fontFamily:SANS,marginBottom:8}}>オプション</div>
-                  <div style={{marginBottom:8}}>
-                    <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>曲目解説</div>
-                    <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
-                      placeholder="各曲の解説テキスト" style={txPf} />
-                  </div>
-                  <div style={{marginBottom:8}}>
-                    <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>ご挨拶</div>
-                    <textarea value={newEvent.greeting} onChange={e=>setNewEvent({...newEvent,greeting:e.target.value})}
-                      placeholder="開演前のご挨拶など" style={txPf} />
-                  </div>
-                  <div style={{marginBottom:14}}>
-                    <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>プロフィール</div>
-                    <textarea value={newEvent.profile} onChange={e=>setNewEvent({...newEvent,profile:e.target.value})}
-                      placeholder="演奏者プロフィール" style={txPf} />
-                  </div>
-
-                  {/* チラシ画像 */}
-                  <div style={{marginBottom:16}}>
-                    <div style={{fontSize:10,color:"#6A5030",marginBottom:6,fontFamily:SANS}}>チラシ画像</div>
-                    <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                      <button onClick={()=>posterInputRef.current?.click()}
-                        style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"6px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                        📎 ファイルを選択
-                      </button>
-                      <input ref={posterInputRef} type="file" accept="image/*" onChange={handlePoster} style={{display:"none"}} />
-                      {newEvent.posterUrl && (
-                        <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <img src={newEvent.posterUrl} alt="poster" style={{width:40,height:40,objectFit:"cover",borderRadius:4,border:"1px solid #E8E0D0"}} />
-                          <button onClick={()=>setNewEvent(ev=>({...ev,posterUrl:""}))}
-                            style={{background:"none",border:"none",color:"#C09090",cursor:"pointer",fontSize:11,fontFamily:SANS}}>削除</button>
+                </div>
+                {ERA_ORDER.map(k=>{
+                  const ps=pieces.filter(p=>p.era===k);
+                  if(!ps.length) return null;
+                  return (
+                    <div key={k} style={{marginBottom:12}}>
+                      <div style={{fontSize:10,color:ERAS[k].color,letterSpacing:2,fontFamily:SANS,marginBottom:4}}>{ERAS[k].label}</div>
+                      {ps.map(p=>(
+                        <div key={p.id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"3px 0",borderBottom:"1px solid #F5F0E8"}}>
+                          <span style={{color:"#8A7050",flexShrink:0,width:110}}>{p.composer}</span>
+                          <span style={{flex:1}}>{p.title}</span>
+                          <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
                         </div>
-                      )}
+                      ))}
                     </div>
-                  </div>
+                  );
+                })}
+              </div>
 
-                  <div style={{display:"flex",gap:16,justifyContent:"center"}}>
-                    <button onClick={addEvent} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 24px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,letterSpacing:1}}>追加する</button>
-                    <button onClick={()=>setAddingEvent(false)} style={{background:"white",border:"1px solid #D8D0C0",color:"#8A7050",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+              {/* プログラム */}
+              <div id="output-program" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>プログラム</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
+                      style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 8px",fontFamily:SANS,fontSize:11,borderRadius:3}}>
+                      {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                    <button onClick={()=>printSection("output-program")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
                   </div>
                 </div>
-              )}
+                {prog.pieceIds.map((id,i)=>{
+                  const p=allPool.find(x=>x.id===id); if(!p) return null;
+                  const era=ERAS[p.era]||ERAS.modern;
+                  return (
+                    <div key={id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"4px 0",borderBottom:"1px solid #F5F0E8"}}>
+                      <span style={{color:"#C0B090",flexShrink:0,width:20,textAlign:"right"}}>{i+1}</span>
+                      <span style={{color:era.color,flexShrink:0,width:100,fontSize:11}}>{p.composer}</span>
+                      <span style={{flex:1}}>{p.title}</span>
+                      <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
+                      <span style={{color:"#A09070",flexShrink:0}}>{p.duration}分</span>
+                    </div>
+                  );
+                })}
+              </div>
 
-              {events.length===0 ? (
-                <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
-                  「＋ イベントを追加」からコンサートや発表会を記録しましょう
+              {/* 演奏歴 */}
+              <div id="output-events" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>演奏歴</div>
+                  <button onClick={()=>printSection("output-events")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
                 </div>
-              ) : (
-                /* Timeline */
-                <div style={{position:"relative",paddingLeft:40}}>
-                  {/* Vertical line */}
-                  <div style={{position:"absolute",left:16,top:0,bottom:0,width:2,background:"#E8E0D0"}} />
-
-                  {events.map((ev,i)=>{
-                    const et = EVENT_TYPES[ev.type]||EVENT_TYPES.recital;
-                    const isSelected = selectedEvent===ev.id;
+                {events.length===0
+                  ? <div style={{fontSize:12,color:"#C0B090",fontFamily:SANS,textAlign:"center",padding:"20px 0"}}>Eventsページにイベントを追加してください</div>
+                  : events.map(ev=>{
+                    const ET={recital:{label:"発表会",color:"#C8963C"},contest:{label:"コンクール",color:"#5B7FA6"},concert:{label:"コンサート",color:"#B85C72"}};
+                    const et=ET[ev.type]||ET.recital;
                     return (
-                      <div key={ev.id} style={{position:"relative",marginBottom:20}}>
-                        {/* Marker */}
-                        <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                          style={{position:"absolute",left:-32,top:0,
-                            width:20,height:24,cursor:"pointer",
-                            display:"flex",flexDirection:"column",alignItems:"center"}}>
-                          {/* Teardrop marker */}
-                          <div style={{width:18,height:18,borderRadius:"50% 50% 50% 0",
-                            transform:"rotate(-45deg)",background:et.color,
-                            border:"2px solid white",boxShadow:"0 2px 6px rgba(0,0,0,0.2)"}} />
-                        </div>
-
-                        {/* Card */}
-                        <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                          style={{background:"white",border:"1px solid #E8E0D0",borderLeft:"3px solid "+et.color,
-                            borderRadius:6,padding:"10px 14px",cursor:"pointer",
-                            boxShadow:isSelected?"0 2px 12px rgba(0,0,0,0.1)":"none"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:isSelected?8:0}}>
-                            <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600}}>{et.emoji} {et.label}</span>
-                            <span style={{fontSize:12,color:"#2A2010",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
-                            {ev.venue && <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{ev.venue}</span>}
-                          </div>
-                          {isSelected && (
-                            <div style={{borderTop:"1px solid #F0EAE0",paddingTop:8,fontSize:12,color:"#6A5030",fontFamily:SANS,display:"flex",flexDirection:"column",gap:6}}>
-                              {ev.organizer && <div><span style={{color:"#A09070"}}>主催：</span>{ev.organizer}</div>}
-                              {(ev.openTime||ev.startTime) && <div><span style={{color:"#A09070"}}>時間：</span>{ev.openTime?"開場 "+ev.openTime:""}{ev.openTime&&ev.startTime?" / ":""}{ev.startTime?"開演 "+ev.startTime:""}</div>}
-                              {ev.contact && <div><span style={{color:"#A09070"}}>問い合わせ：</span>{ev.contact}</div>}
-                              {ev.items && ev.items.length>0 && (
-                                <div>
-                                  <div style={{color:"#A09070",marginBottom:4}}>曲目：</div>
-                                  {ev.items.map((it,idx)=>(
-                                    <div key={it.id} style={{paddingLeft:8,marginBottom:2,fontSize:11}}>
-                                      {it.kind==="break"
-                                        ? <span style={{color:"#A09070",fontStyle:"italic"}}>― 休憩 ―</span>
-                                        : <span>{idx+1}. {it.performer&&<span style={{color:"#8A7050"}}>{it.performer}　</span>}{it.pieceTitle}{it.duration&&<span style={{color:"#A09070"}}>　{it.duration}</span>}</span>
-                                      }
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {ev.notes && <div><span style={{color:"#A09070"}}>解説：</span>{ev.notes}</div>}
-                              {ev.greeting && <div><span style={{color:"#A09070"}}>ご挨拶：</span>{ev.greeting}</div>}
-                              {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #E8E0D0",alignSelf:"flex-start"}} />}
-                              <button onClick={e=>{e.stopPropagation();setEvents(prev=>prev.filter(x=>x.id!==ev.id));setSelectedEvent(null);}}
-                                style={{marginTop:4,alignSelf:"flex-end",background:"none",border:"1px solid #E8C0C0",color:"#C09090",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
-                                削除
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                      <div key={ev.id} style={{display:"flex",gap:10,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"5px 0",borderBottom:"1px solid #F5F0E8",alignItems:"baseline"}}>
+                        <span style={{color:"#8A7050",flexShrink:0,width:90}}>{ev.date}</span>
+                        <span style={{fontSize:10,color:et.color,flexShrink:0,width:70}}>{et.label}</span>
+                        <span style={{flex:1}}>{ev.title||ev.venue||"（無題）"}</span>
+                        {ev.venue && ev.title && <span style={{color:"#A09070",fontSize:11}}>{ev.venue}</span>}
                       </div>
                     );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                  })
+                }
+              </div>
 
-        {/* ── EXPORT ── */}
-        {portfolioTab==="export" && (
-          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-            <div style={{maxWidth:800,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
-              <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:4}}>プログラムを選択</div>
-                <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
-                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:SANS,fontSize:13,borderRadius:4}}>
-                  {programs.map(p=><option key={p.id} value={p.id}>{p.name}（{p.pieceIds.length}曲）</option>)}
-                </select>
-                <PrintSettings prog={prog} allPool={allPool} />
-              </div>
-              <div>
-                <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:12}}>プレビュー</div>
-                <PrintPreview prog={prog} allPool={allPool} />
-              </div>
             </div>
           </div>
         )}
