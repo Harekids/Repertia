@@ -1362,12 +1362,110 @@ JSONのみ返してください:
     );
   };
 
-  const ManagePage = () => (
+  const ManagePage = () => {
+    const [dashAxis, setDashAxis]   = useState("era");
+    const [dashChart, setDashChart] = useState("pie");
+
+    // Dashboard data helpers
+    const getDashData = () => {
+      if (dashAxis==="era") {
+        return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+      }
+      if (dashAxis==="difficulty") {
+        return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n).length})).filter(d=>d.count>0);
+      }
+      if (dashAxis==="frequency") {
+        return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n).length})).filter(d=>d.count>0);
+      }
+      return [];
+    };
+    const dashData  = getDashData();
+    const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
+
+    // SVG Pie
+    const PieChart = () => {
+      let angle=-90;
+      const cx=70,cy=70,r=54;
+      const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
+      const slices=dashData.map(d=>{const deg=(d.count/dashTotal)*360;const s=angle;angle+=deg;return{...d,startDeg:s,deg};});
+      return (
+        <svg viewBox="0 0 140 140" style={{width:130,height:130,flexShrink:0}}>
+          {slices.map((s,i)=>{
+            const s1=toXY(s.startDeg),s2=toXY(s.startDeg+s.deg);
+            const large=s.deg>180?1:0;
+            return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
+          })}
+          <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
+          <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
+        </svg>
+      );
+    };
+
+    // Bar chart
+    const BarChart = () => {
+      const maxCount=Math.max(...dashData.map(d=>d.count),1);
+      return (
+        <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
+          {dashData.map((d,i)=>(
+            <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
+              <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
+              <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
+              <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    return (
     <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
-        {/* ボタン行 — 「曲を追加」のみ */}
-        <div style={{display:"flex",gap:8,marginBottom:20,marginTop:8,alignItems:"center"}}>
+        {/* ① Dashboard セクション */}
+        <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:10,padding:"18px 20px",marginBottom:20}}>
+          {/* 総レパートリー数 + グラフ切り替えボタン */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
+            <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+              <span style={{fontSize:36,fontWeight:700,color:"#2A2010",fontFamily:FONT,lineHeight:1}}>{pieces.length}</span>
+              <span style={{fontSize:13,color:"#8A7050",fontFamily:SANS}}>曲</span>
+            </div>
+            <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+              {/* 軸切り替え */}
+              {[["era","時代別"],["difficulty","難易度別"],["frequency","演奏頻度別"]].map(([k,l])=>(
+                <button key={k} onClick={()=>setDashAxis(k)}
+                  style={{background:dashAxis===k?"#2A2010":"white",border:"1px solid "+(dashAxis===k?"#2A2010":"#D8D0C0"),color:dashAxis===k?"#C8A860":"#6A5030",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                  {l}
+                </button>
+              ))}
+              <div style={{width:1,height:16,background:"#D8D0C0",margin:"0 2px"}}/>
+              {/* グラフ種別 */}
+              {[["pie","●"],["bar","▬"]].map(([k,icon])=>(
+                <button key={k} onClick={()=>setDashChart(k)}
+                  style={{background:dashChart===k?"#2A2010":"white",border:"1px solid "+(dashChart===k?"#2A2010":"#D8D0C0"),color:dashChart===k?"#C8A860":"#6A5030",padding:"4px 9px",cursor:"pointer",fontSize:13,borderRadius:4}}>
+                  {icon}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* グラフ + 凡例 */}
+          <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
+            {dashChart==="pie" ? <PieChart/> : <BarChart/>}
+            <div style={{display:"flex",flexDirection:"column",gap:5,flex:1}}>
+              {dashData.map((d,i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:7}}>
+                  <div style={{width:9,height:9,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+                  <span style={{fontSize:11,color:"#2A2010",fontFamily:SANS,flex:1}}>{d.label}</span>
+                  <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{d.count}曲</span>
+                  <span style={{fontSize:10,color:"#B0A080",fontFamily:SANS,width:32,textAlign:"right"}}>{Math.round(d.count/dashTotal*100)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ② ボタン行 — 右端に寄せる */}
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:20,marginTop:8}}>
           <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
             style={{background:"#2A2010",border:"none",color:"#C8A860",
               padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
@@ -1442,7 +1540,7 @@ JSONのみ返してください:
         </div>
       </div>
     </div>
-  );
+  ); };
 
   // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
   const PrintPage = () => {
