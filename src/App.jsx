@@ -2080,9 +2080,14 @@ JSONのみ返してください:
           border:"1px solid "+(inProg?era.color+"66":"#E8E0D0"),
           borderLeft:"3px solid "+era.color,
           borderRadius:5,opacity:inProg?0.65:1,transition:"opacity 0.15s"}}>
-          {/* Gold ✦ for MY, Silver ✧ for AI */}
-          <span style={{fontSize:11,color:isAI?"#A0A0A8":"#C8963C",flexShrink:0,fontWeight:"bold"}}>
-            {isAI?"✧":"✦"}
+          {/* ⑤ ✧無色 → クリックで✦ゴールド（MY only） */}
+          <span
+            onClick={e=>{ if(!isAI){ e.stopPropagation(); toggleCandidate(p.id); }}}
+            title={isAI?"AI提案":(p.candidate?"お気に入り解除":"お気に入りに追加")}
+            style={{fontSize:12,color:isAI?"#B0B0B8":p.candidate?"#C8963C":"#C8C0B0",
+              flexShrink:0,fontWeight:"bold",cursor:isAI?"default":"pointer",
+              transition:"color 0.15s"}}>
+            {isAI?"✧":p.candidate?"✦":"✧"}
           </span>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,color:"#2A2010",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
@@ -2229,7 +2234,7 @@ JSONのみ返してください:
                   style={inp2({width:100})} />
                 {/* 時代 */}
                 <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2()}>
-                  <option value="">時代 —</option>
+                  <option value="">時代</option>
                   {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                 </select>
                 {/* キーワード */}
@@ -2250,27 +2255,29 @@ JSONのみ返してください:
                 <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="—" style={inp2({width:44})} />
                 <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>分</span>
               </div>
-              <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",marginBottom:10}}>
-                {/* 難易度 */}
-                <div style={{display:"flex",alignItems:"center",gap:4}}>
-                  <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>難易度</span>
-                  {[1,2,3,4,5].map(n=>(
-                    <button key={n} onClick={()=>{ setDiffMin(n<=diffMin?0:n); setDiffMax(n>=diffMax?5:n); }}
-                      style={{width:18,height:18,borderRadius:"50%",background:n>=diffMin&&n<=diffMax?"#C8963C":"transparent",
-                        border:"1.5px solid #C8963C",cursor:"pointer",fontSize:0,padding:0,flexShrink:0}}>
-                    </button>
-                  ))}
-                </div>
-                {/* 演奏頻度 */}
-                <div style={{display:"flex",alignItems:"center",gap:4}}>
-                  <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>演奏頻度</span>
-                  {[1,2,3,4,5].map(n=>(
-                    <button key={n} onClick={()=>{ setFreqMin(n<=freqMin?0:n); setFreqMax(n>=freqMax?5:n); }}
-                      style={{width:18,height:18,borderRadius:"50%",background:n>=freqMin&&n<=freqMax?"#5B7FA6":"transparent",
-                        border:"1.5px solid #5B7FA6",cursor:"pointer",fontSize:0,padding:0,flexShrink:0}}>
-                    </button>
-                  ))}
-                </div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",marginBottom:10}}>
+                <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>難易度</span>
+                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 6px",fontFamily:SANS,fontSize:11,borderRadius:4}}>
+                  <option value={0}>—</option>
+                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
+                <span style={{fontSize:10,color:"#A09070"}}>〜</span>
+                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 6px",fontFamily:SANS,fontSize:11,borderRadius:4}}>
+                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
+                <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS,marginLeft:8}}>演奏頻度</span>
+                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 6px",fontFamily:SANS,fontSize:11,borderRadius:4}}>
+                  <option value={0}>—</option>
+                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
+                <span style={{fontSize:10,color:"#A09070"}}>〜</span>
+                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 6px",fontFamily:SANS,fontSize:11,borderRadius:4}}>
+                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
+                </select>
               </div>
               {/* ボタン行 */}
               <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
@@ -2289,28 +2296,42 @@ JSONのみ返してください:
                     cursor:aiLoading?"wait":"pointer",fontSize:11,fontFamily:SANS,borderRadius:5}}>
                   {aiLoading?"✧ 考えています…":"✧ AIから探す"}
                 </button>
-                <button onClick={()=>setShowFavOnly(v=>!v)}
-                  style={{background:"none",border:"1px solid "+(showFavOnly?"#B85C72":"#D8D0C0"),
-                    color:showFavOnly?"#B85C72":"#A09090",
-                    padding:"6px 10px",cursor:"pointer",fontSize:14,borderRadius:4,lineHeight:1}}>
-                  <span style={{fontSize:15,lineHeight:1}}>{showFavOnly?"♥":"♡"}</span>
-                </button>
+
               </div>
             </div>
 
             {/* 右下: 曲目一覧 */}
             <div style={{flex:1,overflowY:"auto",padding:"8px 12px"}}>
-              {/* 並べ替えボタン */}
-              <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:8}}>
-                {[["era","時代"],["year","作曲年"],["duration","演奏時間"],["difficulty","難易度"],["frequency","演奏頻度"],["rarity","レア度"]].map(([k,l])=>(
-                  <button key={k} onClick={()=>{ if(localSortBy===k) setLocalSortAsc(v=>!v); else{ setLocalSortBy(k); setLocalSortAsc(true); }}}
-                    style={{background:localSortBy===k?"#2A2010":"white",border:"1px solid "+(localSortBy===k?"#2A2010":"#D8D0C0"),
-                      color:localSortBy===k?"#C8A860":"#6A5030",padding:"3px 8px",cursor:"pointer",
-                      fontSize:10,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:2}}>
-                    {l}{localSortBy===k&&<span style={{fontSize:9}}>{localSortAsc?"▲":"▼"}</span>}
+              {/* 並べ替え + フィルターボタン */}
+              <div style={{display:"flex",gap:4,alignItems:"stretch",marginBottom:8}}>
+                <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1}}>
+                  <select value={localSortBy} onChange={e=>setLocalSortBy(e.target.value)}
+                    style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"4px 7px",fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none",flex:1}}>
+                    <option value="" disabled>並べ替え</option>
+                    <option value="era">時代</option>
+                    <option value="year">作曲年</option>
+                    <option value="duration">演奏時間</option>
+                    <option value="difficulty">難易度</option>
+                    <option value="frequency">演奏頻度</option>
+                    <option value="rarity">レア度</option>
+                  </select>
+                  <button onClick={()=>setLocalSortAsc(v=>!v)}
+                    style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 7px",
+                      cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
+                      display:"flex",alignItems:"center"}}>
+                    {localSortAsc?"▲":"▼"}
                   </button>
-                ))}
-                {localSortBy && <button onClick={()=>setLocalSortBy("")} style={{background:"none",border:"1px solid #D8D0C0",color:"#A09070",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>✕</button>}
+                </div>
+                {/* ✦✧ お気に入りフィルター */}
+                <button onClick={()=>setShowFavOnly(v=>!v)}
+                  title="お気に入りのみ"
+                  style={{background:showFavOnly?"#FFF8E8":"white",
+                    border:"1px solid "+(showFavOnly?"#C8963C":"#D8D0C0"),
+                    color:showFavOnly?"#C8963C":"#A09070",
+                    padding:"4px 9px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,
+                    display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
+                  {showFavOnly?"✦":"✧"} お気に入り
+                </button>
               </div>
 
               {poolMode==="none" && (
