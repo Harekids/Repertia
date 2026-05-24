@@ -929,6 +929,8 @@ export default function App() {
   const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
   const [searchQ, setSearchQ]                 = useState("");
   const [poolMode, setPoolMode]               = useState("none");
+  const [compareMode, setCompareMode]         = useState(false); // ③ 比較モード
+  const [comparePieces, setComparePieces]     = useState([]); // ③ 比較対象
   const [editMode, setEditMode]               = useState(false); // ⑦ manage page edit mode
   const [aiLoading, setAiLoading]             = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
@@ -1166,12 +1168,24 @@ JSONのみ返してください:
           </div>
           {showControls && (
             <div style={{flexShrink:0,display:"flex",gap:4,alignItems:"center"}}>
-              {p.mine && <>
-                <button onClick={e=>{e.stopPropagation();toggleFav(p.id);}}
-                  style={{background:"none",border:"none",color:p.fav?"#C03050":"#D8D0C0",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1}}>❤️</button>
-                <button onClick={e=>{e.stopPropagation();toggleCandidate(p.id);}}
-                  style={{background:"none",border:"none",color:p.candidate?"#C8A030":"#D8D0C0",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1}}>⭐️</button>
-              </>}
+              {/* ③ 🟡🔵 自分でつけるマーク */}
+              <button onClick={e=>{e.stopPropagation();toggleCandidate(p.id);}}
+                title="🟡マーク"
+                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
+                  opacity:p.candidate?1:0.25}}>🟡</button>
+              <button onClick={e=>{e.stopPropagation();toggleFav(p.id);}}
+                title="🔵マーク"
+                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
+                  opacity:p.fav?1:0.25}}>🔵</button>
+              {/* ③ 比較モード時に「比較に追加」ボタン */}
+              {compareMode && (
+                <button onClick={e=>{e.stopPropagation();setComparePieces(prev=>prev.includes(p.id)?prev.filter(x=>x!==p.id):[...prev,p.id]);}}
+                  style={{background:comparePieces.includes(p.id)?"#5B7FA6":"white",
+                    border:"1px solid #5B7FA6",color:comparePieces.includes(p.id)?"white":"#5B7FA6",
+                    padding:"2px 6px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
+                  {comparePieces.includes(p.id)?"✓":"比較"}
+                </button>
+              )}
               {inProg
                 ? <button onClick={e=>{e.stopPropagation();toggle(p.id);}}
                     style={{background:"#FFF0EE",border:"1px solid #E8C0B0",color:"#A04030",width:24,height:24,borderRadius:"50%",cursor:"pointer",fontSize:13}}>×</button>
@@ -1363,7 +1377,7 @@ JSONのみ返してください:
                         boxShadow:isSelected?"0 2px 10px rgba(0,0,0,0.08)":"none",
                         transition:"box-shadow 0.2s"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                        <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600}}>{et.label}</span>
+                        
                         <span style={{fontSize:12,color:"#2A2010",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
                         {ev.title && <span style={{fontSize:12,color:"#2A2010",fontFamily:SANS}}>{ev.title}</span>}
                         {ev.venue && <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{ev.venue}</span>}
@@ -1392,7 +1406,7 @@ JSONのみ返してください:
               <div key={ev.id} style={{background:"white",border:"1px solid #E8E0D0",borderLeft:"4px solid "+et.color,borderRadius:6,marginBottom:6,overflow:"hidden"}}>
                 <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
                   style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
-                  <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600,flexShrink:0}}>{et.emoji} {et.label}</span>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                   <span style={{fontSize:12,color:"#8A7050",fontFamily:SANS,flexShrink:0}}>{ev.date}</span>
                   <span style={{fontSize:13,color:"#2A2010",fontFamily:SANS,flex:1,fontWeight:500}}>{ev.title||"（無題）"}</span>
                   {ev.venue && <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{ev.venue}</span>}
@@ -2049,16 +2063,12 @@ JSONのみ返してください:
             <div style={{width:1,height:18,background:"#D8D0C0"}} />
             <div style={{display:"flex",alignItems:"center",gap:4}}>
               <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>曲間</span>
-              <select value={prog.intervalSecs!=null?prog.intervalSecs:30} onChange={e=>updateProg({intervalSecs:+e.target.value})}
-                style={{background:"white",border:"1px solid #C8B890",color:"#2A2010",fontSize:12,fontFamily:SANS,padding:"3px 6px",borderRadius:4}}>
-                <option value={0}>なし</option>
-                <option value={15}>15秒</option>
-                <option value={30}>30秒</option>
-                <option value={45}>45秒</option>
-                <option value={60}>1分</option>
-                <option value={90}>1分30秒</option>
-                <option value={120}>2分</option>
-              </select>
+              <div style={{display:"flex",alignItems:"center",gap:4}}>
+                <input type="number" min={0} max={300} value={prog.intervalSecs!=null?prog.intervalSecs:0}
+                  onChange={e=>updateProg({intervalSecs:Math.max(0,+e.target.value)})}
+                  style={{width:44,background:"white",border:"1px solid #C8B890",color:"#2A2010",fontSize:13,fontFamily:FONT,textAlign:"center",padding:"3px 4px",borderRadius:4}} />
+                <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>秒</span>
+              </div>
             </div>
 
           </div>
@@ -2066,13 +2076,13 @@ JSONのみ返してください:
           <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
               <span style={{fontSize:10,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>{prog.pieceIds.length}{prog.maxPieces===999?"":"/"+prog.maxPieces}曲</span>
-              <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>
+              <span style={{fontSize:13,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold"}}>
                 {totalDuration}分 / {prog.maxDuration}分
-                <span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>　{remaining>=0?"残り"+remaining+"分":Math.abs(remaining)+"分超過"}</span>
+                <span style={{fontSize:11,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>　{remaining>0?"残り"+remaining+"分":remaining===0?"ちょうど":Math.abs(remaining)+"分超過"}</span>
               </span>
             </div>
             <div style={{height:5,background:"#D8D0C0",borderRadius:3,overflow:"hidden"}}>
-              <div style={{height:"100%",width:Math.min((totalDuration/prog.maxDuration)*100,100)+"%",background:remaining<0?"#C04030":remaining<5?"#C09030":"#3A8A4A",borderRadius:3,transition:"width 0.4s"}} />
+              <div style={{height:"100%",width:Math.min((totalDuration/prog.maxDuration)*100,100)+"%",background:remaining<0?"#C04030":remaining<=5?"#C09030":"#3A8A4A",borderRadius:3,transition:"width 0.4s"}} />
             </div>
           </div>
           {/* Program list */}
@@ -2094,7 +2104,7 @@ JSONのみ返してください:
                   <div style={{width:22,height:22,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"white",flexShrink:0}}>{i+1}</div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,color:"#2A2010",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                      {p.mine ? <span style={{fontSize:10,marginRight:4}}>🟡</span> : <span style={{fontSize:10,marginRight:4}}>🔵</span>}{p.title}
+                      {p.candidate && <span style={{fontSize:10,marginRight:3}}>🟡</span>}{p.fav && <span style={{fontSize:10,marginRight:3}}>🔵</span>}{p.title}
                     </div>
                     <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer}　{p.key}　{p.duration}分</div>
                   </div>
@@ -2109,15 +2119,30 @@ JSONのみ返してください:
         {/* ③ RIGHT: 条件設定 → 2ボタン → 結果 */}
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-          {/* Step 1: 条件設定 */}
+          {/* Step 1: 条件を設定 */}
           <div style={{padding:"10px 16px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
-            <div style={{fontSize:10,letterSpacing:2,color:"#8A7050",marginBottom:8,fontFamily:SANS}}>STEP 1　条件を設定</div>
+            <div style={{fontSize:10,letterSpacing:2,color:"#8A7050",marginBottom:8,fontFamily:SANS}}>STEP 1</div>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-              <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={allPool} />
+              {/* 作曲家 */}
+              <input
+                value={searchQ}
+                onChange={e=>setSearchQ(e.target.value)}
+                placeholder="作曲家"
+                style={{...sel(),fontFamily:SANS,fontSize:11,width:90,padding:"5px 8px"}}
+              />
+              {/* 曲名 */}
+              <input
+                value={searchQ}
+                onChange={e=>setSearchQ(e.target.value)}
+                placeholder="曲名"
+                style={{...sel(),fontFamily:SANS,fontSize:11,width:100,padding:"5px 8px"}}
+              />
+              {/* 並べ替え（時代含む） */}
               <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
                 <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
                   style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
                   <option value="" disabled>並べ替え</option>
+                  <option value="era">時代</option>
                   <option value="year">作曲年</option>
                   <option value="duration">演奏時間</option>
                   <option value="difficulty">難易度</option>
@@ -2131,17 +2156,47 @@ JSONのみ返してください:
                   {sortAsc?"▲":"▼"}
                 </button>
               </div>
-              <select value={filterEra} onChange={e=>setFilterEra(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11}}>
-                <option value="">全時代</option>
-                {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
-              </select>
-              {/* ④ ♥★ まとめてプルダウン */}
-              <select value={filterMark} onChange={e=>setFilterMark(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11,minWidth:88}}>
-                <option value="all">すべて</option>
-                <option value="fav">♥ お気に入りのみ</option>
-              </select>
+              {/* 比較する */}
+              <button onClick={()=>{ setCompareMode(v=>!v); setComparePieces([]); }}
+                style={{background:compareMode?"#5B7FA6":"white",
+                  border:"1px solid "+(compareMode?"#5B7FA6":"#D8D0C0"),
+                  color:compareMode?"white":"#6A5030",
+                  padding:"5px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                比較する{compareMode?" ✓":""}
+              </button>
+              {/* お気に入りフィルター */}
+              <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
+                style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
+                  fontSize:16,cursor:"pointer",padding:"3px 4px",lineHeight:1}}>
+                <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
+              </button>
             </div>
           </div>
+
+          {/* ③ 比較パネル */}
+          {compareMode && comparePieces.length>0 && (
+            <div style={{padding:"10px 16px",borderBottom:"1px solid #E8E0D0",background:"#F0EBE0",flexShrink:0}}>
+              <div style={{fontSize:10,letterSpacing:2,color:"#8A7050",marginBottom:6,fontFamily:SANS}}>比較中</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {comparePieces.map(id=>{
+                  const p=allPool.find(x=>x.id===id); if(!p) return null;
+                  const era=ERAS[p.era]||ERAS.modern;
+                  return (
+                    <div key={id} style={{background:"white",border:"1.5px solid "+era.color,borderRadius:6,padding:"6px 10px",fontSize:11,fontFamily:SANS,position:"relative"}}>
+                      <div style={{color:"#2A2010",fontWeight:600,marginBottom:2}}>{p.title}</div>
+                      <div style={{color:"#8A7050",fontSize:10}}>{p.composer} / {p.key} / {p.duration}分</div>
+                      <div style={{display:"flex",gap:6,marginTop:3}}>
+                        <span style={{fontSize:10,color:era.color}}>{era.label}</span>
+                        <span style={{fontSize:10,color:"#A09070"}}>{[1,2,3,4,5].map(n=>n<=p.difficulty?"●":"○").join("")}</span>
+                      </div>
+                      <button onClick={()=>setComparePieces(prev=>prev.filter(x=>x!==id))}
+                        style={{position:"absolute",top:3,right:5,background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:0}}>×</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Step 2: 2ボタン */}
           <div style={{padding:"10px 16px",borderBottom:"1px solid #E8E0D0",background:"#F0EBE0",display:"flex",gap:8,flexShrink:0}}>
