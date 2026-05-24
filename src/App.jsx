@@ -74,7 +74,7 @@ const SAMPLE_PIECES = [
 
 const EMPTY_PIECE = { title:"", composer:"", year:1900, yearText:"1900", country:"ドイツ", key:"ハ長調", duration:10, durationSecs:0, difficulty:3, rarity:2, frequency:3, keywords:"", form:"小品", era:"romantic", fav:false, candidate:false };
 
-const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:5, pieceIds:[], intervalSecs:30 });
+const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:999, pieceIds:[], intervalSecs:30 });
 
 // ── Multilingual Search Aliases ───────────────────────────────────────────────
 const SEARCH_ALIASES = {
@@ -1069,47 +1069,67 @@ JSONのみ返してください:
   );
 
   // ── Filter bar ───────────────────────────────────────────────────────────────
-  const FilterBar = ({pool}) => (
-    <div style={{padding:"8px 12px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",
-      display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
-      <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
-      {/* ⑦ 並べ替え（初期値「並べ替え」） */}
-      <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
-        <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-          style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
-          <option value="" disabled>並べ替え</option>
-          <option value="year">作曲年</option>
-          <option value="duration">演奏時間</option>
-          <option value="difficulty">難易度</option>
-          <option value="frequency">演奏頻度</option>
-          <option value="rarity">レア度</option>
-        </select>
-        <button onClick={()=>setSortAsc(v=>!v)}
-          style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 8px",
-            cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
-            display:"flex",alignItems:"center"}}>
-          {sortAsc?"▲":"▼"}
-        </button>
+  const FilterBar = ({pool}) => {
+    const [expanded, setExpanded] = useState(false);
+    return (
+      <div style={{borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
+        <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
+          <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
+          <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
+            <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+              style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+              <option value="" disabled>並べ替え</option>
+              <option value="year">作曲年</option>
+              <option value="duration">演奏時間</option>
+              <option value="difficulty">難易度</option>
+              <option value="frequency">演奏頻度</option>
+              <option value="rarity">レア度</option>
+            </select>
+            <button onClick={()=>setSortAsc(v=>!v)}
+              style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 8px",
+                cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
+                display:"flex",alignItems:"center"}}>
+              {sortAsc?"▲":"▼"}
+            </button>
+          </div>
+          <span style={{flex:1}}/>
+          <button onClick={()=>setExpanded(v=>!v)}
+            style={{background:expanded?"#2A2010":"white",border:"1px solid "+(expanded?"#2A2010":"#D8D0C0"),
+              color:expanded?"#C8A860":"#6A5030",padding:"4px 10px",cursor:"pointer",fontSize:11,
+              fontFamily:SANS,borderRadius:4}}>
+            絞り込み {expanded?"▲":"▼"}
+          </button>
+          <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
+            title="お気に入りのみ"
+            style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
+              fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
+              width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
+            <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
+          </button>
+          <button onClick={()=>setEditMode(!editMode)}
+            title={editMode?"削除モード終了":"削除モード"}
+            style={{background:"none",border:"none",color:editMode?"#8A8A8A":"#C8C8C8",
+              fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,fontWeight:editMode?"bold":"normal"}}>
+            ➖
+          </button>
+        </div>
+        {expanded && (
+          <div style={{padding:"6px 12px 10px",borderTop:"1px solid #E8E0D0",display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+            <span style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>時代：</span>
+            {[["","すべて"],...ERA_ORDER.map(k=>[k,ERAS[k].label])].map(([k,l])=>(
+              <button key={k} onClick={()=>setFilterEra(k)}
+                style={{background:filterEra===k?"#2A2010":"white",
+                  border:"1px solid "+(filterEra===k?"#2A2010":"#D8D0C0"),
+                  color:filterEra===k?"#C8A860":"#6A5030",
+                  padding:"3px 9px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>
+                {l}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
-      <span style={{flex:1}} />
-      {/* ⑥ 🤍と➖を右端に並べて */}
-      <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
-        title="お気に入りのみ"
-        style={{background:"none",border:"none",
-          color:filterMark==="fav"?"#B85C72":"#C8B8C0",
-          fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1}}>
-        <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
-      </button>
-      <button onClick={()=>setEditMode(!editMode)}
-        title={editMode?"削除モード終了":"削除モード"}
-        style={{background:"none",border:"none",
-          color:editMode?"#8A8A8A":"#C8C8C8",
-          fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,
-          fontWeight:editMode?"bold":"normal"}}>
-        ➖
-      </button>
-    </div>
-  );
+    );
+  };
 
   // ── PieceCardRow (used in both pool and manage list) ─────────────────────────
   const PieceCardRow = ({p, showControls=true}) => {
@@ -1191,11 +1211,18 @@ JSONのみ返してください:
   // ── EVENTS PAGE ───────────────────────────────────────────────────────────────
   const EventsPage = () => {
     const EVENT_TYPES = {
-      recital: {label:"発表会",    emoji:"🟡", color:"#C8963C"},
-      contest: {label:"コンクール", emoji:"🔵", color:"#5B7FA6"},
-      concert: {label:"コンサート", emoji:"🔴", color:"#B85C72"},
-      other:   {label:"その他",    emoji:"⬜", color:"#8A8A8A"},
+      recital: {label:"発表会",    color:"#C8963C"},
+      contest: {label:"コンクール", color:"#5B7FA6"},
+      concert: {label:"コンサート", color:"#B85C72"},
+      other:   {label:"その他",    color:"#8A8A8A"},
     };
+    // ① 凡例データ
+    const LEGEND = [
+      {color:"#C8963C", label:"発表会"},
+      {color:"#5B7FA6", label:"コンクール"},
+      {color:"#B85C72", label:"コンサート"},
+      {color:"#8A8A8A", label:"その他"},
+    ];
     const EMPTY_EVENT = {
       date:"", type:"recital", title:"", organizer:"", venue:"",
       openTime:"", startTime:"", contact:"",
@@ -1229,7 +1256,10 @@ JSONのみ返してください:
       setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT);
     };
 
-    const deleteEvent = (id) => { setEvents(prev=>prev.filter(e=>e.id!==id)); setSelectedEvent(null); };
+    const deleteEvent = (id) => {
+      if (!window.confirm("このイベントを削除しますか？")) return;
+      setEvents(prev=>prev.filter(e=>e.id!==id)); setSelectedEvent(null);
+    };
 
     const addItem = (kind="piece") =>
       setNewEvent(ev=>({...ev,items:[...ev.items,{id:Date.now(),kind,performer:"",pieceTitle:"",duration:""}]}));
@@ -1289,7 +1319,7 @@ JSONのみ返してください:
           {ev.videoUrl && <div><span style={{color:"#A09070"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
           {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #E8E0D0",alignSelf:"flex-start",marginTop:4}}/>}
           {!compact && (
-            <div style={{display:"flex",gap:8,marginTop:4}}>
+            <div style={{display:"flex",gap:8,marginTop:4,justifyContent:"flex-end"}}>
               <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>✎ 編集</button>
               <button onClick={e=>{e.stopPropagation();deleteEvent(ev.id);}} style={{background:"none",border:"1px solid #E8C0C0",color:"#C09090",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>削除</button>
             </div>
@@ -1333,7 +1363,7 @@ JSONのみ返してください:
                         boxShadow:isSelected?"0 2px 10px rgba(0,0,0,0.08)":"none",
                         transition:"box-shadow 0.2s"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                        <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600}}>{et.emoji} {et.label}</span>
+                        <span style={{fontSize:10,color:et.color,fontFamily:SANS,fontWeight:600}}>{et.label}</span>
                         <span style={{fontSize:12,color:"#2A2010",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
                         {ev.title && <span style={{fontSize:12,color:"#2A2010",fontFamily:SANS}}>{ev.title}</span>}
                         {ev.venue && <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{ev.venue}</span>}
@@ -1416,7 +1446,7 @@ JSONのみ返してください:
                 <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpE}/></div>
                 <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>種別</div>
                   <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={selE}>
-                    {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.emoji} {v.label}</option>))}
+                    {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
                   </select>
                 </div>
                 <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>公演名</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
@@ -1500,8 +1530,17 @@ JSONのみ返してください:
               </div>
             ) : (
               <>
+                {/* ⑤ 凡例 */}
+                <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+                  {LEGEND.map(l=>(
+                    <div key={l.color} style={{display:"flex",alignItems:"center",gap:5}}>
+                      <div style={{width:12,height:12,borderRadius:"50% 50% 50% 0",transform:"rotate(-45deg)",background:l.color,flexShrink:0}}/>
+                      <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS}}>{l.label}</span>
+                    </div>
+                  ))}
+                </div>
                 {future.length>0 && <TimelineSection label="UPCOMING" evs={future} defaultOpen={true}/>}
-                {past.length>0 && <TimelineSection label="PAST" evs={past} defaultOpen={future.length===0}/>}
+                {past.length>0 && <TimelineSection label="HISTORY" evs={past} defaultOpen={future.length===0}/>}
               </>
             )
           ) : (
@@ -2021,23 +2060,8 @@ JSONのみ返してください:
                 <option value={120}>2分</option>
               </select>
             </div>
-            <div style={{width:1,height:18,background:"#D8D0C0"}} />
-            <button onClick={()=>setShowConstraints(!showConstraints)}
-              style={{background:showConstraints?"#8B5E3C":"white",border:"1px solid "+(showConstraints?"#8B5E3C":"#C8B890"),color:showConstraints?"white":"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>
-              縛り{showConstraints?" ▲":" ▼"}
-            </button>
+
           </div>
-          {showConstraints && (
-            <div style={{background:"#EDE8DC",borderBottom:"1px solid #D8D0C0",padding:"8px 14px",display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",flexShrink:0}}>
-              <span style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>必須の時代：</span>
-              {Object.entries(ERAS).map(([k,v])=>(
-                <button key={k} onClick={()=>setConstraints(c=>({...c,requireEras:c.requireEras.includes(k)?c.requireEras.filter(x=>x!==k):[...c.requireEras,k]}))}
-                  style={{background:constraints.requireEras.includes(k)?v.color:"white",border:"1px solid "+v.color,color:constraints.requireEras.includes(k)?"white":v.color,padding:"2px 8px",cursor:"pointer",fontSize:10,borderRadius:4,fontFamily:SANS}}>
-                  {v.label}
-                </button>
-              ))}
-            </div>
-          )}
           {/* Duration bar */}
           <div style={{padding:"8px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
@@ -2070,7 +2094,7 @@ JSONのみ返してください:
                   <div style={{width:22,height:22,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"white",flexShrink:0}}>{i+1}</div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,color:"#2A2010",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                      {p.mine ? "🎹 " : "✦ "}{p.title}
+                      {p.mine ? <span style={{fontSize:10,marginRight:4}}>🟡</span> : <span style={{fontSize:10,marginRight:4}}>🔵</span>}{p.title}
                     </div>
                     <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer}　{p.key}　{p.duration}分</div>
                   </div>
@@ -2078,21 +2102,7 @@ JSONのみ返してください:
                 </div>
               ); })
             }
-            {programPieces.length>0 && (
-              <div style={{marginTop:14,padding:12,background:"white",border:"1px solid #E8E0D0",borderRadius:8}}>
-                <div style={{fontSize:9,letterSpacing:3,color:"#8A7050",marginBottom:8,fontFamily:SANS}}>バランス</div>
-                {ERA_ORDER.map(k=>{ const v=ERAS[k]; const d=programPieces.filter(p=>p.era===k).reduce((s,p)=>s+p.duration,0); if(!d) return null; return (
-                  <div key={k} style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
-                    <div style={{width:48,fontSize:10,color:v.color,fontFamily:SANS}}>{v.label}</div>
-                    <div style={{flex:1,height:4,background:"#EDE8DC",borderRadius:2}}><div style={{height:"100%",width:((d/totalDuration)*100)+"%",background:v.color,borderRadius:2}} /></div>
-                    <div style={{fontSize:10,color:"#8A7050",width:22,textAlign:"right",fontFamily:SANS}}>{d}分</div>
-                  </div>
-                ); })}
-                <div style={{marginTop:8,display:"flex",flexWrap:"wrap",gap:4}}>
-                  {programPieces.map(p=>(<span key={p.id} style={{fontSize:10,background:"#FDF5ED",border:"1px solid #D4A574",color:"#8B5E3C",padding:"1px 7px",borderRadius:10}}>{p.key}</span>))}
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
 
@@ -2128,8 +2138,7 @@ JSONのみ返してください:
               {/* ④ ♥★ まとめてプルダウン */}
               <select value={filterMark} onChange={e=>setFilterMark(e.target.value)} style={{...sel(),fontFamily:SANS,fontSize:11,minWidth:88}}>
                 <option value="all">すべて</option>
-                <option value="fav">❤️ お気に入り</option>
-                <option value="candidate">⭐️ 候補</option>
+                <option value="fav">♥ お気に入りのみ</option>
               </select>
             </div>
           </div>
