@@ -72,7 +72,7 @@ const SAMPLE_PIECES = [
   { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, rarity:3, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:1900, yearText:"1900", country:"ドイツ", key:"ハ長調", duration:10, durationSecs:0, difficulty:3, rarity:2, frequency:3, keywords:"", form:"小品", era:"romantic", fav:false, candidate:false };
+const EMPTY_PIECE = { title:"", composer:"", year:1900, yearText:"1900", country:"ドイツ", key:"ハ長調", duration:10, durationSecs:0, difficulty:3, frequency:3, keywords:"", form:"小品", era:"romantic", fav:false, candidate:false };
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:999, pieceIds:[], intervalSecs:30 });
 
@@ -1026,13 +1026,11 @@ JSONのみ返してください:
     .filter(p => searchMatch(p, searchQ))
     .sort((a,b) => {
       let d = 0;
-      if      (sortBy==="year")         d = (a.year||0) - (b.year||0);
-      else if (sortBy==="composerBorn") d = (COMPOSER_BORN[a.composer]??9999) - (COMPOSER_BORN[b.composer]??9999);
-      else if (sortBy==="duration")     d = a.duration - b.duration;
-      else if (sortBy==="difficulty")   d = a.difficulty - b.difficulty;
-      else if (sortBy==="frequency")    d = (a.frequency||0) - (b.frequency||0);
-      else if (sortBy==="rarity")       d = a.rarity - b.rarity;
-      else if (sortBy==="composer")     d = a.composer.localeCompare(b.composer,"ja");
+      const ay = a.year||0, by2 = b.year||0;
+      if      (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
+      else if (sortBy==="duration")   d = a.duration - b.duration;
+      else if (sortBy==="difficulty") d = a.difficulty - b.difficulty;
+      else if (sortBy==="frequency")  d = (a.frequency||0) - (b.frequency||0);
       return sortAsc ? d : -d;
     });
 
@@ -1044,12 +1042,12 @@ JSONのみ返してください:
   // ── Shared header (① stable, ② bigger nav) ──────────────────────────────────
   const Header = () => (
     <header style={{background:"#2A2010",display:"flex",alignItems:"stretch",flexShrink:0,height:54}}>
-      <span onClick={()=>setPage("manage")}
-        style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,
-          cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
+      <div onClick={()=>setPage("manage")}
+        style={{cursor:"pointer",userSelect:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
           padding:"0 22px 0 24px",borderRight:"1px solid #3A3020",flexShrink:0}}>
-        𝄞 Repertia
-      </span>
+        <span style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,lineHeight:1.1}}>𝄞 Repertia</span>
+        <span style={{fontSize:8,color:"#7A6840",letterSpacing:4,fontFamily:"'Cormorant Garamond',serif",marginTop:1}}>REPERTIA</span>
+      </div>
       {/* ② bigger nav — same height as header, underline indicator */}
       <nav style={{display:"flex",alignItems:"stretch"}}>
         {NAV.map(([p,l]) => (
@@ -1160,7 +1158,7 @@ JSONのみ返してください:
             {/* 下段: 詳細 — 小さめ */}
             <div style={{fontSize:10,color:"#A09070",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
               <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
-              <span>{p.yearText||p.year}年</span>
+              <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
               <span>{p.key}</span>
               <span>{p.duration}分</span>
               <DotRating value={p.difficulty} max={5} color="#E05030" />
@@ -1700,7 +1698,7 @@ JSONのみ返してください:
                     <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
                       <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
                       <span style={{fontSize:14,color:"#2A2010",fontWeight:600,fontFamily:FONT}}>
-                        {p.mine ? "🎹 " : "✦ "}{p.title}
+                        {p.mine ? <span style={{fontSize:10,color:"#8A8080",marginRight:3}} title="自分で追加">✏️</span> : null}{p.title}
                       </span>
                     </div>
                     {/* 下段: バロック / 1722年 / ハ長調 / 4分 / 🔴🔴🔴◯◯ / 🟡🟡🟡🟡🟡 */}
@@ -1911,7 +1909,19 @@ JSONのみ返してください:
         {portfolioTab==="output" && (
           <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
             <div style={{maxWidth:720,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
+              {/* ⑪ 出力項目セレクター */}
+              <div style={{background:"#F0EBE0",border:"1px solid #E0D8C8",borderRadius:8,padding:"12px 16px",display:"flex",gap:16,flexWrap:"wrap",alignItems:"center"}}>
+                <span style={{fontSize:10,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>出力項目：</span>
+                {[["showBio","経歴文"],["showRepertoire","レパートリー"],["showProgram","プログラム"],["showEvents","演奏歴"]].map(([key,label])=>(
+                  <label key={key} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:12,color:"#6A5030",fontFamily:SANS}}>
+                    <input type="checkbox" defaultChecked style={{cursor:"pointer",accentColor:"#8B5E3C"}}
+                      onChange={e=>{const el=document.getElementById("out-"+key);if(el)el.style.display=e.target.checked?"block":"none";}}/>
+                    {label}
+                  </label>
+                ))}
+              </div>
 
+              <div id="out-showBio">
               {/* 経歴文 */}
               <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
                 <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:12,fontWeight:600}}>経歴文</div>
@@ -1931,6 +1941,8 @@ JSONのみ返してください:
                 })}
               </div>
 
+              </div>
+              <div id="out-showRepertoire">
               {/* レパートリーリスト */}
               <div id="output-repertoire" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -1957,6 +1969,8 @@ JSONのみ返してください:
                 })}
               </div>
 
+              </div>
+              <div id="out-showProgram">
               {/* プログラム */}
               <div id="output-program" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -1984,6 +1998,8 @@ JSONのみ返してください:
                 })}
               </div>
 
+              </div>
+              <div id="out-showEvents">
               {/* 演奏歴 */}
               <div id="output-events" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -2046,7 +2062,7 @@ JSONのみ返してください:
       .filter(p => p.difficulty >= diffMin && p.difficulty <= diffMax)
       .filter(p => (p.frequency||0) >= freqMin && (p.frequency||0) <= freqMax)
       .filter(p => !kwFilter       || (p.keywords||"").includes(kwFilter))
-      .filter(p => !showFavOnly    || p.fav);
+      .filter(p => !showFavOnly    || p.candidate);
 
     const sortPool = (pool) => {
       if (!localSortBy) return pool;
@@ -2091,8 +2107,7 @@ JSONのみ返してください:
           </span>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,color:"#2A2010",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-              {p.candidate&&<span style={{fontSize:10,marginRight:2}}>🟡</span>}
-              {p.fav&&<span style={{fontSize:10,marginRight:2}}>🔵</span>}
+
               {p.title}
             </div>
             <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分</div>
@@ -2223,24 +2238,30 @@ JSONのみ返してください:
             {/* 右上: 詳細フィルター */}
             <div style={{padding:"10px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
               <div style={{fontSize:9,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:8}}>曲目詳細設定</div>
-              <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginBottom:8}}>
-                {/* 作曲家 */}
-                <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)}
-                  placeholder="作曲家"
-                  style={inp2({width:90})} />
-                {/* 曲名 */}
-                <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)}
-                  placeholder="曲名"
-                  style={inp2({width:100})} />
-                {/* 時代 */}
-                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2()}>
-                  <option value="">時代</option>
-                  {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
-                </select>
-                {/* キーワード */}
-                <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)}
-                  placeholder="キーワード"
-                  style={inp2({width:90})} />
+              {/* ⑦ Search Piece - labeled fields */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
+                <div>
+                  <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>作曲家</div>
+                  <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)}
+                    placeholder="例: ショパン" style={inp2({width:"100%"})} />
+                </div>
+                <div>
+                  <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>曲名</div>
+                  <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)}
+                    placeholder="例: ノクターン" style={inp2({width:"100%"})} />
+                </div>
+                <div>
+                  <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>時代</div>
+                  <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2({width:"100%"})}>
+                    <option value="">すべて</option>
+                    {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>キーワード</div>
+                  <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)}
+                    placeholder="例: 発表会向け" style={inp2({width:"100%"})} />
+                </div>
               </div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginBottom:8}}>
                 {/* 作曲年 範囲 */}
