@@ -58,21 +58,21 @@ const COMPOSER_BORN = {
 };
 
 const SAMPLE_PIECES = [
-  { id:1,  title:"平均律クラヴィーア第1巻 BWV846", composer:"J.S.バッハ",     year:1722, country:"ドイツ",      key:"ハ長調",   duration:4,  readiness:90, difficulty:3, rarity:1, form:"前奏曲", era:"baroque"   },
-  { id:2,  title:"フランス組曲 第5番 BWV816",       composer:"J.S.バッハ",     year:1722, country:"ドイツ",      key:"ト長調",   duration:18, readiness:75, difficulty:4, rarity:2, form:"組曲",   era:"baroque"   },
-  { id:3,  title:"ピアノソナタ K.331",              composer:"モーツァルト",   year:1783, country:"オーストリア", key:"イ長調",   duration:22, readiness:85, difficulty:3, rarity:1, form:"ソナタ", era:"classical" },
-  { id:4,  title:"ピアノソナタ 第8番「悲愴」",      composer:"ベートーヴェン", year:1799, country:"ドイツ",      key:"ハ短調",   duration:20, readiness:70, difficulty:4, rarity:1, form:"ソナタ", era:"classical" },
-  { id:5,  title:"バラード 第1番 Op.23",            composer:"ショパン",       year:1835, country:"ポーランド",  key:"ト短調",   duration:10, readiness:60, difficulty:5, rarity:1, form:"バラード",era:"romantic"  },
-  { id:6,  title:"夜想曲 Op.9 No.2",               composer:"ショパン",       year:1832, country:"ポーランド",  key:"変ホ長調", duration:5,  readiness:95, difficulty:3, rarity:1, form:"夜想曲", era:"romantic"  },
-  { id:7,  title:"愛の夢 第3番",                    composer:"リスト",         year:1850, country:"ハンガリー",  key:"変イ長調", duration:5,  readiness:80, difficulty:4, rarity:1, form:"小品",   era:"romantic"  },
-  { id:8,  title:"子供の情景 Op.15",                composer:"シューマン",     year:1838, country:"ドイツ",      key:"ト長調",   duration:17, readiness:65, difficulty:3, rarity:1, form:"小品",   era:"romantic"  },
-  { id:9,  title:"月の光",                          composer:"ドビュッシー",   year:1905, country:"フランス",    key:"変ニ長調", duration:5,  readiness:88, difficulty:3, rarity:1, form:"小品",   era:"modern"    },
-  { id:10, title:"ソナタ第7番 Op.83",               composer:"プロコフィエフ", year:1942, country:"ロシア",      key:"変ロ長調", duration:20, readiness:50, difficulty:5, rarity:2, form:"ソナタ", era:"modern"    },
-  { id:11, title:"マズルカ Op.17 No.4",             composer:"ショパン",       year:1833, country:"ポーランド",  key:"イ短調",   duration:4,  readiness:72, difficulty:3, rarity:2, form:"舞曲",   era:"romantic"  },
-  { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, rarity:3, form:"組曲",   era:"romantic"  },
+  { id:1,  title:"平均律クラヴィーア第1巻 BWV846", composer:"J.S.バッハ",     year:1722, country:"ドイツ",      key:"ハ長調",   duration:4,  readiness:90, difficulty:3, form:"前奏曲", era:"baroque"   },
+  { id:2,  title:"フランス組曲 第5番 BWV816",       composer:"J.S.バッハ",     year:1722, country:"ドイツ",      key:"ト長調",   duration:18, readiness:75, difficulty:4, form:"組曲",   era:"baroque"   },
+  { id:3,  title:"ピアノソナタ K.331",              composer:"モーツァルト",   year:1783, country:"オーストリア", key:"イ長調",   duration:22, readiness:85, difficulty:3, form:"ソナタ", era:"classical" },
+  { id:4,  title:"ピアノソナタ 第8番「悲愴」",      composer:"ベートーヴェン", year:1799, country:"ドイツ",      key:"ハ短調",   duration:20, readiness:70, difficulty:4, form:"ソナタ", era:"classical" },
+  { id:5,  title:"バラード 第1番 Op.23",            composer:"ショパン",       year:1835, country:"ポーランド",  key:"ト短調",   duration:10, readiness:60, difficulty:5, form:"バラード",era:"romantic"  },
+  { id:6,  title:"夜想曲 Op.9 No.2",               composer:"ショパン",       year:1832, country:"ポーランド",  key:"変ホ長調", duration:5,  readiness:95, difficulty:3, form:"夜想曲", era:"romantic"  },
+  { id:7,  title:"愛の夢 第3番",                    composer:"リスト",         year:1850, country:"ハンガリー",  key:"変イ長調", duration:5,  readiness:80, difficulty:4, form:"小品",   era:"romantic"  },
+  { id:8,  title:"子供の情景 Op.15",                composer:"シューマン",     year:1838, country:"ドイツ",      key:"ト長調",   duration:17, readiness:65, difficulty:3, form:"小品",   era:"romantic"  },
+  { id:9,  title:"月の光",                          composer:"ドビュッシー",   year:1905, country:"フランス",    key:"変ニ長調", duration:5,  readiness:88, difficulty:3, form:"小品",   era:"modern"    },
+  { id:10, title:"ソナタ第7番 Op.83",               composer:"プロコフィエフ", year:1942, country:"ロシア",      key:"変ロ長調", duration:20, readiness:50, difficulty:5, form:"ソナタ", era:"modern"    },
+  { id:11, title:"マズルカ Op.17 No.4",             composer:"ショパン",       year:1833, country:"ポーランド",  key:"イ短調",   duration:4,  readiness:72, difficulty:3, form:"舞曲",   era:"romantic"  },
+  { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:1900, yearText:"1900", country:"ドイツ", key:"ハ長調", duration:10, durationSecs:0, difficulty:3, frequency:3, keywords:"", form:"小品", era:"romantic", fav:false, candidate:false };
+const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"ー", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"romantic", fav:false, candidate:false };
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:999, pieceIds:[], intervalSecs:30 });
 
@@ -202,7 +202,7 @@ const fmtDuration = (mins, secs) => {
 const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI, onToggleFav, onToggleCandidate }) => {
   const era = ERAS[piece.era] || ERAS.modern;
   return (
-    <div style={{ background:inProgram?"#F5F0E6":"white", border:"1.5px solid "+(inProgram?"#C8B890":"#E8E0D0"), borderLeft:`4px solid ${era.color}`, borderRadius:6, marginBottom:5, overflow:"hidden", opacity:inProgram?0.55:1, transition:"opacity 0.2s" }}>
+    <div style={{ background:inProgram?"#F5F0E6":"white", border:"1.5px solid "+(inProgram?"#C8B890":"#E8E0D0"), borderLeft:"4px solid "+era.color, borderRadius:6, marginBottom:5, overflow:"hidden", opacity:inProgram?0.55:1, transition:"opacity 0.2s" }}>
       <div style={{ padding:"9px 12px", display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={onToggleExpand}>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontSize:13, color:"#2A2010", marginBottom:2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
@@ -240,7 +240,7 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
         <div style={{ padding:"8px 12px 12px", borderTop:"1px solid #F0EAE0", background:"#FDFAF6" }}>
           <div style={{ display:"flex", gap:18, flexWrap:"wrap", marginBottom:8 }}>
             <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>難易度</div><DotRating value={piece.difficulty} max={5} color="#E05030" /></div>
-            <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>レア度</div><DotRating value={piece.rarity} max={3} color="#E08030" /></div>
+            
             <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#8A7020":"#B03020", fontWeight:"bold" }}>{piece.readiness}%</span></div>
             <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>形式</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.form}</span></div>
             <div><div style={{ fontSize:9, color:"#A09070", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>国</div><span style={{ fontSize:12, color:"#5A4A2A" }}>{piece.country}</span></div>
@@ -252,7 +252,7 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
               [`https://imslp.org/wiki/Special:Search/${encodeURIComponent(piece.title)}`,"IMSLP","#5A3A8A","#C5B5D5"],
               [`https://www.youtube.com/results?search_query=${encodeURIComponent(piece.title+" "+piece.composer)}`,"YouTube ▶","#A03020","#E0B0A0"],
             ].map(([href,label,color,border])=>(
-              <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:`1px solid ${border}`, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
+              <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
           </div>
         </div>
@@ -529,8 +529,8 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     sugTimer.current = setTimeout(async () => {
       setSugLoading(true);
       try {
-        const composerStr = piece.composer ? `作曲家: ${piece.composer}の` : "";
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"rarity":レア度1-3数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const composerStr = piece.composer ? "作曲家: "+piece.composer+"の" : "";
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSuggestions(JSON.parse(text.replace(/```json|```/g,"").trim()).pieces||[]);
@@ -589,7 +589,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           <div style={{fontSize:11,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
-              placeholder={piece.composer?`${piece.composer}の曲を検索…`:"曲名を入力…"}
+              placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
               autoComplete="off" style={{...inp2(), opacity:piece.composer?1:0.5}} />
             {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#8A7050",fontFamily:SANS}}>検索中…</div>}
             {suggestions.length>0 && (
@@ -674,11 +674,12 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           <div key={field} style={{display:"flex",alignItems:"center",gap:4}}>
             <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS,flexShrink:0}}>{label}</span>
             <div style={{display:"flex",gap:0,letterSpacing:0}}>
+              {/* ⑧ 0=未設定、クリックでトグル */}
               {[1,2,3,4,5].map(n=>(
-                <span key={n} onClick={()=>setPiece({...piece,[field]:n})}
+                <span key={n} onClick={()=>setPiece({...piece,[field]:piece[field]===n?0:n})}
                   style={{width:14,height:14,borderRadius:"50%",
-                    background:piece[field]>=n?dotColor:"transparent",
-                    border:"1.5px solid "+dotColor,
+                    background:piece[field]>0&&piece[field]>=n?dotColor:"transparent",
+                    border:"1.5px solid "+(piece[field]>0?dotColor:"#D8D0C0"),
                     cursor:"pointer",display:"inline-block",
                     marginRight:3}}>
                 </span>
@@ -686,9 +687,22 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
             </div>
           </div>
         ))}
+        {/* ⑨ キーワード候補タグ + 自由入力 */}
         <div style={{flex:1,minWidth:120}}>
+          <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
+            {["抒情的","発表会向け","コンクール向け","技巧的","速い","ゆっくり","短め","長め","有名","珍しい"].map(tag=>(
+              <button key={tag} type="button"
+                onClick={()=>setPiece({...piece,keywords:piece.keywords?(piece.keywords.includes(tag)?piece.keywords:piece.keywords+", "+tag):tag})}
+                style={{background:(piece.keywords||"").includes(tag)?"#2A2010":"white",
+                  border:"1px solid "+((piece.keywords||"").includes(tag)?"#2A2010":"#D8D0C0"),
+                  color:(piece.keywords||"").includes(tag)?"#C8A860":"#8A7050",
+                  padding:"2px 7px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:10,lineHeight:1.4}}>
+                {tag}
+              </button>
+            ))}
+          </div>
           <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
-            placeholder="キーワード（例: 抒情的）"
+            placeholder="自由入力（カンマ区切り）"
             style={inp2({padding:"5px 8px",fontSize:12})} />
         </div>
       </div>
@@ -701,6 +715,242 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   );
 };
 
+
+// ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
+const PrintPage = (props) => {
+  const {prog, allPool, programs} = props;
+  const {activeProgramId, setActiveProgramId} = props;
+  const {profile, setProfile, events} = props;
+  const {portfolioTab, setPortfolioTab} = props;
+  const {addListItem, updateListItem, removeListItem} = props;
+  const {handlePhoto, generateBio} = props;
+  const {inpS, lblS, secTitle, addBtn, printSection} = props;
+  return (
+        <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+      {/* Inner tabs: Profile / Output */}
+      <div style={{background:"#EDE8DC",borderBottom:"2px solid #D8D0C0",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
+        {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
+          <button key={k} onClick={()=>setPortfolioTab(k)}
+            style={{background:"none",border:"none",
+              borderBottom:portfolioTab===k?"3px solid #8B5E3C":"3px solid transparent",
+              color:portfolioTab===k?"#2A2010":"#8A7050",
+              padding:"10px 22px",cursor:"pointer",fontSize:13,
+              fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
+              fontWeight:portfolioTab===k?600:400}}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {/* ── PROFILE ── */}
+      {portfolioTab==="profile" && (
+        <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+          <div style={{maxWidth:720,margin:"0 auto"}}>
+
+            {/* 写真 + 基本情報 */}
+            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:4}}>
+              {/* 写真 */}
+              <div style={{flexShrink:0}}>
+                <div onClick={()=>photoInputRef.current?.click()}
+                  style={{width:90,height:90,borderRadius:"50%",border:"2px dashed #C8B890",
+                    background:profile.photoUrl?"transparent":"#F8F4EE",cursor:"pointer",
+                    display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+                  {profile.photoUrl
+                    ? <img src={profile.photoUrl} alt="photo" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                    : <span style={{fontSize:28,color:"#C8B890"}}>👤</span>}
+                </div>
+                <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
+                <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:4,fontFamily:SANS}}>クリックして変更</div>
+              </div>
+              {/* 氏名・基本 */}
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
+                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                  <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
+                  <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
+                </div>
+              </div>
+            </div>
+
+            {/* 学歴 */}
+            {secTitle("学歴（音楽）")}
+            {profile.educations.map(ed=>(
+              <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
+                <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1}}/>
+                <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="卒業年" style={{...inpS,flex:"0 0 70px"}}/>
+                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+              </div>
+            ))}
+            {addBtn("学歴を追加",()=>addListItem("educations",{school:"",degree:"",year:""}))}
+
+            {/* 師事者 */}
+            {secTitle("師事者")}
+            {profile.teachers.map(t=>(
+              <div key={t.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
+                <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1}}/>
+                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+              </div>
+            ))}
+            {addBtn("師事者を追加",()=>addListItem("teachers",{name:"",role:""}))}
+
+            {/* コンクール歴・入賞歴 */}
+            {secTitle("コンクール歴・入賞歴")}
+            {profile.competitions.map(c=>(
+              <div key={c.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+                <input value={c.name} onChange={e=>updateListItem("competitions",c.id,{name:e.target.value})} placeholder="コンクール名" style={{...inpS,flex:2}}/>
+                <input value={c.year} onChange={e=>updateListItem("competitions",c.id,{year:e.target.value})} placeholder="年" style={{...inpS,flex:"0 0 60px"}}/>
+                <input value={c.result} onChange={e=>updateListItem("competitions",c.id,{result:e.target.value})} placeholder="結果・受賞" style={{...inpS,flex:1}}/>
+                <button onClick={()=>removeListItem("competitions",c.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+              </div>
+            ))}
+            {addBtn("コンクール歴を追加",()=>addListItem("competitions",{name:"",year:"",result:""}))}
+
+            {/* 連絡先 */}
+            {secTitle("連絡先")}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+              <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
+              <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
+              <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── OUTPUT ── */}
+      {portfolioTab==="output" && (
+        <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+          <div style={{maxWidth:720,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
+            {/* ⑪ 出力項目セレクター */}
+            <div style={{background:"#F0EBE0",border:"1px solid #E0D8C8",borderRadius:8,padding:"12px 16px",display:"flex",gap:16,flexWrap:"wrap",alignItems:"center"}}>
+              <span style={{fontSize:10,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>出力項目：</span>
+              {[["showBio","経歴文"],["showRepertoire","レパートリー"],["showProgram","プログラム"],["showEvents","演奏歴"]].map(([key,label])=>(
+                <label key={key} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:12,color:"#6A5030",fontFamily:SANS}}>
+                  <input type="checkbox" defaultChecked style={{cursor:"pointer",accentColor:"#8B5E3C"}}
+                    onChange={e=>{const el=document.getElementById("out-"+key);if(el)el.style.display=e.target.checked?"block":"none";}}/>
+                  {label}
+                </label>
+              ))}
+            </div>
+
+            <div id="out-showBio">
+            {/* 経歴文 */}
+            <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+              <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:12,fontWeight:600}}>経歴文</div>
+              {[["short","短め"],["medium","中"],["long","長め"]].map(([len,label])=>{
+                const bio=generateBio(len);
+                return (
+                  <div key={len} style={{marginBottom:14}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                      <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{label}</span>
+                      <div style={{display:"flex",gap:6}}>
+                        <button onClick={()=>navigator.clipboard.writeText(bio).catch(()=>{})} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>コピー</button>
+                      </div>
+                    </div>
+                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"10px 12px",fontSize:12,color:"#2A2010",fontFamily:SANS,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{bio}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            </div>
+            <div id="out-showRepertoire">
+            {/* レパートリーリスト */}
+            <div id="output-repertoire" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>レパートリーリスト</div>
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={()=>printSection("output-repertoire")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
+                </div>
+              </div>
+              {ERA_ORDER.map(k=>{
+                const ps=pieces.filter(p=>p.era===k);
+                if(!ps.length) return null;
+                return (
+                  <div key={k} style={{marginBottom:12}}>
+                    <div style={{fontSize:10,color:ERAS[k].color,letterSpacing:2,fontFamily:SANS,marginBottom:4}}>{ERAS[k].label}</div>
+                    {ps.map(p=>(
+                      <div key={p.id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"3px 0",borderBottom:"1px solid #F5F0E8"}}>
+                        <span style={{color:"#8A7050",flexShrink:0,width:110}}>{p.composer}</span>
+                        <span style={{flex:1}}>{p.title}</span>
+                        <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+
+            </div>
+            <div id="out-showProgram">
+            {/* プログラム */}
+            <div id="output-program" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>プログラム</div>
+                <div style={{display:"flex",gap:6}}>
+                  <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
+                    style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 8px",fontFamily:SANS,fontSize:11,borderRadius:3}}>
+                    {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                  <button onClick={()=>printSection("output-program")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
+                </div>
+              </div>
+              {prog.pieceIds.map((id,i)=>{
+                const p=allPool.find(x=>x.id===id); if(!p) return null;
+                const era=ERAS[p.era]||ERAS.modern;
+                return (
+                  <div key={id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"4px 0",borderBottom:"1px solid #F5F0E8"}}>
+                    <span style={{color:"#C0B090",flexShrink:0,width:20,textAlign:"right"}}>{i+1}</span>
+                    <span style={{color:era.color,flexShrink:0,width:100,fontSize:11}}>{p.composer}</span>
+                    <span style={{flex:1}}>{p.title}</span>
+                    <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
+                    <span style={{color:"#A09070",flexShrink:0}}>{p.duration}分</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            </div>
+            <div id="out-showEvents">
+            {/* 演奏歴 */}
+            <div id="output-events" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>演奏歴</div>
+                <button onClick={()=>printSection("output-events")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
+              </div>
+              {events.length===0
+                ? <div style={{fontSize:12,color:"#C0B090",fontFamily:SANS,textAlign:"center",padding:"20px 0"}}>Eventsページにイベントを追加してください</div>
+                : events.map(ev=>{
+                  const ET={recital:{label:"発表会",color:"#C8963C"},contest:{label:"コンクール",color:"#5B7FA6"},concert:{label:"コンサート",color:"#B85C72"}};
+                  const et=ET[ev.type]||ET.recital;
+                  return (
+                    <div key={ev.id} style={{display:"flex",gap:10,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"5px 0",borderBottom:"1px solid #F5F0E8",alignItems:"baseline"}}>
+                      <span style={{color:"#8A7050",flexShrink:0,width:90}}>{ev.date}</span>
+                      <span style={{fontSize:10,color:et.color,flexShrink:0,width:70}}>{et.label}</span>
+                      <span style={{flex:1}}>{ev.title||ev.venue||"（無題）"}</span>
+                      {ev.venue && ev.title && <span style={{color:"#A09070",fontSize:11}}>{ev.venue}</span>}
+                    </div>
+                  );
+                })
+              }
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── HOME PAGE ─────────────────────────────────────────────────────────────────
+// ── HOME PAGE ─────────────────────────────────────────────────────────────────
+
 const NOTATION_STYLES = {
   ja:     { label:"日本語（標準）",   example:"バラード 第1番 ト短調 Op.23" },
   ja_op:  { label:"日本語（Op.先）",  example:"バラード Op.23 No.1 ト短調" },
@@ -712,7 +962,7 @@ const formatPieceTitle = (p, style) => {
   const title = p.title;
   const key = p.key;
   const year = p.year;
-  if (style==="ja")     return `${title}　${key}`;
+  if (style==="ja")     return title+"　"+key;
   if (style==="ja_op")  return title;
   if (style==="en")     return title;
   if (style==="formal") return title;
@@ -741,11 +991,11 @@ const PrintSettings = ({ prog, allPool }) => {
     programPieces.forEach((p,i) => {
       lines.push(p.composer);
       let titleLine = formatPieceTitle(p, style);
-      if (showKey && style!=="ja") titleLine += `　${p.key}`;
-      if (showYear) titleLine += `　(${p.year})`;
-      if (showDuration) titleLine += `　[${p.duration}分]`;
+      if (showKey && style!=="ja") titleLine += "　"+p.key;
+      if (showYear) titleLine += "　("+p.year+")";
+      if (showDuration) titleLine += "　["+p.duration+"分]";
       lines.push(titleLine);
-      if (notes[p.id]) lines.push(`　${notes[p.id]}`);
+      if (notes[p.id]) lines.push("　"+notes[p.id]);
       lines.push("");
     });
     return lines.join("\n");
@@ -786,9 +1036,9 @@ const PrintSettings = ({ prog, allPool }) => {
       html += `<div style="margin-bottom:28px;padding-bottom:28px;${i<programPieces.length-1?"border-bottom:1px solid #F0EAE0;":""}">`;
       html += `<div style="font-size:11px;color:${eraColor};letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;">${p.composer}</div>`;
       let titleLine = formatPieceTitle(p, style);
-      if (showKey && style!=="ja") titleLine += `　${p.key}`;
-      if (showYear) titleLine += `　(${p.year})`;
-      if (showDuration) titleLine += `　[${p.duration}分]`;
+      if (showKey && style!=="ja") titleLine += "　"+p.key;
+      if (showYear) titleLine += "　("+p.year+")";
+      if (showDuration) titleLine += "　["+p.duration+"分]";
       html += `<div style="font-size:17px;margin-bottom:4px;line-height:1.5;">${titleLine}</div>`;
       if (style==="ja") html += `<div style="font-size:12px;color:#A09070;">${p.key}　${p.year}年</div>`;
       if (notes[p.id]) html += `<div style="font-size:12px;color:#6A5030;font-style:italic;margin-top:4px;">${notes[p.id]}</div>`;
@@ -1001,7 +1251,7 @@ ${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.
 - 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
 ${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras.map(e=>ERAS[e]?.label).join("、")}`:""}
 JSONのみ返してください:
-{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"rarity":1-3数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
+{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
@@ -1013,7 +1263,68 @@ JSONのみ返してください:
     setAiLoading(false);
   };
 
-  const onAddPiece = (piece) => {
+  const photoInputRef = useRef(null);
+
+  // ── helpers for editable lists ──
+  const addListItem = (field, empty) =>
+    setProfile(p=>({...p,[field]:[...p[field],{id:Date.now(),...empty}]}));
+  const updateListItem = (field, id, patch) =>
+    setProfile(p=>({...p,[field]:p[field].map(x=>x.id===id?{...x,...patch}:x)}));
+  const removeListItem = (field, id) =>
+    setProfile(p=>({...p,[field]:p[field].filter(x=>x.id!==id)}));
+
+  const handlePhoto = (e) => {
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev2=>setProfile(p=>({...p,photoUrl:ev2.target.result}));
+    reader.readAsDataURL(file);
+  };
+
+  // ── Output: generate bio text ──
+  const generateBio = (length) => {
+    const p = profile;
+    const name = p.nameJa || p.nameEn || "（氏名未入力）";
+    const edu  = p.educations.map(e=>e.school+(e.degree?" "+e.degree:"")+(e.year?" ("+e.year+")":"")).join("、");
+    const teach = p.teachers.map(t=>t.name+(t.role?" ("+t.role+")":"")).join("、");
+    const comp  = p.competitions.map(c=>c.name+(c.year?" "+c.year+"年":"")+(c.result?" "+c.result:"")).join("。");
+
+    if (length==="short") {
+      return name+"は"+(edu?edu+"を経て、":"")+(teach?""+teach+"に師事。":"")+"現在演奏活動を行っている。";
+    }
+    if (length==="medium") {
+      return name+"。"+(p.birthDate?p.birthDate+"生まれ。":"")+
+        (edu?"学歴："+edu+"。":"")+
+        (teach?teach+"に師事。":"")+
+        (comp?"コンクール等："+comp+"。":"");
+    }
+    return name+"。"+(p.birthDate?p.birthDate+"生まれ、"+p.nationality+"出身。":"")+
+      (edu?"\n\n【学歴】"+edu+"。":"")+
+      (teach?"\n\n【師事】"+teach+"。":"")+
+      (comp?"\n\n【コンクール歴・入賞歴】"+comp+"。":"")+
+      (p.contact.email?"\n\n【連絡先】"+p.contact.email:"");
+  };
+
+  // ── Styles ──
+  const inpS={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const lblS={fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS};
+  const secTitle=(t)=>( <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #E8E0D0",paddingBottom:4}}>{t}</div> );
+  const addBtn=(label,onClick)=>(
+    <button onClick={onClick} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginTop:6}}>
+      ＋ {label}
+    </button>
+  );
+
+
+  const printSection = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const w = window.open("","_blank");
+    w.document.write("<html><head><style>body{font-family:serif;padding:40px;color:#2A2010;}h2{letter-spacing:3px;color:#6A5030;}</style></head><body>"+el.innerHTML+"</body></html>");
+    w.document.close(); w.print();
+  };
+
+
+    const onAddPiece = (piece) => {
     const era = eraFromYear(piece.year);
     setPieces(p=>[...p,{...piece,era,id:Date.now(),mine:true}]);
     setShowAdd(false);
@@ -1083,7 +1394,6 @@ JSONのみ返してください:
               <option value="duration">演奏時間</option>
               <option value="difficulty">難易度</option>
               <option value="frequency">演奏頻度</option>
-              <option value="rarity">レア度</option>
             </select>
             <button onClick={()=>setSortAsc(v=>!v)}
               style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 8px",
@@ -1093,12 +1403,7 @@ JSONのみ返してください:
             </button>
           </div>
           <span style={{flex:1}}/>
-          <button onClick={()=>setExpanded(v=>!v)}
-            style={{background:expanded?"#2A2010":"white",border:"1px solid "+(expanded?"#2A2010":"#D8D0C0"),
-              color:expanded?"#C8A860":"#6A5030",padding:"4px 10px",cursor:"pointer",fontSize:11,
-              fontFamily:SANS,borderRadius:4}}>
-            絞り込み {expanded?"▲":"▼"}
-          </button>
+    
           <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
             title="お気に入りのみ"
             style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
@@ -1113,20 +1418,7 @@ JSONのみ返してください:
             ➖
           </button>
         </div>
-        {expanded && (
-          <div style={{padding:"6px 12px 10px",borderTop:"1px solid #E8E0D0",display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-            <span style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>時代：</span>
-            {[["","すべて"],...ERA_ORDER.map(k=>[k,ERAS[k].label])].map(([k,l])=>(
-              <button key={k} onClick={()=>setFilterEra(k)}
-                style={{background:filterEra===k?"#2A2010":"white",
-                  border:"1px solid "+(filterEra===k?"#2A2010":"#D8D0C0"),
-                  color:filterEra===k?"#C8A860":"#6A5030",
-                  padding:"3px 9px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>
-                {l}
-              </button>
-            ))}
-          </div>
-        )}
+
       </div>
     );
   };
@@ -1198,7 +1490,6 @@ JSONのみ返してください:
           <div style={{padding:"8px 12px 12px",borderTop:"1px solid #F0EAE0",background:"#FDFAF6"}}>
             <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
               <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
-              <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>レア度</div><DotRating value={p.rarity} max={3} color="#E08030" /></div>
               <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#B03020",fontWeight:"bold"}}>{p.readiness}%</span></div>
               <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>形式</div><span style={{fontSize:12,color:"#5A4A2A"}}>{p.form}</span></div>
             </div>
@@ -1742,296 +2033,10 @@ JSONのみ返してください:
         </div>
       </div>
     </div>
-  ); };
-
-  // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
-  const PrintPage = () => {
-    const photoInputRef = useRef(null);
-
-    // ── helpers for editable lists ──
-    const addListItem = (field, empty) =>
-      setProfile(p=>({...p,[field]:[...p[field],{id:Date.now(),...empty}]}));
-    const updateListItem = (field, id, patch) =>
-      setProfile(p=>({...p,[field]:p[field].map(x=>x.id===id?{...x,...patch}:x)}));
-    const removeListItem = (field, id) =>
-      setProfile(p=>({...p,[field]:p[field].filter(x=>x.id!==id)}));
-
-    const handlePhoto = (e) => {
-      const file=e.target.files[0]; if(!file) return;
-      const reader=new FileReader();
-      reader.onload=ev2=>setProfile(p=>({...p,photoUrl:ev2.target.result}));
-      reader.readAsDataURL(file);
-    };
-
-    // ── Output: generate bio text ──
-    const generateBio = (length) => {
-      const p = profile;
-      const name = p.nameJa || p.nameEn || "（氏名未入力）";
-      const edu  = p.educations.map(e=>e.school+(e.degree?" "+e.degree:"")+(e.year?" ("+e.year+")":"")).join("、");
-      const teach = p.teachers.map(t=>t.name+(t.role?" ("+t.role+")":"")).join("、");
-      const comp  = p.competitions.map(c=>c.name+(c.year?" "+c.year+"年":"")+(c.result?" "+c.result:"")).join("。");
-
-      if (length==="short") {
-        return name+"は"+(edu?edu+"を経て、":"")+(teach?""+teach+"に師事。":"")+"現在演奏活動を行っている。";
-      }
-      if (length==="medium") {
-        return name+"。"+(p.birthDate?p.birthDate+"生まれ。":"")+
-          (edu?"学歴："+edu+"。":"")+
-          (teach?teach+"に師事。":"")+
-          (comp?"コンクール等："+comp+"。":"");
-      }
-      return name+"。"+(p.birthDate?p.birthDate+"生まれ、"+p.nationality+"出身。":"")+
-        (edu?"\n\n【学歴】"+edu+"。":"")+
-        (teach?"\n\n【師事】"+teach+"。":"")+
-        (comp?"\n\n【コンクール歴・入賞歴】"+comp+"。":"")+
-        (p.contact.email?"\n\n【連絡先】"+p.contact.email:"");
-    };
-
-    // ── Styles ──
-    const inpS={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
-    const lblS={fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS};
-    const secTitle=(t)=>( <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #E8E0D0",paddingBottom:4}}>{t}</div> );
-    const addBtn=(label,onClick)=>(
-      <button onClick={onClick} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginTop:6}}>
-        ＋ {label}
-      </button>
-    );
-
-    const copyText = (text) => navigator.clipboard.writeText(text).catch(()=>{});
-
-    const printSection = (id) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const w = window.open("","_blank");
-      w.document.write("<html><head><style>body{font-family:serif;padding:40px;color:#2A2010;}h2{letter-spacing:3px;color:#6A5030;}</style></head><body>"+el.innerHTML+"</body></html>");
-      w.document.close(); w.print();
-    };
-
-    return (
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-        {/* Inner tabs: Profile / Output */}
-        <div style={{background:"#EDE8DC",borderBottom:"2px solid #D8D0C0",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
-          {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
-            <button key={k} onClick={()=>setPortfolioTab(k)}
-              style={{background:"none",border:"none",
-                borderBottom:portfolioTab===k?"3px solid #8B5E3C":"3px solid transparent",
-                color:portfolioTab===k?"#2A2010":"#8A7050",
-                padding:"10px 22px",cursor:"pointer",fontSize:13,
-                fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
-                fontWeight:portfolioTab===k?600:400}}>
-              {l}
-            </button>
-          ))}
-        </div>
-
-        {/* ── PROFILE ── */}
-        {portfolioTab==="profile" && (
-          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-            <div style={{maxWidth:720,margin:"0 auto"}}>
-
-              {/* 写真 + 基本情報 */}
-              <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:4}}>
-                {/* 写真 */}
-                <div style={{flexShrink:0}}>
-                  <div onClick={()=>photoInputRef.current?.click()}
-                    style={{width:90,height:90,borderRadius:"50%",border:"2px dashed #C8B890",
-                      background:profile.photoUrl?"transparent":"#F8F4EE",cursor:"pointer",
-                      display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
-                    {profile.photoUrl
-                      ? <img src={profile.photoUrl} alt="photo" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      : <span style={{fontSize:28,color:"#C8B890"}}>👤</span>}
-                  </div>
-                  <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
-                  <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:4,fontFamily:SANS}}>クリックして変更</div>
-                </div>
-                {/* 氏名・基本 */}
-                <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
-                    <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
-                  </div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                    <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
-                    <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 学歴 */}
-              {secTitle("学歴（音楽）")}
-              {profile.educations.map(ed=>(
-                <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
-                  <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
-                  <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1}}/>
-                  <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="卒業年" style={{...inpS,flex:"0 0 70px"}}/>
-                  <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
-                </div>
-              ))}
-              {addBtn("学歴を追加",()=>addListItem("educations",{school:"",degree:"",year:""}))}
-
-              {/* 師事者 */}
-              {secTitle("師事者")}
-              {profile.teachers.map(t=>(
-                <div key={t.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
-                  <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
-                  <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1}}/>
-                  <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
-                </div>
-              ))}
-              {addBtn("師事者を追加",()=>addListItem("teachers",{name:"",role:""}))}
-
-              {/* コンクール歴・入賞歴 */}
-              {secTitle("コンクール歴・入賞歴")}
-              {profile.competitions.map(c=>(
-                <div key={c.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
-                  <input value={c.name} onChange={e=>updateListItem("competitions",c.id,{name:e.target.value})} placeholder="コンクール名" style={{...inpS,flex:2}}/>
-                  <input value={c.year} onChange={e=>updateListItem("competitions",c.id,{year:e.target.value})} placeholder="年" style={{...inpS,flex:"0 0 60px"}}/>
-                  <input value={c.result} onChange={e=>updateListItem("competitions",c.id,{result:e.target.value})} placeholder="結果・受賞" style={{...inpS,flex:1}}/>
-                  <button onClick={()=>removeListItem("competitions",c.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
-                </div>
-              ))}
-              {addBtn("コンクール歴を追加",()=>addListItem("competitions",{name:"",year:"",result:""}))}
-
-              {/* 連絡先 */}
-              {secTitle("連絡先")}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-                <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
-                <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
-                <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
-              </div>
-
-            </div>
-          </div>
-        )}
-
-        {/* ── OUTPUT ── */}
-        {portfolioTab==="output" && (
-          <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-            <div style={{maxWidth:720,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
-              {/* ⑪ 出力項目セレクター */}
-              <div style={{background:"#F0EBE0",border:"1px solid #E0D8C8",borderRadius:8,padding:"12px 16px",display:"flex",gap:16,flexWrap:"wrap",alignItems:"center"}}>
-                <span style={{fontSize:10,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>出力項目：</span>
-                {[["showBio","経歴文"],["showRepertoire","レパートリー"],["showProgram","プログラム"],["showEvents","演奏歴"]].map(([key,label])=>(
-                  <label key={key} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:12,color:"#6A5030",fontFamily:SANS}}>
-                    <input type="checkbox" defaultChecked style={{cursor:"pointer",accentColor:"#8B5E3C"}}
-                      onChange={e=>{const el=document.getElementById("out-"+key);if(el)el.style.display=e.target.checked?"block":"none";}}/>
-                    {label}
-                  </label>
-                ))}
-              </div>
-
-              <div id="out-showBio">
-              {/* 経歴文 */}
-              <div style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
-                <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:12,fontWeight:600}}>経歴文</div>
-                {[["short","短め"],["medium","中"],["long","長め"]].map(([len,label])=>{
-                  const bio=generateBio(len);
-                  return (
-                    <div key={len} style={{marginBottom:14}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                        <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>{label}</span>
-                        <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>copyText(bio)} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>コピー</button>
-                        </div>
-                      </div>
-                      <div style={{background:"#F8F4EE",borderRadius:6,padding:"10px 12px",fontSize:12,color:"#2A2010",fontFamily:SANS,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{bio}</div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              </div>
-              <div id="out-showRepertoire">
-              {/* レパートリーリスト */}
-              <div id="output-repertoire" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>レパートリーリスト</div>
-                  <div style={{display:"flex",gap:6}}>
-                    <button onClick={()=>printSection("output-repertoire")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
-                  </div>
-                </div>
-                {ERA_ORDER.map(k=>{
-                  const ps=pieces.filter(p=>p.era===k);
-                  if(!ps.length) return null;
-                  return (
-                    <div key={k} style={{marginBottom:12}}>
-                      <div style={{fontSize:10,color:ERAS[k].color,letterSpacing:2,fontFamily:SANS,marginBottom:4}}>{ERAS[k].label}</div>
-                      {ps.map(p=>(
-                        <div key={p.id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"3px 0",borderBottom:"1px solid #F5F0E8"}}>
-                          <span style={{color:"#8A7050",flexShrink:0,width:110}}>{p.composer}</span>
-                          <span style={{flex:1}}>{p.title}</span>
-                          <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
-
-              </div>
-              <div id="out-showProgram">
-              {/* プログラム */}
-              <div id="output-program" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>プログラム</div>
-                  <div style={{display:"flex",gap:6}}>
-                    <select value={activeProgramId} onChange={e=>setActiveProgramId(+e.target.value)}
-                      style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 8px",fontFamily:SANS,fontSize:11,borderRadius:3}}>
-                      {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                    <button onClick={()=>printSection("output-program")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
-                  </div>
-                </div>
-                {prog.pieceIds.map((id,i)=>{
-                  const p=allPool.find(x=>x.id===id); if(!p) return null;
-                  const era=ERAS[p.era]||ERAS.modern;
-                  return (
-                    <div key={id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"4px 0",borderBottom:"1px solid #F5F0E8"}}>
-                      <span style={{color:"#C0B090",flexShrink:0,width:20,textAlign:"right"}}>{i+1}</span>
-                      <span style={{color:era.color,flexShrink:0,width:100,fontSize:11}}>{p.composer}</span>
-                      <span style={{flex:1}}>{p.title}</span>
-                      <span style={{color:"#A09070",flexShrink:0}}>{p.key}</span>
-                      <span style={{color:"#A09070",flexShrink:0}}>{p.duration}分</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              </div>
-              <div id="out-showEvents">
-              {/* 演奏歴 */}
-              <div id="output-events" style={{background:"white",border:"1px solid #E8E0D0",borderRadius:8,padding:18}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                  <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,fontWeight:600}}>演奏歴</div>
-                  <button onClick={()=>printSection("output-events")} style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>🖨 印刷</button>
-                </div>
-                {events.length===0
-                  ? <div style={{fontSize:12,color:"#C0B090",fontFamily:SANS,textAlign:"center",padding:"20px 0"}}>Eventsページにイベントを追加してください</div>
-                  : events.map(ev=>{
-                    const ET={recital:{label:"発表会",color:"#C8963C"},contest:{label:"コンクール",color:"#5B7FA6"},concert:{label:"コンサート",color:"#B85C72"}};
-                    const et=ET[ev.type]||ET.recital;
-                    return (
-                      <div key={ev.id} style={{display:"flex",gap:10,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"5px 0",borderBottom:"1px solid #F5F0E8",alignItems:"baseline"}}>
-                        <span style={{color:"#8A7050",flexShrink:0,width:90}}>{ev.date}</span>
-                        <span style={{fontSize:10,color:et.color,flexShrink:0,width:70}}>{et.label}</span>
-                        <span style={{flex:1}}>{ev.title||ev.venue||"（無題）"}</span>
-                        {ev.venue && ev.title && <span style={{color:"#A09070",fontSize:11}}>{ev.venue}</span>}
-                      </div>
-                    );
-                  })
-                }
-              </div>
-
-            </div>
-          </div>
-        )}
-      </div>
-    );
+  );
   };
 
-  // ── HOME PAGE ─────────────────────────────────────────────────────────────────
-  // ── HOME PAGE ─────────────────────────────────────────────────────────────────
+
   const HomePage = () => {
     // ── Local state for detail filter ──
     const [composerFilter, setComposerFilter] = useState("");
@@ -2334,7 +2339,6 @@ JSONのみ返してください:
                     <option value="duration">演奏時間</option>
                     <option value="difficulty">難易度</option>
                     <option value="frequency">演奏頻度</option>
-                    <option value="rarity">レア度</option>
                   </select>
                   <button onClick={()=>setLocalSortAsc(v=>!v)}
                     style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 7px",
@@ -2397,7 +2401,7 @@ JSONのみ返してください:
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage />}
-        {page==="print"  && <PrintPage />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
         {page==="home"   && <HomePage />}
         {page==="events" && <EventsPage />}
       </div>
