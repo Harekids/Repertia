@@ -1931,14 +1931,99 @@ JSONのみ返してください:
 
       {/* Learning タブ（プレースホルダー） */}
       {libraryTab==="learning" && (
-        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}>
-          <div style={{color:"#C0B090",fontSize:13,fontFamily:SANS}}>データベースから曲を探して学習リストに追加できます</div>
-          <button onClick={()=>{ setLibraryTab("repertoire"); setPoolMode("ai"); }}
-            style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"12px 28px",
-              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:6,letterSpacing:0.5,fontWeight:600}}>
-            New from Database
-          </button>
-          <div style={{color:"#B0A080",fontSize:11,fontFamily:SANS}}>（Programページ → New from Databaseと同じ機能）</div>
+        <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          {/* Search Piece パネル */}
+          <div style={{padding:"10px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
+            <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
+              <div>
+                <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>作曲家</div>
+                <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="例: ショパン" style={inp2({width:"100%"})} />
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>曲名</div>
+                <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="例: ノクターン" style={inp2({width:"100%"})} />
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>時代</div>
+                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2({width:"100%"})}>
+                  <option value="">ー</option>
+                  {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>キーワード</div>
+                <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="例: 発表会向け" style={inp2({width:"100%"})} />
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>作曲年</span>
+                <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                  <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <span style={{fontSize:10,color:"#A09070"}}>〜</span>
+                  <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                </div>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏時間（分）</span>
+                <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                  <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <span style={{fontSize:10,color:"#A09070"}}>〜</span>
+                  <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                </div>
+              </div>
+            </div>
+            {/* ③ 説明文→ここに移動、ボタン上 */}
+            {/* ② ボタン行 */}
+            <div style={{display:"flex",gap:16,marginTop:16,justifyContent:"center"}}>
+              <button onClick={()=>{ setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire"); }}
+                style={{flex:"0 0 30%",padding:"12px 6px",
+                  background:(poolMode==="repertoire"||poolMode==="both")?"#2A2010":"white",
+                  border:"2px solid "+((poolMode==="repertoire"||poolMode==="both")?"#2A2010":"#C8B890"),
+                  color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#8A7050",
+                  cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
+                from Repertoire
+              </button>
+              <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
+                disabled={aiLoading}
+                style={{flex:"0 0 30%",padding:"12px 6px",
+                  background:(poolMode==="ai"||poolMode==="both")?"#2A2010":"white",
+                  border:"2px solid "+((poolMode==="ai"||poolMode==="both")?"#2A2010":"#C8B890"),
+                  color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#8A7050",
+                  cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
+                {aiLoading?"…":"New from Database"}
+              </button>
+            </div>
+          </div>
+          {/* 結果一覧 */}
+          <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
+            {poolMode==="none" && (
+              <div style={{textAlign:"center",color:"#B0A080",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
+                「New from Database」で追加した曲はLearningリストに保存されます
+              </div>
+            )}
+            {showMy && (
+              <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
+                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY REPERTOIRE ({myPool.length}曲)</div>}
+                {myPool.length===0
+                  ? <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
+                  : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
+                }
+              </div>
+            )}
+            {showAI && (
+              <div>
+                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",marginBottom:5,fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</div>}
+                {aiPool.length===0&&!aiLoading && (
+                  <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>
+                    「New from Database」で追加した曲はLearningリストに保存されます
+                  </div>
+                )}
+                {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -2224,8 +2309,8 @@ JSONのみ返してください:
 
             {/* 左下: タイムライン */}
             <div style={{flex:1,overflowY:"auto",padding:"10px 12px"}}>
-              <div style={{fontSize:9,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span>プログラム</span>
+              <div style={{fontSize:12,letterSpacing:2,color:"#2A2010",fontFamily:SANS,fontWeight:700,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span>Program</span>
                 <span style={{fontSize:12,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold",letterSpacing:0}}>
                   {Math.floor(totalDuration)}分{totalDuration%1>0?(Math.round((totalDuration%1)*60)+"秒"):""}  / {prog.maxDuration}分
                   <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
@@ -2349,12 +2434,8 @@ JSONのみ返してください:
                   </div>
                 </div>
               </div>
-              {/* ⑦ 説明文 */}
-              <div style={{fontSize:10,color:"#A09070",fontFamily:SANS,marginTop:8,textAlign:"center",lineHeight:1.8}}>
-                「New from Database」で追加した曲はLearningリストに保存されます
-              </div>
               {/* ⑥ ボタン行 */}
-              <div style={{display:"flex",gap:16,marginTop:36,justifyContent:"center"}}>
+              <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
                 <button onClick={()=>setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire")}
                   style={{flex:"0 0 30%",padding:"12px 6px",
                     background:(poolMode==="repertoire"||poolMode==="both")?"#2A2010":"white",
@@ -2411,8 +2492,8 @@ JSONのみ返してください:
               </div>
 
               {poolMode==="none" && (
-                <div style={{textAlign:"center",color:"#B0A080",padding:"40px 12px",fontSize:12,lineHeight:2,fontFamily:SANS,border:"2px dashed #D8D0C0",borderRadius:8}}>
-                  上のボタンで曲を探しましょう
+                <div style={{textAlign:"center",color:"#B0A080",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
+                  「New from Database」で追加した曲はLearningリストに保存されます
                 </div>
               )}
 
@@ -2432,7 +2513,9 @@ JSONのみ返してください:
                 <div>
                   {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",marginBottom:5,fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</div>}
                   {aiPool.length===0&&!aiLoading && (
-                    <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>「AIから探す」を押してください</div>
+                    <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>
+                      「New from Database」で追加した曲はLearningリストに保存されます
+                    </div>
                   )}
                   {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
                 </div>
