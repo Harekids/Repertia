@@ -690,7 +690,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         {/* ⑨ キーワード候補タグ + 自由入力 */}
         <div style={{flex:1,minWidth:120}}>
           <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
-            {["抒情的","発表会向け","コンクール向け","技巧的","速い","ゆっくり","短め","長め","有名","珍しい"].map(tag=>(
+            {["明るい","暗い","重い","軽い","激しい","穏やか","切ない","力強い","繊細","華やか","発表会","コンクール","入試","アンコール","その他"].map(tag=>(
               <button key={tag} type="button"
                 onClick={()=>setPiece({...piece,keywords:piece.keywords?(piece.keywords.includes(tag)?piece.keywords:piece.keywords+", "+tag):tag})}
                 style={{background:(piece.keywords||"").includes(tag)?"#2A2010":"white",
@@ -1931,8 +1931,14 @@ JSONのみ返してください:
 
       {/* Learning タブ（プレースホルダー） */}
       {libraryTab==="learning" && (
-        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:"#C0B090",fontSize:14,fontFamily:SANS}}>
-          Learning機能は準備中です
+        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:16}}>
+          <div style={{color:"#C0B090",fontSize:13,fontFamily:SANS}}>データベースから曲を探して学習リストに追加できます</div>
+          <button onClick={()=>{ setLibraryTab("repertoire"); setPoolMode("ai"); }}
+            style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"12px 28px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:6,letterSpacing:0.5,fontWeight:600}}>
+            New from Database
+          </button>
+          <div style={{color:"#B0A080",fontSize:11,fontFamily:SANS}}>（Programページ → New from Databaseと同じ機能）</div>
         </div>
       )}
 
@@ -2221,7 +2227,7 @@ JSONのみ返してください:
               <div style={{fontSize:9,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span>プログラム</span>
                 <span style={{fontSize:12,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold",letterSpacing:0}}>
-                  {totalDuration}分 / {prog.maxDuration}分
+                  {Math.floor(totalDuration)}分{totalDuration%1>0?(Math.round((totalDuration%1)*60)+"秒"):""}  / {prog.maxDuration}分
                   <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
                     {remaining>0?" 残り"+remaining+"分":remaining===0?" ちょうど":" "+Math.abs(remaining)+"分超過"}
                   </span>
@@ -2271,7 +2277,7 @@ JSONのみ返してください:
 
             {/* 右上: 詳細フィルター */}
             <div style={{padding:"10px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
-              <div style={{fontSize:10,letterSpacing:3,color:"#6A5030",fontFamily:SANS,marginBottom:8,fontWeight:600}}>Search Piece</div>
+              <div style={{fontSize:12,letterSpacing:2,color:"#6A5030",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
               {/* ⑦ Search Piece - labeled fields */}
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
                 <div>
@@ -2343,8 +2349,12 @@ JSONのみ返してください:
                   </div>
                 </div>
               </div>
-              {/* ⑦ ボタン行 */}
-              <div style={{display:"flex",gap:8,marginTop:12}}>
+              {/* ⑦ 説明文 */}
+              <div style={{fontSize:10,color:"#A09070",fontFamily:SANS,marginTop:8,textAlign:"center",lineHeight:1.8}}>
+                「New from Database」で追加した曲はLearningリストに保存されます
+              </div>
+              {/* ⑥ ボタン行 */}
+              <div style={{display:"flex",gap:16,marginTop:36,justifyContent:"center"}}>
                 <button onClick={()=>setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire")}
                   style={{flex:"0 0 30%",padding:"12px 6px",
                     background:(poolMode==="repertoire"||poolMode==="both")?"#2A2010":"white",
@@ -2352,7 +2362,7 @@ JSONのみ返してください:
                     color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#8A7050",
                     cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                     letterSpacing:0.3}}>
-                  Repertoire
+                  from Repertoire
                 </button>
                 <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
                   disabled={aiLoading}
@@ -2362,7 +2372,7 @@ JSONのみ返してください:
                     color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#8A7050",
                     cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                     letterSpacing:0.3}}>
-                  {aiLoading?"…":"New"}
+                  {aiLoading?"…":"New from Database"}
                 </button>
               </div>
             </div>
