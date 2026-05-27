@@ -562,7 +562,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
   return (
     <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:10,padding:22}}>
-      <div style={{fontSize:15,letterSpacing:3,color:"#6A5030",marginBottom:16,fontFamily:SANS,fontWeight:600}}>ADD PIECE</div>
+      <div style={{fontSize:15,letterSpacing:3,color:"#6A5030",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Add Piece</div>
 
       {/* 1列目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
@@ -1161,7 +1161,7 @@ const PrintPreview = ({ prog, allPool }) => {
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 const FONT = "'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,serif";
-const NAV  = [["manage","Repertoire"],["home","Program"],["events","Events"],["print","Portfolio"]];
+const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["print","Portfolio"]];
 
 export default function App() {
   // ── state ──
@@ -1185,6 +1185,7 @@ export default function App() {
   const [aiLoading, setAiLoading]             = useState(false);
   const [showConstraints, setShowConstraints] = useState(false);
   const [constraints, setConstraints]         = useState({ requireEras:[] });
+  const [libraryTab, setLibraryTab]           = useState("repertoire"); // ② "repertoire"|"learning"
   const [showAdd, setShowAdd]                 = useState(false);
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
   const [events, setEvents]                    = useState([]);
@@ -1911,7 +1912,33 @@ JSONのみ返してください:
     };
 
     return (
-    <div style={{flex:1,overflowY:"auto"}}>
+    <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+      {/* ② Library タブバー */}
+      <div style={{background:"#EDE8DC",borderBottom:"2px solid #D8D0C0",padding:"0 20px",display:"flex",alignItems:"stretch",flexShrink:0}}>
+        {[["repertoire","Repertoire ✦"],["learning","Learning ✧"]].map(([k,l])=>(
+          <button key={k} onClick={()=>setLibraryTab(k)}
+            style={{background:"none",border:"none",
+              borderBottom:libraryTab===k?"3px solid #8B5E3C":"3px solid transparent",
+              color:libraryTab===k?"#2A2010":"#8A7050",
+              padding:"10px 20px",cursor:"pointer",fontSize:13,
+              fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
+              fontWeight:libraryTab===k?600:400}}>
+            {l}
+          </button>
+        ))}
+      </div>
+
+      {/* Learning タブ（プレースホルダー） */}
+      {libraryTab==="learning" && (
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",color:"#C0B090",fontSize:14,fontFamily:SANS}}>
+          Learning機能は準備中です
+        </div>
+      )}
+
+      {/* Repertoire タブ */}
+      {libraryTab==="repertoire" && (
+      <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
         {/* ① Dashboard セクション */}
@@ -2032,6 +2059,8 @@ JSONのみ返してください:
           </div>
         </div>
       </div>
+      </div>
+      )}
     </div>
   );
   };
@@ -2242,7 +2271,7 @@ JSONのみ返してください:
 
             {/* 右上: 詳細フィルター */}
             <div style={{padding:"10px 14px",borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
-              <div style={{fontSize:10,letterSpacing:3,color:"#6A5030",fontFamily:SANS,marginBottom:8,fontWeight:600}}>SEARCH PIECE</div>
+              <div style={{fontSize:10,letterSpacing:3,color:"#6A5030",fontFamily:SANS,marginBottom:8,fontWeight:600}}>Search Piece</div>
               {/* ⑦ Search Piece - labeled fields */}
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
                 <div>
@@ -2314,26 +2343,26 @@ JSONのみ返してください:
                   </div>
                 </div>
               </div>
-              {/* ⑨ ボタン行 — 目立つように */}
-              <div style={{display:"flex",gap:10,marginTop:4}}>
+              {/* ⑦ ボタン行 */}
+              <div style={{display:"flex",gap:8,marginTop:12}}>
                 <button onClick={()=>setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire")}
-                  style={{flex:1,padding:"12px 6px",
+                  style={{flex:"0 0 30%",padding:"12px 6px",
                     background:(poolMode==="repertoire"||poolMode==="both")?"#2A2010":"white",
                     border:"2px solid "+((poolMode==="repertoire"||poolMode==="both")?"#2A2010":"#C8B890"),
                     color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#8A7050",
                     cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                     letterSpacing:0.3}}>
-                  ✦ MY
+                  Repertoire
                 </button>
                 <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
                   disabled={aiLoading}
-                  style={{flex:1,padding:"12px 6px",
+                  style={{flex:"0 0 30%",padding:"12px 6px",
                     background:(poolMode==="ai"||poolMode==="both")?"#2A2010":"white",
                     border:"2px solid "+((poolMode==="ai"||poolMode==="both")?"#2A2010":"#C8B890"),
                     color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#8A7050",
                     cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                     letterSpacing:0.3}}>
-                  {aiLoading?"✧…":"✧ AI"}
+                  {aiLoading?"…":"New"}
                 </button>
               </div>
             </div>
