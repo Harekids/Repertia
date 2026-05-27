@@ -1179,6 +1179,22 @@ export default function App() {
   const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
   const [searchQ, setSearchQ]                 = useState("");
   const [poolMode, setPoolMode]               = useState("none");
+  // ── Search/Filter states (shared between Program & Learning) ──
+  const [composerFilter, setComposerFilter]   = useState("");
+  const [titleFilter,    setTitleFilter]      = useState("");
+  const [eraFilter,      setEraFilter]        = useState("");
+  const [yearMin,        setYearMin]          = useState("");
+  const [yearMax,        setYearMax]          = useState("");
+  const [durMin,         setDurMin]           = useState("");
+  const [durMax,         setDurMax]           = useState("");
+  const [diffMin,        setDiffMin]          = useState(0);
+  const [diffMax,        setDiffMax]          = useState(5);
+  const [freqMin,        setFreqMin]          = useState(0);
+  const [freqMax,        setFreqMax]          = useState(5);
+  const [kwFilter,       setKwFilter]         = useState("");
+  const [showFavOnly,    setShowFavOnly]      = useState(false);
+  const [localSortBy,    setLocalSortBy]      = useState("");
+  const [localSortAsc,   setLocalSortAsc]     = useState(true);
   const [compareMode, setCompareMode]         = useState(false); // ③ 比較モード
   const [comparePieces, setComparePieces]     = useState([]); // ③ 比較対象
   const [editMode, setEditMode]               = useState(false); // ⑦ manage page edit mode
@@ -1956,41 +1972,13 @@ JSONのみ返してください:
                 <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="例: 発表会向け" style={inp2({width:"100%"})} />
               </div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>作曲年</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
-                  <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏時間（分）</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
-                  <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
-                </div>
-              </div>
-            </div>
-            {/* ③ 説明文→ここに移動、ボタン上 */}
-            {/* ② ボタン行 */}
-            <div style={{display:"flex",gap:16,marginTop:16,justifyContent:"center"}}>
-              <button onClick={()=>{ setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire"); }}
-                style={{flex:"0 0 30%",padding:"12px 6px",
-                  background:(poolMode==="repertoire"||poolMode==="both")?"#2A2010":"white",
-                  border:"2px solid "+((poolMode==="repertoire"||poolMode==="both")?"#2A2010":"#C8B890"),
-                  color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#8A7050",
-                  cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
-                from Repertoire
-              </button>
-              <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
+            <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
+              <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAI(); }}
                 disabled={aiLoading}
                 style={{flex:"0 0 30%",padding:"12px 6px",
-                  background:(poolMode==="ai"||poolMode==="both")?"#2A2010":"white",
-                  border:"2px solid "+((poolMode==="ai"||poolMode==="both")?"#2A2010":"#C8B890"),
-                  color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#8A7050",
+                  background:poolMode==="ai"?"#2A2010":"white",
+                  border:"2px solid "+(poolMode==="ai"?"#2A2010":"#C8B890"),
+                  color:poolMode==="ai"?"#C8A860":"#8A7050",
                   cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
                 {aiLoading?"…":"New from Database"}
               </button>
@@ -1998,34 +1986,45 @@ JSONのみ返してください:
           </div>
           {/* 結果一覧 */}
           <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
-            {poolMode==="none" && (
+            {poolMode!=="ai" && aiPieces.length===0 && (
               <div style={{textAlign:"center",color:"#B0A080",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
                 「New from Database」で追加した曲はLearningリストに保存されます
               </div>
             )}
-            {showMy && (
-              <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
-                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY REPERTOIRE ({myPool.length}曲)</div>}
-                {myPool.length===0
-                  ? <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
-                  : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
-                }
-              </div>
+            {aiLoading && (
+              <div style={{textAlign:"center",color:"#8A7050",padding:"24px",fontSize:12,fontFamily:SANS}}>✧ 検索中…</div>
             )}
-            {showAI && (
-              <div>
-                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",marginBottom:5,fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</div>}
-                {aiPool.length===0&&!aiLoading && (
-                  <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>
-                    「New from Database」で追加した曲はLearningリストに保存されます
+            {aiPieces
+              .filter(p=>!composerFilter||p.composer.includes(composerFilter))
+              .filter(p=>!titleFilter||p.title.includes(titleFilter))
+              .filter(p=>!eraFilter||p.era===eraFilter)
+              .filter(p=>!kwFilter||(p.keywords||"").includes(kwFilter))
+              .map(p=>{
+                const era=ERAS[p.era]||ERAS.modern;
+                const inProg=prog.pieceIds.includes(p.id);
+                return (
+                  <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
+                    background:"white",border:"1px solid #E8E0D0",borderLeft:"3px solid "+era.color,borderRadius:5}}>
+                    <span style={{fontSize:11,color:"#A0A0A8",flexShrink:0}}>✧</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,color:"#2A2010",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                      <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分</div>
+                    </div>
+                    <button onClick={()=>toggle(p.id)}
+                      disabled={inProg}
+                      style={{background:inProg?"#EDE8DC":"#2A2010",border:"none",color:inProg?"#B0A080":"#E8D090",
+                        width:22,height:22,borderRadius:"50%",cursor:inProg?"not-allowed":"pointer",
+                        fontSize:15,lineHeight:"22px",textAlign:"center",flexShrink:0}}>
+                      {inProg?"✓":"+"}
+                    </button>
                   </div>
-                )}
-                {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
-              </div>
-            )}
+                );
+              })
+            }
           </div>
         </div>
       )}
+
 
       {/* Repertoire タブ */}
       {libraryTab==="repertoire" && (
@@ -2159,21 +2158,7 @@ JSONのみ返してください:
 
   const HomePage = () => {
     // ── Local state for detail filter ──
-    const [composerFilter, setComposerFilter] = useState("");
-    const [titleFilter,    setTitleFilter]    = useState("");
-    const [eraFilter,      setEraFilter]      = useState("");
-    const [yearMin,        setYearMin]        = useState("");
-    const [yearMax,        setYearMax]        = useState("");
-    const [durMin,         setDurMin]         = useState("");
-    const [durMax,         setDurMax]         = useState("");
-    const [diffMin,        setDiffMin]        = useState(0);
-    const [diffMax,        setDiffMax]        = useState(5);
-    const [freqMin,        setFreqMin]        = useState(0);
-    const [freqMax,        setFreqMax]        = useState(5);
-    const [kwFilter,       setKwFilter]       = useState("");
-    const [showFavOnly,    setShowFavOnly]    = useState(false);
-    const [localSortBy,    setLocalSortBy]    = useState("");
-    const [localSortAsc,   setLocalSortAsc]   = useState(true);
+    // filter states moved to App
 
     // ── Filtered pool ──
     const filterPieces = (pool) => pool
