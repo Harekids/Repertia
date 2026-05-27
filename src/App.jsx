@@ -1954,22 +1954,22 @@ JSONのみ返してください:
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>作曲家</div>
-                <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="例: ショパン" style={inp2({width:"100%"})} />
+                <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="例: ショパン" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>曲名</div>
-                <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="例: ノクターン" style={inp2({width:"100%"})} />
+                <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="例: ノクターン" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>時代</div>
-                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2({width:"100%"})}>
+                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"}}>
                   <option value="">ー</option>
                   {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                 </select>
               </div>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>キーワード</div>
-                <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="例: 発表会向け" style={inp2({width:"100%"})} />
+                <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="例: 発表会向け" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
