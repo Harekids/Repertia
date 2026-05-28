@@ -1764,26 +1764,26 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
-        {/* Top bar */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,flexWrap:"wrap"}}>
-          {/* ② キーワード検索 */}
-          <input
-            value={evSearch} onChange={e=>setEvSearch(e.target.value)}
-            placeholder="キーワードで検索"
-            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
-          />
-          {/* ② 種別フィルター */}
-          <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
-            <option value="">すべての種別</option>
-            {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
-          </select>
-          <span style={{flex:1}}/>
+        {/* Top bar ④ 1行目：追加ボタン */}
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}>
           <button onClick={openAdd}
             style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 20px",
               cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
             ＋ イベントを追加
           </button>
+        </div>
+        {/* ⑤ 2行目：検索・フィルター */}
+        <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
+          <input
+            value={evSearch} onChange={e=>setEvSearch(e.target.value)}
+            placeholder="キーワードで検索"
+            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
+          />
+          <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
+            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
+            <option value="">すべての種別</option>
+            {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
+          </select>
         </div>
 
         {/* Add / Edit form */}
@@ -2099,27 +2099,53 @@ const HomePage = (props) => {
                 {remaining>0&&<div style={{flex:1,background:"#EDE8DC"}}/>}
               </div>
             )}
-            {/* Piece list */}
+            {/* Piece list with interval tabs */}
             {programPieces.length===0
               ? <div style={{textAlign:"center",color:"#B0A080",padding:"30px 12px",border:"2px dashed #D8D0C0",borderRadius:8,fontSize:12,lineHeight:2,fontFamily:SANS}}>右の一覧から曲を追加</div>
-              : programPieces.map((p,i)=>{ const era=ERAS[p.era]||ERAS.modern; return (
-                <div key={p.id} draggable onDragStart={()=>dragId.current=p.id} onDragEnter={()=>dragOver.current=p.id} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}
-                  style={{display:"flex",alignItems:"center",gap:6,padding:"7px 8px",background:"white",
-                    border:"1px solid "+era.color+"33",borderLeft:"3px solid "+era.color,
-                    borderRadius:5,marginBottom:4,cursor:"grab"}}>
-                  <span style={{color:"#C8B890",fontSize:11}}>⠿</span>
-                  <div style={{width:18,height:18,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"white",flexShrink:0}}>{i+1}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:11,color:"#2A2010",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-                      {p.candidate&&<span style={{fontSize:9,marginRight:2}}>🟡</span>}
-                      {p.fav&&<span style={{fontSize:9,marginRight:2}}>🔵</span>}
-                      {p.title}
+              : programPieces.map((p,i)=>{ const era=ERAS[p.era]||ERAS.modern;
+                // ①② 曲間タブ（2曲目以降の前に表示）
+                const intervalKey = "interval-"+i;
+                const hasInterval = i > 0;
+                const intervalSecs = (prog.intervals||{})[intervalKey]||0;
+                return (
+                  <React.Fragment key={p.id}>
+                    {hasInterval && (
+                      <div style={{display:"flex",alignItems:"center",gap:6,padding:"3px 8px",marginBottom:3,
+                        background:"#F5F0E8",border:"1px dashed #D8D0C0",borderRadius:4,fontSize:10,color:"#A09070",fontFamily:SANS}}>
+                        <span style={{color:"#C8B890",fontSize:10}}>⏱</span>
+                        <span style={{flex:1}}>曲間</span>
+                        <input type="number" min={0} max={300}
+                          value={intervalSecs}
+                          onChange={e=>updateProg({intervals:{...(prog.intervals||{}),[intervalKey]:Math.max(0,+e.target.value)}})}
+                          style={{width:36,background:"white",border:"1px solid #D8D0C0",color:"#2A2010",fontSize:10,textAlign:"center",padding:"1px 3px",borderRadius:3}}
+                        />
+                        <span style={{color:"#A09070"}}>秒</span>
+                        <button onClick={()=>{const iv={...(prog.intervals||{})};delete iv[intervalKey];updateProg({intervals:iv});}}
+                          style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:11,padding:"0 1px"}}>×</button>
+                      </div>
+                    )}
+                    <div draggable onDragStart={()=>dragId.current=p.id} onDragEnter={()=>dragOver.current=p.id} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}
+                      style={{display:"flex",alignItems:"center",gap:6,padding:"7px 8px",background:"white",
+                        border:"1px solid "+era.color+"33",borderLeft:"3px solid "+era.color,
+                        borderRadius:5,marginBottom:3,cursor:"grab"}}>
+                      <span style={{color:"#C8B890",fontSize:11}}>⠿</span>
+                      <div style={{width:18,height:18,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"white",flexShrink:0}}>{i+1}</div>
+                      {/* ③ Library と同じ表記 */}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{display:"flex",alignItems:"baseline",gap:4,marginBottom:1}}>
+                          <span style={{fontSize:10,color:"#8A7050",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
+                          <span style={{fontSize:12,color:"#2A2010",fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+                        </div>
+                        <div style={{fontSize:9,color:"#A09070",fontFamily:SANS,display:"flex",gap:4}}>
+                          <span>{era.label}</span>
+                          <span>{p.key}</span>
+                          <span>{fmtDuration(p.duration,p.durationSecs)}</span>
+                        </div>
+                      </div>
+                      <button onClick={()=>toggle(p.id)} style={{background:"none",border:"none",color:"#C8A0A0",cursor:"pointer",fontSize:13,padding:"0 2px",flexShrink:0}}>×</button>
                     </div>
-                    <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.duration}分</div>
-                  </div>
-                  <button onClick={()=>toggle(p.id)} style={{background:"none",border:"none",color:"#C8A0A0",cursor:"pointer",fontSize:13,padding:"0 2px",flexShrink:0}}>×</button>
-                </div>
-              ); })
+                  </React.Fragment>
+                ); })
             }
           </div>
         </div>
