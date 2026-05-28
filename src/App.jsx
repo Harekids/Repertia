@@ -1574,7 +1574,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
     items:[], notes:"", videoUrl:"", posterUrl:"",
   };
 
-  const [view, setView]               = useState("timeline"); // "timeline"|"list"
+  const [evSearch, setEvSearch]        = useState("");
+  const [evTypeFilter, setEvTypeFilter] = useState("");
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState(null);
   const [newEvent, setNewEvent]       = useState(EMPTY_EVENT);
@@ -1583,7 +1584,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
   const [dragOverId, setDragOverId]   = useState(null);
   const posterRef  = useRef(null);
   const today      = new Date().toISOString().slice(0,10);
-
+  const filteredEvents = events
+    .filter(e=>!evTypeFilter||e.type===evTypeFilter)
+    .filter(e=>!evSearch||(e.title||"").includes(evSearch)||(e.venue||"").includes(evSearch)||(e.notes||"").includes(evSearch));
+  const filteredPast   = filteredEvents.filter(e=>e.date<=today).sort((a,b)=>b.date.localeCompare(a.date));
+  const filteredFuture = filteredEvents.filter(e=>e.date>today).sort((a,b)=>a.date.localeCompare(b.date));
   const past   = events.filter(e=>e.date <= today).sort((a,b)=>b.date.localeCompare(a.date));
   const future = events.filter(e=>e.date >  today).sort((a,b)=>a.date.localeCompare(b.date));
 
@@ -1760,17 +1765,19 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
         {/* Top bar */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20}}>
-          {/* View toggle */}
-          <div style={{display:"flex",gap:0,border:"1px solid #D8D0C0",borderRadius:4,overflow:"hidden"}}>
-            {[["timeline","タイムライン"],["list","☰ 一覧"]].map(([k,l])=>(
-              <button key={k} onClick={()=>setView(k)}
-                style={{background:view===k?"#2A2010":"white",border:"none",color:view===k?"#C8A860":"#6A5030",
-                  padding:"6px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                {l}
-              </button>
-            ))}
-          </div>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+          {/* ② キーワード検索 */}
+          <input
+            value={evSearch} onChange={e=>setEvSearch(e.target.value)}
+            placeholder="キーワードで検索"
+            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
+          />
+          {/* ② 種別フィルター */}
+          <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
+            style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
+            <option value="">すべての種別</option>
+            {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
+          </select>
           <span style={{flex:1}}/>
           <button onClick={openAdd}
             style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 20px",
@@ -1873,29 +1880,25 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
           </div>
         )}
 
-                {/* Content */}
-        {view==="timeline" ? (
-          events.length===0 ? (
-            <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
-              「＋ イベントを追加」からコンサートや発表会を記録しましょう
-            </div>
-          ) : (
-            <>
-              {/* ⑤ 凡例 */}
-              <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
-                {LEGEND.map(l=>(
-                  <div key={l.color} style={{display:"flex",alignItems:"center",gap:5}}>
-                    <div style={{width:12,height:12,borderRadius:"50% 50% 50% 0",transform:"rotate(-45deg)",background:l.color,flexShrink:0}}/>
-                    <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS}}>{l.label}</span>
-                  </div>
-                ))}
-              </div>
-              {future.length>0 && <TimelineSection label="UPCOMING" evs={future} defaultOpen={true}/>}
-              {past.length>0 && <TimelineSection label="HISTORY" evs={past} defaultOpen={future.length===0}/>}
-            </>
-          )
+        {/* Content — タイムラインのみ表示 */}
+        {filteredEvents.length===0 ? (
+          <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
+            {events.length===0 ? "「＋ イベントを追加」からコンサートや発表会を記録しましょう" : "該当するイベントがありません"}
+          </div>
         ) : (
-          <ListView/>
+          <>
+            {/* 凡例 */}
+            <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+              {LEGEND.map(l=>(
+                <div key={l.color} style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div style={{width:12,height:12,borderRadius:"50% 50% 50% 0",transform:"rotate(-45deg)",background:l.color,flexShrink:0}}/>
+                  <span style={{fontSize:11,color:"#6A5030",fontFamily:SANS}}>{l.label}</span>
+                </div>
+              ))}
+            </div>
+            {filteredFuture.length>0 && <TimelineSection label="UPCOMING" evs={filteredFuture} defaultOpen={true}/>}
+            {filteredPast.length>0 && <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={filteredFuture.length===0}/>}
+          </>
         )}
 
       </div>
