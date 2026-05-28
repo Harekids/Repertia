@@ -1820,55 +1820,6 @@ const EventsPage = ({events, setEvents, FONT, SANS}) => {
 
 // ── ManagePage helpers ──
 // Dashboard data helpers
-const getDashData = () => {
-  if (dashAxis==="era") {
-    return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k).length})).filter(d=>d.count>0);
-  }
-  if (dashAxis==="difficulty") {
-    return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n).length})).filter(d=>d.count>0);
-  }
-  if (dashAxis==="frequency") {
-    return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n).length})).filter(d=>d.count>0);
-  }
-  return [];
-};
-const dashData  = getDashData();
-const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
-
-// SVG Pie
-const PieChart = () => {
-  const angle2=[-90]; // mutable via array
-  const cx=70,cy=70,r=54;
-  const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
-  const slices=dashData.map(d=>{const deg=(d.count/dashTotal)*360;const s=angle2[0];angle2[0]+=deg;return{...d,startDeg:s,deg};});
-  return (
-    <svg viewBox="0 0 140 140" style={{width:130,height:130,flexShrink:0}}>
-      {slices.map((s,i)=>{
-        const s1=toXY(s.startDeg),s2=toXY(s.startDeg+s.deg);
-        const large=s.deg>180?1:0;
-        return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
-      })}
-      <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
-      <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
-    </svg>
-  );
-};
-
-// Bar chart
-const BarChart = () => {
-  const maxCount=Math.max(...dashData.map(d=>d.count),1);
-  return (
-    <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
-      {dashData.map((d,i)=>(
-        <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
-          <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
-          <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
-          <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
 
 
 
@@ -2304,6 +2255,56 @@ export default function App() {
   const [libraryTab, setLibraryTab]           = useState("repertoire");
   const [dashAxis, setDashAxis]               = useState("era");
   const [dashChart, setDashChart]             = useState("pie");
+
+  const getDashData = () => {
+    if (dashAxis==="era") {
+      return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+    }
+    if (dashAxis==="difficulty") {
+      return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n).length})).filter(d=>d.count>0);
+    }
+    if (dashAxis==="frequency") {
+      return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n).length})).filter(d=>d.count>0);
+    }
+    return [];
+  };
+  const dashData  = getDashData();
+  const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
+
+  // SVG Pie
+  const PieChart = () => {
+    const angle2=[-90]; // mutable via array
+    const cx=70,cy=70,r=54;
+    const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
+    const slices=dashData.map(d=>{const deg=(d.count/dashTotal)*360;const s=angle2[0];angle2[0]+=deg;return{...d,startDeg:s,deg};});
+    return (
+      <svg viewBox="0 0 140 140" style={{width:130,height:130,flexShrink:0}}>
+        {slices.map((s,i)=>{
+          const s1=toXY(s.startDeg),s2=toXY(s.startDeg+s.deg);
+          const large=s.deg>180?1:0;
+          return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
+        })}
+        <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
+        <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
+      </svg>
+    );
+  };
+
+  // Bar chart
+  const BarChart = () => {
+    const maxCount=Math.max(...dashData.map(d=>d.count),1);
+    return (
+      <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
+        {dashData.map((d,i)=>(
+          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
+            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
+            <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
+            <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
   const [learningIds, setLearningIds]           = useState([]); // ② Learning管理
   const [showAdd, setShowAdd]                 = useState(false);
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
@@ -2679,6 +2680,10 @@ JSONのみ返してください:
           toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
+          dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
+          PieChart={PieChart} BarChart={BarChart}
+          dashAxis={dashAxis} setDashAxis={setDashAxis}
+          dashChart={dashChart} setDashChart={setDashChart}
         />}
         {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
         {page==="home" && <HomePage
