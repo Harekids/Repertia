@@ -1763,7 +1763,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:20}}>
           {/* View toggle */}
           <div style={{display:"flex",gap:0,border:"1px solid #D8D0C0",borderRadius:4,overflow:"hidden"}}>
-            {[["timeline","⌛ タイムライン"],["list","☰ 一覧"]].map(([k,l])=>(
+            {[["timeline","タイムライン"],["list","☰ 一覧"]].map(([k,l])=>(
               <button key={k} onClick={()=>setView(k)}
                 style={{background:view===k?"#2A2010":"white",border:"none",color:view===k?"#C8A860":"#6A5030",
                   padding:"6px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
@@ -1783,81 +1783,82 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
         {showForm && (
           <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:8,padding:18,marginBottom:20}}>
             <div style={{fontSize:13,letterSpacing:2,color:"#6A5030",marginBottom:14,fontFamily:SANS,fontWeight:600}}>
-              {editingId ? "✎ イベントを編集" : "NEW EVENT"}
+              {editingId ? "✎ イベントを編集" : "Add Event"}
             </div>
-
-            {secLbl("公演情報")}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:8}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{inpE}}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>種別</div>
-                <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={{selE}}>
-                  {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
-                </select>
-              </div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>公演名</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={{inpE}}/></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1.4fr 1.4fr",gap:8,marginBottom:8}}>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>内容</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>場所</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>主催者</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={{inpE}}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>会場</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={{inpE}}/></div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:4}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開場</div><input value={newEvent.openTime} onChange={e=>setNewEvent({...newEvent,openTime:e.target.value})} placeholder="例: 13:30" style={{inpE}}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="例: 14:00" style={{inpE}}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>問い合わせ</div><input value={newEvent.contact} onChange={e=>setNewEvent({...newEvent,contact:e.target.value})} placeholder="連絡先" style={{inpE}}/></div>
-            </div>
-
-            {secLbl("曲目")}
-            {newEvent.items.map((it,idx)=>(
-              <div key={it.id} draggable
-                onDragStart={()=>setDragItemId(it.id)}
-                onDragEnter={()=>setDragOverId(it.id)}
-                onDragEnd={onItemDragEnd}
-                onDragOver={e=>e.preventDefault()}
-                style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,
-                  background:dragOverId===it.id?"#FDF5ED":"white",
-                  border:"1px solid #E8E0D0",borderRadius:4,padding:"5px 7px",cursor:"grab"}}>
-                <span style={{color:"#C8B890",fontSize:12,flexShrink:0}}>⠿</span>
-                {it.kind==="break"
-                  ? <span style={{flex:1,fontSize:12,color:"#8A7050",fontFamily:SANS,fontStyle:"italic"}}>― 休憩 ―</span>
-                  : <>
-                      <span style={{fontSize:10,color:"#A09070",fontFamily:SANS,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
-                      <input value={it.performer} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者名" style={{...inpE,flex:"0 0 120px"}}/>
-                      <input value={it.pieceTitle} onChange={e=>updateItem(it.id,{pieceTitle:e.target.value})} placeholder="曲名" style={{...inpE,flex:1}}/>
-                      <input value={it.duration} onChange={e=>updateItem(it.id,{duration:e.target.value})} placeholder="時間" style={{...inpE,flex:"0 0 52px"}}/>
-                    </>
-                }
-                <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
-              </div>
-            ))}
-            <div style={{display:"flex",gap:8,marginBottom:4}}>
-              <button onClick={()=>addItem("piece")} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>＋ 曲を追加</button>
-              <button onClick={()=>addItem("break")} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>― 休憩を追加</button>
-            </div>
-
-            {secLbl("オプション")}
             <div style={{marginBottom:8}}>
-              <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>メモ・解説</div>
+              <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>種別</div>
+              <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={{...inpE,width:"auto"}}>
+                <option value="">ー</option>
+                {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
+              </select>
+            </div>
+            {!newEvent.showDetail ? (
+              <button onClick={()=>setNewEvent({...newEvent,showDetail:true})}
+                style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 14px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginBottom:8}}>
+                ＋ 詳細を追加
+              </button>
+            ) : (
+              <div style={{background:"#F8F4EE",borderRadius:6,padding:"10px 12px",marginBottom:8}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+                  <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>共演者</div><input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>
+                  <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
+                  <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="14:00" style={inpE}/></div>
+                </div>
+              </div>
+            )}
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>備考</div>
               <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
-                placeholder="メモ・曲目解説など" style={{...inpE,minHeight:56,resize:"vertical"}}/>
+                placeholder="メモ・備考など" style={{...inpE,minHeight:48,resize:"vertical"}}/>
             </div>
-            <div style={{marginBottom:12}}>
-              <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>動画リンク</div>
-              <input value={newEvent.videoUrl||""} onChange={e=>setNewEvent({...newEvent,videoUrl:e.target.value})} placeholder="https://youtube.com/..." style={{inpE}}/>
-            </div>
-            <div style={{marginBottom:16}}>
-              <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>チラシ画像</div>
-              <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                <button onClick={()=>posterRef.current?.click()} style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"5px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>📎 選択</button>
-                <input ref={posterRef} type="file" accept="image/*" onChange={handlePoster} style={{display:"none"}}/>
-                {newEvent.posterUrl && (
-                  <div style={{display:"flex",alignItems:"center",gap:7}}>
-                    <img src={newEvent.posterUrl} alt="poster" style={{width:36,height:36,objectFit:"cover",borderRadius:3,border:"1px solid #E8E0D0"}}/>
-                    <button onClick={()=>setNewEvent(ev=>({...ev,posterUrl:""}))} style={{background:"none",border:"none",color:"#C09090",cursor:"pointer",fontSize:11,fontFamily:SANS}}>削除</button>
-                  </div>
-                )}
+            <div style={{marginTop:16,marginBottom:8}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:8}}>プログラム</div>
+              {newEvent.items.map((it,idx)=>(
+                <div key={it.id} draggable
+                  onDragStart={()=>setDragItemId(it.id)}
+                  onDragEnter={()=>setDragOverId(it.id)}
+                  onDragEnd={onItemDragEnd}
+                  onDragOver={e=>e.preventDefault()}
+                  style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,
+                    background:dragOverId===it.id?"#FDF5ED":"white",
+                    border:"1px solid #E8E0D0",borderRadius:4,padding:"5px 7px",cursor:"grab"}}>
+                  <span style={{color:"#C8B890",fontSize:12,flexShrink:0}}>⣿</span>
+                  {it.kind==="break"
+                    ? <span style={{flex:1,fontSize:12,color:"#8A7050",fontFamily:SANS,fontStyle:"italic"}}>― 休憩 ―</span>
+                    : <>
+                        <span style={{fontSize:10,color:"#A09070",fontFamily:SANS,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
+                        <input value={it.performer} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者名" style={{...inpE,flex:"0 0 120px"}}/>
+                        <input value={it.pieceTitle} onChange={e=>updateItem(it.id,{pieceTitle:e.target.value})} placeholder="曲名" style={{...inpE,flex:1}}/>
+                        <input value={it.duration} onChange={e=>updateItem(it.id,{duration:e.target.value})} placeholder="時間" style={{...inpE,flex:"0 0 52px"}}/>
+                      </>
+                  }
+                  <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+                </div>
+              ))}
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>addItem("piece")} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>＋ 曲を追加</button>
+                <button onClick={()=>addItem("break")} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>― 休憩を追加</button>
               </div>
             </div>
-
+            <div style={{marginTop:16,marginBottom:14}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:8}}>Archive</div>
+              {(newEvent.archives||[]).map((arc,i)=>(
+                <div key={i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
+                  <input value={arc.title} onChange={e=>{const a=[...(newEvent.archives||[])];a[i]={...a[i],title:e.target.value};setNewEvent({...newEvent,archives:a});}} placeholder="タイトル" style={{...inpE,flex:1}}/>
+                  <input value={arc.url} onChange={e=>{const a=[...(newEvent.archives||[])];a[i]={...a[i],url:e.target.value};setNewEvent({...newEvent,archives:a});}} placeholder="URL" style={{...inpE,flex:2}}/>
+                  <button onClick={()=>{const a=(newEvent.archives||[]).filter((_,j)=>j!==i);setNewEvent({...newEvent,archives:a});}} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              <button onClick={()=>setNewEvent({...newEvent,archives:[...(newEvent.archives||[]),{title:"",url:""}]})}
+                style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                ＋ リンクを追加
+              </button>
+            </div>
             <div style={{display:"flex",gap:14,justifyContent:"center"}}>
               <button onClick={saveEvent} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"8px 24px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,letterSpacing:1}}>
                 {editingId ? "更新する" : "追加する"}
@@ -1867,7 +1868,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
           </div>
         )}
 
-        {/* Content */}
+                {/* Content */}
         {view==="timeline" ? (
           events.length===0 ? (
             <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
@@ -2047,13 +2048,9 @@ const HomePage = (props) => {
                 </select>
               </div>
               <div style={{width:1,height:16,background:"#D8D0C0"}}/>
-              <div style={{display:"flex",alignItems:"center",gap:4}}>
-                <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>曲間</span>
-                <input type="number" min={0} max={300} value={prog.intervalSecs!=null?prog.intervalSecs:0}
-                  onChange={e=>updateProg({intervalSecs:Math.max(0,+e.target.value)})}
-                  style={{width:40,background:"white",border:"1px solid #C8B890",color:"#2A2010",fontSize:12,fontFamily:FONT,textAlign:"center",padding:"3px 4px",borderRadius:4}} />
-                <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>秒</span>
-              </div>
+              <button style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>
+                ＋ 曲間を追加
+              </button>
             </div>
           </div>
 
