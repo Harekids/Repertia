@@ -1164,13 +1164,92 @@ const FONT = "'Cormorant Garamond','EB Garamond','Palatino Linotype',Palatino,se
 const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["print","Portfolio"]];
 
 
+// ── FilterBar (top-level) ──────────────────────────────────────────────────
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel}) => {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div style={{borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
+      <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
+        <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
+        <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
+          <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+            style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+            <option value="" disabled>並べ替え</option>
+            <option value="year">作曲年</option>
+            <option value="duration">演奏時間</option>
+            <option value="difficulty">難易度</option>
+            <option value="frequency">演奏頻度</option>
+          </select>
+          <button onClick={()=>setSortAsc(v=>!v)}
+            style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 8px",
+              cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
+              display:"flex",alignItems:"center"}}>
+            {sortAsc?"▲":"▼"}
+          </button>
+        </div>
+        <span style={{flex:1}}/>
+  
+        <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
+          title="お気に入りのみ"
+          style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
+            fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
+            width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
+          <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
+        </button>
+        <button onClick={()=>setEditMode(!editMode)}
+          title={editMode?"削除モード終了":"削除モード"}
+          style={{background:"none",border:"none",color:editMode?"#8A8A8A":"#C8C8C8",
+            fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,fontWeight:editMode?"bold":"normal"}}>
+          ➖
+        </button>
+      </div>
+
+    </div>
+  );
+};
+
+// ── PieChart (top-level) ────────────────────────────────────────────────────
+const PieChart = ({dashData, dashTotal}) => {
+  const angle2=[-90]; // mutable via array
+  const cx=70,cy=70,r=54;
+  const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
+  const slices=dashData.map(d=>{const deg=(d.count/dashTotal)*360;const s=angle2[0];angle2[0]+=deg;return{...d,startDeg:s,deg};});
+  return (
+    <svg viewBox="0 0 140 140" style={{width:130,height:130,flexShrink:0}}>
+      {slices.map((s,i)=>{
+        const s1=toXY(s.startDeg),s2=toXY(s.startDeg+s.deg);
+        const large=s.deg>180?1:0;
+        return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
+      })}
+      <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
+      <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
+    </svg>
+  );
+};
+
+// ── BarChart (top-level) ────────────────────────────────────────────────────
+const BarChart = ({dashData}) => {
+  const maxCount=Math.max(...dashData.map(d=>d.count),1);
+  return (
+    <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
+      {dashData.map((d,i)=>(
+        <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
+          <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
+          <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
+          <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
   const {pieces, setPieces, poolFiltered, showAdd, setShowAdd} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
-  const {dashData, dashTotal, PieChart, BarChart} = props;
+  const {dashData, dashTotal} = props;
   const {dashAxis, setDashAxis, dashChart, setDashChart} = props;
   const {libraryTab, setLibraryTab, poolMode, setPoolMode} = props;
   const {composerFilter, setComposerFilter, titleFilter, setTitleFilter} = props;
@@ -1378,7 +1457,7 @@ const ManagePage = (props) => {
 
         {/* グラフ + 凡例 */}
         <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
-          {dashChart==="pie" ? <PieChart/> : <BarChart/>}
+          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal}/> : <BarChart dashData={dashData}/>}
           <div style={{display:"flex",flexDirection:"column",gap:5,flex:1}}>
             {dashData.map((d,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:7}}>
@@ -1410,7 +1489,7 @@ const ManagePage = (props) => {
 
       {/* 一覧エリア — フォームと分ける境界 */}
       <div style={{background:"#F8F4EE",borderRadius:8,border:"1px solid #E8E0D0",overflow:"hidden"}}>
-        <FilterBar pool={pieces} />
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} />
         <div style={{padding:"8px 8px"}}>
           {poolFiltered.map(p => {
             const era = ERAS[p.era]||ERAS.modern;
@@ -2272,39 +2351,8 @@ export default function App() {
   const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
 
   // SVG Pie
-  const PieChart = () => {
-    const angle2=[-90]; // mutable via array
-    const cx=70,cy=70,r=54;
-    const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
-    const slices=dashData.map(d=>{const deg=(d.count/dashTotal)*360;const s=angle2[0];angle2[0]+=deg;return{...d,startDeg:s,deg};});
-    return (
-      <svg viewBox="0 0 140 140" style={{width:130,height:130,flexShrink:0}}>
-        {slices.map((s,i)=>{
-          const s1=toXY(s.startDeg),s2=toXY(s.startDeg+s.deg);
-          const large=s.deg>180?1:0;
-          return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
-        })}
-        <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
-        <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
-      </svg>
-    );
-  };
 
   // Bar chart
-  const BarChart = () => {
-    const maxCount=Math.max(...dashData.map(d=>d.count),1);
-    return (
-      <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
-        {dashData.map((d,i)=>(
-          <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
-            <span style={{fontSize:10,color:"#6A5030",fontFamily:SANS}}>{d.count}</span>
-            <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
-            <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
   const [learningIds, setLearningIds]           = useState([]); // ② Learning管理
   const [showAdd, setShowAdd]                 = useState(false);
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
@@ -2516,48 +2564,6 @@ JSONのみ返してください:
   );
 
   // ── Filter bar ───────────────────────────────────────────────────────────────
-  const FilterBar = ({pool}) => {
-    const [expanded, setExpanded] = useState(false);
-    return (
-      <div style={{borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
-        <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
-          <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
-          <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
-            <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-              style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
-              <option value="" disabled>並べ替え</option>
-              <option value="year">作曲年</option>
-              <option value="duration">演奏時間</option>
-              <option value="difficulty">難易度</option>
-              <option value="frequency">演奏頻度</option>
-            </select>
-            <button onClick={()=>setSortAsc(v=>!v)}
-              style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 8px",
-                cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
-                display:"flex",alignItems:"center"}}>
-              {sortAsc?"▲":"▼"}
-            </button>
-          </div>
-          <span style={{flex:1}}/>
-    
-          <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
-            title="お気に入りのみ"
-            style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
-              fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
-              width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
-            <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
-          </button>
-          <button onClick={()=>setEditMode(!editMode)}
-            title={editMode?"削除モード終了":"削除モード"}
-            style={{background:"none",border:"none",color:editMode?"#8A8A8A":"#C8C8C8",
-              fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,fontWeight:editMode?"bold":"normal"}}>
-            ➖
-          </button>
-        </div>
-
-      </div>
-    );
-  };
 
   // ── PieceCardRow (used in both pool and manage list) ─────────────────────────
   const PieceCardRow = ({p, showControls=true}) => {
@@ -2681,7 +2687,6 @@ JSONのみ返してください:
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
           dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
-          PieChart={PieChart} BarChart={BarChart}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
