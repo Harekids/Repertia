@@ -771,7 +771,7 @@ const PrintPage = (props) => {
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                   <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
-                  <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
+                  <div><div style={lblS}>国籍</div><select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={inpS}><option key="ー" value="ー">ー</option><option key="日本" value="日本">日本</option><option key="ドイツ" value="ドイツ">ドイツ</option><option key="オーストリア" value="オーストリア">オーストリア</option><option key="フランス" value="フランス">フランス</option><option key="イタリア" value="イタリア">イタリア</option><option key="ロシア" value="ロシア">ロシア</option><option key="ポーランド" value="ポーランド">ポーランド</option><option key="ハンガリー" value="ハンガリー">ハンガリー</option><option key="チェコ" value="チェコ">チェコ</option><option key="スペイン" value="スペイン">スペイン</option><option key="イギリス" value="イギリス">イギリス</option><option key="アメリカ" value="アメリカ">アメリカ</option><option key="アルゼンチン" value="アルゼンチン">アルゼンチン</option><option key="ブラジル" value="ブラジル">ブラジル</option><option key="中国" value="中国">中国</option><option key="韓国" value="韓国">韓国</option><option key="その他" value="その他">その他</option></select></div>
                 </div>
               </div>
             </div>
@@ -2391,7 +2391,7 @@ export default function App() {
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
-    nameJa:"", nameEn:"", birthDate:"", nationality:"ロシア",
+    nameJa:"", nameEn:"", birthDate:"", nationality:"ー",
     photoUrl:"",
     educations:[],   // {id, school, degree, year}
     teachers:[],     // {id, name, role}
@@ -2755,3 +2755,7 @@ JSONのみ返してください:
     </div>
   );
 }
+
+
+
+
