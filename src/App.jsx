@@ -718,7 +718,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
 // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
 const PrintPage = (props) => {
-  const {prog, allPool, programs} = props;
+  const {prog, allPool, programs, pieces} = props;
   const {activeProgramId, setActiveProgramId} = props;
   const {profile, setProfile, events} = props;
   const {portfolioTab, setPortfolioTab} = props;
@@ -1165,7 +1165,7 @@ const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["prin
 
 
 // ── FilterBar (top-level) ──────────────────────────────────────────────────
-const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel}) => {
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS}) => {
   const [expanded, setExpanded] = useState(false);
   return (
     <div style={{borderBottom:"1px solid #E8E0D0",background:"#F8F4EE",flexShrink:0}}>
@@ -1209,7 +1209,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
 };
 
 // ── PieChart (top-level) ────────────────────────────────────────────────────
-const PieChart = ({dashData, dashTotal}) => {
+const PieChart = ({dashData, dashTotal, piecesTotal}) => {
   const angle2=[-90]; // mutable via array
   const cx=70,cy=70,r=54;
   const toXY=(deg,rad=r)=>({x:cx+rad*Math.cos(deg*Math.PI/180),y:cy+rad*Math.sin(deg*Math.PI/180)});
@@ -1221,7 +1221,7 @@ const PieChart = ({dashData, dashTotal}) => {
         const large=s.deg>180?1:0;
         return <path key={i} d={"M "+cx+" "+cy+" L "+s1.x+" "+s1.y+" A "+r+" "+r+" 0 "+large+" 1 "+s2.x+" "+s2.y+" Z"} fill={s.color} stroke="white" strokeWidth={1.5}/>;
       })}
-      <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{pieces.length}</text>
+      <text x={cx} y={cy-5} textAnchor="middle" fontSize={20} fontWeight="bold" fill="#2A2010">{piecesTotal}</text>
       <text x={cx} y={cy+13} textAnchor="middle" fontSize={9} fill="#8A7050" fontFamily={SANS}>曲</text>
     </svg>
   );
@@ -1257,7 +1257,7 @@ const ManagePage = (props) => {
   const {durMin, setDurMin, durMax, setDurMax} = props;
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
-  const {aiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
+  const {aiPieces, setAiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
@@ -1457,7 +1457,7 @@ const ManagePage = (props) => {
 
         {/* グラフ + 凡例 */}
         <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
-          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal}/> : <BarChart dashData={dashData}/>}
+          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal} piecesTotal={pieces.length}/> : <BarChart dashData={dashData}/>}
           <div style={{display:"flex",flexDirection:"column",gap:5,flex:1}}>
             {dashData.map((d,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:7}}>
@@ -1489,7 +1489,7 @@ const ManagePage = (props) => {
 
       {/* 一覧エリア — フォームと分ける境界 */}
       <div style={{background:"#F8F4EE",borderRadius:8,border:"1px solid #E8E0D0",overflow:"hidden"}}>
-        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} />
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
         <div style={{padding:"8px 8px"}}>
           {poolFiltered.map(p => {
             const era = ERAS[p.era]||ERAS.modern;
@@ -1554,7 +1554,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) => {
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -2682,7 +2682,7 @@ JSONのみ返してください:
           diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
           freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
           kwFilter={kwFilter} setKwFilter={setKwFilter}
-          aiPieces={aiPieces} aiLoading={aiLoading} askAI={askAI}
+          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoading} askAI={askAI}
           toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
@@ -2690,7 +2690,7 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
@@ -2719,7 +2719,7 @@ JSONのみ返してください:
           sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
           sel={sel}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} />}
       </div>
     </div>
   );
