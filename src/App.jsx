@@ -616,7 +616,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>国</div>
-          <select value={piece.country} onChange={e=>setPiece({...piece,country:e.target.value})} style={sel2({width:"100%"})}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>
+          <select value={piece.country} onChange={e=>setPiece({...piece,country:e.target.value})} style={{sel2({width:"100%"})}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>
         </div>
         <div>
           {/* 作曲年: 不明・範囲・通常 */}
@@ -624,11 +624,11 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           <input value={piece.yearText||String(piece.year)}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
-            style={inp2({padding:"6px 8px",fontSize:12})} />
+            style={{inp2({padding:"6px 8px",fontSize:12})}} />
         </div>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>調性</div>
-          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={sel2({width:"100%"})}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
+          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{sel2({width:"100%"})}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#6A5030",marginBottom:5,fontFamily:SANS}}>
@@ -659,7 +659,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
                 e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
               placeholder="例: 5分30秒 / 5:30 / 5"
-              style={sel2({width:"100%",borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}
+              style={{sel2({width:"100%",borderColor:!durationEdited&&piece.title?"#C8A030":"#D8D0C0"})}}
             />
           </div>
         </div>
@@ -703,7 +703,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           </div>
           <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
             placeholder="自由入力（カンマ区切り）"
-            style={inp2({padding:"5px 8px",fontSize:12})} />
+            style={{inp2({padding:"5px 8px",fontSize:12})}} />
         </div>
       </div>
 
@@ -766,12 +766,12 @@ const PrintPage = (props) => {
               {/* 氏名・基本 */}
               <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
-                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
+                  <div><div style={{lblS}}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={{inpS}}/></div>
+                  <div><div style={{lblS}}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={{inpS}}/></div>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
-                  <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
+                  <div><div style={{lblS}}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{inpS}}/></div>
+                  <div><div style={{lblS}}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={{inpS}}/></div>
                 </div>
               </div>
             </div>
@@ -814,9 +814,9 @@ const PrintPage = (props) => {
             {/* 連絡先 */}
             {secTitle("連絡先")}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
-              <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
-              <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
+              <div><div style={{lblS}}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{inpS}}/></div>
+              <div><div style={{lblS}}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={{inpS}}/></div>
+              <div><div style={{lblS}}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={{inpS}}/></div>
             </div>
 
           </div>
@@ -1083,7 +1083,7 @@ const PrintSettings = ({ prog, allPool }) => {
         {[["eventName","公演名・タイトル",eventName,setEventName],["performer","演奏者名",performer,setPerformer],["venue","会場",venue,setVenue],["date","日時",date,setDate]].map(([k,l,v,s])=>(
           <div key={k} style={{marginBottom:8}}>
             <div style={{fontSize:10,color:"#8A7050",marginBottom:3}}>{l}</div>
-            <input value={v} onChange={e=>s(e.target.value)} style={inp2} />
+            <input value={v} onChange={e=>s(e.target.value)} style={{inp2}} />
           </div>
         ))}
       </div>
@@ -1112,7 +1112,7 @@ const PrintSettings = ({ prog, allPool }) => {
       </div>
 
       {/* Hidden state passthrough for preview */}
-      <PrintPreviewData style={style} showKey={showKey} showYear={showYear} showDuration={showDuration} eventName={eventName} performer={performer} venue={venue} date={date} prog={prog} allPool={allPool} />
+      <PrintPreviewData style={{style}} showKey={showKey} showYear={showYear} showDuration={showDuration} eventName={eventName} performer={performer} venue={venue} date={date} prog={prog} allPool={allPool} />
     </div>
   );
 };
@@ -1207,50 +1207,50 @@ const ManagePage = (props) => {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
             <div>
               <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>作曲家</div>
-              <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"} />
+              <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             <div>
               <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>曲名</div>
-              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"} />
+              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             <div>
               <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>時代</div>
-              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"}>
+              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"}}>
                 <option value="">ー</option>
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
             </div>
             <div>
               <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>キーワード</div>
-              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"} />
+              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>作曲年</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"} />
+                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"} />
+                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏時間（分）</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"} />
+                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"} />
+                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>難易度</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}>
+                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
                 <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}>
+                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
@@ -1259,12 +1259,12 @@ const ManagePage = (props) => {
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏頻度</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}>
+                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
                 <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}>
+                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
@@ -1709,22 +1709,22 @@ const EventsPage = ({events, setEvents, FONT, SANS}) => {
 
             {secLbl("公演情報")}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:8}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{inpE}}/></div>
               <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>種別</div>
-                <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={selE}>
+                <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={{selE}}>
                   {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
                 </select>
               </div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>公演名</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>公演名</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={{inpE}}/></div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>主催者</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>会場</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>主催者</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={{inpE}}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>会場</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={{inpE}}/></div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:4}}>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開場</div><input value={newEvent.openTime} onChange={e=>setNewEvent({...newEvent,openTime:e.target.value})} placeholder="例: 13:30" style={inpE}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="例: 14:00" style={inpE}/></div>
-              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>問い合わせ</div><input value={newEvent.contact} onChange={e=>setNewEvent({...newEvent,contact:e.target.value})} placeholder="連絡先" style={inpE}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開場</div><input value={newEvent.openTime} onChange={e=>setNewEvent({...newEvent,openTime:e.target.value})} placeholder="例: 13:30" style={{inpE}}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="例: 14:00" style={{inpE}}/></div>
+              <div><div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>問い合わせ</div><input value={newEvent.contact} onChange={e=>setNewEvent({...newEvent,contact:e.target.value})} placeholder="連絡先" style={{inpE}}/></div>
             </div>
 
             {secLbl("曲目")}
@@ -1763,7 +1763,7 @@ const EventsPage = ({events, setEvents, FONT, SANS}) => {
             </div>
             <div style={{marginBottom:12}}>
               <div style={{fontSize:10,color:"#6A5030",marginBottom:3,fontFamily:SANS}}>動画リンク</div>
-              <input value={newEvent.videoUrl||""} onChange={e=>setNewEvent({...newEvent,videoUrl:e.target.value})} placeholder="https://youtube.com/..." style={inpE}/>
+              <input value={newEvent.videoUrl||""} onChange={e=>setNewEvent({...newEvent,videoUrl:e.target.value})} placeholder="https://youtube.com/..." style={{inpE}}/>
             </div>
             <div style={{marginBottom:16}}>
               <div style={{fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS}}>チラシ画像</div>
@@ -2100,16 +2100,16 @@ const HomePage = (props) => {
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>作曲家</div>
                 <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)}
-                  placeholder="例: ショパン" style={inp2({width:"100%"})} />
+                  placeholder="例: ショパン" style={{inp2({width:"100%"})}} />
               </div>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>曲名</div>
                 <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)}
-                  placeholder="例: ノクターン" style={inp2({width:"100%"})} />
+                  placeholder="例: ノクターン" style={{inp2({width:"100%"})}} />
               </div>
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>時代</div>
-                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={sel2({width:"100%"})}>
+                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{sel2({width:"100%"})}}>
                   <option value="">ー</option>
                   {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                 </select>
@@ -2117,35 +2117,35 @@ const HomePage = (props) => {
               <div>
                 <div style={{fontSize:9,color:"#8A7050",fontFamily:SANS,marginBottom:2}}>キーワード</div>
                 <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)}
-                  placeholder="例: 発表会向け" style={inp2({width:"100%"})} />
+                  placeholder="例: 発表会向け" style={{inp2({width:"100%"})}} />
               </div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
                 <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>作曲年</span>
                 <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{inp2({flex:1})}} />
                   <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{inp2({flex:1})}} />
                 </div>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
                 <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏時間（分）</span>
                 <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{inp2({flex:1})}} />
                   <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={inp2({flex:1})} />
+                  <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{inp2({flex:1})}} />
                 </div>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
                 <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>難易度</span>
                 <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={sel2({flex:1})}>
+                  <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{sel2({flex:1})}}>
                     <option value={0}>ー</option>
                     {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                   </select>
                   <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={sel2({flex:1})}>
+                  <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{sel2({flex:1})}}>
                     <option value={0}>ー</option>
                     {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                   </select>
@@ -2154,12 +2154,12 @@ const HomePage = (props) => {
               <div style={{display:"flex",flexDirection:"column",gap:3}}>
                 <span style={{fontSize:9,color:"#8A7050",fontFamily:SANS}}>演奏頻度</span>
                 <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={sel2({flex:1})}>
+                  <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{sel2({flex:1})}}>
                     <option value={0}>ー</option>
                     {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                   </select>
                   <span style={{fontSize:10,color:"#A09070"}}>〜</span>
-                  <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={sel2({flex:1})}>
+                  <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{sel2({flex:1})}}>
                     <option value={0}>ー</option>
                     {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                   </select>
