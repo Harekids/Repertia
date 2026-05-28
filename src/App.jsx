@@ -723,7 +723,7 @@ const PrintPage = (props) => {
   const {profile, setProfile, events} = props;
   const {portfolioTab, setPortfolioTab} = props;
   const {addListItem, updateListItem, removeListItem} = props;
-  const {handlePhoto, generateBio} = props;
+  const {handlePhoto, generateBio, photoInputRef} = props;
   const {inpS, lblS, secTitle, addBtn, printSection} = props;
   return (
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
@@ -766,19 +766,19 @@ const PrintPage = (props) => {
               {/* 氏名・基本 */}
               <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={{lblS}}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={{inpS}}/></div>
-                  <div><div style={{lblS}}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={{inpS}}/></div>
+                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
+                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={{lblS}}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{inpS}}/></div>
-                  <div><div style={{lblS}}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={{inpS}}/></div>
+                  <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
+                  <div><div style={lblS}>国籍</div><input value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="日本" style={inpS}/></div>
                 </div>
               </div>
             </div>
 
             {/* 学歴 */}
             {secTitle("学歴（音楽）")}
-            {profile.educations.map(ed=>(
+            {(profile.educations||[]).map(ed=>(
               <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
                 <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1}}/>
@@ -790,7 +790,7 @@ const PrintPage = (props) => {
 
             {/* 師事者 */}
             {secTitle("師事者")}
-            {profile.teachers.map(t=>(
+            {(profile.teachers||[]).map(t=>(
               <div key={t.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
                 <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
                 <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1}}/>
@@ -801,7 +801,7 @@ const PrintPage = (props) => {
 
             {/* コンクール歴・入賞歴 */}
             {secTitle("コンクール歴・入賞歴")}
-            {profile.competitions.map(c=>(
+            {(profile.competitions||[]).map(c=>(
               <div key={c.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
                 <input value={c.name} onChange={e=>updateListItem("competitions",c.id,{name:e.target.value})} placeholder="コンクール名" style={{...inpS,flex:2}}/>
                 <input value={c.year} onChange={e=>updateListItem("competitions",c.id,{year:e.target.value})} placeholder="年" style={{...inpS,flex:"0 0 60px"}}/>
@@ -814,9 +814,9 @@ const PrintPage = (props) => {
             {/* 連絡先 */}
             {secTitle("連絡先")}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              <div><div style={{lblS}}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{inpS}}/></div>
-              <div><div style={{lblS}}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={{inpS}}/></div>
-              <div><div style={{lblS}}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={{inpS}}/></div>
+              <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
+              <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
+              <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
             </div>
 
           </div>
@@ -2721,7 +2721,7 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
