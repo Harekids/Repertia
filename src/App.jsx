@@ -851,7 +851,7 @@ const PrintPage = (props) => {
             </div>
 
             {/* ① 各項目を1行ずつ・左揃え・ボックスサイズ統一 */}
-            <div style={{display:"flex",flexDirection:"column",gap:0}}>
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
               {[
                 ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
@@ -872,7 +872,7 @@ const PrintPage = (props) => {
             {/* 学歴（＋追加） */}
             {secTitle("学歴")}
             {(profile.educations||[]).map(ed=>(
-              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:16}}>
                 <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
                 <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1,marginLeft:6}}/>
@@ -885,7 +885,7 @@ const PrintPage = (props) => {
             {/* 師事者（＋追加） */}
             {secTitle("師事者")}
             {(profile.teachers||[]).map(t=>(
-              <div key={t.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+              <div key={t.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:16}}>
                 <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
                 <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
                 <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1,marginLeft:6}}/>
@@ -2313,7 +2313,7 @@ export default function App() {
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
-    nameJa:"ー", nameEn:"ー", birthDate:"", nationality:"ー",
+    nameJa:"", nameEn:"", birthDate:"", nationality:"ー",
     photoUrl:"",
     educations:[],   // {id, school, degree, year}
     teachers:[],     // {id, name, role}
