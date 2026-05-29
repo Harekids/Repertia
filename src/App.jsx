@@ -738,10 +738,10 @@ const PrintPage = (props) => {
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
   const [outItems,  setOutItems]    = React.useState({
-    personal:false, education:false, repertoire:false,
-    program:false, contests:false, performances:false, upcoming:false
+    profile:false, repertoire:false, program:false,
+    contests:false, performances:false, upcoming:false
   });
-  const [outStep,   setOutStep]     = React.useState(1);  // 1–5
+  const [outRepIds, setOutRepIds]   = React.useState([]);
   const [outText,   setOutText]     = React.useState("");
   const [outLang,   setOutLang]     = React.useState("ja");
 
@@ -834,7 +834,7 @@ const PrintPage = (props) => {
           <div style={{maxWidth:720,margin:"0 auto"}}>
 
             {/* 写真 + 基本情報 */}
-            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:4}}>
+            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:12}}>
               <div style={{flexShrink:0}}>
                 <div onClick={()=>photoInputRef.current?.click()}
                   style={{width:90,height:90,borderRadius:"50%",border:"2px dashed #C8B890",
@@ -848,10 +848,12 @@ const PrintPage = (props) => {
                 <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:4,fontFamily:SANS}}>クリックして変更</div>
               </div>
               <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
+                {/* ④ 氏名 */}
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="山田 花子" style={inpS}/></div>
-                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="Hanako Yamada" style={inpS}/></div>
+                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="ー" style={inpS}/></div>
+                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={inpS}/></div>
                 </div>
+                {/* ④ 生年月日・国籍・住所 */}
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
                   <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
                   <div><div style={lblS}>国籍</div>
@@ -859,25 +861,19 @@ const PrintPage = (props) => {
                       {COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
-                  <div><div style={lblS}>居住地</div><input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="東京" style={inpS}/></div>
+                  <div><div style={lblS}>住所</div><input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="東京都" style={inpS}/></div>
+                </div>
+                {/* ④ 連絡先：メール・電話・SNS */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+                  <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
+                  <div><div style={lblS}>電話</div><input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="090-0000-0000" style={inpS}/></div>
+                  <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
                 </div>
               </div>
             </div>
 
-            {/* ③ 音楽以外の個人情報 */}
-            {secTitle("個人情報")}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:4}}>
-              <div><div style={lblS}>職業・肩書き</div><input value={profile.occupation||""} onChange={e=>setProfile(p=>({...p,occupation:e.target.value}))} placeholder="ピアニスト・講師" style={inpS}/></div>
-              <div><div style={lblS}>所属・団体</div><input value={profile.affiliation||""} onChange={e=>setProfile(p=>({...p,affiliation:e.target.value}))} placeholder="〇〇音楽事務所" style={inpS}/></div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
-              <div><div style={lblS}>ウェブサイト</div><input value={profile.contact.website} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,website:e.target.value}}))} placeholder="https://..." style={inpS}/></div>
-              <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
-            </div>
-
             {/* 学歴 */}
-            {secTitle("学歴（音楽）")}
+            {secTitle("学歴")}
             {(profile.educations||[]).map(ed=>(
               <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
@@ -942,187 +938,180 @@ const PrintPage = (props) => {
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
         <div style={{flex:1,overflowY:"auto",padding:"20px 28px"}}>
-          <div style={{maxWidth:680,margin:"0 auto"}}>
+          <div style={{maxWidth:680,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
 
-            {/* Step indicator */}
-            <div style={{display:"flex",gap:0,marginBottom:20,borderRadius:6,overflow:"hidden",border:"1px solid #E8E0D0"}}>
-              {[1,2,3,4,5].map(s=>(
-                <button key={s} onClick={()=>setOutStep(s)}
-                  style={{flex:1,padding:"8px 4px",background:outStep===s?"#2A2010":"white",
-                    border:"none",borderRight:s<5?"1px solid #E8E0D0":"none",
-                    color:outStep===s?"#C8A860":"#8A7050",cursor:"pointer",
-                    fontSize:11,fontFamily:SANS}}>
-                  STEP {s}
-                </button>
-              ))}
+            {/* ⑤ 全ステップを1ページに */}
+
+            {/* STEP1: 出力形式 */}
+            <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 1　出力形式</div>
+              <div style={{display:"flex",gap:10}}>
+                {[["single","1項目ずつ出力"],["bio","経歴としてまとめて出力"]].map(([v,l])=>(
+                  <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",
+                    background:outFormat===v?"#2A2010":"white",
+                    border:"1.5px solid "+(outFormat===v?"#2A2010":"#D8D0C0"),
+                    borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
+                    color:outFormat===v?"#C8A860":"#6A5030"}}>
+                    <input type="radio" value={v} checked={outFormat===v} onChange={()=>setOutFormat(v)} style={{accentColor:"#8B5E3C"}}/>
+                    {l}
+                  </label>
+                ))}
+              </div>
             </div>
 
-            {/* STEP 1: 出力形式 */}
-            {outStep===1 && (
-              <div>
-                <div style={{fontSize:13,color:"#2A2010",fontFamily:SANS,fontWeight:600,marginBottom:16}}>出力形式を選ぶ</div>
-                <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  {[["single","1つの項目を出力"],["bio","経歴としてまとめて出力"]].map(([v,l])=>(
-                    <label key={v} style={{display:"flex",alignItems:"center",gap:10,padding:"14px 16px",
-                      background:outFormat===v?"#F5F0E6":"white",
-                      border:"2px solid "+(outFormat===v?"#8B5E3C":"#E8E0D0"),
-                      borderRadius:8,cursor:"pointer",fontSize:13,fontFamily:SANS,color:"#2A2010"}}>
-                      <input type="radio" value={v} checked={outFormat===v} onChange={()=>setOutFormat(v)} style={{accentColor:"#8B5E3C"}}/>
-                      {l}
-                    </label>
-                  ))}
-                </div>
-                <button onClick={()=>setOutStep(2)}
-                  style={{marginTop:20,background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  次へ →
-                </button>
+            {/* STEP2: 出力項目 ⑥ */}
+            <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 2　出力項目</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                {[
+                  ["profile","プロフィール（Profileから）"],
+                  ["repertoire","レパートリー（Repertoireから）"],
+                  ["program","プログラム（Programから）"],
+                  ["contests","コンクール歴（Historyから）"],
+                  ["performances","演奏活動（Historyから）"],
+                  ["upcoming","現在の活動（Upcomingから）"],
+                ].map(([k,l])=>(
+                  <label key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
+                    background:outItems[k]?"#F5F0E6":"white",
+                    border:"1px solid "+(outItems[k]?"#C8B080":"#E8E0D0"),
+                    borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS,color:"#2A2010"}}>
+                    <input type="checkbox" checked={outItems[k]||false}
+                      onChange={e=>setOutItems(prev=>({...prev,[k]:e.target.checked}))}
+                      style={{accentColor:"#8B5E3C"}}/>
+                    {l}
+                  </label>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* STEP 2: 出力項目 */}
-            {outStep===2 && (
-              <div>
-                <div style={{fontSize:13,color:"#2A2010",fontFamily:SANS,fontWeight:600,marginBottom:16}}>出力したい項目を選ぶ</div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {[
-                    ["personal","個人情報"],
-                    ["education","学歴・師事者"],
-                    ["repertoire","レパートリー（Libraryから）"],
-                    ["program","プログラム（Programから）"],
-                    ["contests","コンクール歴（Historyから）"],
-                    ["performances","演奏活動（Historyから）"],
-                    ["upcoming","現在の活動（Upcomingから）"],
-                  ].map(([k,l])=>(
-                    <label key={k} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",
-                      background:outItems[k]?"#F5F0E6":"white",
-                      border:"1px solid "+(outItems[k]?"#C8B080":"#E8E0D0"),
-                      borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,color:"#2A2010"}}>
-                      <input type="checkbox" checked={outItems[k]||false}
-                        onChange={e=>setOutItems(prev=>({...prev,[k]:e.target.checked}))}
-                        style={{accentColor:"#8B5E3C",width:14,height:14}}/>
-                      {l}
-                    </label>
-                  ))}
-                </div>
-                <div style={{display:"flex",gap:10,marginTop:20}}>
-                  <button onClick={()=>setOutStep(1)} style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>← 戻る</button>
-                  <button onClick={()=>setOutStep(3)} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>次へ →</button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: 記載内容確認 */}
-            {outStep===3 && (
-              <div>
-                <div style={{fontSize:13,color:"#2A2010",fontFamily:SANS,fontWeight:600,marginBottom:16}}>記載内容を確認</div>
-                <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                  {outItems.personal && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>個人情報</div>
-                      <div style={{color:"#2A2010"}}>{profile.nameJa||profile.nameEn||"（未入力）"}{profile.birthDate?" / "+profile.birthDate:""}{profile.nationality&&profile.nationality!=="ー"?" / "+profile.nationality:""}</div>
-                    </div>
-                  )}
-                  {outItems.education && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>学歴・師事者</div>
-                      {(profile.educations||[]).map(e=><div key={e.id} style={{color:"#2A2010"}}>{e.school} {e.degree} {e.year}</div>)}
-                      {(profile.teachers||[]).map(t=><div key={t.id} style={{color:"#2A2010"}}>{t.name} ({t.role})</div>)}
-                    </div>
-                  )}
-                  {outItems.contests && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>コンクール歴 ({contestEvents.length}件)</div>
-                      {contestEvents.slice(0,3).map(e=><div key={e.id} style={{color:"#2A2010"}}>{e.date.slice(0,7)} {e.title||e.venue}</div>)}
-                      {contestEvents.length>3&&<div style={{color:"#A09070"}}>他 {contestEvents.length-3} 件</div>}
-                    </div>
-                  )}
-                  {outItems.performances && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>演奏活動 ({concertEvents.length}件)</div>
-                      {concertEvents.slice(0,3).map(e=><div key={e.id} style={{color:"#2A2010"}}>{e.date.slice(0,7)} {e.title||e.venue}</div>)}
-                      {concertEvents.length>3&&<div style={{color:"#A09070"}}>他 {concertEvents.length-3} 件</div>}
-                    </div>
-                  )}
-                  {outItems.upcoming && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>現在の活動 ({futureEvents.length}件)</div>
-                      {futureEvents.slice(0,3).map(e=><div key={e.id} style={{color:"#2A2010"}}>{e.date} {e.title||e.venue}</div>)}
-                    </div>
-                  )}
-                  {outItems.repertoire && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>レパートリー ({pieces.length}曲)</div>
-                      <div style={{color:"#2A2010"}}>{pieces.slice(0,5).map(p=>p.composer+" / "+p.title).join("、")}{pieces.length>5&&" 他..."}</div>
-                    </div>
-                  )}
-                  {outItems.program && (
-                    <div style={{background:"#F8F4EE",borderRadius:6,padding:"12px 14px",fontSize:12,fontFamily:SANS}}>
-                      <div style={{fontWeight:600,color:"#6A5030",marginBottom:4}}>プログラム ({prog.pieceIds.length}曲)</div>
-                      {prog.pieceIds.slice(0,3).map((id,i)=>{const p=allPool.find(x=>x.id===id);return p?<div key={id} style={{color:"#2A2010"}}>{i+1}. {p.composer} / {p.title}</div>:null;})}
-                    </div>
-                  )}
-                </div>
-                <div style={{display:"flex",gap:8,marginTop:8}}>
-                  <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,marginRight:4}}>出力言語：</div>
-                  {[["ja","日本語"],["en","English"]].map(([v,l])=>(
-                    <label key={v} style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>
-                      <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#8B5E3C"}}/>{l}
-                    </label>
-                  ))}
-                </div>
-                <div style={{display:"flex",gap:10,marginTop:16}}>
-                  <button onClick={()=>setOutStep(2)} style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>← 戻る</button>
-                  <button onClick={generateOutput} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>生成する</button>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4: 編集（字数カウンター付き） */}
-            {outStep===4 && (
-              <div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-                  <div style={{fontSize:13,color:"#2A2010",fontFamily:SANS,fontWeight:600}}>編集</div>
-                  <div style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>
-                    {outText.length} 文字
+            {/* STEP3: レパートリー選択 ⑦ */}
+            {outItems.repertoire && (
+              <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                  <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>STEP 3　レパートリー選択</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={()=>setOutRepIds(pieces.map(p=>p.id))}
+                      style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
+                      すべて選択
+                    </button>
+                    <button onClick={()=>setOutRepIds([])}
+                      style={{background:"none",border:"1px solid #D8D0C0",color:"#6A5030",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
+                      すべて解除
+                    </button>
                   </div>
                 </div>
-                <textarea
-                  value={outText}
-                  onChange={e=>setOutText(e.target.value)}
-                  style={{width:"100%",minHeight:320,background:"white",border:"1px solid #D8D0C0",
-                    color:"#2A2010",padding:"12px",fontFamily:SANS,fontSize:13,borderRadius:6,
-                    lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}
-                />
-                <div style={{display:"flex",gap:10,marginTop:12}}>
-                  <button onClick={()=>setOutStep(3)} style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>← 戻る</button>
-                  <button onClick={()=>setOutStep(5)} style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>次へ →</button>
+                <div style={{maxHeight:200,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
+                  {pieces.map(p=>{
+                    const era=ERAS[p.era]||ERAS.modern;
+                    const checked=outRepIds.includes(p.id);
+                    return (
+                      <label key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",
+                        background:checked?"#F5F0E6":"white",borderRadius:4,cursor:"pointer",
+                        border:"1px solid "+(checked?"#C8B080":"#E8E0D0"),fontSize:12,fontFamily:SANS,color:"#2A2010"}}>
+                        <input type="checkbox" checked={checked}
+                          onChange={e=>setOutRepIds(prev=>e.target.checked?[...prev,p.id]:prev.filter(x=>x!==p.id))}
+                          style={{accentColor:"#8B5E3C"}}/>
+                        <span style={{fontSize:9,color:era.color,flexShrink:0}}>●</span>
+                        <span style={{color:"#8A7050",fontSize:10,flexShrink:0}}>{p.composer}</span>
+                        <span style={{flex:1}}>{p.title}</span>
+                        <span style={{fontSize:10,color:"#A09070"}}>{p.duration}分</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* STEP 5: 出力 */}
-            {outStep===5 && (
-              <div>
-                <div style={{fontSize:13,color:"#2A2010",fontFamily:SANS,fontWeight:600,marginBottom:16}}>出力</div>
-                <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"16px",fontSize:13,fontFamily:SANS,color:"#2A2010",lineHeight:1.9,whiteSpace:"pre-wrap",marginBottom:16,minHeight:120}}>
-                  {outText||"（内容がありません）"}
-                </div>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
-                    style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                    コピー
-                  </button>
-                  <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9'>"+outText.replace(/\n/g,"<br>")+"</body></html>");w.document.close();w.print();}}
-                    style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                    🖨 印刷/PDF
-                  </button>
-                  <button onClick={()=>setOutStep(4)}
-                    style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                    ← 編集に戻る
-                  </button>
-                </div>
+            {/* 言語選択 */}
+            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8}}>
+              <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>出力言語：</span>
+              {[["ja","日本語"],["en","English"]].map(([v,l])=>(
+                <label key={v} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:13,fontFamily:SANS,color:"#2A2010"}}>
+                  <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#8B5E3C"}}/>{l}
+                </label>
+              ))}
+              <button onClick={()=>{
+                  // Generate output
+                  const p=profile;
+                  const name=outLang==="ja"?(p.nameJa||p.nameEn||""):(p.nameEn||p.nameJa||"");
+                  const parts=[];
+                  if(outItems.profile&&name){
+                    parts.push(outLang==="ja"
+                      ? name+(p.birthDate?"（"+p.birthDate+"生まれ）":"")+(p.nationality&&p.nationality!=="ー"?"、"+p.nationality+"出身":"")+"。"
+                      : name+(p.birthDate?", born "+p.birthDate:"")+(p.nationality&&p.nationality!=="ー"?", "+p.nationality:"")+". "
+                        +((p.educations||[]).map(e=>e.school).join(", ")));
+                  }
+                  if(outItems.repertoire&&outRepIds.length>0){
+                    const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");
+                    parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
+                  }
+                  if(outItems.contests&&contestEvents.length>0){
+                    const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+( e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
+                    parts.push(outLang==="ja"?"【コンクール歴】
+"+ct:"[Competitions]
+"+ct);
+                  }
+                  if(outItems.performances&&concertEvents.length>0){
+                    const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
+                    parts.push(outLang==="ja"?"【演奏活動】
+"+pf:"[Performances]
+"+pf);
+                  }
+                  if(outItems.upcoming&&futureEvents.length>0){
+                    const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
+                    parts.push(outLang==="ja"?"【今後の予定】
+"+up:"[Upcoming]
+"+up);
+                  }
+                  if(outItems.program){
+                    const pgm=prog.pieceIds.map((id,i)=>{const px=allPool.find(x=>x.id===id);return px?(i+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join("
+");
+                    parts.push(outLang==="ja"?"【プログラム】
+"+pgm:"[Program]
+"+pgm);
+                  }
+                  setOutText(parts.join("
+
+"));
+                }}
+                style={{marginLeft:"auto",background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                生成する
+              </button>
+            </div>
+
+            {/* STEP4: 編集（字数カウンター付き） */}
+            <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>STEP 4　編集</div>
+                <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
               </div>
-            )}
+              <textarea value={outText} onChange={e=>setOutText(e.target.value)}
+                style={{width:"100%",minHeight:200,background:"white",border:"1px solid #D8D0C0",
+                  color:"#2A2010",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
+                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
+            </div>
+
+            {/* STEP5: 出力 */}
+            <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 5　出力</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
+                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  コピー
+                </button>
+                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/
+/g,"<br>")+"</body></html>");w.document.close();w.print();}}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  🖨 印刷/PDF
+                </button>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -2055,7 +2044,7 @@ const HomePage = (props) => {
                 確定
               </button>
               <span style={{fontSize:12,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold",letterSpacing:0}}>
-                {Math.floor(totalDuration)}分{totalDuration%1>0?(Math.round((totalDuration%1)*60)+"秒"):""}  / {prog.maxDuration}分
+                {(()=>{const m=Math.floor(totalDuration);const s=Math.round((totalDuration-m)*60);return m+"分"+(s>0?s+"秒":"");})()}  / {prog.maxDuration}分
                 <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
                   {remaining>0?" 残り"+remaining+"分":remaining===0?" ちょうど":" "+Math.abs(remaining)+"分超過"}
                 </span>
@@ -2367,7 +2356,7 @@ export default function App() {
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
-    nameJa:"", nameEn:"", birthDate:"", nationality:"ー",
+    nameJa:"ー", nameEn:"ー", birthDate:"", nationality:"ー",
     photoUrl:"",
     educations:[],   // {id, school, degree, year}
     teachers:[],     // {id, name, role}
@@ -2383,7 +2372,14 @@ export default function App() {
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
   const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
   const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
-  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration,0) + (programPieces.length>1 ? Math.round((programPieces.length-1)*(prog.intervalSecs||0)/60*10)/10 : 0);
+  const totalIntervalSecs = programPieces.length>1
+    ? programPieces.slice(1).reduce((sum,_,i)=>{
+        const key="interval-"+(i+1);
+        const iv=(prog.intervals||{})[key];
+        return sum+(iv!=null?iv:0);
+      },0)
+    : 0;
+  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration,0) + Math.round(totalIntervalSecs/60*10)/10;
   const remaining      = prog.maxDuration - totalDuration;
 
   const updateProg = (u) => setPrograms(ps=>ps.map(p=>p.id===prog.id?{...p,...u}:p));
