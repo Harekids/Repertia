@@ -12,6 +12,7 @@ const FontLoader = () => {
   return null;
 };
 const SANS = "'Noto Sans JP','Hiragino Kaku Gothic Pro','Yu Gothic',sans-serif";
+const FONT = "'Cormorant Garamond','Hiragino Mincho Pro','Yu Mincho',serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
