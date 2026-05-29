@@ -1037,23 +1037,30 @@ const PrintPage = (props) => {
                   const parts=[];
                   if(outItems.profile&&name){
                     parts.push(outLang==="ja"
-                      ? name+(profile.birthDate?"（"+profile.birthDate+"生まれ）":"")+(profile.nationality&&profile.nationality!=="ー"?"、"+profile.nationality+"出身":"")+"。"
-                      : name+(profile.birthDate?", born "+profile.birthDate:"")+(profile.nationality&&profile.nationality!=="ー"?", "+profile.nationality:"")+". "+((profile.educations||[]).map(e=>e.school).join(", ")));
+                      ? name+(p.birthDate?"（"+p.birthDate+"生まれ）":"")+(p.nationality&&p.nationality!=="ー"?"、"+p.nationality+"出身":"")+"。"
+                      : name+(p.birthDate?", born "+p.birthDate:"")+(p.nationality&&p.nationality!=="ー"?", "+p.nationality:"")+". "
+                        +((p.educations||[]).map(e=>e.school).join(", ")));
                   }
                   if(outItems.repertoire&&outRepIds.length>0){
                     const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");
                     parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
                   }
                   if(outItems.contests&&contestEvents.length>0){
-                    const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。\n":".\ n");
+                    const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+( e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
                     parts.push(outLang==="ja"?"【コンクール歴】\n"+ct:"[Competitions]\n"+ct);
                   }
                   if(outItems.performances&&concertEvents.length>0){
-                    const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。\n":".\ n");
+                    const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
                     parts.push(outLang==="ja"?"【演奏活動】\n"+pf:"[Performances]\n"+pf);
                   }
                   if(outItems.upcoming&&futureEvents.length>0){
-                    const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。\n":".\ n");
+                    const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join(outLang==="ja"?"。
+":".
+");
                     parts.push(outLang==="ja"?"【今後の予定】\n"+up:"[Upcoming]\n"+up);
                   }
                   if(outItems.program){
@@ -1087,8 +1094,7 @@ const PrintPage = (props) => {
                   style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   コピー
                 </button>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/
-/g,"<br>")+"</body></html>");w.document.close();w.print();}}
+                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/\n/g,"<br>")+"</body></html>");w.document.close();w.print();}}
                   style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 印刷/PDF
                 </button>
@@ -2185,33 +2191,525 @@ const HomePage = (props) => {
                   letterSpacing:0.3}}>
                 from Repertoire
               </button>
-              <button onClick={()=>{
-                const parts=[];
-                if(outItems.profile){
-                  const nm=outLang==="ja"?(profile.nameJa||profile.nameEn||""):(profile.nameEn||profile.nameJa||"");
-                  if(nm) parts.push(outLang==="ja"
-                    ? nm+(profile.birthDate?"（"+profile.birthDate+"生まれ）":"")+(profile.nationality&&profile.nationality!=="ー"?"、"+profile.nationality+"出身":"")+"。"
-                    : nm+(profile.birthDate?", born "+profile.birthDate:"")+(profile.nationality&&profile.nationality!=="ー"?", "+profile.nationality:"")+". "+((profile.educations||[]).map(e=>e.school).join(", ")));
+              <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
+                disabled={aiLoading}
+                style={{flex:"0 0 30%",padding:"12px 6px",
+                  background:(poolMode==="ai"||poolMode==="both")?"#2A2010":"white",
+                  border:"2px solid "+((poolMode==="ai"||poolMode==="both")?"#2A2010":"#C8B890"),
+                  color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#8A7050",
+                  cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
+                  letterSpacing:0.3}}>
+                {aiLoading?"…":"New from Database"}
+              </button>
+            </div>
+          </div>
+
+          {/* 右下: 曲目一覧 */}
+          <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
+            {/* ⑪ 並べ替え右寄せ・小さく */}
+            <div style={{display:"flex",gap:4,alignItems:"stretch",marginBottom:8,justifyContent:"flex-end"}}>
+              <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
+                <select value={localSortBy} onChange={e=>setLocalSortBy(e.target.value)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"3px 6px",fontFamily:SANS,fontSize:10,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+                  <option value="" disabled>並べ替え</option>
+                  <option value="era">時代</option>
+                  <option value="year">作曲年</option>
+                  <option value="duration">演奏時間</option>
+                  <option value="difficulty">難易度</option>
+                  <option value="frequency">演奏頻度</option>
+                </select>
+                <button onClick={()=>setLocalSortAsc(v=>!v)}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#5A4A2A",padding:"0 7px",
+                    cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
+                    display:"flex",alignItems:"center"}}>
+                  {localSortAsc?"▲":"▼"}
+                </button>
+              </div>
+              {/* ✦✧ お気に入りフィルター */}
+              <button onClick={()=>setShowFavOnly(v=>!v)}
+                title="お気に入りのみ"
+                style={{background:showFavOnly?"#FFF8E8":"white",
+                  border:"1px solid "+(showFavOnly?"#C8963C":"#D8D0C0"),
+                  color:showFavOnly?"#C8963C":"#A09070",
+                  padding:"4px 9px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,
+                  display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
+                {showFavOnly?"✦":"✧"} お気に入り
+              </button>
+            </div>
+
+            {poolMode==="none" && (
+              <div style={{textAlign:"center",color:"#B0A080",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
+                「New from Database」で追加した曲はLearningリストに保存されます
+              </div>
+            )}
+
+            {/* MY 一覧 */}
+            {showMy && (
+              <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
+                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY REPERTOIRE ({myPool.length}曲)</div>}
+                {myPool.length===0
+                  ? <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
+                  : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
                 }
-                if(outItems.repertoire&&outRepIds.length>0){
-                  const rep=pieces.filter(px=>outRepIds.includes(px.id)).map(px=>px.composer+" / "+px.title).join(outLang==="ja"?"、":", ");
-                  parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
-                }
-                if(outItems.contests&&contestEvents.length>0){
-                  const ct=contestEvents.map(ev=>ev.date.slice(0,7)+" "+(ev.title||ev.venue||"")).join("。\n");
-                  parts.push(outLang==="ja"?"【コンクール歴】\n"+ct:"[Competitions]\n"+ct);
-                }
-                if(outItems.performances&&concertEvents.length>0){
-                  const pf=concertEvents.slice(0,10).map(ev=>ev.date.slice(0,7)+" "+(ev.title||ev.venue||"")).join("。\n");
-                  parts.push(outLang==="ja"?"【演奏活動】\n"+pf:"[Performances]\n"+pf);
-                }
-                if(outItems.upcoming&&futureEvents.length>0){
-                  const up=futureEvents.map(ev=>ev.date+" "+(ev.title||ev.venue||"")).join("。\n");
-                  parts.push(outLang==="ja"?"【今後の予定】\n"+up:"[Upcoming]\n"+up);
-                }
-                if(outItems.program){
-                  const pgm=prog.pieceIds.map((id,idx)=>{const px=allPool.find(x=>x.id===id);return px?(idx+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join("\n");
-                  parts.push(outLang==="ja"?"【プログラム】\n"+pgm:"[Program]\n"+pgm);
-                }
-                setOutText(parts.join("\n\n"));
-              }}
+              </div>
+            )}
+
+            {/* AI 一覧 */}
+            {showAI && (
+              <div>
+                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",marginBottom:5,fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</div>}
+                {aiPool.length===0&&!aiLoading && (
+                  <div style={{textAlign:"center",color:"#B0A080",padding:"16px",fontSize:11,fontFamily:SANS}}>
+                    「New from Database」で追加した曲はLearningリストに保存されます
+                  </div>
+                )}
+                {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+
+
+
+export default function App() {
+  // ── state ──
+  const [page, setPage]                       = useState("manage");
+  const [pieces, setPieces]                   = useState(SAMPLE_PIECES);
+  const [aiPieces, setAiPieces]               = useState([]);
+  const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
+  const [activeProgramId, setActiveProgramId] = useState(1);
+  const [editingProgramId, setEditingProgramId] = useState(null);
+  const [editingName, setEditingName]         = useState("");
+  const [expandedId, setExpandedId]           = useState(null);
+  const [sortBy, setSortBy]                   = useState("year");
+  const [sortAsc, setSortAsc]                 = useState(true);
+  const [filterEra, setFilterEra]             = useState("");
+  const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
+  const [searchQ, setSearchQ]                 = useState("");
+  const [poolMode, setPoolMode]               = useState("none");
+  // ── Search/Filter states (shared between Program & Learning) ──
+  const [composerFilter, setComposerFilter]   = useState("");
+  const [titleFilter,    setTitleFilter]      = useState("");
+  const [eraFilter,      setEraFilter]        = useState("");
+  const [yearMin,        setYearMin]          = useState("");
+  const [yearMax,        setYearMax]          = useState("");
+  const [durMin,         setDurMin]           = useState("");
+  const [durMax,         setDurMax]           = useState("");
+  const [diffMin,        setDiffMin]          = useState(0);
+  const [diffMax,        setDiffMax]          = useState(5);
+  const [freqMin,        setFreqMin]          = useState(0);
+  const [freqMax,        setFreqMax]          = useState(5);
+  const [kwFilter,       setKwFilter]         = useState("");
+  const [showFavOnly,    setShowFavOnly]      = useState(false);
+  const [localSortBy,    setLocalSortBy]      = useState("");
+  const [localSortAsc,   setLocalSortAsc]     = useState(true);
+  const [compareMode, setCompareMode]         = useState(false); // ③ 比較モード
+  const [comparePieces, setComparePieces]     = useState([]); // ③ 比較対象
+  const [editMode, setEditMode]               = useState(false); // ⑦ manage page edit mode
+  const [aiLoading, setAiLoading]             = useState(false);
+  const [showConstraints, setShowConstraints] = useState(false);
+  const [constraints, setConstraints]         = useState({ requireEras:[] });
+  const [libraryTab, setLibraryTab]           = useState("repertoire");
+  const [dashAxis, setDashAxis]               = useState("era");
+  const [dashChart, setDashChart]             = useState("pie");
+
+  const getDashData = () => {
+    if (dashAxis==="era") {
+      return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+    }
+    if (dashAxis==="difficulty") {
+      return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n).length})).filter(d=>d.count>0);
+    }
+    if (dashAxis==="frequency") {
+      return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n).length})).filter(d=>d.count>0);
+    }
+    return [];
+  };
+  const dashData  = getDashData();
+  const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
+
+  // SVG Pie
+
+  // Bar chart
+  const [learningIds, setLearningIds]           = useState([]); // ② Learning管理
+  const [showAdd, setShowAdd]                 = useState(false);
+  const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
+  const [events, setEvents]                    = useState([]);
+  const [analysisAxis, setAnalysisAxis]        = useState("era");
+  const [chartType, setChartType]              = useState("pie");
+  const [profile, setProfile]                  = useState({
+    nameJa:"ー", nameEn:"ー", birthDate:"", nationality:"ー",
+    photoUrl:"",
+    educations:[],   // {id, school, degree, year}
+    teachers:[],     // {id, name, role}
+    competitions:[],  // {id, name, year, result}
+    contact:{email:"", website:"", sns:""},
+  });
+  const sugTimer  = useRef(null);
+  const nextId    = useRef(100);
+  const dragId    = useRef(null);
+  const dragOver  = useRef(null);
+
+  // ── derived ──
+  const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
+  const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
+  const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
+  const totalIntervalSecs = programPieces.length>1
+    ? programPieces.slice(1).reduce((sum,_,i)=>{
+        const key="interval-"+(i+1);
+        const iv=(prog.intervals||{})[key];
+        return sum+(iv!=null?iv:0);
+      },0)
+    : 0;
+  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration,0) + Math.round(totalIntervalSecs/60*10)/10;
+  const remaining      = prog.maxDuration - totalDuration;
+
+  const updateProg = (u) => setPrograms(ps=>ps.map(p=>p.id===prog.id?{...p,...u}:p));
+
+  const canAdd = (piece) =>
+    // ⑤ 時間オーバーでも追加可能（赤アラートのみ）
+    (prog.maxPieces>=999 || prog.pieceIds.length < prog.maxPieces) &&
+    !prog.pieceIds.includes(piece.id);
+
+  const toggle = (id) => {
+    const piece = allPool.find(p=>p.id===id);
+    if (!piece) return;
+    if (prog.pieceIds.includes(id)) { updateProg({pieceIds:prog.pieceIds.filter(x=>x!==id)}); return; }
+    if (canAdd(piece)) updateProg({pieceIds:[...prog.pieceIds,id]});
+  };
+
+  const toggleFav       = (id) => setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:!p.fav}:p));
+  const toggleCandidate = (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (piece && piece.candidate) {
+      // ✧を外す → Learningからも削除確認
+      if (learningIds.includes(id)) {
+        if (window.confirm("Learningからも削除しますか？")) {
+          setLearningIds(prev=>prev.filter(x=>x!==id));
+          setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
+        }
+      } else {
+        setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
+      }
+    } else {
+      setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:true}:p));
+    }
+  };
+
+  const onDragEnd = () => {
+    if (dragId.current==null||dragOver.current==null||dragId.current===dragOver.current) return;
+    const arr=[...prog.pieceIds];
+    const from=arr.indexOf(dragId.current), to=arr.indexOf(dragOver.current);
+    arr.splice(from,1); arr.splice(to,0,dragId.current);
+    updateProg({pieceIds:arr});
+    dragId.current=null; dragOver.current=null;
+  };
+
+  const addProgram    = () => { const id=++nextId.current; setPrograms(ps=>[...ps,{...EMPTY_PROGRAM(id),name:`プログラム ${ps.length+1}`}]); setActiveProgramId(id); };
+  const deleteProgram = (id) => { if(programs.length<=1)return; setPrograms(ps=>ps.filter(p=>p.id!==id)); if(activeProgramId===id) setActiveProgramId(programs.find(p=>p.id!==id)?.id); };
+
+  const askAI = async () => {
+    setAiLoading(true);
+    // show ai section automatically
+    setPoolMode(m => m==="repertoire" ? "both" : m==="none" ? "ai" : m);
+    const prompt = `クラシックピアノのプログラム編成の専門家として、以下の条件で曲を4曲提案してください。
+【現在のプログラム: ${prog.name}】
+${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.composer}、${p.year}年）${p.key} ${p.duration}分`).join("\n")}
+【条件】
+- 残り時間: 約${remaining}分以内
+- 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
+${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras.map(e=>ERAS[e]?.label).join("、")}`:""}
+JSONのみ返してください:
+{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
+    try {
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const data = await res.json();
+      const text = data.content.map(b=>b.text||"").join("");
+      const parsed = JSON.parse(text.replace(/```json|```/g,"").trim());
+      const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
+      setAiPieces(prev=>[...prev,...newAI]);
+    } catch(e){ console.error(e); }
+    setAiLoading(false);
+  };
+
+  const photoInputRef = useRef(null);
+
+  // ── helpers for editable lists ──
+  const addListItem = (field, empty) =>
+    setProfile(p=>({...p,[field]:[...p[field],{id:Date.now(),...empty}]}));
+  const updateListItem = (field, id, patch) =>
+    setProfile(p=>({...p,[field]:p[field].map(x=>x.id===id?{...x,...patch}:x)}));
+  const removeListItem = (field, id) =>
+    setProfile(p=>({...p,[field]:p[field].filter(x=>x.id!==id)}));
+
+  const handlePhoto = (e) => {
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev2=>setProfile(p=>({...p,photoUrl:ev2.target.result}));
+    reader.readAsDataURL(file);
+  };
+
+  // ── Output: generate bio text ──
+  const generateBio = (length) => {
+    const p = profile;
+    const name = p.nameJa || p.nameEn || "（氏名未入力）";
+    const edu  = p.educations.map(e=>e.school+(e.degree?" "+e.degree:"")+(e.year?" ("+e.year+")":"")).join("、");
+    const teach = p.teachers.map(t=>t.name+(t.role?" ("+t.role+")":"")).join("、");
+    const comp  = p.competitions.map(c=>c.name+(c.year?" "+c.year+"年":"")+(c.result?" "+c.result:"")).join("。");
+
+    if (length==="short") {
+      return name+"は"+(edu?edu+"を経て、":"")+(teach?""+teach+"に師事。":"")+"現在演奏活動を行っている。";
+    }
+    if (length==="medium") {
+      return name+"。"+(p.birthDate?p.birthDate+"生まれ。":"")+
+        (edu?"学歴："+edu+"。":"")+
+        (teach?teach+"に師事。":"")+
+        (comp?"コンクール等："+comp+"。":"");
+    }
+    return name+"。"+(p.birthDate?p.birthDate+"生まれ、"+p.nationality+"出身。":"")+
+      (edu?"\n\n【学歴】"+edu+"。":"")+
+      (teach?"\n\n【師事】"+teach+"。":"")+
+      (comp?"\n\n【コンクール歴・入賞歴】"+comp+"。":"")+
+      (p.contact.email?"\n\n【連絡先】"+p.contact.email:"");
+  };
+
+  // ── Styles ──
+  const inpS={background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const lblS={fontSize:10,color:"#6A5030",marginBottom:4,fontFamily:SANS};
+  const secTitle=(t)=>( <div style={{fontSize:11,letterSpacing:3,color:"#8A7050",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #E8E0D0",paddingBottom:4}}>{t}</div> );
+  const addBtn=(label,onClick)=>(
+    <button onClick={onClick} style={{background:"none",border:"1px dashed #C8B890",color:"#8A7050",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginTop:6}}>
+      ＋ {label}
+    </button>
+  );
+
+
+  const printSection = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const w = window.open("","_blank");
+    w.document.write("<html><head><style>body{font-family:serif;padding:40px;color:#2A2010;}h2{letter-spacing:3px;color:#6A5030;}</style></head><body>"+el.innerHTML+"</body></html>");
+    w.document.close(); w.print();
+  };
+
+
+    const onAddPiece = (piece) => {
+    const era = eraFromYear(piece.year);
+    setPieces(p=>[...p,{...piece,era,id:Date.now(),mine:true}]);
+    setShowAdd(false);
+  };
+
+  // ── filtered/sorted pool ──
+  const poolFiltered = pieces
+    .filter(p => !filterEra || p.era===filterEra)
+    .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
+    .filter(p => searchMatch(p, searchQ))
+    .sort((a,b) => {
+      let d = 0;
+      const ay = a.year||0, by2 = b.year||0;
+      if      (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
+      else if (sortBy==="duration")   d = a.duration - b.duration;
+      else if (sortBy==="difficulty") d = a.difficulty - b.difficulty;
+      else if (sortBy==="frequency")  d = (a.frequency||0) - (b.frequency||0);
+      return sortAsc ? d : -d;
+    });
+
+  const aiFiltered     = aiPieces.filter(p => searchMatch(p, searchQ));
+  const showRuler      = sortBy==="year" && filterEra==="";
+  const inp = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
+  const sel = (ex={}) => ({background:"white",border:"1px solid #D8D0C0",color:"#2A2010",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
+
+  // ── Shared header (① stable, ② bigger nav) ──────────────────────────────────
+  const Header = () => (
+    <header style={{background:"#2A2010",display:"flex",alignItems:"stretch",flexShrink:0,height:54}}>
+      <div onClick={()=>setPage("manage")}
+        style={{cursor:"pointer",userSelect:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+          padding:"0 22px 0 24px",borderRight:"1px solid #3A3020",flexShrink:0}}>
+        <span style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,lineHeight:1.1}}>𝄞 Repertia</span>
+        <span style={{fontSize:8,color:"#7A6840",letterSpacing:4,fontFamily:"'Cormorant Garamond',serif",marginTop:1}}>REPERTIA</span>
+      </div>
+      {/* ② bigger nav — same height as header, underline indicator */}
+      <nav style={{display:"flex",alignItems:"stretch"}}>
+        {NAV.map(([p,l]) => (
+          <button key={p} onClick={()=>setPage(p)}
+            style={{background:"none",border:"none",
+              borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
+              borderTop:    "3px solid transparent",
+              color: page===p ? "#F5F0E8" : "#9A8868",
+              padding:"0 24px",cursor:"pointer",
+              fontSize:14,letterSpacing:0.3,
+              fontFamily:"'Cormorant Garamond',serif",
+              fontWeight: page===p ? 600 : 400,
+              transition:"color 0.15s"}}>
+            {l}
+          </button>
+        ))}
+      </nav>
+    </header>
+  );
+
+  // ── Filter bar ───────────────────────────────────────────────────────────────
+
+  // ── PieceCardRow (used in both pool and manage list) ─────────────────────────
+  const PieceCardRow = ({p, showControls=true}) => {
+    const era = ERAS[p.era]||ERAS.modern;
+    const inProg = prog.pieceIds.includes(p.id);
+    // ⑤ badge
+    const badge = p.mine
+      ? <span title="自分の曲" style={{fontSize:11,marginRight:3}}>🎹</span>
+      : (!p.mine && p.id > 99)
+        ? <span title="AI提案" style={{fontSize:10,color:"#5A3A8A",marginRight:3,fontWeight:"bold"}}>✦</span>
+        : null;
+    return (
+      <div style={{background:inProg?"#F5F0E6":"white",border:"1.5px solid "+(inProg?"#C8B890":"#E8E0D0"),
+        borderLeft:"4px solid "+era.color,borderRadius:6,marginBottom:5,overflow:"hidden",
+        opacity:inProg?0.6:1,transition:"opacity 0.2s"}}>
+        <div style={{padding:"9px 12px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
+          onClick={()=>setExpandedId(expandedId===p.id?null:p.id)}>
+          <div style={{flex:1,minWidth:0}}>
+            {/* 上段: 作曲家 + 曲名 — 大きめ */}
+            <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
+              <span style={{fontSize:12,color:"#8A7050",fontFamily:SANS,flexShrink:0,fontWeight:500}}>{p.composer}</span>
+              <span style={{fontSize:14,color:"#2A2010",fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontFamily:FONT}}>
+                {badge}{p.fav && <span style={{color:"#C03050",fontSize:12,marginRight:2}}>❤️</span>}{p.title}
+              </span>
+            </div>
+            {/* 下段: 詳細 — 小さめ */}
+            <div style={{fontSize:10,color:"#A09070",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
+              <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
+              <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
+              <span>{p.key}</span>
+              <span>{p.duration}分</span>
+              <DotRating value={p.difficulty} max={5} color="#E05030" />
+            </div>
+          </div>
+          {showControls && (
+            <div style={{flexShrink:0,display:"flex",gap:4,alignItems:"center"}}>
+              {/* ③ 🟡🔵 自分でつけるマーク */}
+              <button onClick={e=>{e.stopPropagation();toggleCandidate(p.id);}}
+                title="🟡マーク"
+                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
+                  opacity:p.candidate?1:0.25}}>🟡</button>
+              <button onClick={e=>{e.stopPropagation();toggleFav(p.id);}}
+                title="🔵マーク"
+                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
+                  opacity:p.fav?1:0.25}}>🔵</button>
+              {/* ③ 比較モード時に「比較に追加」ボタン */}
+              {compareMode && (
+                <button onClick={e=>{e.stopPropagation();setComparePieces(prev=>prev.includes(p.id)?prev.filter(x=>x!==p.id):[...prev,p.id]);}}
+                  style={{background:comparePieces.includes(p.id)?"#5B7FA6":"white",
+                    border:"1px solid #5B7FA6",color:comparePieces.includes(p.id)?"white":"#5B7FA6",
+                    padding:"2px 6px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
+                  {comparePieces.includes(p.id)?"✓":"比較"}
+                </button>
+              )}
+              {inProg
+                ? <button onClick={e=>{e.stopPropagation();toggle(p.id);}}
+                    style={{background:"#FFF0EE",border:"1px solid #E8C0B0",color:"#A04030",width:24,height:24,borderRadius:"50%",cursor:"pointer",fontSize:13}}>×</button>
+                : <button onClick={e=>{e.stopPropagation();toggle(p.id);}} disabled={!canAdd(p)}
+                    style={{background:canAdd(p)?"#2A2010":"#EDE8DC",border:"none",color:canAdd(p)?"#E8D090":"#B0A080",width:24,height:24,borderRadius:"50%",cursor:canAdd(p)?"pointer":"not-allowed",fontSize:17,lineHeight:"24px",textAlign:"center"}}>+</button>
+              }
+              <span style={{color:"#C8B890",fontSize:10}}>{expandedId===p.id?"▲":"▼"}</span>
+            </div>
+          )}
+        </div>
+        {expandedId===p.id && (
+          <div style={{padding:"8px 12px 12px",borderTop:"1px solid #F0EAE0",background:"#FDFAF6"}}>
+            <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
+              <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
+              <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#B03020",fontWeight:"bold"}}>{p.readiness}%</span></div>
+              <div><div style={{fontSize:9,color:"#A09070",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>形式</div><span style={{fontSize:12,color:"#5A4A2A"}}>{p.form}</span></div>
+            </div>
+            {p.reason && <div style={{fontSize:12,color:"#6A5030",fontStyle:"italic",lineHeight:1.6,borderTop:"1px solid #F0EAE0",paddingTop:8,marginBottom:8,fontFamily:SANS}}>💡 {p.reason}</div>}
+            <div style={{display:"flex",gap:6}}>
+              {[
+                [`https://ja.wikipedia.org/wiki/${encodeURIComponent(p.composer)}`,"Wikipedia","#2C6B82","#BDD5E5"],
+                [`https://imslp.org/wiki/Special:Search/${encodeURIComponent(p.title)}`,"IMSLP","#5A3A8A","#C5B5D5"],
+                [`https://www.youtube.com/results?search_query=${encodeURIComponent(p.title+" "+p.composer)}`,"YouTube ▶","#A03020","#E0B0A0"],
+              ].map(([href,label,color,border])=>(
+                <a key={label} href={href} target="_blank" rel="noreferrer"
+                  style={{fontSize:11,color,textDecoration:"none",border:"1px solid "+border,padding:"2px 8px",borderRadius:4,fontFamily:SANS}}>{label}</a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ── EVENTS PAGE ───────────────────────────────────────────────────────────────
+  // ── EVENTS PAGE ───────────────────────────────────────────────────────────────
+
+  // ── SINGLE return ─────────────────────────────────────────────────────────────
+  return (
+    <div style={{height:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <FontLoader />
+      <Header />
+      <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
+        {page==="manage" && <ManagePage
+          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered}
+          showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
+          onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
+          sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
+          searchQ={searchQ} setSearchQ={setSearchQ} sel={sel} fmtDuration={fmtDuration}
+          ERAS={ERAS} ERA_ORDER={ERA_ORDER} SANS={SANS} FONT={FONT}
+          dashData={dashData} dashTotal={dashTotal} PieChart={PieChart} BarChart={BarChart}
+          dashAxis={dashAxis} setDashAxis={setDashAxis} dashChart={dashChart} setDashChart={setDashChart}
+          libraryTab={libraryTab} setLibraryTab={setLibraryTab}
+          poolMode={poolMode} setPoolMode={setPoolMode}
+          composerFilter={composerFilter} setComposerFilter={setComposerFilter}
+          titleFilter={titleFilter} setTitleFilter={setTitleFilter}
+          eraFilter={eraFilter} setEraFilter={setEraFilter}
+          yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
+          durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
+          diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
+          freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
+          kwFilter={kwFilter} setKwFilter={setKwFilter}
+          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoading} askAI={askAI}
+          toggle={toggle} canAdd={canAdd} prog={prog}
+          learningIds={learningIds} setLearningIds={setLearningIds}
+          expandedId={expandedId} setExpandedId={setExpandedId}
+          dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
+          dashAxis={dashAxis} setDashAxis={setDashAxis}
+          dashChart={dashChart} setDashChart={setDashChart}
+        />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
+        {page==="home" && <HomePage
+          prog={prog} updateProg={updateProg}
+          programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
+          editingProgramId={editingProgramId} setEditingProgramId={setEditingProgramId}
+          editingName={editingName} setEditingName={setEditingName}
+          setPrograms={setPrograms} addProgram={addProgram} deleteProgram={deleteProgram}
+          programPieces={programPieces} totalDuration={totalDuration} remaining={remaining}
+          toggle={toggle} toggleFav={toggleFav} toggleCandidate={toggleCandidate}
+          dragId={dragId} dragOver={dragOver} onDragEnd={onDragEnd}
+          poolMode={poolMode} setPoolMode={setPoolMode}
+          composerFilter={composerFilter} setComposerFilter={setComposerFilter}
+          titleFilter={titleFilter} setTitleFilter={setTitleFilter}
+          eraFilter={eraFilter} setEraFilter={setEraFilter}
+          yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
+          durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
+          diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
+          freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
+          kwFilter={kwFilter} setKwFilter={setKwFilter}
+          showFavOnly={showFavOnly} setShowFavOnly={setShowFavOnly}
+          localSortBy={localSortBy} setLocalSortBy={setLocalSortBy}
+          localSortAsc={localSortAsc} setLocalSortAsc={setLocalSortAsc}
+          learningIds={learningIds} setLearningIds={setLearningIds}
+          pieces={pieces} setPieces={setPieces}
+          canAdd={canAdd} aiPieces={aiPieces} aiLoading={aiLoading} askAI={askAI}
+          allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
+          sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
+          sel={sel}
+        />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} />}
+      </div>
+    </div>
+  );
+}
