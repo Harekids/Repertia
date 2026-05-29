@@ -857,10 +857,10 @@ const PrintPage = (props) => {
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1}}/>],
                 ["国籍",           <select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={{...inpS,flex:1}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>],
-                ["住所",           <input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="東京都" style={{...inpS,flex:1}}/>],
+                ["住所",           <input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["メール",         <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
-                ["電話",           <input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="090-0000-0000" style={{...inpS,flex:1}}/>],
-                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={{...inpS,flex:1}}/>],
+                ["電話",           <input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
                   <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
@@ -872,27 +872,34 @@ const PrintPage = (props) => {
             {/* 学歴（＋追加） */}
             {secTitle("学歴")}
             {(profile.educations||[]).map(ed=>(
-              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:16}}>
+              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
                 <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
-                <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
-                <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1,marginLeft:6}}/>
-                <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="年" style={{...inpS,width:56,marginLeft:6}}/>
-                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0,marginLeft:4}}>×</button>
+                <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
+                <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
+                <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
+                  <option value="">ー</option>
+                  <option value="卒業">卒業</option>
+                  <option value="修了">修了</option>
+                  <option value="在籍">在籍</option>
+                  <option value="中退">中退</option>
+                </select>
+                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
-            {addBtn("学歴を追加",()=>addListItem("educations",{school:"",degree:"",year:""}))}
+            {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
 
             {/* 師事者（＋追加） */}
             {secTitle("師事者")}
             {(profile.teachers||[]).map(t=>(
-              <div key={t.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:16}}>
+              <div key={t.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
                 <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
-                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
-                <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1,marginLeft:6}}/>
-                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0,marginLeft:4}}>×</button>
+                <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
+                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:2}}/>
+                <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:1}}/>
+                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
-            {addBtn("師事者を追加",()=>addListItem("teachers",{name:"",role:""}))}
+            {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
 
           </div>
         </div>
@@ -2313,12 +2320,12 @@ export default function App() {
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
-    nameJa:"", nameEn:"", birthDate:"", nationality:"ー",
+    nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"ー",
     photoUrl:"",
     educations:[],   // {id, school, degree, year}
     teachers:[],     // {id, name, role}
     competitions:[],  // {id, name, year, result}
-    contact:{email:"", website:"", sns:""},
+    contact:{email:"", website:"", tel:"ー", sns:"ー"},
   });
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
