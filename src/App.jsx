@@ -833,103 +833,66 @@ const PrintPage = (props) => {
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
 
-            {/* 写真 + 基本情報 */}
-            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:12}}>
+            {/* 写真 */}
+            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:20}}>
               <div style={{flexShrink:0}}>
                 <div onClick={()=>photoInputRef.current?.click()}
-                  style={{width:90,height:90,borderRadius:"50%",border:"2px dashed #C8B890",
+                  style={{width:80,height:80,borderRadius:"50%",border:"2px dashed #C8B890",
                     background:profile.photoUrl?"transparent":"#F8F4EE",cursor:"pointer",
                     display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
                   {profile.photoUrl
                     ? <img src={profile.photoUrl} alt="photo" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                    : <span style={{fontSize:28,color:"#C8B890"}}>👤</span>}
+                    : <span style={{fontSize:24,color:"#C8B890"}}>👤</span>}
                 </div>
                 <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
-                <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:4,fontFamily:SANS}}>クリックして変更</div>
+                <div style={{fontSize:9,color:"#A09070",textAlign:"center",marginTop:3,fontFamily:SANS}}>変更</div>
               </div>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:8}}>
-                {/* ④ 氏名 */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>氏名（日本語）</div><input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="ー" style={inpS}/></div>
-                  <div><div style={lblS}>氏名（英語）</div><input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={inpS}/></div>
-                </div>
-                {/* ④ 生年月日・国籍・住所 */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>生年月日</div><input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={inpS}/></div>
-                  <div><div style={lblS}>国籍</div>
-                    <select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={inpS}>
-                      {COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                  <div><div style={lblS}>住所</div><input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="東京都" style={inpS}/></div>
-                </div>
-                {/* ④ 連絡先：メール・電話・SNS */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-                  <div><div style={lblS}>メール</div><input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={inpS}/></div>
-                  <div><div style={lblS}>電話</div><input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="090-0000-0000" style={inpS}/></div>
-                  <div><div style={lblS}>SNS</div><input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={inpS}/></div>
-                </div>
-              </div>
+              <div style={{flex:1}}/>
             </div>
 
-            {/* 学歴 */}
+            {/* ① 各項目を1行ずつ・左揃え・ボックスサイズ統一 */}
+            <div style={{display:"flex",flexDirection:"column",gap:0}}>
+              {[
+                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1}}/>],
+                ["国籍",           <select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={{...inpS,flex:1}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>],
+                ["住所",           <input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="東京都" style={{...inpS,flex:1}}/>],
+                ["メール",         <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
+                ["電話",           <input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="090-0000-0000" style={{...inpS,flex:1}}/>],
+                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="@username" style={{...inpS,flex:1}}/>],
+              ].map(([label, input])=>(
+                <div key={label} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+                  <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
+                  {input}
+                </div>
+              ))}
+            </div>
+
+            {/* 学歴（＋追加） */}
             {secTitle("学歴")}
             {(profile.educations||[]).map(ed=>(
-              <div key={ed.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="学校名・学部" style={{...inpS,flex:2}}/>
-                <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1}}/>
-                <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="卒業年" style={{...inpS,flex:"0 0 70px"}}/>
-                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                <input value={ed.degree} onChange={e=>updateListItem("educations",ed.id,{degree:e.target.value})} placeholder="学位" style={{...inpS,flex:1,marginLeft:6}}/>
+                <input value={ed.year} onChange={e=>updateListItem("educations",ed.id,{year:e.target.value})} placeholder="年" style={{...inpS,width:56,marginLeft:6}}/>
+                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0,marginLeft:4}}>×</button>
               </div>
             ))}
             {addBtn("学歴を追加",()=>addListItem("educations",{school:"",degree:"",year:""}))}
 
-            {/* 師事者 */}
+            {/* 師事者（＋追加） */}
             {secTitle("師事者")}
             {(profile.teachers||[]).map(t=>(
-              <div key={t.id} style={{display:"flex",gap:6,marginBottom:6,alignItems:"center"}}>
+              <div key={t.id} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
                 <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="先生のお名前" style={{...inpS,flex:2}}/>
-                <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1}}/>
-                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                <input value={t.role} onChange={e=>updateListItem("teachers",t.id,{role:e.target.value})} placeholder="ピアノ/声楽など" style={{...inpS,flex:1,marginLeft:6}}/>
+                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0,marginLeft:4}}>×</button>
               </div>
             ))}
             {addBtn("師事者を追加",()=>addListItem("teachers",{name:"",role:""}))}
-
-            {/* ① コンクール歴 → Eventsから自動表示 */}
-            {secTitle("コンクール歴・入賞歴")}
-            {contestEvents.length===0
-              ? <div style={{fontSize:12,color:"#B0A080",fontFamily:SANS,padding:"8px 0"}}>Eventsページでコンクールを登録すると自動で表示されます</div>
-              : contestEvents.map(ev=>(
-                <div key={ev.id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"4px 0",borderBottom:"1px solid #F5F0E8",alignItems:"center"}}>
-                  <span style={{color:"#8A7050",flexShrink:0,width:50}}>{ev.date.slice(0,7)}</span>
-                  <span style={{flex:1}}>{ev.title||ev.venue||"（無題）"}</span>
-                  {ev.notes&&<span style={{color:"#A09070",fontSize:11}}>{ev.notes}</span>}
-                </div>
-              ))
-            }
-
-            {/* ① 演奏歴 → Eventsから自動表示 */}
-            {secTitle("演奏歴")}
-            {concertEvents.length===0
-              ? <div style={{fontSize:12,color:"#B0A080",fontFamily:SANS,padding:"8px 0"}}>Eventsページにイベントを登録すると自動で表示されます</div>
-              : concertEvents.slice(0,15).map(ev=>(
-                <div key={ev.id} style={{display:"flex",gap:8,fontSize:12,color:"#2A2010",fontFamily:SANS,padding:"4px 0",borderBottom:"1px solid #F5F0E8",alignItems:"center"}}>
-                  <span style={{color:"#8A7050",flexShrink:0,width:50}}>{ev.date.slice(0,7)}</span>
-                  <span style={{flex:1}}>{ev.title||ev.venue||"（無題）"}</span>
-                  {ev.venue&&ev.title&&<span style={{color:"#A09070",fontSize:11}}>{ev.venue}</span>}
-                </div>
-              ))
-            }
-
-            {/* ② レパートリー → Libraryから自動 */}
-            {secTitle("レパートリー")}
-            {pieces.length===0
-              ? <div style={{fontSize:12,color:"#B0A080",fontFamily:SANS,padding:"8px 0"}}>Libraryページに曲を追加すると自動で表示されます</div>
-              : <div style={{fontSize:12,color:"#6A5030",fontFamily:SANS,lineHeight:1.8}}>
-                  {pieces.slice(0,20).map(p=>p.composer+" 《"+p.title+"》").join("　/　")}
-                  {pieces.length>20&&<span style={{color:"#A09070"}}> 他 {pieces.length-20} 曲</span>}
-                </div>
-            }
 
           </div>
         </div>
@@ -1068,11 +1031,19 @@ const PrintPage = (props) => {
               </button>
             </div>
 
-            {/* STEP4: 編集（字数カウンター付き） */}
+            {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                 <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>STEP 4　編集</div>
-                <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
+                  {/* ③ コピーアイコン */}
+                  <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
+                    title="コピー"
+                    style={{background:"none",border:"1px solid #D8D0C0",color:"#8A7050",padding:"3px 8px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:4}}>
+                    📋 コピー
+                  </button>
+                </div>
               </div>
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
                 style={{width:"100%",minHeight:200,background:"white",border:"1px solid #D8D0C0",
@@ -1080,17 +1051,21 @@ const PrintPage = (props) => {
                   lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
             </div>
 
-            {/* STEP5: 出力 */}
+            {/* STEP5: 出力 ④ コピー・PDF・保存 */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 5　出力</div>
               <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                 <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
                   style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  コピー
+                  📋 コピー
                 </button>
                 <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/\n/g,"<br>")+"</body></html>");w.document.close();w.print();}}
                   style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  🖨 印刷/PDF
+                  🖨 PDF
+                </button>
+                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  💾 保存
                 </button>
               </div>
             </div>
