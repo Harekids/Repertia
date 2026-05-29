@@ -718,6 +718,15 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
 
 // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
+const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["print","Portfolio"]];
+
+const NOTATION_STYLES = {
+  ja:     { label:"日本語（標準）",   example:"バラード 第1番 ト短調 Op.23" },
+  ja_op:  { label:"日本語（Op.先）",  example:"バラード Op.23 No.1 ト短調" },
+  en:     { label:"English",          example:"Ballade No.1 in G minor, Op.23" },
+  formal: { label:"曲名のみ",         example:"バラード 第1番" },
+};
+
 const PrintPage = (props) => {
   const {prog, allPool, programs, pieces} = props;
   const {activeProgramId, setActiveProgramId} = props;
