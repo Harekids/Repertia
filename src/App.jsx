@@ -873,7 +873,7 @@ const PrintPage = (props) => {
             {secTitle("学歴")}
             {(profile.educations||[]).map(ed=>(
               <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
+                {/* ① 「学歴」ラベル削除 */}
                 <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
                 <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
@@ -886,24 +886,25 @@ const PrintPage = (props) => {
                 <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
-            {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
+            {/* ② ＋追加ボタンを左端揃え */}
+            <div style={{paddingLeft:0}}>
+              {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
+            </div>
 
             {/* 師事者（＋追加） */}
             {secTitle("師事者")}
             {(profile.teachers||[]).map(t=>(
               <div key={t.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
+                {/* ③ 「師事者」ラベル削除、④ 1行で：[期間] [師事者名] [備考（大きめ）] */}
                 <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
-                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:2}}/>
-                <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:1}}/>
+                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
+                <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
                 <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
-            {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
-
-          </div>
-        </div>
-      )}
+            <div style={{paddingLeft:0}}>
+              {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
+            </div>
 
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
