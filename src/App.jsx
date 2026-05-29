@@ -904,6 +904,10 @@ const PrintPage = (props) => {
               {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
             </div>
 
+          </div>
+        </div>
+      )}
+
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
         <div style={{flex:1,overflowY:"auto",padding:"20px 28px"}}>
@@ -1079,8 +1083,6 @@ const PrintPage = (props) => {
           </div>
         </div>
       )}
-    </div>
-    </div>
     </div>
     </div>
   );
@@ -2691,7 +2693,3 @@ JSONのみ返してください:
     </div>
   );
 }
-
-
-
-
