@@ -255,7 +255,6 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
             ].map(([href,label,color,border])=>(
               <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
-          </div>
         </div>
       )}
     </div>
@@ -1049,6 +1048,7 @@ const PrintPage = (props) => {
                 style={{marginLeft:"auto",background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                 生成する
               </button>
+              </div>
             </div>
 
             {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
@@ -1096,6 +1096,7 @@ const PrintPage = (props) => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
