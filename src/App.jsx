@@ -871,9 +871,9 @@ const PrintPage = (props) => {
 
             {/* 学歴（＋追加） */}
             {/* ①secTitle("学歴")削除 */}
-            {(profile.educations||[]).map(ed=>(
+            {(profile.educations||[]).map((ed,idx)=>(
               <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
+                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
                 <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
                 {/* ⑤ ステータス順変更・中退削除 */}
@@ -1000,11 +1000,16 @@ const PrintPage = (props) => {
               </div>
             )}
 
-            {/* 言語選択 */}
-            <div style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8}}>
-              <span style={{fontSize:11,color:"#8A7050",fontFamily:SANS}}>出力言語：</span>
+            {/* STEP3: 出力言語 */}
+            <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10,textAlign:"center"}}>STEP 3　出力言語</div>
+              <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
               {[["ja","日本語"],["en","English"]].map(([v,l])=>(
-                <label key={v} style={{display:"flex",alignItems:"center",gap:5,cursor:"pointer",fontSize:13,fontFamily:SANS,color:"#2A2010"}}>
+                <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 20px",
+                  background:outLang===v?"#2A2010":"white",
+                  border:"1.5px solid "+(outLang===v?"#2A2010":"#D8D0C0"),
+                  borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
+                  color:outLang===v?"#C8A860":"#6A5030"}}>
                   <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#8B5E3C"}}/>{l}
                 </label>
               ))}
@@ -1048,17 +1053,13 @@ const PrintPage = (props) => {
 
             {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>STEP 4　編集</div>
-                <div style={{display:"flex",alignItems:"center",gap:10}}>
-                  <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
-                  {/* ③ コピーアイコン */}
-                  <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
-                    title="コピー"
-                    style={{background:"none",border:"1px solid #D8D0C0",color:"#8A7050",padding:"3px 8px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:4}}>
-                    📋 コピー
-                  </button>
-                </div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>STEP 4　編集</div>
+              {/* ④ 説明文をタイトル直下 */}
+              <div style={{textAlign:"center",marginBottom:10,fontSize:11,color:"#A09070",fontFamily:SANS}}>
+                出力した内容は、自由に編集できます
+              </div>
+              <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
+                <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
               </div>
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
                 style={{width:"100%",minHeight:200,background:"white",border:"1px solid #D8D0C0",
@@ -1070,10 +1071,7 @@ const PrintPage = (props) => {
                   💾 保存
                 </button>
               </div>
-              {/* ⑤ 説明文 */}
-              <div style={{textAlign:"center",marginTop:12,fontSize:11,color:"#A09070",fontFamily:SANS,lineHeight:1.8}}>
-                出力した内容はSTEP4で自由に編集できます
-              </div>
+
             </div>
 
             {/* STEP5: PDF・印刷・コピー */}
