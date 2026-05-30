@@ -1049,6 +1049,7 @@ const PrintPage = (props) => {
                 style={{marginLeft:"auto",background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                 生成する
               </button>
+              </div>
             </div>
 
             {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
