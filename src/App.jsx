@@ -870,31 +870,36 @@ const PrintPage = (props) => {
             </div>
 
             {/* 学歴（＋追加） */}
+            {/* ①secTitle("学歴")削除 */}
             {(profile.educations||[]).map(ed=>(
               <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                {/* ① 「学歴」ラベル削除 */}
+                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>学歴</div>
                 <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
                 <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
+                {/* ⑤ ステータス順変更・中退削除 */}
                 <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
                   <option value="">ー</option>
+                  <option value="入学">入学</option>
+                  <option value="在学中">在学中</option>
+                  <option value="在籍中">在籍中</option>
                   <option value="卒業">卒業</option>
                   <option value="修了">修了</option>
-                  <option value="在学">在学</option>
-                  <option value="在籍">在籍</option>
                 </select>
                 <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
             {/* ② ＋追加ボタンを左端揃え */}
-            <div style={{paddingLeft:0}}>
+            <div style={{paddingLeft:0,marginBottom:8}}>
               {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
             </div>
 
             {/* 師事者（＋追加） */}
+            {/* ③ secTitle("師事者")削除 */}
             {(profile.teachers||[]).map(t=>(
               <div key={t.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                {/* ③ 「師事者」ラベル削除、④ 1行で：[期間] [師事者名] [備考（大きめ）] */}
-                <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
+                {/* ④ 1行で：師事者ラベル [期間] [師事者名] [備考（大きめ）] */}
+                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
+                <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 100px"}}/>
                 <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                 <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
                 <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
@@ -1041,41 +1046,41 @@ const PrintPage = (props) => {
               </button>
             </div>
 
-            {/* STEP4: 編集 */}
+            {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                {/* タイトルを他のSTEPと揃えてセンタリング */}
-                <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,flex:1,textAlign:"center"}}>STEP 4　編集</div>
-                <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
+                <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS}}>STEP 4　編集</div>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <span style={{fontSize:11,color:"#A09070",fontFamily:SANS}}>{outText.length} 文字</span>
+                  {/* ③ コピーアイコン */}
+                  <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
+                    title="コピー"
+                    style={{background:"none",border:"1px solid #D8D0C0",color:"#8A7050",padding:"3px 8px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,display:"flex",alignItems:"center",gap:4}}>
+                    📋 コピー
+                  </button>
+                </div>
               </div>
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
                 style={{width:"100%",minHeight:200,background:"white",border:"1px solid #D8D0C0",
                   color:"#2A2010",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
-                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
-              {/* STEP4直後に「保存」 */}
-              <div style={{display:"flex",justifyContent:"flex-end"}}>
-                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
-                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  💾 保存
-                </button>
-              </div>
+                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
             </div>
 
-            {/* STEP5: PDF・印刷・共有 */}
+            {/* STEP5: 出力 ④ コピー・PDF・保存 */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10,textAlign:"center"}}>STEP 5　出力</div>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center"}}>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split("\n").join("<br>")+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 22px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 5　出力</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
+                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  📋 コピー
+                </button>
+                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/\n/g,"<br>")+"</body></html>");w.document.close();w.print();}}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 PDF
                 </button>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split("\n").join("<br>")+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 22px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  🖨 印刷
-                </button>
-                <button onClick={()=>{if(navigator.share){navigator.share({title:"Portfolio",text:outText}).catch(()=>{});}else{navigator.clipboard.writeText(outText).catch(()=>{});}}}
-                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 22px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  🔗 共有
+                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  💾 保存
                 </button>
               </div>
             </div>
@@ -1083,7 +1088,6 @@ const PrintPage = (props) => {
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 };
