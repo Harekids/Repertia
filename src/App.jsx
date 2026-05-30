@@ -249,12 +249,13 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
           {piece.reason && <div style={{ fontSize:12, color:"#6A5030", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #F0EAE0", paddingTop:8, marginBottom:8, fontFamily:SANS }}>💡 {piece.reason}</div>}
           <div style={{ display:"flex", gap:6 }}>
             {[
-              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(piece.composer),"Wikipedia","#2C6B82","#BDD5E5"],
-              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(piece.title),"IMSLP","#5A3A8A","#C5B5D5"],
-              ["https://www.youtube.com/results?search_query="+encodeURIComponent(piece.title+" "+piece.composer),"YouTube ▶","#A03020","#E0B0A0"],
+              [`https://ja.wikipedia.org/wiki/${encodeURIComponent(piece.composer)}`,"Wikipedia","#2C6B82","#BDD5E5"],
+              [`https://imslp.org/wiki/Special:Search/${encodeURIComponent(piece.title)}`,"IMSLP","#5A3A8A","#C5B5D5"],
+              [`https://www.youtube.com/results?search_query=${encodeURIComponent(piece.title+" "+piece.composer)}`,"YouTube ▶","#A03020","#E0B0A0"],
             ].map(([href,label,color,border])=>(
               <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
+          </div>
         </div>
       )}
     </div>
@@ -1048,7 +1049,6 @@ const PrintPage = (props) => {
                 style={{marginLeft:"auto",background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                 生成する
               </button>
-              </div>
             </div>
 
             {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
@@ -1096,7 +1096,6 @@ const PrintPage = (props) => {
           </div>
         </div>
       )}
-    </div>
     </div>
   );
 };
@@ -2706,3 +2705,7 @@ JSONのみ返してください:
     </div>
   );
 }
+
+
+
+
