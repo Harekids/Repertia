@@ -905,7 +905,7 @@ const PrintPage = (props) => {
                 <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
               </div>
             ))}
-            <div style={{paddingLeft:0}}>
+            <div style={{paddingLeft:0,marginBottom:24}}>
               {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
             </div>
 
@@ -923,7 +923,7 @@ const PrintPage = (props) => {
             {/* STEP1: 出力形式 */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 1　出力形式</div>
-              <div style={{display:"flex",gap:10}}>
+              <div style={{display:"flex",gap:16,justifyContent:"center"}}>
                 {[["single","1項目ずつ出力"],["bio","経歴としてまとめて出力"]].map(([v,l])=>(
                   <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",
                     background:outFormat===v?"#2A2010":"white",
@@ -1063,24 +1063,34 @@ const PrintPage = (props) => {
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
                 style={{width:"100%",minHeight:200,background:"white",border:"1px solid #D8D0C0",
                   color:"#2A2010",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
-                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
+                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              <div style={{display:"flex",justifyContent:"flex-end"}}>
+                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
+                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  💾 保存
+                </button>
+              </div>
+              {/* ⑤ 説明文 */}
+              <div style={{textAlign:"center",marginTop:12,fontSize:11,color:"#A09070",fontFamily:SANS,lineHeight:1.8}}>
+                出力した内容はSTEP4で自由に編集できます
+              </div>
             </div>
 
-            {/* STEP5: 出力 ④ コピー・PDF・保存 */}
+            {/* STEP5: PDF・印刷・コピー */}
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:10}}>STEP 5　出力</div>
-              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
-                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  📋 コピー
-                </button>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.replace(/\n/g,"<br>")+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+              <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>STEP 5　出力</div>
+              <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
+                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split("\n").join("<br>")+"</body></html>");w.document.close();w.print();}}
+                  style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 PDF
                 </button>
-                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
-                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"9px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  💾 保存
+                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split("\n").join("<br>")+"</body></html>");w.document.close();w.print();}}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  🖨 印刷
+                </button>
+                <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
+                  style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  📋 コピー
                 </button>
               </div>
             </div>
