@@ -255,6 +255,7 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
             ].map(([href,label,color,border])=>(
               <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
+          </div>
         </div>
       )}
     </div>
