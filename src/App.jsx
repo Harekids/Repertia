@@ -1095,7 +1095,6 @@ const PrintPage = (props) => {
         </div>
       )}
     </div>
-    </div>
   );
 };
 
