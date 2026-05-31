@@ -1076,11 +1076,11 @@ const PrintPage = (props) => {
             <div style={{background:"#F8F4EE",border:"1px solid #E8E0D0",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#8A7050",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>STEP 5　出力</div>
               <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split(String.fromCharCode(10)).join("<br>")+"</body></html>");w.document.close();w.print();}}
+                <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+html+"</body></html>");w.document.close();w.print();}}
                   style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 PDF
                 </button>
-                <button onClick={()=>{const w=window.open("","_blank");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+outText.split(String.fromCharCode(10)).join("<br>")+"</body></html>");w.document.close();w.print();}}
+                <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#2A2010'>"+html+"</body></html>");w.document.close();w.print();}}
                   style={{background:"white",border:"1px solid #D8D0C0",color:"#6A5030",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 印刷
                 </button>
@@ -2334,12 +2334,12 @@ export default function App() {
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
-    nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"ー",
+    nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"",
     photoUrl:"",
     educations:[],   // {id, school, degree, year}
     teachers:[],     // {id, name, role}
     competitions:[],  // {id, name, year, result}
-    contact:{email:"", website:"", tel:"ー", sns:"ー"},
+    contact:{email:"", website:"", tel:"", sns:""},
   });
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
@@ -2703,7 +2703,3 @@ JSONのみ返してください:
     </div>
   );
 }
-
-
-
-
