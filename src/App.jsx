@@ -255,7 +255,6 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
             ].map(([href,label,color,border])=>(
               <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
-          </div>
         </div>
       )}
     </div>
@@ -857,9 +856,9 @@ const PrintPage = (props) => {
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1}}/>],
                 ["国籍",           <select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={{...inpS,flex:1}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>],
-                ["住所",           <input value={profile.city||""} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["メール",         <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
-                ["電話",           <input value={profile.contact.tel||""} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
                 ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
@@ -869,44 +868,41 @@ const PrintPage = (props) => {
               ))}
             </div>
 
-            {/* 学歴（＋追加） */}
-            {/* ①secTitle("学歴")削除 */}
-            {(profile.educations||[]).map((ed,idx)=>(
-              <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
-                <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
-                <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
-                {/* ⑤ ステータス順変更・中退削除 */}
-                <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
-                  <option value="">ー</option>
-                  <option value="入学">入学</option>
-                  <option value="在学中">在学中</option>
-                  <option value="在籍中">在籍中</option>
-                  <option value="卒業">卒業</option>
-                  <option value="修了">修了</option>
-                </select>
-                <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+            {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              {(profile.educations||[]).map((ed,idx)=>(
+                <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
+                  <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
+                  <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
+                  <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
+                    <option value="">ー</option>
+                    <option value="入学">入学</option>
+                    <option value="在学中">在学中</option>
+                    <option value="在籍中">在籍中</option>
+                    <option value="卒業">卒業</option>
+                    <option value="修了">修了</option>
+                  </select>
+                  <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:130,flexShrink:0}}/>
+                {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
               </div>
-            ))}
-            {/* ② ＋追加ボタンを左端揃え */}
-            <div style={{paddingLeft:0,marginBottom:8}}>
-              {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
-            </div>
-
-            {/* 師事者（＋追加） */}
-            {/* ③ secTitle("師事者")削除 */}
-            {(profile.teachers||[]).map(t=>(
-              <div key={t.id} style={{display:"flex",alignItems:"center",gap:6,marginBottom:16}}>
-                {/* ④ 1行で：師事者ラベル [期間] [師事者名] [備考（大きめ）] */}
-                <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>師事者</div>
-                <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 100px"}}/>
-                <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
-                <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
-                <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+              {(profile.teachers||[]).map((t,idx)=>(
+                <div key={t.id} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{fontSize:11,color:"#6A5030",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"師事者":""}</div>
+                  <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 100px"}}/>
+                  <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
+                  <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
+                  <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                </div>
+              ))}
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:130,flexShrink:0}}/>
+                {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
               </div>
-            ))}
-            <div style={{paddingLeft:0,marginBottom:24}}>
-              {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
             </div>
 
           </div>
@@ -1097,6 +1093,7 @@ const PrintPage = (props) => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
@@ -2706,7 +2703,3 @@ JSONのみ返してください:
     </div>
   );
 }
-
-
-
-
