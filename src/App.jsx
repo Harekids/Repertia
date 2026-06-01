@@ -2333,7 +2333,6 @@ const AuthPage = ({ onLogin }) => {
 };
 
 export default function App() {
-  // ── state ──
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [pageState, setPage] = useState("manage");
@@ -2349,13 +2348,15 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (authLoading) return <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#F5F0E8",color:"#8A7050",fontFamily:"'Noto Sans JP', sans-serif"}}>読み込み中...</div>;
-  if (!user) return <AuthPage />;
-
   const handleLogout = async () => { await supabase.auth.signOut(); };
 
+  if (authLoading) return <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#F5F0E8",color:"#8A7050",fontFamily:"'Noto Sans JP', sans-serif"}}>読み込み中...</div>;
+  if (!user) return <AuthPage />;
+  return <MainApp user={user} handleLogout={handleLogout} pageState={pageState} setPage={setPage} />;
+}
+
+function MainApp({ user, handleLogout, pageState, setPage }) {
   const page = pageState;
-  /* eslint-disable react-hooks/rules-of-hooks */
   const [pieces, setPieces]                   = useState(SAMPLE_PIECES);
   const [aiPieces, setAiPieces]               = useState([]);
   const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
