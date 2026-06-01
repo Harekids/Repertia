@@ -735,6 +735,7 @@ const PrintPage = (props) => {
   const {portfolioTab, setPortfolioTab} = props;
   const {addListItem, updateListItem, removeListItem} = props;
   const {handlePhoto, photoInputRef} = props;
+  const {saveProfile, profileSaveMsg} = props;
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -905,6 +906,16 @@ const PrintPage = (props) => {
                 <div style={{width:130,flexShrink:0}}/>
                 {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
               </div>
+            </div>
+
+            {/* 保存ボタン */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:8,paddingTop:16,borderTop:"1px solid #E8E0D0"}}>
+              {profileSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{profileSaveMsg}</span>}
+              <button onClick={saveProfile}
+                style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 28px",
+                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
+                💾 保存
+              </button>
             </div>
 
           </div>
@@ -2424,15 +2435,41 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [profile, setProfile]                  = useState({
     nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"",
     photoUrl:"",
-    educations:[],   // {id, school, degree, year}
-    teachers:[],     // {id, name, role}
-    competitions:[],  // {id, name, year, result}
+    educations:[],
+    teachers:[],
+    competitions:[],
     contact:{email:"", website:"", tel:"", sns:""},
   });
+  const [profileSaveMsg, setProfileSaveMsg]    = useState("");
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
+
+  // ── Supabase: プロフィール読み込み ──
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('data')
+        .eq('user_id', user.id)
+        .single();
+      if (data?.data) setProfile(data.data);
+    };
+    loadProfile();
+  }, [user.id]);
+
+  // ── Supabase: プロフィール保存 ──
+  const saveProfile = async () => {
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ user_id: user.id, data: profile, updated_at: new Date().toISOString() },
+               { onConflict: 'user_id' });
+    if (!error) {
+      setProfileSaveMsg("保存しました ✓");
+      setTimeout(() => setProfileSaveMsg(""), 3000);
+    }
+  };
 
   // ── Supabase: piecesの読み込み ──
   useEffect(() => {
@@ -2831,7 +2868,7 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
