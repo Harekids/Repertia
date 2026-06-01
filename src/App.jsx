@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabase";
 
 // ── Google Fonts ──────────────────────────────────────────────────────────────
 const FontLoader = () => {
@@ -2267,9 +2268,94 @@ const HomePage = (props) => {
 
 
 
+// ── Auth Component ────────────────────────────────────────────────────────────
+const AuthPage = ({ onLogin }) => {
+  const SANS = "'Noto Sans JP', sans-serif";
+  const [mode, setMode] = useState("login"); // "login" | "signup"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #D8D0C0",
+    borderRadius:6, fontSize:14, fontFamily:SANS, color:"#2A2010",
+    background:"white", boxSizing:"border-box", outline:"none" };
+
+  const handleSubmit = async () => {
+    setLoading(true); setError(""); setMessage("");
+    if (mode === "signup") {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) setError(error.message);
+      else setMessage("確認メールを送信しました。メールをご確認ください。");
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setError("メールアドレスまたはパスワードが正しくありません。");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{height:"100vh",background:"#F5F0E8",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{background:"white",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{fontSize:22,fontWeight:"bold",color:"#2A2010",fontFamily:SANS,letterSpacing:2}}>Repertia</div>
+          <div style={{fontSize:12,color:"#8A7050",fontFamily:SANS,marginTop:4}}>クラシック音楽レパートリー管理</div>
+        </div>
+        <div style={{display:"flex",gap:8,marginBottom:24}}>
+          {[["login","ログイン"],["signup","新規登録"]].map(([m,label])=>(
+            <button key={m} onClick={()=>{setMode(m);setError("");setMessage("");}}
+              style={{flex:1,padding:"8px",border:"1.5px solid "+(mode===m?"#2A2010":"#D8D0C0"),
+                borderRadius:6,background:mode===m?"#2A2010":"white",
+                color:mode===m?"#C8A860":"#8A7050",fontFamily:SANS,fontSize:13,cursor:"pointer"}}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+            placeholder="メールアドレス" style={inpS}/>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)}
+            placeholder="パスワード（6文字以上）" style={inpS}
+            onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
+        </div>
+        {error && <div style={{marginTop:12,fontSize:12,color:"#B03020",fontFamily:SANS}}>{error}</div>}
+        {message && <div style={{marginTop:12,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
+        <button onClick={handleSubmit} disabled={loading}
+          style={{width:"100%",marginTop:20,padding:"11px",background:"#2A2010",border:"none",
+            color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer",
+            opacity:loading?0.6:1}}>
+          {loading?"処理中...":(mode==="login"?"ログイン":"アカウント作成")}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   // ── state ──
-  const [page, setPage]                       = useState("manage");
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [pageState, setPage] = useState("manage");
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (authLoading) return <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#F5F0E8",color:"#8A7050",fontFamily:"'Noto Sans JP', sans-serif"}}>読み込み中...</div>;
+  if (!user) return <AuthPage />;
+
+  const handleLogout = async () => { await supabase.auth.signOut(); };
+
+  const page = pageState;
+  /* eslint-disable react-hooks/rules-of-hooks */
   const [pieces, setPieces]                   = useState(SAMPLE_PIECES);
   const [aiPieces, setAiPieces]               = useState([]);
   const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
@@ -2541,6 +2627,14 @@ JSONのみ返してください:
           </button>
         ))}
       </nav>
+      <div style={{marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:16}}>
+        <span style={{fontSize:11,color:"#7A6840",fontFamily:"'Noto Sans JP',sans-serif",marginRight:12}}>{user.email}</span>
+        <button onClick={handleLogout}
+          style={{background:"none",border:"1px solid #5A4A2A",color:"#9A8868",padding:"4px 12px",
+            borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:"'Noto Sans JP',sans-serif"}}>
+          ログアウト
+        </button>
+      </div>
     </header>
   );
 
