@@ -1471,7 +1471,7 @@ const ManagePage = (props) => {
                     <span style={{fontSize:16,lineHeight:1}}>{p.fav?"♥":"♡"}</span>
                   </button>
                   {editMode && (
-                    <button onClick={()=>setPieces(ps=>ps.filter(x=>x.id!==p.id))}
+                    <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
                       style={{background:"#8A8A8A",border:"none",color:"white",width:20,height:20,
                         borderRadius:"50%",cursor:"pointer",fontSize:12,flexShrink:0,
                         display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>－</button>
@@ -2357,7 +2357,8 @@ export default function App() {
 
 function MainApp({ user, handleLogout, pageState, setPage }) {
   const page = pageState;
-  const [pieces, setPieces]                   = useState(SAMPLE_PIECES);
+  const [pieces, setPieces]                   = useState([]);
+  const [piecesLoading, setPiecesLoading]     = useState(true);
   const [aiPieces, setAiPieces]               = useState([]);
   const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
   const [activeProgramId, setActiveProgramId] = useState(1);
@@ -2433,7 +2434,38 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
 
-  // ── derived ──
+  // ── Supabase: piecesの読み込み ──
+  useEffect(() => {
+    const loadPieces = async () => {
+      setPiecesLoading(true);
+      const { data, error } = await supabase
+        .from('pieces')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+      if (!error && data) {
+        setPieces(data.map(p => ({
+          id: p.id,
+          title: p.title,
+          composer: p.composer || '',
+          year: p.year || 0,
+          era: p.era || 'modern',
+          duration: p.duration || 5,
+          difficulty: p.difficulty || 3,
+          readiness: p.readiness || 50,
+          key: p.key || '',
+          form: p.form || '',
+          country: p.country || '',
+          memo: p.memo || '',
+          fav: p.is_fav || false,
+          candidate: p.is_candidate || false,
+          mine: true,
+        })));
+      }
+      setPiecesLoading(false);
+    };
+    loadPieces();
+  }, [user.id]);
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
   const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
   const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
@@ -2461,7 +2493,13 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     if (canAdd(piece)) updateProg({pieceIds:[...prog.pieceIds,id]});
   };
 
-  const toggleFav       = (id) => setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:!p.fav}:p));
+  const toggleFav = async (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (!piece) return;
+    const newFav = !piece.fav;
+    setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:newFav}:p));
+    await supabase.from('pieces').update({is_fav: newFav}).eq('id', id);
+  };
   const toggleCandidate = (id) => {
     const piece = pieces.find(p=>p.id===id);
     if (piece && piece.candidate) {
@@ -2576,9 +2614,33 @@ JSONのみ返してください:
   };
 
 
-    const onAddPiece = (piece) => {
+  const onAddPiece = async (piece) => {
     const era = eraFromYear(piece.year);
-    setPieces(p=>[...p,{...piece,era,id:Date.now(),mine:true}]);
+    const { data, error } = await supabase.from('pieces').insert({
+      user_id: user.id,
+      title: piece.title,
+      composer: piece.composer || '',
+      year: piece.year || null,
+      era: era,
+      duration: piece.duration || 5,
+      difficulty: piece.difficulty || 3,
+      readiness: piece.readiness || 50,
+      key: piece.key || '',
+      form: piece.form || '',
+      country: piece.country || '',
+      memo: piece.memo || '',
+      is_fav: false,
+      is_candidate: false,
+    }).select().single();
+    if (!error && data) {
+      setPieces(ps => [...ps, {
+        id: data.id, title: data.title, composer: data.composer,
+        year: data.year, era: data.era, duration: data.duration,
+        difficulty: data.difficulty, readiness: data.readiness,
+        key: data.key, form: data.form, country: data.country,
+        memo: data.memo, fav: false, candidate: false, mine: true,
+      }]);
+    }
     setShowAdd(false);
   };
 
@@ -2732,6 +2794,11 @@ JSONのみ返してください:
   // ── EVENTS PAGE ───────────────────────────────────────────────────────────────
 
   // ── SINGLE return ─────────────────────────────────────────────────────────────
+  if (piecesLoading) return (
+    <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#F5F0E8",color:"#8A7050",fontFamily:"'Noto Sans JP', sans-serif"}}>
+      レパートリーを読み込み中...
+    </div>
+  );
   return (
     <div style={{height:"100vh",background:"#F5F0E8",fontFamily:FONT,color:"#2A2010",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
