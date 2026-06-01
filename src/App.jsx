@@ -217,7 +217,7 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
             <span>{piece.composer}</span><span style={{color:"#D8D0C0"}}>·</span>
             <span>{piece.year}年</span><span style={{color:"#D8D0C0"}}>·</span>
             <span>{piece.key}</span><span style={{color:"#D8D0C0"}}>·</span>
-            <span>{piece.duration}分</span>
+            <span>{piece.duration}分{piece.durationSecs>0?piece.durationSecs+"秒":""}</span>
           </div>
         </div>
         <div style={{ flexShrink:0, display:"flex", gap:4, alignItems:"center" }}>
@@ -1001,7 +1001,7 @@ const PrintPage = (props) => {
                         <span style={{fontSize:9,color:era.color,flexShrink:0}}>●</span>
                         <span style={{color:"#8A7050",fontSize:10,flexShrink:0}}>{p.composer}</span>
                         <span style={{flex:1}}>{p.title}</span>
-                        <span style={{fontSize:10,color:"#A09070"}}>{p.duration}分</span>
+                        <span style={{fontSize:10,color:"#A09070"}}>{p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</span>
                       </label>
                     );
                   })}
@@ -1334,7 +1334,7 @@ const ManagePage = (props) => {
                   <span style={{fontSize:11,color:"#A0A0A8",flexShrink:0}}>✧</span>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,color:"#2A2010",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分</div>
+                    <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
                   {/* ③ 昇格ボタン */}
                   <button onClick={()=>{
@@ -1851,7 +1851,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
               ))}
             </div>
             {filteredFuture.length>0 && <TimelineSection label="UPCOMING" evs={filteredFuture} defaultOpen={true}/>}
-            {filteredPast.length>0 && <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={filteredFuture.length===0}/>}
+            {filteredPast.length>0 && <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={true}/>}
           </>
         )}
 
@@ -1960,7 +1960,7 @@ const HomePage = (props) => {
 
             {p.title}
           </div>
-          <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分</div>
+          <div style={{fontSize:10,color:"#8A7050",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
         </div>
         {inProg
           ? <button onClick={()=>toggle(p.id)}
@@ -2037,8 +2037,8 @@ const HomePage = (props) => {
                 const isOver = remaining < 0;
                 let msg = "プログラムを確定しますか？";
                 if(newFromDB.length>0) msg += "\n（Databaseからの曲"+newFromDB.length+"曲がLearningに追加されます）";
-                if(isOver) msg += "\n⚠️ 時間が"+Math.abs(remaining)+"分超過しています";
-                if(window.confirm(msg)) alert("プログラムを確定しました！");
+                if(isOver){const overSecs=Math.round(Math.abs(remaining)*60);const overMin=Math.floor(overSecs/60);const overS=overSecs%60;msg += "\n⚠️ 時間が"+(overMin>0?overMin+"分":"")+(overS>0?overS+"秒":"")+"超過しています";}
+                window.confirm(msg);
               }}
                 style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"4px 12px",
                   cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4,fontWeight:600}}>
@@ -2047,7 +2047,7 @@ const HomePage = (props) => {
               <span style={{fontSize:12,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold",letterSpacing:0}}>
                 {(()=>{const m=Math.floor(totalDuration);const s=Math.round((totalDuration-m)*60);return m+"分"+(s>0?s+"秒":"");})()}  / {prog.maxDuration}分
                 <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
-                  {remaining>0?" 残り"+remaining+"分":remaining===0?" ちょうど":" "+Math.abs(remaining)+"分超過"}
+                  {remaining>0?" 残り"+(Number.isInteger(remaining)?remaining:Math.floor(remaining*10)/10)+"分":remaining===0?" ちょうど":(()=>{const s=Math.round(Math.abs(remaining)*60);const m=Math.floor(s/60);const sec=s%60;return " "+(m>0?m+"分":"")+(sec>0?sec+"秒":"0秒")+"超過";})()}
                 </span>
               </span>
             </div>
