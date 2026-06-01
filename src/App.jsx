@@ -1508,7 +1508,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg}) => {
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -1855,6 +1855,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog}) =>
           </>
         )}
 
+        {/* 保存ボタン */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:16,borderTop:"1px solid #E8E0D0"}}>
+          {eventsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{eventsSaveMsg}</span>}
+          <button onClick={saveEvents}
+            style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 28px",
+              borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
+            💾 保存
+          </button>
+        </div>
+
       </div>
     </div>
   );
@@ -1886,6 +1896,7 @@ const HomePage = (props) => {
   const {learningIds, setLearningIds, pieces, setPieces} = props;
   const {canAdd, aiPieces, aiLoading, askAI} = props;
   const {allPool, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, sel} = props;
+  const {savePrograms, programsSaveMsg} = props;
   // ── Local state for detail filter ──
   // filter states moved to App
 
@@ -2102,6 +2113,15 @@ const HomePage = (props) => {
                   </React.Fragment>
                 ); })
             }
+            {/* 保存ボタン */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:12,borderTop:"1px solid #E8E0D0"}}>
+              {programsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{programsSaveMsg}</span>}
+              <button onClick={savePrograms}
+                style={{background:"#2A2010",border:"none",color:"#C8A860",padding:"9px 28px",
+                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
+                💾 保存
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2441,6 +2461,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     contact:{email:"", website:"", tel:"", sns:""},
   });
   const [profileSaveMsg, setProfileSaveMsg]    = useState("");
+  const [programsSaveMsg, setProgramsSaveMsg]  = useState("");
+  const [eventsSaveMsg, setEventsSaveMsg]      = useState("");
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
@@ -2468,6 +2490,24 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     if (!error) {
       setProfileSaveMsg("保存しました ✓");
       setTimeout(() => setProfileSaveMsg(""), 3000);
+    }
+  };
+
+  const savePrograms = async () => {
+    const { error } = await supabase.from('programs')
+      .upsert({ user_id: user.id, data: programs }, { onConflict: 'user_id' });
+    if (!error) {
+      setProgramsSaveMsg("保存しました ✓");
+      setTimeout(() => setProgramsSaveMsg(""), 3000);
+    }
+  };
+
+  const saveEvents = async () => {
+    const { error } = await supabase.from('events')
+      .upsert({ user_id: user.id, data: events }, { onConflict: 'user_id' });
+    if (!error) {
+      setEventsSaveMsg("保存しました ✓");
+      setTimeout(() => setEventsSaveMsg(""), 3000);
     }
   };
 
@@ -2504,7 +2544,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     loadPieces();
   }, [user.id]);
 
-  // ── Supabase: programs読み込み・自動保存 ──
+  // ── Supabase: programs読み込み ──
   useEffect(() => {
     const loadPrograms = async () => {
       const { data } = await supabase
@@ -2512,20 +2552,12 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         .select('data')
         .eq('user_id', user.id)
         .single();
-      if (data?.data && data.data.length > 0) setPrograms(data.data);
+      if (data?.data) setPrograms(data.data);
     };
     loadPrograms();
   }, [user.id]);
 
-  useEffect(() => {
-    const savePrograms = async () => {
-      await supabase.from('programs')
-        .upsert({ user_id: user.id, data: programs }, { onConflict: 'user_id' });
-    };
-    savePrograms();
-  }, [programs]);
-
-  // ── Supabase: events読み込み・自動保存 ──
+  // ── Supabase: events読み込み ──
   useEffect(() => {
     const loadEvents = async () => {
       const { data } = await supabase
@@ -2533,18 +2565,10 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         .select('data')
         .eq('user_id', user.id)
         .single();
-      if (data?.data && data.data.length > 0) setEvents(data.data);
+      if (data?.data) setEvents(data.data);
     };
     loadEvents();
   }, [user.id]);
-
-  useEffect(() => {
-    const saveEvents = async () => {
-      await supabase.from('events')
-        .upsert({ user_id: user.id, data: events }, { onConflict: 'user_id' });
-    };
-    saveEvents();
-  }, [events]);
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
   const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
   const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
@@ -2941,8 +2965,9 @@ JSONのみ返してください:
           allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
           sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
           sel={sel}
+          savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} />}
       </div>
     </div>
   );
