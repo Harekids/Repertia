@@ -2503,6 +2503,48 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     };
     loadPieces();
   }, [user.id]);
+
+  // ── Supabase: programs読み込み・自動保存 ──
+  useEffect(() => {
+    const loadPrograms = async () => {
+      const { data } = await supabase
+        .from('programs')
+        .select('data')
+        .eq('user_id', user.id)
+        .single();
+      if (data?.data && data.data.length > 0) setPrograms(data.data);
+    };
+    loadPrograms();
+  }, [user.id]);
+
+  useEffect(() => {
+    const savePrograms = async () => {
+      await supabase.from('programs')
+        .upsert({ user_id: user.id, data: programs }, { onConflict: 'user_id' });
+    };
+    savePrograms();
+  }, [programs]);
+
+  // ── Supabase: events読み込み・自動保存 ──
+  useEffect(() => {
+    const loadEvents = async () => {
+      const { data } = await supabase
+        .from('events')
+        .select('data')
+        .eq('user_id', user.id)
+        .single();
+      if (data?.data && data.data.length > 0) setEvents(data.data);
+    };
+    loadEvents();
+  }, [user.id]);
+
+  useEffect(() => {
+    const saveEvents = async () => {
+      await supabase.from('events')
+        .upsert({ user_id: user.id, data: events }, { onConflict: 'user_id' });
+    };
+    saveEvents();
+  }, [events]);
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
   const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
   const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
@@ -2537,7 +2579,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:newFav}:p));
     await supabase.from('pieces').update({is_fav: newFav}).eq('id', id);
   };
-  const toggleCandidate = (id) => {
+  const toggleCandidate = async (id) => {
     const piece = pieces.find(p=>p.id===id);
     if (piece && piece.candidate) {
       // ✧を外す → Learningからも削除確認
@@ -2545,12 +2587,15 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         if (window.confirm("Learningからも削除しますか？")) {
           setLearningIds(prev=>prev.filter(x=>x!==id));
           setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
+          await supabase.from('pieces').update({is_candidate: false}).eq('id', id);
         }
       } else {
         setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
+        await supabase.from('pieces').update({is_candidate: false}).eq('id', id);
       }
     } else {
       setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:true}:p));
+      await supabase.from('pieces').update({is_candidate: true}).eq('id', id);
     }
   };
 
