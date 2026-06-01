@@ -2047,7 +2047,7 @@ const HomePage = (props) => {
               <span style={{fontSize:12,color:remaining<0?"#B03020":remaining<=5?"#A07020":"#2A6A3A",fontWeight:"bold",letterSpacing:0}}>
                 {(()=>{const m=Math.floor(totalDuration);const s=Math.round((totalDuration-m)*60);return m+"分"+(s>0?s+"秒":"");})()}  / {prog.maxDuration}分
                 <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#B03020":"#8A7050",fontFamily:SANS}}>
-                  {remaining>0?" 残り"+(Number.isInteger(remaining)?remaining:Math.floor(remaining*10)/10)+"分":remaining===0?" ちょうど":(()=>{const s=Math.round(Math.abs(remaining)*60);const m=Math.floor(s/60);const sec=s%60;return " "+(m>0?m+"分":"")+(sec>0?sec+"秒":"0秒")+"超過";})()}
+                  {remaining>0?(()=>{const s=Math.round(remaining*60);const m=Math.floor(s/60);const sec=s%60;return " 残り"+(m>0?m+"分":"")+(sec>0?sec+"秒":"");})():remaining===0?" ちょうど":(()=>{const s=Math.round(Math.abs(remaining)*60);const m=Math.floor(s/60);const sec=s%60;return " "+(m>0?m+"分":"")+(sec>0?sec+"秒":"0秒")+"超過";})()}
                 </span>
               </span>
             </div>
@@ -2579,7 +2579,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         return sum+(iv!=null?iv:0);
       },0)
     : 0;
-  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration,0) + Math.round(totalIntervalSecs/60*10)/10;
+  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration+(p.durationSecs||0)/60, 0) + totalIntervalSecs/60;
   const remaining      = prog.maxDuration - totalDuration;
 
   const updateProg = (u) => setPrograms(ps=>ps.map(p=>p.id===prog.id?{...p,...u}:p));
