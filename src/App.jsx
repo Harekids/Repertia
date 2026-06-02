@@ -217,69 +217,91 @@ const fmtDuration = (mins, secs) => {
   return mins + "分" + (secs < 10 ? "0" : "") + secs + "秒";
 };
 
-// ── PieceCard ─────────────────────────────────────────────────────────────────
-const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI, onToggleFav, onToggleCandidate }) => {
-  const era = ERAS[piece.era] || ERAS.modern;
+// ── PieceCardUnified (共通カードコンポーネント) ────────────────────────────────
+// 全箇所で使い回す唯一の曲カード定義
+// props:
+//   p           - pieceオブジェクト
+//   expanded    - 展開中かどうか
+//   onToggleExpand - クリック時のコールバック
+//   inProgram   - プログラムに追加済み
+//   canAdd      - プログラムに追加可能か
+//   onAdd/onRemove - プログラム追加/削除
+//   onToggleFav - お気に入りトグル
+//   onToggleCandidate - 候補トグル
+//   isAI        - AI提案曲か
+//   showControls - ボタン類を表示するか（デフォルトtrue）
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true }) => {
+  const era = ERAS[p.era] || ERAS.modern;
   return (
     <div style={{
       background: expanded ? "#15233F" : inProgram ? "#15233F" : "transparent",
       borderLeft: expanded ? "3px solid #C8A860" : "3px solid "+era.color,
       borderBottom: "1px solid #1E2A45",
+      paddingBottom: 2,
       opacity: inProgram ? 0.6 : 1,
       transition: "all 0.15s",
     }}>
-      <div style={{ padding:"9px 12px 9px 10px", display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={onToggleExpand}>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ display:"flex", alignItems:"baseline", gap:6, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-            <span style={{ fontSize:13, color:"#EDE6D6", fontFamily:SANS, overflow:"hidden", textOverflow:"ellipsis" }}>{piece.composer}</span>
-            <span style={{ fontSize:12, color:"#4A5A7A", flexShrink:0 }}>｜</span>
-            <span style={{ fontSize:13, color:"#EDE6D6", fontFamily:SANS, overflow:"hidden", textOverflow:"ellipsis", fontWeight:500 }}>{piece.title}</span>
-            {isAI && <span style={{ flexShrink:0, fontSize:9, background:"#1E2A45", color:"#94A3BE", padding:"1px 5px", borderRadius:6, border:"1px solid #2A3F6A" }}>AI</span>}
+      <div style={{padding:"10px 12px 8px 10px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
+        onClick={onToggleExpand}>
+        <div style={{flex:1,minWidth:0}}>
+          {/* 上段: 作曲家｜曲名 — 同じサイズ */}
+          <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
+            <span style={{fontSize:12,color:"#4A5A7A",flexShrink:0}}>｜</span>
+            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,fontWeight:500,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+            {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A"}}>AI</span>}
           </div>
-          <div style={{ fontSize:10, color:"#94A3BE", display:"flex", gap:4, alignItems:"center", marginTop:3, fontFamily:SANS }}>
-            <span>{piece.year}年</span>
+          {/* 下段: 年·調·時間·難易度 */}
+          <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:4,alignItems:"center",marginTop:2,fontFamily:SANS}}>
+            <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
+            <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
+            {p.key && <><span style={{color:"#4A5A7A"}}>·</span><span>{p.key}</span></>}
             <span style={{color:"#4A5A7A"}}>·</span>
-            <span>{piece.key}</span>
-            <span style={{color:"#4A5A7A"}}>·</span>
-            <span>{fmtDuration(piece.duration, piece.durationSecs)}</span>
+            <span>{fmtDuration(p.duration, p.durationSecs)}</span>
+            <DotRating value={p.difficulty} max={5} color="#E05030" />
           </div>
         </div>
-        <div style={{ flexShrink:0, display:"flex", gap:2, alignItems:"center" }}>
-          {onToggleFav && (
-            <button onClick={e=>{e.stopPropagation();onToggleFav();}}
-              title="お気に入り"
-              style={{ background:"none", border:"none", color:piece.fav?"#C0556A":"#4A5A7A", fontSize:14, cursor:"pointer", padding:"2px 3px", lineHeight:1 }}>♥</button>
-          )}
-          {onToggleCandidate && (
-            <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
-              title="候補に追加"
-              style={{ background:"none", border:"none", color:piece.candidate?"#C8A860":"#4A5A7A", fontSize:13, cursor:"pointer", padding:"2px 3px", lineHeight:1 }}>★</button>
-          )}
-          {inProgram
-            ? <button onClick={e=>{e.stopPropagation();onRemove();}}
-                style={{ background:"none", border:"1px solid #C0405A", color:"#C0405A", width:22, height:22, borderRadius:"50%", cursor:"pointer", fontSize:12, fontFamily:"inherit", lineHeight:"20px", textAlign:"center" }}>×</button>
-            : <button onClick={e=>{e.stopPropagation();onAdd();}} disabled={!canAdd}
-                style={{ background:canAdd?"#C8A860":"#1E2A45", border:"none", color:canAdd?"#0F1A33":"#4A5A7A", width:22, height:22, borderRadius:"50%", cursor:canAdd?"pointer":"not-allowed", fontSize:16, fontFamily:"inherit", lineHeight:"22px", textAlign:"center", fontWeight:"bold" }}>+</button>
-          }
-          <span style={{ color:"#4A5A7A", fontSize:9, marginLeft:2 }}>{expanded?"▲":"▼"}</span>
-        </div>
+        {showControls && (
+          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
+            {onToggleCandidate && (
+              <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
+                title="候補"
+                style={{background:"none",border:"none",color:p.candidate?"#C8A860":"#4A5A7A",fontSize:13,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>★</button>
+            )}
+            {onToggleFav && (
+              <button onClick={e=>{e.stopPropagation();onToggleFav();}}
+                title="お気に入り"
+                style={{background:"none",border:"none",color:p.fav?"#C0556A":"#4A5A7A",fontSize:14,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>♥</button>
+            )}
+            {inProgram !== undefined && (
+              inProgram
+                ? <button onClick={e=>{e.stopPropagation();onRemove&&onRemove();}}
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",width:22,height:22,borderRadius:"50%",cursor:"pointer",fontSize:12,lineHeight:"20px",textAlign:"center"}}>×</button>
+                : <button onClick={e=>{e.stopPropagation();onAdd&&onAdd();}} disabled={!canAdd}
+                    style={{background:canAdd?"#C8A860":"#1E2A45",border:"none",color:canAdd?"#0F1A33":"#4A5A7A",width:22,height:22,borderRadius:"50%",cursor:canAdd?"pointer":"not-allowed",fontSize:16,lineHeight:"22px",textAlign:"center",fontWeight:"bold"}}>+</button>
+            )}
+            <span style={{color:"#4A5A7A",fontSize:9,marginLeft:2}}>{expanded?"▲":"▼"}</span>
+          </div>
+        )}
       </div>
       {expanded && (
-        <div style={{ padding:"8px 12px 12px 13px", borderTop:"1px solid #1E2A45", background:"#15233F" }}>
-          <div style={{ display:"flex", gap:18, flexWrap:"wrap", marginBottom:8 }}>
-            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>難易度</div><DotRating value={piece.difficulty} max={5} color="#E05030" /></div>
-            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#C8A030":"#C0405A", fontWeight:"bold" }}>{piece.readiness}%</span></div>
-            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>形式</div><span style={{ fontSize:12, color:"#94A3BE" }}>{piece.form}</span></div>
-            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>国</div><span style={{ fontSize:12, color:"#94A3BE" }}>{piece.country}</span></div>
+        <div style={{padding:"8px 12px 12px 13px",borderTop:"1px solid #1E2A45",background:"#15233F"}}>
+          <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
+            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
+            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#C8A030":"#C0405A",fontWeight:"bold"}}>{p.readiness}%</span></div>
+            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>形式</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.form}</span></div>
+            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>国</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.country}</span></div>
           </div>
-          {piece.reason && <div style={{ fontSize:12, color:"#94A3BE", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #1E2A45", paddingTop:8, marginBottom:8, fontFamily:SANS }}>💡 {piece.reason}</div>}
-          <div style={{ display:"flex", gap:6 }}>
+          {p.memo && <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.6,borderTop:"1px solid #1E2A45",paddingTop:8,marginBottom:8,fontFamily:SANS}}>{p.memo}</div>}
+          {p.reason && <div style={{fontSize:12,color:"#94A3BE",fontStyle:"italic",lineHeight:1.6,borderTop:"1px solid #1E2A45",paddingTop:8,marginBottom:8,fontFamily:SANS}}>💡 {p.reason}</div>}
+          <div style={{display:"flex",gap:6}}>
             {[
-              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(piece.composer),"Wikipedia","#94A3BE","#2A3F6A"],
-              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(piece.title),"IMSLP","#94A3BE","#2A3F6A"],
-              ["https://www.youtube.com/results?search_query="+encodeURIComponent(piece.title+" "+piece.composer),"YouTube ▶","#94A3BE","#2A3F6A"],
+              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia","#94A3BE","#2A3F6A"],
+              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP","#94A3BE","#2A3F6A"],
+              ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶","#94A3BE","#2A3F6A"],
             ].map(([href,label,color,border])=>(
-              <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
+              <a key={label} href={href} target="_blank" rel="noreferrer"
+                style={{fontSize:11,color,textDecoration:"none",border:"1px solid "+border,padding:"2px 8px",borderRadius:4,fontFamily:SANS}}>{label}</a>
             ))}
           </div>
         </div>
@@ -287,6 +309,13 @@ const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onTogg
     </div>
   );
 };
+
+// 後方互換用（旧PieceCardをPieceCardUnifiedに委譲）
+const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI, onToggleFav, onToggleCandidate }) => (
+  <PieceCardUnified p={piece} expanded={expanded} onToggleExpand={onToggleExpand}
+    inProgram={inProgram} canAdd={canAdd} onAdd={onAdd} onRemove={onRemove}
+    onToggleFav={onToggleFav} onToggleCandidate={onToggleCandidate} isAI={isAI} />
+);
 
 // ── Era Ruler ─────────────────────────────────────────────────────────────────
 const EraRuler = ({ pieces }) => {
@@ -1232,6 +1261,7 @@ const ManagePage = (props) => {
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
+  const {toggleCandidate} = props;
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
@@ -1464,58 +1494,27 @@ const ManagePage = (props) => {
       <div style={{background:"#15233F",borderRadius:8,border:"1px solid #1E2A45",overflow:"hidden"}}>
         <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
         <div style={{padding:"8px 8px"}}>
-          {poolFiltered.map(p => {
-            const era = ERAS[p.era]||ERAS.modern;
-            return (
-              <div key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",
-                background:"#15233F",border:"1.5px solid #1E2A45",borderLeft:"4px solid "+era.color,
-                borderRadius:6,marginBottom:4}}>
-
-                <div style={{flex:1,minWidth:0}}>
-                  {/* 上段: 作曲家 + 曲名 — 大きめ */}
-                  <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
-                    <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
-                    <span style={{fontSize:14,color:"#EDE6D6",fontWeight:600,fontFamily:FONT}}>
-                      {p.mine ? <span style={{fontSize:10,color:"#8A8080",marginRight:3}} title="自分で追加">✏️</span> : null}{p.title}
-                    </span>
-                  </div>
-                  {/* 下段: バロック / 1722年 / ハ長調 / 4分 / 🔴🔴🔴◯◯ / 🟡🟡🟡🟡🟡 */}
-                  <div style={{fontSize:11,color:"#94A3BE",display:"flex",gap:0,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
-                    {[
-                      era.label,
-                      (p.yearText||p.year)+"年",
-                      p.key,
-                      fmtDuration(p.duration, p.durationSecs),
-                      <span key="diff" style={{display:"inline-flex",gap:0}}>{[1,2,3,4,5].map(n=>(<span key={n} style={{width:10,height:10,borderRadius:"50%",background:n<=p.difficulty?"#C8963C":"transparent",border:"1.5px solid #C8963C",display:"inline-block",marginRight:2}}></span>))}</span>,
-                      <span key="freq" style={{display:"inline-flex",gap:0}}>{[1,2,3,4,5].map(n=>(<span key={n} style={{width:10,height:10,borderRadius:"50%",background:n<=(p.frequency||0)?"#5B7FA6":"transparent",border:"1.5px solid #5B7FA6",display:"inline-block",marginRight:2}}></span>))}</span>,
-                    ].map((item,i)=>(
-                      <span key={i} style={{display:"flex",alignItems:"center"}}>
-                        {i>0 && <span style={{margin:"0 4px",color:"#94A3BE"}}>/</span>}
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 右端: 🤍 + 削除 */}
-                <div style={{display:"flex",alignItems:"center",gap:4,flexShrink:0}}>
-                  <button onClick={()=>toggleFav(p.id)}
-                    title={p.fav?"お気に入り解除":"お気に入りに追加"}
-                    style={{background:"none",border:"none",
-                      color:p.fav?"#B85C72":"#C8B8C0",
-                      fontSize:17,cursor:"pointer",padding:"2px 2px",lineHeight:1}}>
-                    <span style={{fontSize:16,lineHeight:1}}>{p.fav?"♥":"♡"}</span>
+          {poolFiltered.map(p => (
+            <div key={p.id}>
+              <PieceCardUnified
+                p={p}
+                expanded={expandedId===p.id}
+                onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
+                inProgram={undefined}
+                onToggleFav={()=>toggleFav(p.id)}
+                onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
+                showControls={true}
+              />
+              {editMode && expandedId===p.id && (
+                <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
+                  <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                    削除
                   </button>
-                  {editMode && (
-                    <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
-                      style={{background:"#8A8A8A",border:"none",color:"#EDE6D6",width:20,height:20,
-                        borderRadius:"50%",cursor:"pointer",fontSize:12,flexShrink:0,
-                        display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>－</button>
-                  )}
                 </div>
-              </div>
-            );
-          })}
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -2822,7 +2821,86 @@ JSONのみ返してください:
         ))}
       </nav>
       <div style={{marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:16}}>
-        <span style={{fontSize:11,color:"#7A6840",fontFamily:"'Noto Sans JP',sans-serif",marginRight:12}}>{user.email}</span>
+        
+        <button onClick={handleLogout}
+          style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"4px 12px",
+            borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:"'Noto Sans JP',sans-serif"}}>
+          ログアウト
+        </button>
+      </div>
+    </header>
+  );
+
+  // ── Filter bar ───────────────────────────────────────────────────────────────
+
+  // ── PieceCardRow → PieceCardUnifiedのラッパー ───────────────────────────────
+  const PieceCardRow = ({p, showControls=true}) => {
+    const inProg = prog.pieceIds.includes(p.id);
+    const isExpanded = expandedId===p.id;
+    return (
+      <PieceCardUnified
+        p={p}
+        expanded={isExpanded}
+        onToggleExpand={()=>setExpandedId(isExpanded?null:p.id)}
+        inProgram={inProg}
+        canAdd={canAdd(p)}
+        onAdd={()=>toggle(p.id)}
+        onRemove={()=>toggle(p.id)}
+        onToggleFav={()=>toggleFav(p.id)}
+        onToggleCandidate={()=>toggleCandidate(p.id)}
+        showControls={showControls}
+      />
+    );
+  };
+
+    // ── filtered/sorted pool ──
+  const poolFiltered = pieces
+    .filter(p => !filterEra || p.era===filterEra)
+    .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
+    .filter(p => searchMatch(p, searchQ))
+    .sort((a,b) => {
+      let d = 0;
+      const ay = a.year||0, by2 = b.year||0;
+      if      (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
+      else if (sortBy==="duration")   d = a.duration - b.duration;
+      else if (sortBy==="difficulty") d = a.difficulty - b.difficulty;
+      else if (sortBy==="frequency")  d = (a.frequency||0) - (b.frequency||0);
+      return sortAsc ? d : -d;
+    });
+
+  const aiFiltered     = aiPieces.filter(p => searchMatch(p, searchQ));
+  const showRuler      = sortBy==="year" && filterEra==="";
+  const inp = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
+  const sel = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
+
+  // ── Shared header (① stable, ② bigger nav) ──────────────────────────────────
+  const Header = () => (
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"stretch",flexShrink:0,height:54}}>
+      <div onClick={()=>setPage("manage")}
+        style={{cursor:"pointer",userSelect:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+          padding:"0 22px 0 24px",borderRight:"1px solid #3A3020",flexShrink:0}}>
+        <span style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,lineHeight:1.1}}>𝄞 Repertia</span>
+        <span style={{fontSize:8,color:"#7A6840",letterSpacing:4,fontFamily:"'Cormorant Garamond',serif",marginTop:1}}>REPERTIA</span>
+      </div>
+      {/* ② bigger nav — same height as header, underline indicator */}
+      <nav style={{display:"flex",alignItems:"stretch"}}>
+        {NAV.map(([p,l]) => (
+          <button key={p} onClick={()=>setPage(p)}
+            style={{background:"none",border:"none",
+              borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
+              borderTop:    "3px solid transparent",
+              color: page===p ? "#0F1A33" : "#9A8868",
+              padding:"0 24px",cursor:"pointer",
+              fontSize:14,letterSpacing:0.3,
+              fontFamily:"'Cormorant Garamond',serif",
+              fontWeight: page===p ? 600 : 400,
+              transition:"color 0.15s"}}>
+            {l}
+          </button>
+        ))}
+      </nav>
+      <div style={{marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:16}}>
+        
         <button onClick={handleLogout}
           style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"4px 12px",
             borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:"'Noto Sans JP',sans-serif"}}>
@@ -2960,6 +3038,7 @@ JSONのみ返してください:
           toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
+          toggleCandidate={toggleCandidate}
           dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
