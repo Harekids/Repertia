@@ -221,55 +221,63 @@ const fmtDuration = (mins, secs) => {
 const PieceCard = ({ piece, inProgram, canAdd, onAdd, onRemove, expanded, onToggleExpand, isAI, onToggleFav, onToggleCandidate }) => {
   const era = ERAS[piece.era] || ERAS.modern;
   return (
-    <div style={{ background:inProgram?"#F5F0E6":"white", border:"1.5px solid "+(inProgram?"#2A3F6A":"#1E2A45"), borderLeft:"4px solid "+era.color, borderRadius:6, marginBottom:5, overflow:"hidden", opacity:inProgram?0.55:1, transition:"opacity 0.2s" }}>
-      <div style={{ padding:"9px 12px", display:"flex", alignItems:"center", gap:10, cursor:"pointer" }} onClick={onToggleExpand}>
+    <div style={{
+      background: expanded ? "#15233F" : inProgram ? "#15233F" : "transparent",
+      borderLeft: expanded ? "3px solid #C8A860" : "3px solid "+era.color,
+      borderBottom: "1px solid #1E2A45",
+      opacity: inProgram ? 0.6 : 1,
+      transition: "all 0.15s",
+    }}>
+      <div style={{ padding:"9px 12px 9px 10px", display:"flex", alignItems:"center", gap:8, cursor:"pointer" }} onClick={onToggleExpand}>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:13, color:"#EDE6D6", marginBottom:2, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-            {piece.fav && <span style={{marginRight:4,fontSize:11}}>♥</span>}
-            {piece.candidate && <span style={{marginRight:4,fontSize:11,color:"#C8A030"}}>★</span>}
-            {piece.title}
-            {isAI && <span style={{ marginLeft:6, fontSize:9, background:"#EDF5FB", color:"#2C6B82", padding:"1px 6px", borderRadius:8, border:"1px solid #BDD5E5" }}>AI</span>}
+          <div style={{ display:"flex", alignItems:"baseline", gap:6, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+            <span style={{ fontSize:13, color:"#EDE6D6", fontFamily:SANS, overflow:"hidden", textOverflow:"ellipsis" }}>{piece.composer}</span>
+            <span style={{ fontSize:12, color:"#4A5A7A", flexShrink:0 }}>｜</span>
+            <span style={{ fontSize:13, color:"#EDE6D6", fontFamily:SANS, overflow:"hidden", textOverflow:"ellipsis", fontWeight:500 }}>{piece.title}</span>
+            {isAI && <span style={{ flexShrink:0, fontSize:9, background:"#1E2A45", color:"#94A3BE", padding:"1px 5px", borderRadius:6, border:"1px solid #2A3F6A" }}>AI</span>}
           </div>
-          <div style={{ fontSize:11, color:"#94A3BE", display:"flex", gap:6, flexWrap:"wrap", fontFamily:SANS }}>
-            <span>{piece.composer}</span><span style={{color:"#94A3BE"}}>·</span>
-            <span>{piece.year}年</span><span style={{color:"#94A3BE"}}>·</span>
-            <span>{piece.key}</span><span style={{color:"#94A3BE"}}>·</span>
-            <span>{piece.duration}分{piece.durationSecs>0?piece.durationSecs+"秒":""}</span>
+          <div style={{ fontSize:10, color:"#94A3BE", display:"flex", gap:4, alignItems:"center", marginTop:3, fontFamily:SANS }}>
+            <span>{piece.year}年</span>
+            <span style={{color:"#4A5A7A"}}>·</span>
+            <span>{piece.key}</span>
+            <span style={{color:"#4A5A7A"}}>·</span>
+            <span>{fmtDuration(piece.duration, piece.durationSecs)}</span>
           </div>
         </div>
-        <div style={{ flexShrink:0, display:"flex", gap:4, alignItems:"center" }}>
+        <div style={{ flexShrink:0, display:"flex", gap:2, alignItems:"center" }}>
           {onToggleFav && (
             <button onClick={e=>{e.stopPropagation();onToggleFav();}}
               title="お気に入り"
-              style={{ background:"none", border:"none", color:piece.fav?"#C03050":"#1E2A45", fontSize:13, cursor:"pointer", padding:"0 1px", lineHeight:1 }}>♥</button>
+              style={{ background:"none", border:"none", color:piece.fav?"#C0556A":"#4A5A7A", fontSize:14, cursor:"pointer", padding:"2px 3px", lineHeight:1 }}>♥</button>
           )}
           {onToggleCandidate && (
             <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
               title="候補に追加"
-              style={{ background:"none", border:"none", color:piece.candidate?"#C8A030":"#1E2A45", fontSize:13, cursor:"pointer", padding:"0 1px", lineHeight:1 }}>★</button>
+              style={{ background:"none", border:"none", color:piece.candidate?"#C8A860":"#4A5A7A", fontSize:13, cursor:"pointer", padding:"2px 3px", lineHeight:1 }}>★</button>
           )}
           {inProgram
-            ? <button onClick={e=>{e.stopPropagation();onRemove();}} style={{ background:"#FFF0EE", border:"1px solid #E8C0B0", color:"#A04030", width:24, height:24, borderRadius:"50%", cursor:"pointer", fontSize:13, fontFamily:"inherit" }}>×</button>
-            : <button onClick={e=>{e.stopPropagation();onAdd();}} disabled={!canAdd} style={{ background:canAdd?"#0F1A33":"#1E2A45", border:"none", color:canAdd?"#E8D090":"#4A5A7A", width:24, height:24, borderRadius:"50%", cursor:canAdd?"pointer":"not-allowed", fontSize:17, fontFamily:"inherit", lineHeight:"24px", textAlign:"center" }}>+</button>
+            ? <button onClick={e=>{e.stopPropagation();onRemove();}}
+                style={{ background:"none", border:"1px solid #C0405A", color:"#C0405A", width:22, height:22, borderRadius:"50%", cursor:"pointer", fontSize:12, fontFamily:"inherit", lineHeight:"20px", textAlign:"center" }}>×</button>
+            : <button onClick={e=>{e.stopPropagation();onAdd();}} disabled={!canAdd}
+                style={{ background:canAdd?"#C8A860":"#1E2A45", border:"none", color:canAdd?"#0F1A33":"#4A5A7A", width:22, height:22, borderRadius:"50%", cursor:canAdd?"pointer":"not-allowed", fontSize:16, fontFamily:"inherit", lineHeight:"22px", textAlign:"center", fontWeight:"bold" }}>+</button>
           }
-          <span style={{ color:"#2A3F6A", fontSize:10 }}>{expanded?"▲":"▼"}</span>
+          <span style={{ color:"#4A5A7A", fontSize:9, marginLeft:2 }}>{expanded?"▲":"▼"}</span>
         </div>
       </div>
       {expanded && (
-        <div style={{ padding:"8px 12px 12px", borderTop:"1px solid #15233F", background:"#FDFAF6" }}>
+        <div style={{ padding:"8px 12px 12px 13px", borderTop:"1px solid #1E2A45", background:"#15233F" }}>
           <div style={{ display:"flex", gap:18, flexWrap:"wrap", marginBottom:8 }}>
             <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>難易度</div><DotRating value={piece.difficulty} max={5} color="#E05030" /></div>
-            
-            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#8A7020":"#C0405A", fontWeight:"bold" }}>{piece.readiness}%</span></div>
+            <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>仕上がり</div><span style={{ fontSize:12, color:piece.readiness>=80?"#2A7A3A":piece.readiness>=60?"#C8A030":"#C0405A", fontWeight:"bold" }}>{piece.readiness}%</span></div>
             <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>形式</div><span style={{ fontSize:12, color:"#94A3BE" }}>{piece.form}</span></div>
             <div><div style={{ fontSize:9, color:"#94A3BE", letterSpacing:2, marginBottom:3, fontFamily:SANS }}>国</div><span style={{ fontSize:12, color:"#94A3BE" }}>{piece.country}</span></div>
           </div>
-          {piece.reason && <div style={{ fontSize:12, color:"#94A3BE", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #15233F", paddingTop:8, marginBottom:8, fontFamily:SANS }}>💡 {piece.reason}</div>}
+          {piece.reason && <div style={{ fontSize:12, color:"#94A3BE", fontStyle:"italic", lineHeight:1.6, borderTop:"1px solid #1E2A45", paddingTop:8, marginBottom:8, fontFamily:SANS }}>💡 {piece.reason}</div>}
           <div style={{ display:"flex", gap:6 }}>
             {[
-              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(piece.composer),"Wikipedia","#2C6B82","#BDD5E5"],
-              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(piece.title),"IMSLP","#5A3A8A","#C5B5D5"],
-              ["https://www.youtube.com/results?search_query="+encodeURIComponent(piece.title+" "+piece.composer),"YouTube ▶","#A03020","#E0B0A0"],
+              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(piece.composer),"Wikipedia","#94A3BE","#2A3F6A"],
+              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(piece.title),"IMSLP","#94A3BE","#2A3F6A"],
+              ["https://www.youtube.com/results?search_query="+encodeURIComponent(piece.title+" "+piece.composer),"YouTube ▶","#94A3BE","#2A3F6A"],
             ].map(([href,label,color,border])=>(
               <a key={label} href={href} target="_blank" rel="noreferrer" style={{ fontSize:11, color, textDecoration:"none", border:"1px solid "+border, padding:"2px 8px", borderRadius:4, fontFamily:SANS }}>{label}</a>
             ))}
