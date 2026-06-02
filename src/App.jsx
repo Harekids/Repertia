@@ -2838,78 +2838,80 @@ JSONのみ返してください:
   const PieceCardRow = ({p, showControls=true}) => {
     const era = ERAS[p.era]||ERAS.modern;
     const inProg = prog.pieceIds.includes(p.id);
-    // ⑤ badge
+    const isExpanded = expandedId===p.id;
     const badge = p.mine
       ? <span title="自分の曲" style={{fontSize:11,marginRight:3}}>🎹</span>
       : (!p.mine && p.id > 99)
-        ? <span title="AI提案" style={{fontSize:10,color:"#5A3A8A",marginRight:3,fontWeight:"bold"}}>✦</span>
+        ? <span title="AI提案" style={{fontSize:10,color:"#94A3BE",marginRight:3,fontWeight:"bold"}}>✦</span>
         : null;
     return (
-      <div style={{background:inProg?"#F5F0E6":"white",border:"1.5px solid "+(inProg?"#2A3F6A":"#1E2A45"),
-        borderLeft:"4px solid "+era.color,borderRadius:6,marginBottom:5,overflow:"hidden",
-        opacity:inProg?0.6:1,transition:"opacity 0.2s"}}>
-        <div style={{padding:"9px 12px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
-          onClick={()=>setExpandedId(expandedId===p.id?null:p.id)}>
+      <div style={{
+        background: isExpanded ? "#15233F" : inProg ? "#15233F" : "transparent",
+        borderLeft: isExpanded ? "3px solid #C8A860" : "3px solid "+era.color,
+        borderBottom: "1px solid #1E2A45",
+        paddingBottom: 2,
+        opacity: inProg ? 0.6 : 1,
+        transition: "all 0.15s",
+      }}>
+        <div style={{padding:"10px 12px 8px 10px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
+          onClick={()=>setExpandedId(isExpanded?null:p.id)}>
           <div style={{flex:1,minWidth:0}}>
-            {/* 上段: 作曲家 + 曲名 — 大きめ */}
-            <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:2,flexWrap:"wrap"}}>
-              <span style={{fontSize:12,color:"#94A3BE",fontFamily:SANS,flexShrink:0,fontWeight:500}}>{p.composer}</span>
-              <span style={{fontSize:14,color:"#EDE6D6",fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontFamily:FONT}}>
-                {badge}{p.fav && <span style={{color:"#C03050",fontSize:12,marginRight:2}}>❤️</span>}{p.title}
-              </span>
+            {/* 上段: 作曲家｜曲名 — 同じサイズ */}
+            <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+              {badge}
+              <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
+              <span style={{fontSize:12,color:"#4A5A7A",flexShrink:0}}>｜</span>
+              <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,fontWeight:500,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
             </div>
             {/* 下段: 詳細 — 小さめ */}
-            <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center"}}>
+            <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:5,flexWrap:"wrap",fontFamily:SANS,alignItems:"center",marginTop:2}}>
               <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
               <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
               <span>{p.key}</span>
-              <span>{p.duration}分</span>
+              <span>{fmtDuration(p.duration, p.durationSecs)}</span>
               <DotRating value={p.difficulty} max={5} color="#E05030" />
             </div>
           </div>
           {showControls && (
-            <div style={{flexShrink:0,display:"flex",gap:4,alignItems:"center"}}>
-              {/* ③ 🟡🔵 自分でつけるマーク */}
+            <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
               <button onClick={e=>{e.stopPropagation();toggleCandidate(p.id);}}
-                title="🟡マーク"
-                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
-                  opacity:p.candidate?1:0.25}}>🟡</button>
+                title="候補"
+                style={{background:"none",border:"none",color:p.candidate?"#C8A860":"#4A5A7A",fontSize:13,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>★</button>
               <button onClick={e=>{e.stopPropagation();toggleFav(p.id);}}
-                title="🔵マーク"
-                style={{background:"none",border:"none",fontSize:13,cursor:"pointer",padding:"0 1px",lineHeight:1,
-                  opacity:p.fav?1:0.25}}>🔵</button>
-              {/* ③ 比較モード時に「比較に追加」ボタン */}
+                title="お気に入り"
+                style={{background:"none",border:"none",color:p.fav?"#C0556A":"#4A5A7A",fontSize:14,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>♥</button>
               {compareMode && (
                 <button onClick={e=>{e.stopPropagation();setComparePieces(prev=>prev.includes(p.id)?prev.filter(x=>x!==p.id):[...prev,p.id]);}}
-                  style={{background:comparePieces.includes(p.id)?"#5B7FA6":"white",
-                    border:"1px solid #5B7FA6",color:comparePieces.includes(p.id)?"white":"#5B7FA6",
+                  style={{background:comparePieces.includes(p.id)?"#2A3F6A":"#1E2A45",
+                    border:"1px solid #2A3F6A",color:comparePieces.includes(p.id)?"#C8A860":"#94A3BE",
                     padding:"2px 6px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
                   {comparePieces.includes(p.id)?"✓":"比較"}
                 </button>
               )}
               {inProg
                 ? <button onClick={e=>{e.stopPropagation();toggle(p.id);}}
-                    style={{background:"#FFF0EE",border:"1px solid #E8C0B0",color:"#A04030",width:24,height:24,borderRadius:"50%",cursor:"pointer",fontSize:13}}>×</button>
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",width:22,height:22,borderRadius:"50%",cursor:"pointer",fontSize:12,lineHeight:"20px",textAlign:"center"}}>×</button>
                 : <button onClick={e=>{e.stopPropagation();toggle(p.id);}} disabled={!canAdd(p)}
-                    style={{background:canAdd(p)?"#0F1A33":"#1E2A45",border:"none",color:canAdd(p)?"#E8D090":"#4A5A7A",width:24,height:24,borderRadius:"50%",cursor:canAdd(p)?"pointer":"not-allowed",fontSize:17,lineHeight:"24px",textAlign:"center"}}>+</button>
+                    style={{background:canAdd(p)?"#C8A860":"#1E2A45",border:"none",color:canAdd(p)?"#0F1A33":"#4A5A7A",width:22,height:22,borderRadius:"50%",cursor:canAdd(p)?"pointer":"not-allowed",fontSize:16,lineHeight:"22px",textAlign:"center",fontWeight:"bold"}}>+</button>
               }
-              <span style={{color:"#2A3F6A",fontSize:10}}>{expandedId===p.id?"▲":"▼"}</span>
+              <span style={{color:"#4A5A7A",fontSize:9,marginLeft:2}}>{isExpanded?"▲":"▼"}</span>
             </div>
           )}
         </div>
-        {expandedId===p.id && (
-          <div style={{padding:"8px 12px 12px",borderTop:"1px solid #15233F",background:"#FDFAF6"}}>
+        {isExpanded && (
+          <div style={{padding:"8px 12px 12px 13px",borderTop:"1px solid #1E2A45",background:"#15233F"}}>
             <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
               <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
-              <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#8A7020":"#C0405A",fontWeight:"bold"}}>{p.readiness}%</span></div>
+              <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#C8A030":"#C0405A",fontWeight:"bold"}}>{p.readiness}%</span></div>
               <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>形式</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.form}</span></div>
+              <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>メモ</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.memo}</span></div>
             </div>
-            {p.reason && <div style={{fontSize:12,color:"#94A3BE",fontStyle:"italic",lineHeight:1.6,borderTop:"1px solid #15233F",paddingTop:8,marginBottom:8,fontFamily:SANS}}>💡 {p.reason}</div>}
+            {p.reason && <div style={{fontSize:12,color:"#94A3BE",fontStyle:"italic",lineHeight:1.6,borderTop:"1px solid #1E2A45",paddingTop:8,marginBottom:8,fontFamily:SANS}}>💡 {p.reason}</div>}
             <div style={{display:"flex",gap:6}}>
               {[
-                [`https://ja.wikipedia.org/wiki/${encodeURIComponent(p.composer)}`,"Wikipedia","#2C6B82","#BDD5E5"],
-                [`https://imslp.org/wiki/Special:Search/${encodeURIComponent(p.title)}`,"IMSLP","#5A3A8A","#C5B5D5"],
-                [`https://www.youtube.com/results?search_query=${encodeURIComponent(p.title+" "+p.composer)}`,"YouTube ▶","#A03020","#E0B0A0"],
+                ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia","#94A3BE","#2A3F6A"],
+                ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP","#94A3BE","#2A3F6A"],
+                ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶","#94A3BE","#2A3F6A"],
               ].map(([href,label,color,border])=>(
                 <a key={label} href={href} target="_blank" rel="noreferrer"
                   style={{fontSize:11,color,textDecoration:"none",border:"1px solid "+border,padding:"2px 8px",borderRadius:4,fontFamily:SANS}}>{label}</a>
