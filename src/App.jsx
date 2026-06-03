@@ -230,40 +230,49 @@ const fmtDuration = (mins, secs) => {
 //   onToggleCandidate - 候補トグル
 //   isAI        - AI提案曲か
 //   showControls - ボタン類を表示するか（デフォルトtrue）
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece }) => {
   const era = ERAS[p.era] || ERAS.modern;
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState({});
+
+  const startEdit = (e) => {
+    e.stopPropagation();
+    setDraft({title:p.title,composer:p.composer,key:p.key||"",difficulty:p.difficulty||0,country:p.country||"",memo:p.memo||""});
+    setEditing(true);
+  };
+  const saveEdit = (e) => {
+    e.stopPropagation();
+    if (onUpdatePiece) onUpdatePiece({...p,...draft});
+    setEditing(false);
+  };
+  const cancelEdit = (e) => { e.stopPropagation(); setEditing(false); };
+
+  const yearStr = (p.yearText==="不明"||(p.year||0)===0) ? "作曲年不明" : (p.yearText||p.year)+"年";
+
   return (
     <div style={{
       background: expanded ? "#1C2E4A" : inProgram ? "#15233F" : "transparent",
       borderLeft: expanded ? "3px solid #C8A860" : "3px solid "+era.color,
       borderBottom: "1px solid #1E2A45",
-      /* ③ 帯に上下余白を作る */
       paddingTop: 2,
-      paddingBottom: 2,
+      paddingBottom: expanded ? 0 : 2,
       opacity: inProgram ? 0.6 : 1,
       transition: "all 0.15s",
+      boxShadow: expanded ? "0 2px 12px rgba(0,0,0,0.35)" : "none",
+      transform: expanded ? "scaleY(1)" : "scaleY(1)",
     }}>
-      <div style={{padding:"8px 12px 6px 10px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
+      {/* ── 閉じてる時・常に表示される1行 ── */}
+      <div style={{padding:"9px 12px 7px 10px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
-        <div style={{flex:1,minWidth:0}}>
-          {/* ①⑤ 上段: 作曲家｜曲名 — 完全同書式、区切りを明るく */}
-          <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
-            <span style={{fontSize:12,color:"#7A8FB5",flexShrink:0}}>｜</span>
-            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
-            {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A"}}>AI</span>}
-          </div>
-          {/* ④⑥⑦ 下段: 時代タグはテキストのみ、時間と難易度に間隔 */}
-          <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:5,alignItems:"center",marginTop:1,fontFamily:SANS,flexWrap:"wrap"}}>
-            <span style={{color:era.color}}>{era.label}</span>
-            <span style={{color:"#4A5A7A"}}>·</span>
-            <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
-            {p.key && <><span style={{color:"#4A5A7A"}}>·</span><span>{p.key}</span></>}
-            <span style={{color:"#4A5A7A"}}>·</span>
-            <span>{fmtDuration(p.duration, p.durationSecs)}</span>
-            <span style={{marginLeft:4}}><DotRating value={p.difficulty} max={5} color="#E05030" /></span>
-          </div>
+        <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+          <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
+          <span style={{fontSize:12,color:"#7A8FB5",flexShrink:0}}>｜</span>
+          <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+          {p.key && <span style={{fontSize:11,color:"#94A3BE",flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:2}}>AI</span>}
         </div>
+        {/* 演奏時間を右端に */}
+        <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0,marginRight:4}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {onToggleCandidate && (
@@ -287,26 +296,85 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           </div>
         )}
       </div>
+
+      {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"8px 12px 12px 13px",background:"#1C2E4A"}}>
-          <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
-            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
-            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#C8A030":"#C0405A",fontWeight:"bold"}}>{p.readiness}%</span></div>
-            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>形式</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.form}</span></div>
-            <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>国</div><span style={{fontSize:12,color:"#94A3BE"}}>{p.country}</span></div>
-          </div>
-          {p.memo && <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.6,borderTop:"1px solid #1E2A45",paddingTop:8,marginBottom:8,fontFamily:SANS}}>{p.memo}</div>}
-          {p.reason && <div style={{fontSize:12,color:"#94A3BE",fontStyle:"italic",lineHeight:1.6,borderTop:"1px solid #1E2A45",paddingTop:8,marginBottom:8,fontFamily:SANS}}>💡 {p.reason}</div>}
-          <div style={{display:"flex",gap:6}}>
-            {[
-              ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia","#94A3BE","#2A3F6A"],
-              ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP","#94A3BE","#2A3F6A"],
-              ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶","#94A3BE","#2A3F6A"],
-            ].map(([href,label,color,border])=>(
-              <a key={label} href={href} target="_blank" rel="noreferrer"
-                style={{fontSize:11,color,textDecoration:"none",border:"1px solid "+border,padding:"2px 8px",borderRadius:4,fontFamily:SANS}}>{label}</a>
-            ))}
-          </div>
+        <div style={{padding:"0 12px 12px 10px",background:"#1C2E4A"}}>
+          {!editing ? (
+            <>
+              {/* 2行目: 時代・国・作曲年・Lv.・Pop.・リンク */}
+              <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"6px 0 8px",borderBottom:"1px solid #1E2A45",fontSize:10,color:"#94A3BE",fontFamily:SANS}}>
+                <span style={{color:era.color}}>{era.label}</span>
+                <span style={{color:"#4A5A7A"}}>·</span>
+                <span>{p.country}</span>
+                <span style={{color:"#4A5A7A"}}>·</span>
+                <span>{yearStr}</span>
+                <span style={{color:"#4A5A7A"}}>·</span>
+                <span style={{color:"#EDE6D6"}}>Lv.{p.difficulty||"—"}</span>
+                <span style={{color:"#4A5A7A"}}>·</span>
+                <span style={{color:"#4A5A7A"}}>Pop. —</span>
+                <div style={{marginLeft:"auto",display:"flex",gap:5}}>
+                  {[
+                    ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia"],
+                    ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP"],
+                    ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶"],
+                  ].map(([href,label])=>(
+                    <a key={label} href={href} target="_blank" rel="noreferrer"
+                      style={{fontSize:10,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",padding:"1px 7px",borderRadius:3,fontFamily:SANS}}>{label}</a>
+                  ))}
+                </div>
+              </div>
+              {/* メモ */}
+              {(p.memo||p.reason) && (
+                <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"8px 0 4px",fontFamily:SANS}}>
+                  {p.memo && <div>{p.memo}</div>}
+                  {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
+                </div>
+              )}
+              {/* 編集ボタン */}
+              <div style={{display:"flex",justifyContent:"flex-end",paddingTop:6}}>
+                <button onClick={startEdit}
+                  style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                  編集する
+                </button>
+              </div>
+            </>
+          ) : (
+            /* ── インライン編集フォーム ── */
+            <div style={{padding:"8px 0 4px"}} onClick={e=>e.stopPropagation()}>
+              {[
+                ["曲名","title"],["作曲家","composer"],["調性","key"],["国","country"],
+              ].map(([label,field])=>(
+                <div key={field} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                  <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS}}>{label}</div>
+                  <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
+                    style={{flex:1,background:"#0F1A33",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:3}} />
+                </div>
+              ))}
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS}}>難易度</div>
+                <div style={{display:"flex",gap:4}}>
+                  {[1,2,3,4,5].map(n=>(
+                    <button key={n} onClick={()=>setDraft({...draft,difficulty:draft.difficulty===n?0:n})}
+                      style={{width:24,height:24,borderRadius:4,border:"1px solid "+(draft.difficulty>=n?"#C8A860":"#2A3F6A"),
+                        background:draft.difficulty>=n?"#C8A860":"transparent",color:draft.difficulty>=n?"#0F1A33":"#94A3BE",
+                        cursor:"pointer",fontSize:11,fontFamily:SANS,fontWeight:"bold"}}>{n}</button>
+                  ))}
+                </div>
+              </div>
+              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
+                <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS,paddingTop:4}}>メモ</div>
+                <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
+                  style={{flex:1,background:"#0F1A33",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,minHeight:50,resize:"vertical"}} />
+              </div>
+              <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+                <button onClick={cancelEdit}
+                  style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",padding:"4px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>キャンセル</button>
+                <button onClick={saveEdit}
+                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"4px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS,fontWeight:"bold"}}>保存</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -724,28 +792,22 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      {/* 3列目: 難易度・演奏頻度・キーワード 1行横並び */}
+      {/* 3列目: 難易度・キーワード 1行横並び */}
       <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:24,flexWrap:"wrap"}}>
-        {[
-          ["difficulty","難易度","#C8963C"],
-          ["frequency", "演奏頻度","#5B7FA6"],
-        ].map(([field,label,dotColor])=>(
-          <div key={field} style={{display:"flex",alignItems:"center",gap:4}}>
-            <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{label}</span>
-            <div style={{display:"flex",gap:0,letterSpacing:0}}>
-              {/* ⑧ 0=未設定、クリックでトグル */}
-              {[1,2,3,4,5].map(n=>(
-                <span key={n} onClick={()=>setPiece({...piece,[field]:piece[field]===n?0:n})}
-                  style={{width:14,height:14,borderRadius:"50%",
-                    background:piece[field]>0&&piece[field]>=n?dotColor:"transparent",
-                    border:"1.5px solid "+(piece[field]>0?dotColor:"#1E2A45"),
-                    cursor:"pointer",display:"inline-block",
-                    marginRight:3}}>
-                </span>
-              ))}
-            </div>
+        <div style={{display:"flex",alignItems:"center",gap:4}}>
+          <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>難易度</span>
+          <div style={{display:"flex",gap:0,letterSpacing:0}}>
+            {[1,2,3,4,5].map(n=>(
+              <span key={n} onClick={()=>setPiece({...piece,difficulty:piece.difficulty===n?0:n})}
+                style={{width:14,height:14,borderRadius:"50%",
+                  background:piece.difficulty>0&&piece.difficulty>=n?"#C8963C":"transparent",
+                  border:"1.5px solid "+(piece.difficulty>0?"#C8963C":"#1E2A45"),
+                  cursor:"pointer",display:"inline-block",
+                  marginRight:3}}>
+              </span>
+            ))}
           </div>
-        ))}
+        </div>
         {/* ⑨ キーワード候補タグ + 自由入力 */}
         <div style={{flex:1,minWidth:120}}>
           <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
@@ -1507,6 +1569,7 @@ const ManagePage = (props) => {
                 onToggleFav={()=>toggleFav(p.id)}
                 onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                 showControls={true}
+                onUpdatePiece={onUpdatePiece}
               />
               {editMode && expandedId===p.id && (
                 <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
@@ -2623,6 +2686,19 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     if (canAdd(piece)) updateProg({pieceIds:[...prog.pieceIds,id]});
   };
 
+  // ── カード内インライン編集の保存 ──
+  const onUpdatePiece = async (updated) => {
+    setPieces(ps=>ps.map(p=>p.id===updated.id?{...p,...updated}:p));
+    await supabase.from('pieces').update({
+      title: updated.title,
+      composer: updated.composer,
+      key: updated.key||'',
+      country: updated.country||'',
+      difficulty: updated.difficulty||0,
+      memo: updated.memo||'',
+    }).eq('id', updated.id);
+  };
+
   const toggleFav = async (id) => {
     const piece = pieces.find(p=>p.id===id);
     if (!piece) return;
@@ -2837,7 +2913,7 @@ JSONのみ返してください:
   // ── Filter bar ───────────────────────────────────────────────────────────────
 
   // ── PieceCardRow → PieceCardUnifiedのラッパー ───────────────────────────────
-  const PieceCardRow = ({p, showControls=true}) => {
+  const PieceCardRow = ({p, showControls=true, onUpdatePiece}) => {
     const inProg = prog.pieceIds.includes(p.id);
     const isExpanded = expandedId===p.id;
     return (
@@ -2852,6 +2928,7 @@ JSONのみ返してください:
         onToggleFav={()=>toggleFav(p.id)}
         onToggleCandidate={()=>toggleCandidate(p.id)}
         showControls={showControls}
+        onUpdatePiece={onUpdatePiece}
       />
     );
   };
