@@ -91,7 +91,7 @@ const SAMPLE_PIECES = [
   { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"ー", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"romantic", fav:false, candidate:false };
+const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"romantic", fav:false, candidate:false };
 
 const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:999, pieceIds:[], intervalSecs:30 });
 
@@ -234,31 +234,34 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const era = ERAS[p.era] || ERAS.modern;
   return (
     <div style={{
-      background: expanded ? "#15233F" : inProgram ? "#15233F" : "transparent",
+      background: expanded ? "#1C2E4A" : inProgram ? "#15233F" : "transparent",
       borderLeft: expanded ? "3px solid #C8A860" : "3px solid "+era.color,
       borderBottom: "1px solid #1E2A45",
+      /* ③ 帯に上下余白を作る */
+      paddingTop: 2,
       paddingBottom: 2,
       opacity: inProgram ? 0.6 : 1,
       transition: "all 0.15s",
     }}>
-      <div style={{padding:"10px 12px 8px 10px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
+      <div style={{padding:"8px 12px 6px 10px",display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0}}>
-          {/* 上段: 作曲家｜曲名 — 同じサイズ */}
+          {/* ①⑤ 上段: 作曲家｜曲名 — 完全同書式、区切りを明るく */}
           <div style={{display:"flex",alignItems:"baseline",gap:5,marginBottom:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
             <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
-            <span style={{fontSize:12,color:"#4A5A7A",flexShrink:0}}>｜</span>
-            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,fontWeight:500,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+            <span style={{fontSize:12,color:"#7A8FB5",flexShrink:0}}>｜</span>
+            <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
             {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A"}}>AI</span>}
           </div>
-          {/* 下段: 年·調·時間·難易度 */}
-          <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:4,alignItems:"center",marginTop:2,fontFamily:SANS}}>
-            <span style={{background:era.bg,color:era.color,padding:"0 5px",borderRadius:8,border:"1px solid "+era.color+"33"}}>{era.label}</span>
+          {/* ④⑥⑦ 下段: 時代タグはテキストのみ、時間と難易度に間隔 */}
+          <div style={{fontSize:10,color:"#94A3BE",display:"flex",gap:5,alignItems:"center",marginTop:1,fontFamily:SANS,flexWrap:"wrap"}}>
+            <span style={{color:era.color}}>{era.label}</span>
+            <span style={{color:"#4A5A7A"}}>·</span>
             <span>{(p.yearText==="不明"||(p.year||0)===0)?"作曲年不明":(p.yearText||p.year)+"年"}</span>
             {p.key && <><span style={{color:"#4A5A7A"}}>·</span><span>{p.key}</span></>}
             <span style={{color:"#4A5A7A"}}>·</span>
             <span>{fmtDuration(p.duration, p.durationSecs)}</span>
-            <DotRating value={p.difficulty} max={5} color="#E05030" />
+            <span style={{marginLeft:4}}><DotRating value={p.difficulty} max={5} color="#E05030" /></span>
           </div>
         </div>
         {showControls && (
@@ -285,7 +288,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         )}
       </div>
       {expanded && (
-        <div style={{padding:"8px 12px 12px 13px",borderTop:"1px solid #1E2A45",background:"#15233F"}}>
+        <div style={{padding:"8px 12px 12px 13px",background:"#1C2E4A"}}>
           <div style={{display:"flex",gap:18,flexWrap:"wrap",marginBottom:8}}>
             <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>難易度</div><DotRating value={p.difficulty} max={5} color="#E05030" /></div>
             <div><div style={{fontSize:9,color:"#94A3BE",letterSpacing:2,marginBottom:3,fontFamily:SANS}}>仕上がり</div><span style={{fontSize:12,color:p.readiness>=80?"#2A7A3A":p.readiness>=60?"#C8A030":"#C0405A",fontWeight:"bold"}}>{p.readiness}%</span></div>
@@ -677,7 +680,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         <div>
           {/* 作曲年: 不明・範囲・通常 */}
           <div style={{fontSize:10,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>作曲年</div>
-          <input value={piece.yearText||String(piece.year)}
+          <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
             style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
