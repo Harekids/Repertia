@@ -1319,6 +1319,7 @@ const ManagePage = (props) => {
   const {dashData, dashTotal} = props;
   const {dashAxis, setDashAxis, dashChart, setDashChart} = props;
   const {libraryTab, setLibraryTab, poolMode, setPoolMode} = props;
+  const {toggleCandidate, onUpdatePiece} = props;
   const {composerFilter, setComposerFilter, titleFilter, setTitleFilter} = props;
   const {eraFilter, setEraFilter, yearMin, setYearMin, yearMax, setYearMax} = props;
   const {durMin, setDurMin, durMax, setDurMax} = props;
@@ -1326,7 +1327,6 @@ const ManagePage = (props) => {
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
-  const {toggleCandidate} = props;
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
@@ -2973,6 +2973,7 @@ JSONのみ返してください:
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
           toggleCandidate={toggleCandidate}
+          onUpdatePiece={onUpdatePiece}
           dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
