@@ -252,23 +252,31 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   return (
     <div style={{
       background: expanded ? "#1C2E4A" : inProgram ? "#15233F" : "transparent",
-      borderLeft: expanded ? "3px solid #C8A860" : "3px solid "+era.color,
       borderBottom: "1px solid #1E2A45",
-      paddingTop: 2,
-      paddingBottom: expanded ? 0 : 2,
+      position: "relative",
       opacity: inProgram ? 0.6 : 1,
-      transition: "all 0.15s",
-      boxShadow: expanded ? "0 2px 12px rgba(0,0,0,0.35)" : "none",
-      transform: expanded ? "scaleY(1)" : "scaleY(1)",
+      transition: "all 0.2s",
+      boxShadow: expanded ? "0 6px 20px rgba(0,0,0,0.5)" : "none",
+      transform: expanded ? "scale(1.015)" : "scale(1)",
+      zIndex: expanded ? 2 : 1,
     }}>
+      {/* ②帯: borderLeftでなく絶対配置の短い棒 */}
+      <div style={{
+        position:"absolute", left:0,
+        top: expanded ? 4 : 5,
+        bottom: expanded ? 4 : 5,
+        width: 3,
+        background: expanded ? "#C8A860" : era.color,
+        borderRadius: 0,
+      }} />
       {/* ── 閉じてる時・常に表示される1行 ── */}
-      <div style={{padding:"9px 12px 7px 10px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
+      <div style={{padding:"9px 12px 7px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
           <span style={{fontSize:12,color:"#7A8FB5",flexShrink:0}}>｜</span>
           <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
-          {p.key && <span style={{fontSize:11,color:"#94A3BE",flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          {p.key && <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:2}}>AI</span>}
         </div>
         {/* 演奏時間を右端に */}
