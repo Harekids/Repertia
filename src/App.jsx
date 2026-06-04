@@ -260,7 +260,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
       transform: expanded ? "scale(1.015)" : "scale(1)",
       zIndex: expanded ? 2 : 1,
     }}>
-      {/* ②帯: borderLeftでなく絶対配置の短い棒 */}
+      {/* 帯: 絶対配置の短い棒 */}
       <div style={{
         position:"absolute", left:0,
         top: expanded ? 4 : 5,
@@ -269,20 +269,22 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         background: expanded ? "#C8A860" : era.color,
         borderRadius: 0,
       }} />
-      {/* ── 閉じてる時・常に表示される1行 ── */}
-      <div style={{padding:"9px 12px 7px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
+      {/* ── 1行目（常に表示） ── */}
+      <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-          <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
-          <span style={{fontSize:12,color:"#7A8FB5",flexShrink:0}}>｜</span>
-          <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
-          {p.key && <span style={{fontSize:13,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
-          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:2}}>AI</span>}
+          {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
+          <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,minWidth:"9em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
+          <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0}}>｜</span>
+          <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+          {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
         </div>
-        {/* 演奏時間を右端に */}
-        <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0,marginRight:4}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+        {/* ③演奏時間: 1行目と同書式 */}
+        <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
+            {/* ①★候補・♥お気に入り・▼開閉を非表示（機能・データは保持）
             {onToggleCandidate && (
               <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
                 title="候補"
@@ -293,6 +295,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 title="お気に入り"
                 style={{background:"none",border:"none",color:p.fav?"#C0556A":"#4A5A7A",fontSize:14,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>♥</button>
             )}
+            */}
             {inProgram !== undefined && (
               inProgram
                 ? <button onClick={e=>{e.stopPropagation();onRemove&&onRemove();}}
@@ -300,18 +303,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 : <button onClick={e=>{e.stopPropagation();onAdd&&onAdd();}} disabled={!canAdd}
                     style={{background:canAdd?"#C8A860":"#1E2A45",border:"none",color:canAdd?"#0F1A33":"#4A5A7A",width:22,height:22,borderRadius:"50%",cursor:canAdd?"pointer":"not-allowed",fontSize:16,lineHeight:"22px",textAlign:"center",fontWeight:"bold"}}>+</button>
             )}
-            <span style={{color:"#4A5A7A",fontSize:9,marginLeft:2}}>{expanded?"▲":"▼"}</span>
+            {/* ①▼開閉非表示（機能は保持: onToggleExpandで動作）*/}
           </div>
         )}
       </div>
 
       {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"0 12px 12px 10px",background:"#1C2E4A"}}>
+        <div style={{padding:"0 12px 12px 13px",background:"#1C2E4A"}} onClick={onToggleExpand}>
           {!editing ? (
             <>
-              {/* 2行目: 時代・国・作曲年・Lv.・Pop.・リンク */}
-              <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",padding:"6px 0 8px",borderBottom:"1px solid #1E2A45",fontSize:10,color:"#94A3BE",fontFamily:SANS}}>
+              {/* ⑥2行目: 時代・国・作曲年・Lv.・Pop.・リンク＋編集ボタン */}
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",padding:"7px 0 9px",borderBottom:"1px solid #1E2A45",fontSize:12,color:"#94A3BE",fontFamily:SANS}} onClick={e=>e.stopPropagation()}>
                 <span style={{color:era.color}}>{era.label}</span>
                 <span style={{color:"#4A5A7A"}}>·</span>
                 <span>{p.country}</span>
@@ -321,31 +324,31 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <span style={{color:"#EDE6D6"}}>Lv.{p.difficulty||"—"}</span>
                 <span style={{color:"#4A5A7A"}}>·</span>
                 <span style={{color:"#4A5A7A"}}>Pop. —</span>
-                <div style={{marginLeft:"auto",display:"flex",gap:5}}>
+                {/* ⑤リンクと編集ボタンを同じ行に */}
+                <div style={{marginLeft:"auto",display:"flex",gap:5,alignItems:"center"}}>
                   {[
                     ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia"],
                     ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP"],
                     ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶"],
                   ].map(([href,label])=>(
                     <a key={label} href={href} target="_blank" rel="noreferrer"
-                      style={{fontSize:10,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",padding:"1px 7px",borderRadius:3,fontFamily:SANS}}>{label}</a>
+                      style={{fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",padding:"2px 8px",borderRadius:3,fontFamily:SANS}}
+                      onClick={e=>e.stopPropagation()}>{label}</a>
                   ))}
+                  <span style={{color:"#2A3F6A",marginLeft:4}}>|</span>
+                  <button onClick={startEdit}
+                    style={{background:"none",border:"1px solid #4A6A9A",color:"#94A3BE",padding:"2px 10px",borderRadius:3,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                    編集する
+                  </button>
                 </div>
               </div>
-              {/* メモ */}
+              {/* ⑥メモ: 2行目に準じたサイズ */}
               {(p.memo||p.reason) && (
-                <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"8px 0 4px",fontFamily:SANS}}>
+                <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"8px 0 4px",fontFamily:SANS}} onClick={e=>e.stopPropagation()}>
                   {p.memo && <div>{p.memo}</div>}
                   {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
                 </div>
               )}
-              {/* 編集ボタン */}
-              <div style={{display:"flex",justifyContent:"flex-end",paddingTop:6}}>
-                <button onClick={startEdit}
-                  style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                  編集する
-                </button>
-              </div>
             </>
           ) : (
             /* ── インライン編集フォーム ── */
