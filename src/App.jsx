@@ -275,7 +275,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
           <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,minWidth:"9em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
-          <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0}}>｜</span>
+          <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>
           <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
@@ -313,42 +313,53 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         <div style={{padding:"0 12px 12px 13px",background:"#1C2E4A"}} onClick={onToggleExpand}>
           {!editing ? (
             <>
-              {/* ⑥2行目: 時代・国・作曲年・Lv.・Pop.・リンク＋編集ボタン */}
-              <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center",padding:"7px 0 9px",borderBottom:"1px solid #1E2A45",fontSize:12,color:"#94A3BE",fontFamily:SANS}} onClick={e=>e.stopPropagation()}>
-                <span style={{color:era.color}}>{era.label}</span>
-                <span style={{color:"#4A5A7A"}}>·</span>
-                <span>{p.country}</span>
-                <span style={{color:"#4A5A7A"}}>·</span>
-                <span>{yearStr}</span>
-                <span style={{color:"#4A5A7A"}}>·</span>
-                <span style={{color:"#EDE6D6"}}>Lv.{p.difficulty||"—"}</span>
-                <span style={{color:"#4A5A7A"}}>·</span>
-                <span style={{color:"#4A5A7A"}}>Pop. —</span>
-                {/* ⑤リンクと編集ボタンを同じ行に */}
-                <div style={{marginLeft:"auto",display:"flex",gap:5,alignItems:"center"}}>
-                  {[
-                    ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"Wikipedia"],
-                    ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"IMSLP"],
-                    ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"YouTube ▶"],
-                  ].map(([href,label])=>(
-                    <a key={label} href={href} target="_blank" rel="noreferrer"
-                      style={{fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",padding:"2px 8px",borderRadius:3,fontFamily:SANS}}
-                      onClick={e=>e.stopPropagation()}>{label}</a>
-                  ))}
-                  <span style={{color:"#2A3F6A",marginLeft:4}}>|</span>
-                  <button onClick={startEdit}
-                    style={{background:"none",border:"1px solid #4A6A9A",color:"#94A3BE",padding:"2px 10px",borderRadius:3,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                    編集する
-                  </button>
+              {/* 2行目: 曲名列に字下げして情報を並べる */}
+              <div style={{display:"flex",alignItems:"flex-start",gap:0,padding:"6px 0 0"}} onClick={e=>e.stopPropagation()}>
+                {/* 左: 作曲家列の空き(1行目の縦線位置に合わせる) */}
+                <div style={{minWidth:"calc(9em + 14px)",flexShrink:0}} />
+                {/* 右: 2行目の情報 */}
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#94A3BE",fontFamily:SANS,paddingBottom:6,borderBottom:"1px solid #1E2A45"}}>
+                    <span style={{color:era.color}}>{era.label}</span>
+                    <span style={{color:"#3A4A6A"}}>·</span>
+                    <span>{p.country}</span>
+                    <span style={{color:"#3A4A6A"}}>·</span>
+                    <span>{yearStr}</span>
+                    <span style={{color:"#3A4A6A"}}>·</span>
+                    <span style={{color:"#EDE6D6"}}>Lv.{p.difficulty||"—"}</span>
+                    <span style={{color:"#3A4A6A"}}>·</span>
+                    <span style={{color:"#4A5A7A"}}>Pop. —</span>
+                    {p.keywords && <span style={{color:"#4A5A7A",marginLeft:2}}>{p.keywords}</span>}
+                  </div>
+                  {/* 3行目: メモ */}
+                  {(p.memo||p.reason) && (
+                    <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"6px 0 2px",fontFamily:SANS}}>
+                      {p.memo && <div>{p.memo}</div>}
+                      {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
+                    </div>
+                  )}
+                  {/* リンク＋編集行 */}
+                  <div style={{display:"flex",alignItems:"center",gap:6,paddingTop:7}}>
+                    {[
+                      ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
+                      ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","IMSLP"],
+                      ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
+                    ].map(([href,mark,title])=>(
+                      <a key={title} href={href} target="_blank" rel="noreferrer" title={title}
+                        style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
+                          fontSize:11,color:"#94A3BE",textDecoration:"none",
+                          border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
+                        onClick={e=>e.stopPropagation()}>{mark}</a>
+                    ))}
+                    <div style={{flex:1}} />
+                    <button onClick={startEdit}
+                      style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",
+                        padding:"2px 12px",borderRadius:3,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                      編集
+                    </button>
+                  </div>
                 </div>
               </div>
-              {/* ⑥メモ: 2行目に準じたサイズ */}
-              {(p.memo||p.reason) && (
-                <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"8px 0 4px",fontFamily:SANS}} onClick={e=>e.stopPropagation()}>
-                  {p.memo && <div>{p.memo}</div>}
-                  {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
-                </div>
-              )}
             </>
           ) : (
             /* ── インライン編集フォーム ── */
