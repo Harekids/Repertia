@@ -310,16 +310,19 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
       {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"0 12px 12px 13px",background:"#1C2E4A"}} onClick={onToggleExpand}>
+        <div style={{padding:"0 12px 10px 13px",background:"#1C2E4A"}} onClick={onToggleExpand}>
           {!editing ? (
             <>
-              {/* 2行目: 曲名列に字下げして情報を並べる */}
-              <div style={{display:"flex",alignItems:"flex-start",gap:0,padding:"6px 0 0"}} onClick={e=>e.stopPropagation()}>
-                {/* 左: 作曲家列の空き(1行目の縦線位置に合わせる) */}
-                <div style={{minWidth:"calc(9em + 14px)",flexShrink:0}} />
-                {/* 右: 2行目の情報 */}
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#94A3BE",fontFamily:SANS,paddingBottom:6,borderBottom:"1px solid #1E2A45"}}>
+              {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
+              <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
+                {/* 左カラム: 縦線を下まで伸ばす役割 */}
+                <div style={{width:"calc(9em + 14px)",flexShrink:0,position:"relative"}}>
+                  <div style={{position:"absolute",left:0,top:0,bottom:0,width:1,background:"#2A3F6A"}} />
+                </div>
+                {/* 右カラム: 曲の全情報（同じ左端から） */}
+                <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2}}>
+                  {/* 時代情報行 */}
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#94A3BE",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
                     <span style={{color:"#3A4A6A"}}>·</span>
                     <span>{p.country}</span>
@@ -331,21 +334,21 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     <span style={{color:"#4A5A7A"}}>Pop. —</span>
                     {p.keywords && <span style={{color:"#4A5A7A",marginLeft:2}}>{p.keywords}</span>}
                   </div>
-                  {/* 3行目: メモ */}
+                  {/* メモ(ある時だけ) */}
                   {(p.memo||p.reason) && (
-                    <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,padding:"6px 0 2px",fontFamily:SANS}}>
+                    <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
                       {p.memo && <div>{p.memo}</div>}
                       {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
                     </div>
                   )}
                   {/* リンク＋編集行 */}
-                  <div style={{display:"flex",alignItems:"center",gap:6,paddingTop:7}}>
+                  <div style={{display:"flex",alignItems:"center",gap:5}}>
                     {[
                       ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
-                      ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","IMSLP"],
+                      ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
                       ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
-                    ].map(([href,mark,title])=>(
-                      <a key={title} href={href} target="_blank" rel="noreferrer" title={title}
+                    ].map(([href,mark,ttl])=>(
+                      <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
                         style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
                           fontSize:11,color:"#94A3BE",textDecoration:"none",
                           border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
