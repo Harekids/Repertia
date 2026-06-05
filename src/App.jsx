@@ -722,7 +722,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       {/* 1行目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS}}>作曲家</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名を入力…" autoComplete="off"
@@ -741,7 +741,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           </div>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS}}>曲名</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
@@ -770,18 +770,18 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       {/* 2行目: 調性・作曲年・演奏時間(国を削除) */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS}}>調性</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS}}>作曲年</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
           <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
             style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS}}>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>
             演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
           </div>
@@ -816,7 +816,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       </div>
 
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
-        <button onClick={handleAdd} style={{background:"transparent",border:"1px solid #C8A860",color:"#15233F",padding:"8px 28px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
+        <button onClick={handleAdd} style={{background:"transparent",border:"1.5px solid #C8A860",color:"#15233F",padding:"8px 28px",cursor:"pointer",fontSize:13,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
       </div>
     </div>
   );
