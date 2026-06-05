@@ -713,24 +713,24 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   const sel2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
 
   return (
-    <div style={{background:"#FDFAF6",border:"2px solid #D4A574",borderRadius:10,padding:22}}>
-      <div style={{fontSize:15,letterSpacing:3,color:"#94A3BE",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Add Piece</div>
+    <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22}}>
+      <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Add Piece</div>
 
-      {/* 1列目: 作曲家・曲名 */}
+      {/* 1行目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
         <div>
-          <div style={{fontSize:11,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>作曲家</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:5,fontFamily:SANS}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名を入力…" autoComplete="off"
-              style={{...inp2(), borderColor:composerLocked?"#C4A870":"#1E2A45", background:composerLocked?"#FDFAF2":"white"}} />
-            {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#C4A870"}}>✓</span>}
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerLocked?"#8BAED4":"#C8CEDB",background:composerLocked?"#F0F5FF":"white",color:"#15233F"}} />
+            {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerSuggestions.length>0 && (
-              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#15233F",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)"}}>
+              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
                 {composerSuggestions.map((name,i)=>(
                   <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectComposer(name)}
-                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#EDE6D6",borderBottom:"1px solid #15233F",fontFamily:SANS}}
-                    onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
+                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS}}
+                    onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>{name}</div>
                 ))}
               </div>
@@ -738,23 +738,23 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           </div>
         </div>
         <div>
-          <div style={{fontSize:11,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>曲名</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:5,fontFamily:SANS}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
-              autoComplete="off" style={{...inp2(), opacity:piece.composer?1:0.5}} />
-            {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#94A3BE",fontFamily:SANS}}>検索中…</div>}
+              autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",opacity:piece.composer?1:0.5}} />
+            {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#6B7A90",fontFamily:SANS}}>検索中…</div>}
             {suggestions.length>0 && (
-              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#15233F",border:"1.5px solid #D4A574",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.12)",maxHeight:300,overflowY:"auto"}}>
+              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)",maxHeight:300,overflowY:"auto"}}>
                 {suggestions.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
                   <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSuggestion(s)}
-                    style={{padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid #15233F",display:"flex",alignItems:"center",gap:10}}
-                    onMouseEnter={e=>e.currentTarget.style.background="#FDF5ED"}
+                    style={{padding:"10px 14px",cursor:"pointer",borderBottom:"1px solid #E8ECF2",display:"flex",alignItems:"center",gap:10}}
+                    onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>
                     <div style={{width:3,height:34,background:era.color,borderRadius:2,flexShrink:0}} />
                     <div>
-                      <div style={{fontSize:13,color:"#EDE6D6",marginBottom:2}}>{s.title}</div>
-                      <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{s.composer}　{s.year}年　{s.key}　{s.duration}分</div>
+                      <div style={{fontSize:13,color:"#15233F",marginBottom:2}}>{s.title}</div>
+                      <div style={{fontSize:11,color:"#6B7A90",fontFamily:SANS}}>{s.composer}　{s.year}年　{s.key}　{s.duration}分</div>
                     </div>
                   </div>
                 ); })}
@@ -764,26 +764,21 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      {/* 2列目: 国・作曲年・調性・演奏時間 */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      {/* 2行目: 調性・作曲年・演奏時間(国を削除) */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
-          <div style={{fontSize:10,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>国</div>
-          <select value={piece.country} onChange={e=>setPiece({...piece,country:e.target.value})} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:5,fontFamily:SANS}}>調性</div>
+          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
-          {/* 作曲年: 不明・範囲・通常 */}
-          <div style={{fontSize:10,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>作曲年</div>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:5,fontFamily:SANS}}>作曲年</div>
           <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
-            style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+            style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
         <div>
-          <div style={{fontSize:10,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>調性</div>
-          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
-        </div>
-        <div>
-          <div style={{fontSize:10,color:"#94A3BE",marginBottom:5,fontFamily:SANS}}>
+          <div style={{fontSize:10,color:"#6B7A90",marginBottom:5,fontFamily:SANS}}>
             演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
           </div>
@@ -811,51 +806,49 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
                 e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
               placeholder="例: 5分30秒 / 5:30 / 5"
-              style={{background:"#15233F",border:"1px solid "+(!durationEdited&&piece.title?"#C8A030":"#1E2A45"),color:"#EDE6D6",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:!durationEdited&&piece.title?"#C8A030":"#C8CEDB"}}
             />
           </div>
         </div>
       </div>
 
-      {/* 3列目: 難易度・キーワード 1行横並び */}
-      <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:24,flexWrap:"wrap"}}>
-        <div style={{display:"flex",alignItems:"center",gap:4}}>
-          <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>難易度</span>
-          <div style={{display:"flex",gap:0,letterSpacing:0}}>
+      {/* 3行目: 難易度・キーワード */}
+      <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:20,flexWrap:"wrap"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,paddingTop:2}}>
+          <span style={{fontSize:10,color:"#6B7A90",fontFamily:SANS,flexShrink:0}}>難易度</span>
+          <div style={{display:"flex",gap:3}}>
             {[1,2,3,4,5].map(n=>(
               <span key={n} onClick={()=>setPiece({...piece,difficulty:piece.difficulty===n?0:n})}
                 style={{width:14,height:14,borderRadius:"50%",
                   background:piece.difficulty>0&&piece.difficulty>=n?"#C8963C":"transparent",
-                  border:"1.5px solid "+(piece.difficulty>0?"#C8963C":"#1E2A45"),
-                  cursor:"pointer",display:"inline-block",
-                  marginRight:3}}>
+                  border:"1.5px solid "+(piece.difficulty>0?"#C8963C":"#C8CEDB"),
+                  cursor:"pointer",display:"inline-block"}}>
               </span>
             ))}
           </div>
         </div>
-        {/* ⑨ キーワード候補タグ + 自由入力 */}
         <div style={{flex:1,minWidth:120}}>
-          <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:4}}>
-            {["明るい","暗い","重い","軽い","激しい","穏やか","切ない","力強い","繊細","華やか","発表会","コンクール","入試","アンコール","その他"].map(tag=>(
+          <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:5}}>
+            {["明るい","暗い","重い","軽い","激しい","穏やか","切ない","力強い","繊細","華やか"].map(tag=>(
               <button key={tag} type="button"
                 onClick={()=>setPiece({...piece,keywords:piece.keywords?(piece.keywords.includes(tag)?piece.keywords:piece.keywords+", "+tag):tag})}
-                style={{background:(piece.keywords||"").includes(tag)?"#0F1A33":"white",
-                  border:"1px solid "+((piece.keywords||"").includes(tag)?"#0F1A33":"#1E2A45"),
-                  color:(piece.keywords||"").includes(tag)?"#C8A860":"#94A3BE",
-                  padding:"2px 7px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:10,lineHeight:1.4}}>
+                style={{background:(piece.keywords||"").includes(tag)?"#15233F":"white",
+                  border:"1px solid "+((piece.keywords||"").includes(tag)?"#15233F":"#C8CEDB"),
+                  color:(piece.keywords||"").includes(tag)?"#C8A860":"#6B7A90",
+                  padding:"2px 8px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:10,lineHeight:1.4}}>
                 {tag}
               </button>
             ))}
           </div>
           <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
             placeholder="自由入力（カンマ区切り）"
-            style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+            style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
       </div>
 
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:8,paddingBottom:4}}>
-        <button onClick={handleAdd} style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"8px 22px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
-        <button onClick={onCancel} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+        <button onClick={handleAdd} style={{background:"#15233F",border:"none",color:"#C8A860",padding:"8px 22px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
+        <button onClick={onCancel} style={{background:"white",border:"1px solid #C8CEDB",color:"#6B7A90",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
       </div>
     </div>
   );
