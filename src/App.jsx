@@ -241,7 +241,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   const startEdit = (e) => {
     e.stopPropagation();
-    setDraft({title:p.title,composer:p.composer,key:p.key||"",difficulty:p.difficulty||0,country:p.country||"",memo:p.memo||""});
+    setDraft({
+      title:p.title, composer:p.composer, key:p.key||"",
+      yearText:p.yearText||"", duration:p.duration||0, durationSecs:p.durationSecs||0,
+      memo:p.memo||"", keywords:p.keywords||"",
+    });
     setEditing(true);
   };
   const saveEdit = (e) => {
@@ -249,6 +253,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
     if (onUpdatePiece) onUpdatePiece({...p,...draft});
     setEditing(false);
   };
+  const cancelEditFn = (e) => { e.stopPropagation(); setEditing(false); };
   const cancelEdit = (e) => { e.stopPropagation(); setEditing(false); };
 
   const yearStr = (p.yearText==="不明"||(p.year||0)===0) ? "作曲年不明" : (p.yearText||p.year)+"年";
@@ -368,38 +373,80 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               </div>
             </>
           ) : (
-            /* ── インライン編集フォーム ── */
-            <div style={{padding:"8px 0 4px"}} onClick={e=>e.stopPropagation()}>
-              {[
-                ["曲名","title"],["作曲家","composer"],["調性","key"],["国","country"],
-              ].map(([label,field])=>(
-                <div key={field} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                  <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS}}>{label}</div>
-                  <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
-                    style={{flex:1,background:"#0F1A33",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:3}} />
+            /* ── 第3形態: インライン編集フォーム ── */
+            <div style={{padding:"8px 0 4px",position:"relative"}} onClick={e=>e.stopPropagation()}>
+              {/* ④右上✕ */}
+              <button onClick={cancelEditFn} title="キャンセル"
+                style={{position:"absolute",top:0,right:0,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
+              {/* 1行目: 作曲家・曲名 */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+                {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
+                  <div key={field}>
+                    <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>{label}</div>
+                    <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                  </div>
+                ))}
+              </div>
+              {/* 2行目: 調性・作曲年・演奏時間 + Lv./Pop.(育成中) */}
+              <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap",alignItems:"flex-end"}}>
+                <div style={{flex:"0 0 auto"}}>
+                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
+                  <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"7em"}} />
                 </div>
-              ))}
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
-                <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS}}>難易度</div>
-                <div style={{display:"flex",gap:4}}>
-                  {[1,2,3,4,5].map(n=>(
-                    <button key={n} onClick={()=>setDraft({...draft,difficulty:draft.difficulty===n?0:n})}
-                      style={{width:24,height:24,borderRadius:4,border:"1px solid "+(draft.difficulty>=n?"#C8A860":"#2A3F6A"),
-                        background:draft.difficulty>=n?"#C8A860":"transparent",color:draft.difficulty>=n?"#0F1A33":"#94A3BE",
-                        cursor:"pointer",fontSize:11,fontFamily:SANS,fontWeight:"bold"}}>{n}</button>
-                  ))}
+                <div style={{flex:"0 0 auto"}}>
+                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
+                  <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
+                    placeholder="例: 1810 / 不明"
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"9em"}} />
+                </div>
+                <div style={{flex:"0 0 auto"}}>
+                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏時間</div>
+                  <input
+                    defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
+                    onBlur={e=>{
+                      const raw=e.target.value.trim();
+                      const colonMatch=raw.match(/^(\d+):(\d+)$/);
+                      const mMatch=raw.match(/(\d+)\s*分/);
+                      const sMatch=raw.match(/(\d+)\s*秒/);
+                      let m=draft.duration||0, s=0;
+                      if(colonMatch){m=parseInt(colonMatch[1]);s=parseInt(colonMatch[2]);}
+                      else if(mMatch||sMatch){if(mMatch)m=parseInt(mMatch[1]);if(sMatch)s=parseInt(sMatch[1]);}
+                      else{const n=parseInt(raw);if(!isNaN(n))m=n;}
+                      setDraft({...draft,duration:m,durationSecs:s});
+                      e.target.value=m+"分"+(s>0?(s+"秒"):"");
+                    }}
+                    placeholder="例: 5分30秒"
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"8em"}} />
+                </div>
+                {/* Lv.・Pop.: 育成中(入力不可) */}
+                <div style={{flex:"0 0 auto"}}>
+                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Lv.</div>
+                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"5em",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
+                </div>
+                <div style={{flex:"0 0 auto"}}>
+                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Pop.</div>
+                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"5em",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
                 </div>
               </div>
-              <div style={{display:"flex",alignItems:"flex-start",gap:8,marginBottom:10}}>
-                <div style={{fontSize:10,color:"#94A3BE",width:40,flexShrink:0,fontFamily:SANS,paddingTop:4}}>メモ</div>
+              {/* メモ */}
+              <div style={{marginBottom:8}}>
+                <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>メモ</div>
                 <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
-                  style={{flex:1,background:"#0F1A33",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,minHeight:50,resize:"vertical"}} />
+                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",minHeight:50,resize:"vertical"}} />
               </div>
-              <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
-                <button onClick={cancelEdit}
-                  style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",padding:"4px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>キャンセル</button>
+              {/* キーワード */}
+              <div style={{marginBottom:10}}>
+                <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>キーワード</div>
+                <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
+                  placeholder="カンマ区切り"
+                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+              </div>
+              {/* 保存ボタン */}
+              <div style={{display:"flex",justifyContent:"flex-end"}}>
                 <button onClick={saveEdit}
-                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"4px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS,fontWeight:"bold"}}>保存</button>
+                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:"bold"}}>保存</button>
               </div>
             </div>
           )}
@@ -2683,9 +2730,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       title: updated.title,
       composer: updated.composer,
       key: updated.key||'',
-      country: updated.country||'',
-      difficulty: updated.difficulty||0,
+      year: updated.year||0,
+      duration: updated.duration||0,
+      durationSecs: updated.durationSecs||0,
       memo: updated.memo||'',
+      keywords: updated.keywords||'',
     }).eq('id', updated.id);
   };
 
