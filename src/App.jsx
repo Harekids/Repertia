@@ -812,40 +812,6 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
         </div>
       </div>
 
-      {/* 3行目: 難易度・キーワード */}
-      <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:20,flexWrap:"wrap"}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,paddingTop:2}}>
-          <span style={{fontSize:10,color:"#6B7A90",fontFamily:SANS,flexShrink:0}}>難易度</span>
-          <div style={{display:"flex",gap:3}}>
-            {[1,2,3,4,5].map(n=>(
-              <span key={n} onClick={()=>setPiece({...piece,difficulty:piece.difficulty===n?0:n})}
-                style={{width:14,height:14,borderRadius:"50%",
-                  background:piece.difficulty>0&&piece.difficulty>=n?"#C8963C":"transparent",
-                  border:"1.5px solid "+(piece.difficulty>0?"#C8963C":"#C8CEDB"),
-                  cursor:"pointer",display:"inline-block"}}>
-              </span>
-            ))}
-          </div>
-        </div>
-        <div style={{flex:1,minWidth:120}}>
-          <div style={{display:"flex",gap:3,flexWrap:"wrap",marginBottom:5}}>
-            {["明るい","暗い","重い","軽い","激しい","穏やか","切ない","力強い","繊細","華やか"].map(tag=>(
-              <button key={tag} type="button"
-                onClick={()=>setPiece({...piece,keywords:piece.keywords?(piece.keywords.includes(tag)?piece.keywords:piece.keywords+", "+tag):tag})}
-                style={{background:(piece.keywords||"").includes(tag)?"#15233F":"white",
-                  border:"1px solid "+((piece.keywords||"").includes(tag)?"#15233F":"#C8CEDB"),
-                  color:(piece.keywords||"").includes(tag)?"#C8A860":"#6B7A90",
-                  padding:"2px 8px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:10,lineHeight:1.4}}>
-                {tag}
-              </button>
-            ))}
-          </div>
-          <input value={piece.keywords||""} onChange={e=>setPiece({...piece,keywords:e.target.value})}
-            placeholder="自由入力（カンマ区切り）"
-            style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-        </div>
-      </div>
-
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:8,paddingBottom:4}}>
         <button onClick={handleAdd} style={{background:"#15233F",border:"none",color:"#C8A860",padding:"8px 22px",cursor:"pointer",fontSize:11,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
         <button onClick={onCancel} style={{background:"white",border:"1px solid #C8CEDB",color:"#6B7A90",padding:"8px 16px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
