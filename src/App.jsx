@@ -325,14 +325,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#94A3BE",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
                     <span style={{color:"#3A4A6A"}}>·</span>
-                    <span>{p.country}</span>
-                    <span style={{color:"#3A4A6A"}}>·</span>
                     <span>{yearStr}</span>
                     <span style={{color:"#3A4A6A"}}>·</span>
-                    <span style={{color:"#EDE6D6"}}>Lv.{p.difficulty||"—"}</span>
+                    <span style={{color:"#EDE6D6"}}>{p.difficulty ? "Lv."+p.difficulty : "Lv. 育成中"}</span>
                     <span style={{color:"#3A4A6A"}}>·</span>
-                    <span style={{color:"#4A5A7A"}}>Pop. —</span>
-                    {p.keywords && <span style={{color:"#4A5A7A",marginLeft:2}}>{p.keywords}</span>}
+                    <span style={{color:"#4A5A7A"}}>Pop. 育成中</span>
                   </div>
                   {/* メモ(ある時だけ) */}
                   {(p.memo||p.reason) && (
