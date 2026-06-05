@@ -235,6 +235,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
 
+  React.useEffect(() => {
+    if (!expanded) setEditing(false);
+  }, [expanded]);
+
   const startEdit = (e) => {
     e.stopPropagation();
     setDraft({title:p.title,composer:p.composer,key:p.key||"",difficulty:p.difficulty||0,country:p.country||"",memo:p.memo||""});
