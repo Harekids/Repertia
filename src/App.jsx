@@ -322,14 +322,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2}}>
                   {/* 時代情報行 */}
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#94A3BE",fontFamily:SANS,marginBottom:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#C8D4E8",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
-                    <span style={{color:"#3A4A6A"}}>·</span>
+                    <span style={{color:"#7A8FB5"}}>·</span>
                     <span>{yearStr}</span>
-                    <span style={{color:"#3A4A6A"}}>·</span>
-                    <span style={{color:"#EDE6D6"}}>{p.difficulty ? "Lv."+p.difficulty : "Lv. 育成中"}</span>
-                    <span style={{color:"#3A4A6A"}}>·</span>
-                    <span style={{color:"#4A5A7A"}}>Pop. 育成中</span>
+                    <span style={{color:"#7A8FB5"}}>·</span>
+                    <span>{p.difficulty ? "Lv."+p.difficulty : <span style={{color:"#7A8FB5"}}>Lv. 育成中</span>}</span>
+                    <span style={{color:"#7A8FB5"}}>·</span>
+                    <span style={{color:"#7A8FB5"}}>Pop. 育成中</span>
                   </div>
                   {/* メモ(ある時だけ) */}
                   {(p.memo||p.reason) && (
