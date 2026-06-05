@@ -316,10 +316,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
               <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
                 {/* 左カラム: 縦線＋編集ボタン */}
-                <div style={{width:"calc(9em + 14px)",flexShrink:0,position:"relative",display:"flex",flexDirection:"column",alignItems:"center",paddingTop:8}}>
-                  {/* ③縦線: 右端に移動して1行目の｜と揃える */}
+                {/* ②幅を calc(9em+4px) に調整して1行目の｜と揃える */}
+                <div style={{width:"calc(9em + 4px)",flexShrink:0,position:"relative",display:"flex",flexDirection:"column",alignItems:"flex-start",paddingTop:8}}>
                   <div style={{position:"absolute",right:0,top:0,bottom:0,width:1,background:"#2A3F6A"}} />
-                  {/* ①編集ボタン: 左カラム上部 */}
+                  {/* ①編集ボタン: 左寄せ */}
                   <button onClick={startEdit}
                     style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",
                       padding:"2px 8px",borderRadius:3,cursor:"pointer",fontSize:11,fontFamily:SANS,
@@ -329,7 +329,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:8}}>
-                  {/* 時代情報行 */}
+                  {/* ③時代情報行＋リンクを同じ行に */}
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#C8D4E8",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
@@ -338,6 +338,20 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     <span>{p.difficulty ? "Lv."+p.difficulty : <span style={{color:"#7A8FB5"}}>Lv. 育成中</span>}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
                     <span style={{color:"#7A8FB5"}}>Pop. 育成中</span>
+                    {/* ③リンクをPop.の後に1em空けて続ける */}
+                    <span style={{marginLeft:"1em",display:"inline-flex",gap:4}}>
+                      {[
+                        ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
+                        ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
+                        ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
+                      ].map(([href,mark,ttl])=>(
+                        <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
+                          style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
+                            fontSize:11,color:"#94A3BE",textDecoration:"none",
+                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
+                          onClick={e=>e.stopPropagation()}>{mark}</a>
+                      ))}
+                    </span>
                   </div>
                   {/* メモ(ある時だけ) */}
                   {(p.memo||p.reason) && (
@@ -346,20 +360,6 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
                     </div>
                   )}
-                  {/* ②リンク行: W/I/▷のみ(編集ボタン削除) */}
-                  <div style={{display:"flex",alignItems:"center",gap:5}}>
-                    {[
-                      ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
-                      ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
-                      ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
-                    ].map(([href,mark,ttl])=>(
-                      <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
-                        style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
-                          fontSize:11,color:"#94A3BE",textDecoration:"none",
-                          border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
-                        onClick={e=>e.stopPropagation()}>{mark}</a>
-                    ))}
-                  </div>
                 </div>
               </div>
             </>
