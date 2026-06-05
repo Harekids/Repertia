@@ -1231,10 +1231,11 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
             style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
             <option value="" disabled>並べ替え</option>
-            <option value="year">作曲年</option>
+            <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
-            <option value="difficulty">難易度</option>
-            <option value="frequency">演奏頻度</option>
+            <option value="year">作曲年</option>
+            <option value="difficulty">Lv.</option>
+            <option value="frequency">Pop.</option>
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
             style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"0 8px",
@@ -2850,7 +2851,8 @@ JSONのみ返してください:
     .sort((a,b) => {
       let d = 0;
       const ay = a.year||0, by2 = b.year||0;
-      if      (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
+      if      (sortBy==="composer")   d = (a.composer||"").localeCompare(b.composer||"");
+      else if (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
       else if (sortBy==="duration")   d = a.duration - b.duration;
       else if (sortBy==="difficulty") d = a.difficulty - b.difficulty;
       else if (sortBy==="frequency")  d = (a.frequency||0) - (b.frequency||0);
