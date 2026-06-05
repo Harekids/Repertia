@@ -269,13 +269,22 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         background: expanded ? "#C8A860" : era.color,
         borderRadius: 0,
       }} />
+      {/* ②展開時: 1行目から下まで貫く縦線(作曲家幅+左padding+｜margin) */}
+      {expanded && <div style={{
+        position:"absolute",
+        left:"calc(13px + 9em + 4px)",
+        top:0, bottom:0,
+        width:1,
+        background:"#7A8FB5",
+        pointerEvents:"none",
+      }} />}
       {/* ── 1行目（常に表示） ── */}
       <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
           <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,minWidth:"9em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis"}}>{p.composer}</span>
-          <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>
+          {!expanded && <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
           <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
@@ -317,8 +326,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
                 {/* 左カラム: 縦線＋編集ボタン */}
                 {/* ②幅を calc(9em+4px) に調整して1行目の｜と揃える */}
-                <div style={{width:"calc(9em + 4px)",flexShrink:0,position:"relative",display:"flex",flexDirection:"column",alignItems:"flex-start",paddingTop:8}}>
-                  <div style={{position:"absolute",right:0,top:0,bottom:0,width:1,background:"#2A3F6A"}} />
+                <div style={{width:"calc(9em + 4px)",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-start",paddingTop:8}}>
                   {/* ①編集ボタン: 左寄せ */}
                   <button onClick={startEdit}
                     style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",
