@@ -910,7 +910,7 @@ const PrintPage = (props) => {
   const concertEvents = pastEvents.filter(e=>e.type!=="contest");
 
   // ── Helpers ──
-  const inpS = {background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpS = {background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:SANS};
   const secTitle = (t) => (
     <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div>
@@ -990,36 +990,35 @@ const PrintPage = (props) => {
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
 
-            {/* 写真 */}
-            <div style={{display:"flex",gap:20,alignItems:"flex-start",marginBottom:20}}>
-              <div style={{flexShrink:0}}>
-                <div onClick={()=>photoInputRef.current?.click()}
-                  style={{width:80,height:80,borderRadius:"50%",border:"2px dashed #2A3F6A",
-                    background:profile.photoUrl?"transparent":"#15233F",cursor:"pointer",
-                    display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
-                  {profile.photoUrl
-                    ? <img src={profile.photoUrl} alt="photo" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                    : <span style={{fontSize:24,color:"#2A3F6A"}}>👤</span>}
+            {/* ── アカウント情報 ── */}
+            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
+            <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:28}}>
+              {[
+                ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
+                ["パスワード",     <button disabled style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"not-allowed",fontSize:12,fontFamily:SANS}}>変更（準備中）</button>],
+              ].map(([label, input])=>(
+                <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
+                  {input}
                 </div>
-                <input ref={photoInputRef} type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
-                <div style={{fontSize:9,color:"#94A3BE",textAlign:"center",marginTop:3,fontFamily:SANS}}>変更</div>
-              </div>
-              <div style={{flex:1}}/>
+              ))}
             </div>
 
-            {/* ① 各項目を1行ずつ・左揃え・ボックスサイズ統一 */}
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {/* ── プロフィール詳細 ── */}
+            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS}}>プロフィール詳細</div>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
               {[
-                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
-                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
                 ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1}}/>],
                 ["国籍",           <select value={profile.nationality} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} style={{...inpS,flex:1}}>{COUNTRIES.map(c=><option key={c} value={c}>{c}</option>)}</select>],
-                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="ー" style={{...inpS,flex:1}}/>],
-                ["メール",         <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
-                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
-                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="ー" style={{...inpS,flex:1}}/>],
+                ["郵便番号",       <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1}}/>],
               ].map(([label, input])=>(
-                <div key={label} style={{display:"flex",alignItems:"center",gap:0,marginBottom:8}}>
+                <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
                   {input}
                 </div>
@@ -1027,7 +1026,7 @@ const PrintPage = (props) => {
             </div>
 
             {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <div style={{display:"flex",flexDirection:"column",gap:16,marginTop:10}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
