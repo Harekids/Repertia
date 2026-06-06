@@ -382,7 +382,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
                   <div key={field}>
-                    <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>{label}</div>
+                    <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>{label}</div>
                     <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
                       style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                   </div>
@@ -391,18 +391,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* 2行目: 5列均等グリッド */}
               <div style={{display:"grid",gridTemplateColumns:"repeat(5, 1fr)",gap:8,marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="例: 1810"
                     style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏時間</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏時間</div>
                   <input
                     defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
                     onBlur={e=>{
@@ -422,29 +422,29 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可) */}
                 <div>
-                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Lv.</div>
-                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Lv.</div>
+                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Pop.</div>
-                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Pop.</div>
+                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
               </div>
               {/* メモ */}
               <div style={{marginBottom:8}}>
-                <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>メモ</div>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>メモ</div>
                 <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
                   style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",minHeight:50,resize:"vertical"}} />
               </div>
               {/* キーワード */}
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>キーワード</div>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>キーワード</div>
                 <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
                   placeholder="カンマ区切り"
                   style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
               </div>
               {/* 保存ボタン */}
-              <div style={{display:"flex",justifyContent:"flex-end"}}>
+              <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
                 <button onClick={saveEdit}
                   style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
               </div>
@@ -772,7 +772,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       {/* 1行目: 作曲家・曲名 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名を入力…" autoComplete="off"
@@ -791,7 +791,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           </div>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>曲名</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
@@ -820,18 +820,18 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       {/* 2行目: 調性・作曲年・演奏時間(国を削除) */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
           <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
             style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
         <div>
-          <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>
             演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
           </div>
