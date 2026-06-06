@@ -910,7 +910,7 @@ const PrintPage = (props) => {
   const concertEvents = pastEvents.filter(e=>e.type!=="contest");
 
   // ── Helpers ──
-  const inpS = {background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:SANS};
   const secTitle = (t) => (
     <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div>
@@ -992,7 +992,7 @@ const PrintPage = (props) => {
 
             {/* ── アカウント情報 ── */}
             <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
-            <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:28}}>
+            <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
               {[
                 ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
                 ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
@@ -1007,7 +1007,7 @@ const PrintPage = (props) => {
 
             {/* ── プロフィール詳細 ── */}
             <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS}}>プロフィール詳細</div>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            <div style={{display:"flex",flexDirection:"column",gap:18}}>
               {[
                 ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
@@ -1026,13 +1026,13 @@ const PrintPage = (props) => {
             </div>
 
             {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
-            <div style={{display:"flex",flexDirection:"column",gap:16,marginTop:10}}>
+            <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:16}}>
               {(profile.educations||[]).map((ed,idx)=>(
-                <div key={ed.id} style={{display:"flex",alignItems:"center",gap:6}}>
+                <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
-                  <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 120px"}}/>
-                  <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室" style={{...inpS,flex:2}}/>
-                  <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 90px"}}>
+                  <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
+                  <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
+                  <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
                     <option value="">ー</option>
                     <option value="入学">入学</option>
                     <option value="在学中">在学中</option>
@@ -1040,20 +1040,20 @@ const PrintPage = (props) => {
                     <option value="卒業">卒業</option>
                     <option value="修了">修了</option>
                   </select>
-                  <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                  <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>×</button>
                 </div>
               ))}
-              <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <div style={{width:130,flexShrink:0}}/>
                 {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
               </div>
               {(profile.teachers||[]).map((t,idx)=>(
-                <div key={t.id} style={{display:"flex",alignItems:"center",gap:6}}>
+                <div key={t.id} style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"師事者":""}</div>
-                  <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間（自由入力）" style={{...inpS,flex:"0 0 100px"}}/>
+                  <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                   <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
-                  <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:16,flexShrink:0}}>×</button>
+                  <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>×</button>
                 </div>
               ))}
               <div style={{display:"flex",alignItems:"center",gap:6}}>
@@ -2581,8 +2581,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [profile, setProfile]                  = useState({
     nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"",
     photoUrl:"",
-    educations:[],
-    teachers:[],
+    educations:[{id:1,period:"",school:"",status:""}],
+    teachers:[{id:1,period:"",name:"",note:""}],
     competitions:[],
     contact:{email:"", website:"", tel:"", sns:""},
   });
