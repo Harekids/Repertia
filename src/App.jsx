@@ -378,8 +378,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* ④右上✕ */}
               <button onClick={cancelEditFn} title="キャンセル"
                 style={{position:"absolute",top:0,right:0,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-              {/* 1行目: 作曲家・曲名 */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+              {/* 1行目: 作曲家(1):曲名(2) */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
                   <div key={field}>
                     <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>{label}</div>
@@ -388,20 +388,20 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 ))}
               </div>
-              {/* 2行目: 調性・作曲年・演奏時間 + Lv./Pop.(育成中) */}
-              <div style={{display:"flex",gap:8,marginBottom:8,flexWrap:"wrap",alignItems:"flex-end"}}>
-                <div style={{flex:"0 0 auto"}}>
+              {/* 2行目: 5列均等グリッド */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(5, 1fr)",gap:8,marginBottom:8}}>
+                <div>
                   <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"7em"}} />
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
-                <div style={{flex:"0 0 auto"}}>
+                <div>
                   <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
-                    placeholder="例: 1810 / 不明"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"9em"}} />
+                    placeholder="例: 1810"
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
-                <div style={{flex:"0 0 auto"}}>
+                <div>
                   <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏時間</div>
                   <input
                     defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
@@ -418,16 +418,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       e.target.value=m+"分"+(s>0?(s+"秒"):"");
                     }}
                     placeholder="例: 5分30秒"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"8em"}} />
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可) */}
-                <div style={{flex:"0 0 auto"}}>
+                <div>
                   <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Lv.</div>
-                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"5em",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
+                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
                 </div>
-                <div style={{flex:"0 0 auto"}}>
+                <div>
                   <div style={{fontSize:10,color:"#6B7A90",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Pop.</div>
-                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"5em",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
+                  <div style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",color:"#94A3BE",background:"#F0F2F5"}}>育成中</div>
                 </div>
               </div>
               {/* メモ */}
@@ -446,7 +446,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* 保存ボタン */}
               <div style={{display:"flex",justifyContent:"flex-end"}}>
                 <button onClick={saveEdit}
-                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:"bold"}}>保存</button>
+                  style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
               </div>
             </div>
           )}
