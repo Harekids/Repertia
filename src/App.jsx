@@ -2555,7 +2555,16 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         .select('data')
         .eq('user_id', user.id)
         .single();
-      if (data?.data) setProfile(data.data);
+      if (data?.data) setProfile(prev => {
+        const d = data.data;
+        return {
+          ...prev,
+          ...d,
+          educations: (d.educations && d.educations.length > 0) ? d.educations : prev.educations,
+          teachers:   (d.teachers   && d.teachers.length   > 0) ? d.teachers   : prev.teachers,
+          contact:    { ...prev.contact, ...(d.contact || {}) },
+        };
+      });
     };
     loadProfile();
   }, [user.id]);
