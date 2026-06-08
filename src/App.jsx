@@ -1083,62 +1083,42 @@ const PrintPage = (props) => {
 
             {/* ⑤ 全ステップを1ページに */}
 
-            {/* STEP1: 出力形式 */}
+            {/* STEP 1: 出力したい項目を選ぶ */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>STEP 1　出力形式</div>
-              <div style={{display:"flex",gap:16,justifyContent:"center"}}>
-                {[["single","1項目ずつ出力"],["bio","経歴としてまとめて出力"]].map(([v,l])=>(
-                  <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px",
-                    background:outFormat===v?"#0F1A33":"white",
-                    border:"1.5px solid "+(outFormat===v?"#0F1A33":"#1E2A45"),
-                    borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
-                    color:outFormat===v?"#C8A860":"#94A3BE"}}>
-                    <input type="radio" value={v} checked={outFormat===v} onChange={()=>setOutFormat(v)} style={{accentColor:"#8B5E3C"}}/>
-                    {l}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* STEP2: 出力項目 ⑥ */}
-            <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>STEP 2　出力項目</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>STEP 1　出力したい項目を選んでください（複数選択可）</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
                 {[
-                  ["profile","プロフィール（Profileから）"],
-                  ["repertoire","レパートリー（Repertoireから）"],
-                  ["program","プログラム（Programから）"],
-                  ["contests","コンクール歴（Historyから）"],
-                  ["performances","演奏活動（Historyから）"],
-                  ["upcoming","現在の活動（Upcomingから）"],
+                  ["profile","プロフィール"],
+                  ["repertoire","レパートリー"],
+                  ["program","プログラム"],
+                  ["contests","コンクール歴"],
+                  ["performances","演奏活動"],
+                  ["upcoming","現在の活動"],
                 ].map(([k,l])=>(
                   <label key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
-                    background:outItems[k]?"#F5F0E6":"white",
-                    border:"1px solid "+(outItems[k]?"#C8B080":"#1E2A45"),
-                    borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS,color:"#EDE6D6"}}>
+                    background:outItems[k]?"#F4F6F9":"#15233F",
+                    border:outItems[k]?"1.5px solid #C8A860":"1px solid #1E2A45",
+                    borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS,
+                    color:outItems[k]?"#15233F":"#94A3BE"}}>
                     <input type="checkbox" checked={outItems[k]||false}
                       onChange={e=>setOutItems(prev=>({...prev,[k]:e.target.checked}))}
-                      style={{accentColor:"#8B5E3C"}}/>
+                      style={{accentColor:"#C8A860"}}/>
                     {l}
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* STEP3: レパートリー選択 ⑦ */}
+            {/* STEP 2: レパートリー選択 */}
             {outItems.repertoire && (
               <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                  <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS}}>STEP 3　レパートリー選択</div>
+                  <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS}}>STEP 2　レパートリーの内容を選ぶ</div>
                   <div style={{display:"flex",gap:6}}>
                     <button onClick={()=>setOutRepIds(pieces.map(p=>p.id))}
-                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
-                      すべて選択
-                    </button>
+                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて選択</button>
                     <button onClick={()=>setOutRepIds([])}
-                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>
-                      すべて解除
-                    </button>
+                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて解除</button>
                   </div>
                 </div>
                 <div style={{maxHeight:200,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
@@ -1147,13 +1127,14 @@ const PrintPage = (props) => {
                     const checked=outRepIds.includes(p.id);
                     return (
                       <label key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",
-                        background:checked?"#F5F0E6":"white",borderRadius:4,cursor:"pointer",
-                        border:"1px solid "+(checked?"#C8B080":"#1E2A45"),fontSize:12,fontFamily:SANS,color:"#EDE6D6"}}>
+                        background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
+                        border:checked?"1.5px solid #C8A860":"1px solid #1E2A45",
+                        fontSize:12,fontFamily:SANS,color:checked?"#15233F":"#94A3BE"}}>
                         <input type="checkbox" checked={checked}
                           onChange={e=>setOutRepIds(prev=>e.target.checked?[...prev,p.id]:prev.filter(x=>x!==p.id))}
-                          style={{accentColor:"#8B5E3C"}}/>
+                          style={{accentColor:"#C8A860"}}/>
                         <span style={{fontSize:9,color:era.color,flexShrink:0}}>●</span>
-                        <span style={{color:"#94A3BE",fontSize:10,flexShrink:0}}>{p.composer}</span>
+                        <span style={{fontSize:10,flexShrink:0}}>{p.composer}</span>
                         <span style={{flex:1}}>{p.title}</span>
                         <span style={{fontSize:10,color:"#94A3BE"}}>{p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</span>
                       </label>
@@ -1163,97 +1144,83 @@ const PrintPage = (props) => {
               </div>
             )}
 
-            {/* STEP3: 出力言語 */}
+            {/* STEP 3: 出力言語 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,textAlign:"center"}}>STEP 3　出力言語</div>
               <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
-              {[["ja","日本語"],["en","English"]].map(([v,l])=>(
-                <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 20px",
-                  background:outLang===v?"#0F1A33":"white",
-                  border:"1.5px solid "+(outLang===v?"#0F1A33":"#1E2A45"),
-                  borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
-                  color:outLang===v?"#C8A860":"#94A3BE"}}>
-                  <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#8B5E3C"}}/>{l}
-                </label>
-              ))}
-              <button onClick={()=>{
-                  // Generate output
-                  const p=profile;
-                  const name=outLang==="ja"?(p.nameJa||p.nameEn||""):(p.nameEn||p.nameJa||"");
-                  const parts=[];
-                  if(outItems.profile&&name){
-                    parts.push(outLang==="ja"
-                      ? name+(p.birthDate?"（"+p.birthDate+"生まれ）":"")+(p.nationality&&p.nationality!=="ー"?"、"+p.nationality+"出身":"")+"。"
-                      : name+(p.birthDate?", born "+p.birthDate:"")+(p.nationality&&p.nationality!=="ー"?", "+p.nationality:"")+". "
-                        +((p.educations||[]).map(e=>e.school).join(", ")));
-                  }
-                  if(outItems.repertoire&&outRepIds.length>0){
-                    const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");
-                    parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
-                  }
-                  if(outItems.contests&&contestEvents.length>0){
-                    const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("\u3002\n");
-                    parts.push(outLang==="ja"?"【コンクール歴】\n"+ct:"[Competitions]\n"+ct);
-                  }
-                  if(outItems.performances&&concertEvents.length>0){
-                    const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("\u3002\n");
-                    parts.push(outLang==="ja"?"【演奏活動】\n"+pf:"[Performances]\n"+pf);
-                  }
-                  if(outItems.upcoming&&futureEvents.length>0){
-                    const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("\u3002\n");
-                    parts.push(outLang==="ja"?"【今後の予定】\n"+up:"[Upcoming]\n"+up);
-                  }
-                  if(outItems.program){
-                    const pgm=prog.pieceIds.map((id,i)=>{const px=allPool.find(x=>x.id===id);return px?(i+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join("\n");
-                    parts.push(outLang==="ja"?"【プログラム】\n"+pgm:"[Program]\n"+pgm);
-                  }
-                  setOutText(parts.join("\n\n"));
-                }}
-                style={{marginLeft:"auto",background:"#0F1A33",border:"none",color:"#C8A860",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                生成する
-              </button>
+                {[["ja","日本語"],["en","English"]].map(([v,l])=>(
+                  <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 20px",
+                    background:outLang===v?"#F4F6F9":"#15233F",
+                    border:outLang===v?"1.5px solid #C8A860":"1px solid #1E2A45",
+                    borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
+                    color:outLang===v?"#15233F":"#94A3BE"}}>
+                    <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#C8A860"}}/>
+                    {l}
+                  </label>
+                ))}
+                <button onClick={()=>{
+                    const p=profile;
+                    const name=outLang==="ja"?(p.nameJa||p.nameEn||""):(p.nameEn||p.nameJa||"");
+                    const parts=[];
+                    if(outItems.profile&&name){parts.push(outLang==="ja"?name+(p.birthDate?"（"+p.birthDate+"生まれ）":"")+(p.nationality&&p.nationality!=="ー"?"、"+p.nationality+"出身":"")+"。":name+(p.birthDate?", born "+p.birthDate:"")+(p.nationality&&p.nationality!=="ー"?", "+p.nationality:"")+" . "+((p.educations||[]).map(e=>e.school).join(", ")));}
+                    if(outItems.repertoire&&outRepIds.length>0){const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);}
+                    if(outItems.contests&&contestEvents.length>0){const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。
+");parts.push(outLang==="ja"?"【コンクール歴】
+"+ct:"[Competitions]
+"+ct);}
+                    if(outItems.performances&&concertEvents.length>0){const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。
+");parts.push(outLang==="ja"?"【演奏活動】
+"+pf:"[Performances]
+"+pf);}
+                    if(outItems.upcoming&&futureEvents.length>0){const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("。
+");parts.push(outLang==="ja"?"【今後の予定】
+"+up:"[Upcoming]
+"+up);}
+                    if(outItems.program){const pgm=prog.pieceIds.map((id,i)=>{const px=allPool.find(x=>x.id===id);return px?(i+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join("
+");parts.push(outLang==="ja"?"【プログラム】
+"+pgm:"[Program]
+"+pgm);}
+                    setOutText(parts.join("
+
+"));
+                  }}
+                  style={{marginLeft:"auto",background:"#C8A860",border:"none",color:"#0F1A33",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,fontWeight:"bold"}}>
+                  生成する
+                </button>
               </div>
             </div>
 
-            {/* STEP4: 編集（字数カウンター＋コピーアイコン） */}
+            {/* STEP 4: 編集 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>STEP 4　編集</div>
-              {/* ④ 説明文をタイトル直下 */}
-              <div style={{textAlign:"center",marginBottom:10,fontSize:11,color:"#94A3BE",fontFamily:SANS}}>
-                出力した内容は、自由に編集できます
-              </div>
               <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
                 <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{outText.length} 文字</span>
               </div>
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
-                style={{width:"100%",minHeight:200,background:"#15233F",border:"1px solid #1E2A45",
-                  color:"#EDE6D6",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
-                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
-              <div style={{display:"flex",justifyContent:"flex-end"}}>
-                <button onClick={()=>{const a=document.createElement("a");a.href="data:text/plain;charset=utf-8,"+encodeURIComponent(outText);a.download="portfolio.txt";a.click();}}
-                  style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"7px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  💾 保存
-                </button>
-              </div>
-
+                style={{width:"100%",minHeight:200,background:"#F4F6F9",border:"1px solid #C8CEDB",
+                  color:"#15233F",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
+                  lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
             </div>
 
-            {/* STEP5: PDF・印刷・コピー */}
+            {/* STEP 5: 出力 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>STEP 5　出力</div>
-              <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center"}}>
+              <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center"}}>
                 <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#0F1A33'>"+html+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  🖨 PDF
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  🖨 PDF / 印刷
                 </button>
-                <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#0F1A33'>"+html+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                  🖨 印刷
+                <button onClick={()=>{const blob=new Blob(["<html><body style='font-family:serif;font-size:12pt;line-height:1.8;'>"+outText.split(String.fromCharCode(10)).join("<br>")+"</body></html>"],{type:"application/msword"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="repertia_output.doc";a.click();}}
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  📄 Word でダウンロード
                 </button>
                 <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
-                  style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"10px 28px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📋 コピー
                 </button>
+              </div>
+              <div style={{textAlign:"center",marginTop:10,fontSize:11,color:"#94A3BE",fontFamily:SANS}}>
+                Googleドキュメント等に貼り付けて編集できます
               </div>
             </div>
 
