@@ -958,7 +958,7 @@ const PrintPage = (props) => {
     }
     if (outItems.program) {
       const pgm = prog.pieceIds.map((id,i)=>{const p=allPool.find(x=>x.id===id);return p?(i+1)+". "+p.composer+" / "+p.title:"";}).filter(Boolean).join(String.fromCharCode(10));
-      parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)++pgm:"[Program]"+String.fromCharCode(10)++pgm);
+      parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)+pgm:"[Program]"+String.fromCharCode(10)+pgm);
     }
 
     setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
