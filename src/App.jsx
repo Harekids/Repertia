@@ -1164,25 +1164,11 @@ const PrintPage = (props) => {
                     const parts=[];
                     if(outItems.profile&&name){parts.push(outLang==="ja"?name+(p.birthDate?"（"+p.birthDate+"生まれ）":"")+(p.nationality&&p.nationality!=="ー"?"、"+p.nationality+"出身":"")+"。":name+(p.birthDate?", born "+p.birthDate:"")+(p.nationality&&p.nationality!=="ー"?", "+p.nationality:"")+" . "+((p.educations||[]).map(e=>e.school).join(", ")));}
                     if(outItems.repertoire&&outRepIds.length>0){const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);}
-                    if(outItems.contests&&contestEvents.length>0){const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。
-");parts.push(outLang==="ja"?"【コンクール歴】
-"+ct:"[Competitions]
-"+ct);}
-                    if(outItems.performances&&concertEvents.length>0){const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。
-");parts.push(outLang==="ja"?"【演奏活動】
-"+pf:"[Performances]
-"+pf);}
-                    if(outItems.upcoming&&futureEvents.length>0){const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("。
-");parts.push(outLang==="ja"?"【今後の予定】
-"+up:"[Upcoming]
-"+up);}
-                    if(outItems.program){const pgm=prog.pieceIds.map((id,i)=>{const px=allPool.find(x=>x.id===id);return px?(i+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join("
-");parts.push(outLang==="ja"?"【プログラム】
-"+pgm:"[Program]
-"+pgm);}
-                    setOutText(parts.join("
-
-"));
+                    if(outItems.contests&&contestEvents.length>0){const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【コンクール歴】"+String.fromCharCode(10)+ct:"[Competitions]"+String.fromCharCode(10)+ct);}
+                    if(outItems.performances&&concertEvents.length>0){const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【演奏活動】"+String.fromCharCode(10)+pf:"[Performances]"+String.fromCharCode(10)+pf);}
+                    if(outItems.upcoming&&futureEvents.length>0){const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【今後の予定】"+String.fromCharCode(10)+up:"[Upcoming]"+String.fromCharCode(10)+up);}
+                    if(outItems.program){const pgm=prog.pieceIds.map((id,i)=>{const px=allPool.find(x=>x.id===id);return px?(i+1)+". "+px.composer+" / "+px.title:"";}).filter(Boolean).join(String.fromCharCode(10));parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)+pgm:"[Program]"+String.fromCharCode(10)+pgm);}
+                    setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
                   }}
                   style={{marginLeft:"auto",background:"#C8A860",border:"none",color:"#0F1A33",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,fontWeight:"bold"}}>
                   生成する
