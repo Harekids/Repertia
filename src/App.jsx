@@ -294,12 +294,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
-            {/* ①★候補・♥お気に入り・▼開閉を非表示（機能・データは保持）
+            {/* ①★候補を有効化・♥お気に入り・▼開閉は寝かせ中 */}
             {onToggleCandidate && (
               <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
-                title="候補"
+                title="選ぶ（出力・プログラム用）"
                 style={{background:"none",border:"none",color:p.candidate?"#C8A860":"#4A5A7A",fontSize:13,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>★</button>
             )}
+            {/* ♥お気に入り: 揃える日まで寝かせ中
             {onToggleFav && (
               <button onClick={e=>{e.stopPropagation();onToggleFav();}}
                 title="お気に入り"
