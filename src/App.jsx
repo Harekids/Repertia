@@ -941,27 +941,27 @@ const PrintPage = (props) => {
       if (teach) parts.push(outLang==="ja"?"【師事】"+teach+"に師事。":"[Study] Studied with "+teach+".");
     }
     if (outItems.contests && contestEvents.length>0) {
-      const ct = contestEvents.map(e=>(e.date.slice(0,4)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).trim()).join(outLang==="ja"?"。\n":".\n");
-      parts.push(outLang==="ja"?"【コンクール歴】\n"+ct+"。":"[Competitions]\n"+ct+".");
+      const ct = contestEvents.map(e=>(e.date.slice(0,4)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).trim()).join("。"+String.fromCharCode(10));
+      parts.push(outLang==="ja"?"【コンクール歴】"+String.fromCharCode(10)+ct+"。":"[Competitions]"+String.fromCharCode(10)+ct+".");
     }
     if (outItems.performances && concertEvents.length>0) {
-      const pf = concertEvents.slice(0,10).map(e=>(e.date.slice(0,4)+"年 "+(e.title||e.venue||"")).trim()).join(outLang==="ja"?"。\n":".\n");
-      parts.push(outLang==="ja"?"【演奏活動】\n"+pf+"。":"[Performances]\n"+pf+".");
+      const pf = concertEvents.slice(0,10).map(e=>(e.date.slice(0,4)+"年 "+(e.title||e.venue||"")).trim()).join("。"+String.fromCharCode(10));
+      parts.push(outLang==="ja"?"【演奏活動】"+String.fromCharCode(10)+pf+"。":"[Performances]"+String.fromCharCode(10)+pf+".");
     }
     if (outItems.upcoming && futureEvents.length>0) {
-      const up = futureEvents.map(e=>(e.date+" "+(e.title||e.venue||"")).trim()).join(outLang==="ja"?"。\n":".\n");
-      parts.push(outLang==="ja"?"【今後の予定】\n"+up+"。":"[Upcoming]\n"+up+".");
+      const up = futureEvents.map(e=>(e.date+" "+(e.title||e.venue||"")).trim()).join("。"+String.fromCharCode(10));
+      parts.push(outLang==="ja"?"【今後の予定】"+String.fromCharCode(10)+up+"。":"[Upcoming]"+String.fromCharCode(10)+up+".");
     }
     if (outItems.repertoire && pieces.length>0) {
       const rep = pieces.slice(0,20).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");
       parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
     }
     if (outItems.program) {
-      const pgm = prog.pieceIds.map((id,i)=>{const p=allPool.find(x=>x.id===id);return p?(i+1)+". "+p.composer+" / "+p.title:"";}).filter(Boolean).join("\n");
-      parts.push(outLang==="ja"?"【プログラム】\n"+pgm:"[Program]\n"+pgm);
+      const pgm = prog.pieceIds.map((id,i)=>{const p=allPool.find(x=>x.id===id);return p?(i+1)+". "+p.composer+" / "+p.title:"";}).filter(Boolean).join(String.fromCharCode(10));
+      parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)++pgm:"[Program]"+String.fromCharCode(10)++pgm);
     }
 
-    setOutText(parts.join("\n\n"));
+    setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
     setOutStep(4);
   };
 
@@ -2749,7 +2749,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     setPoolMode(m => m==="repertoire" ? "both" : m==="none" ? "ai" : m);
     const prompt = `クラシックピアノのプログラム編成の専門家として、以下の条件で曲を4曲提案してください。
 【現在のプログラム: ${prog.name}】
-${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.composer}、${p.year}年）${p.key} ${p.duration}分`).join("\n")}
+${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.composer}、${p.year}年）${p.key} ${p.duration}分`).join(String.fromCharCode(10))}
 【条件】
 - 残り時間: 約${remaining}分以内
 - 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
