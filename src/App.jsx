@@ -892,6 +892,7 @@ const PrintPage = (props) => {
   const {addListItem, updateListItem, removeListItem} = props;
   const {handlePhoto, photoInputRef} = props;
   const {saveProfile, profileSaveMsg} = props;
+  const {documents, setDocuments, saveDocuments} = props;
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -1205,10 +1206,46 @@ const PrintPage = (props) => {
                   style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📋 コピー
                 </button>
+                <button onClick={()=>{
+                    if(!outText||!outText.trim()) return;
+                    const firstLine = outText.slice(0,18).split(String.fromCharCode(10)).join(" ");
+                    const doc = {id:Date.now(), name:(firstLine||"無題")+" / "+new Date().toLocaleDateString(), text:outText};
+                    const next=[doc,...documents];
+                    setDocuments(next); saveDocuments(next);
+                  }}
+                  style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#E8ECF4",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                  📦 ボックスに保存
+                </button>
               </div>
               <div style={{textAlign:"center",marginTop:10,fontSize:11,color:"#94A3BE",fontFamily:SANS}}>
                 Googleドキュメント等に貼り付けて編集できます
               </div>
+            </div>
+
+            {/* 📦 ドキュメントボックス */}
+            <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
+              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>📦 ドキュメントボックス</div>
+              {documents.length===0 ? (
+                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
+                  保存した書類がここに溜まります
+                </div>
+              ) : (
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {documents.map(doc=>(
+                    <div key={doc.id} style={{display:"flex",alignItems:"center",gap:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px"}}>
+                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{doc.name}</span>
+                      <button onClick={()=>setOutText(doc.text)}
+                        style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                        読込
+                      </button>
+                      <button onClick={()=>{const next=documents.filter(d=>d.id!==doc.id); setDocuments(next); saveDocuments(next);}}
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                        削除
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
@@ -2530,6 +2567,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [showAdd, setShowAdd]                 = useState(false);
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
   const [events, setEvents]                    = useState([]);
+  const [documents, setDocuments]              = useState([]); // 📦 ドキュメントボックス
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
@@ -2600,6 +2638,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     }
   };
 
+  const saveDocuments = async (docs) => {
+    await supabase.from('documents')
+      .upsert({ user_id: user.id, data: docs }, { onConflict: 'user_id' });
+  };
+
   // ── Supabase: piecesの読み込み ──
   useEffect(() => {
     const loadPieces = async () => {
@@ -2657,6 +2700,19 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       if (data?.data) setEvents(data.data);
     };
     loadEvents();
+  }, [user.id]);
+
+  // ── Supabase: documents読み込み ──
+  useEffect(() => {
+    const loadDocuments = async () => {
+      const { data } = await supabase
+        .from('documents')
+        .select('data')
+        .eq('user_id', user.id)
+        .single();
+      if (data?.data) setDocuments(data.data);
+    };
+    loadDocuments();
   }, [user.id]);
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
   const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
@@ -2980,7 +3036,7 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
