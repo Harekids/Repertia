@@ -2084,6 +2084,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
 
 const HomePage = (props) => {
   const {prog, updateProg, programs, activeProgramId, setActiveProgramId} = props;
+  const {documents, setDocuments, saveDocuments} = props;
   const {editingProgramId, setEditingProgramId, editingName, setEditingName} = props;
   const {setPrograms, addProgram, deleteProgram} = props;
   const {programPieces, totalDuration, remaining} = props;
@@ -2319,6 +2320,20 @@ const HomePage = (props) => {
             {/* 保存ボタン */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:12,borderTop:"1px solid #1E2A45"}}>
               {programsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{programsSaveMsg}</span>}
+              <button onClick={()=>{
+                  if (programPieces.length>0) {
+                    const body = programPieces.map((p,i)=>(i+1)+". "+p.composer+" / "+p.title).join(String.fromCharCode(10));
+                    const text = "【プログラム】"+String.fromCharCode(10)+body;
+                    const doc = { id: Date.now(), name: "プログラム "+(prog.name||"")+" / "+new Date().toLocaleDateString(), text: text };
+                    const next = [doc, ...documents];
+                    setDocuments(next);
+                    saveDocuments(next);
+                  }
+                }}
+                style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
+                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
+                📦 ドキュメント作成
+              </button>
               <button onClick={savePrograms}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
                   borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
@@ -3126,6 +3141,7 @@ JSONのみ返してください:
         {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
+          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
           editingProgramId={editingProgramId} setEditingProgramId={setEditingProgramId}
           editingName={editingName} setEditingName={setEditingName}
