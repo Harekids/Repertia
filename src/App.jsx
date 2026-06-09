@@ -911,6 +911,27 @@ const PrintPage = (props) => {
   const contestEvents = pastEvents.filter(e=>e.type==="contest");
   const concertEvents = pastEvents.filter(e=>e.type!=="contest");
 
+  const buildBio = (lang) => {
+    const p = profile;
+    const name = lang==="ja" ? (p.nameJa||p.nameEn||"") : (p.nameEn||p.nameJa||"");
+    if (!name) return "";
+    const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
+    const origin = p.city || (p.nationality && p.nationality!=="ー" ? p.nationality : "");
+    const birthYear = yr(p.birthDate||"");
+    const intro = lang==="ja"
+      ? name+String.fromCharCode(10)+(birthYear?birthYear+"年、":"")+(origin?origin+"出身。":"")
+      : name+String.fromCharCode(10)+"Born"+(origin?" in "+origin:"")+(birthYear?" in "+birthYear:"")+". ";
+    const allEvts = [...(contestEvents||[]),...(concertEvents||[])].filter(e=>(e.title||e.venue||"").trim()).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+    const middle = allEvts.length>0
+      ? allEvts.map(e=> lang==="ja" ? yr(e.date)+"年、"+(e.title||e.venue||"")+(e.notes?"（"+e.notes+"）":"") : yr(e.date)+", "+(e.title||e.venue||"")).join(lang==="ja"?"。"+String.fromCharCode(10):". ")+(lang==="ja"?"。":"")
+      : "";
+    const teacherNames = (p.teachers||[]).map(t=>t.name).filter(Boolean);
+    const teacherStr = teacherNames.length>0 ? (lang==="ja"?"これまでに、"+teacherNames.join("、")+"の各氏に師事。":"Studied with "+teacherNames.join(", ")+". ") : "";
+    const eduList = (p.educations||[]).filter(e=>e.school);
+    const eduStr = eduList.length>0 ? (lang==="ja"?eduList.map(e=>e.school+(e.status||"")).join("、")+"。":eduList.map(e=>(e.status?e.status+", ":"")+e.school).join(", ")) : "";
+    return [intro,middle,teacherStr+eduStr].filter(Boolean).join(String.fromCharCode(10));
+  };
+
   // ── Helpers ──
   const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:SANS};
@@ -991,6 +1012,21 @@ const PrintPage = (props) => {
       {portfolioTab==="profile" && (
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
+
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
+              <button onClick={()=>{
+                  const text = buildBio("ja");
+                  if (text) {
+                    const doc = { id: Date.now(), name: "経歴文 / "+new Date().toLocaleDateString(), text: text };
+                    const next = [doc, ...documents];
+                    setDocuments(next);
+                    saveDocuments(next);
+                  }
+                }}
+                style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                📦 ドキュメント作成
+              </button>
+            </div>
 
             {/* ── アカウント情報 ── */}
             <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
