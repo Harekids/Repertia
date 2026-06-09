@@ -1906,11 +1906,15 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
               const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
               const past = events.filter(e=>(e.date||"")<=today);
               const contest = past.filter(e=>e.type==="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-              const concert = past.filter(e=>e.type!=="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const concert = past.filter(e=>e.type==="concert").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const recital = past.filter(e=>e.type==="recital").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const other   = past.filter(e=>e.type==="other").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
               const fmt = arr => arr.map(e=>yr(e.date)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).join(String.fromCharCode(10));
               const blocks = [];
               if (contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
-              if (concert.length>0) blocks.push("【演奏活動】"+String.fromCharCode(10)+fmt(concert));
+              if (concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
+              if (recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
+              if (other.length>0)   blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
               if (blocks.length>0) {
                 const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
                 const doc = { id: Date.now(), name: "演奏・コンクール歴 / "+new Date().toLocaleDateString(), text: text };
