@@ -1238,6 +1238,17 @@ const PrintPage = (props) => {
                         style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         読込
                       </button>
+                      <button onClick={()=>{
+                          const nm = window.prompt("ドキュメントの名前", doc.name);
+                          if (nm !== null && nm.trim() !== "") {
+                            const next = documents.map(d => d.id===doc.id ? {...d, name: nm.trim()} : d);
+                            setDocuments(next);
+                            saveDocuments(next);
+                          }
+                        }}
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                        名前変更
+                      </button>
                       <button onClick={()=>{const next=documents.filter(d=>d.id!==doc.id); setDocuments(next); saveDocuments(next);}}
                         style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         削除
