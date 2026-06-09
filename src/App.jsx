@@ -1387,6 +1387,7 @@ const BarChart = ({dashData}) => {
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
   const {pieces, setPieces, poolFiltered, showAdd, setShowAdd} = props;
+  const {documents, setDocuments, saveDocuments} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
@@ -1614,7 +1615,23 @@ const ManagePage = (props) => {
       </div>
 
       {/* ② ボタン行 — 右端に寄せる */}
-      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:20,marginTop:8}}>
+      <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginBottom:20,marginTop:8}}>
+        <button onClick={()=>{
+            const sel = pieces.filter(p=>p.candidate);
+            const list = sel.length>0 ? sel : pieces;
+            if (list.length>0) {
+              const body = list.map(p=>p.composer+" / "+p.title).join(String.fromCharCode(10));
+              const text = "【レパートリー】"+String.fromCharCode(10)+body;
+              const doc = { id: Date.now(), name: "レパートリー（"+(sel.length>0 ? "★"+sel.length+"曲" : "全"+pieces.length+"曲")+"） / "+new Date().toLocaleDateString(), text: text };
+              const next = [doc, ...documents];
+              setDocuments(next);
+              saveDocuments(next);
+            }
+          }}
+          style={{background:"#0F1A33",border:"none",color:"#C8A860",
+            padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
+          📦 ドキュメント作成
+        </button>
         <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
           style={{background:"#0F1A33",border:"none",color:"#C8A860",
             padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
@@ -3056,6 +3073,7 @@ JSONのみ返してください:
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered}
+          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
