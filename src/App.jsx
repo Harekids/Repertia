@@ -1689,7 +1689,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments}) => {
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -1900,7 +1900,29 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
         {/* Top bar ④ 1行目：追加ボタン */}
-        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}>
+        <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginBottom:10}}>
+          <button onClick={()=>{
+              const today = new Date().toISOString().slice(0,10);
+              const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
+              const past = events.filter(e=>(e.date||"")<=today);
+              const contest = past.filter(e=>e.type==="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const concert = past.filter(e=>e.type!=="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const fmt = arr => arr.map(e=>yr(e.date)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).join(String.fromCharCode(10));
+              const blocks = [];
+              if (contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
+              if (concert.length>0) blocks.push("【演奏活動】"+String.fromCharCode(10)+fmt(concert));
+              if (blocks.length>0) {
+                const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
+                const doc = { id: Date.now(), name: "演奏・コンクール歴 / "+new Date().toLocaleDateString(), text: text };
+                const next = [doc, ...documents];
+                setDocuments(next);
+                saveDocuments(next);
+              }
+            }}
+            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
+            📦 ドキュメント作成
+          </button>
           <button onClick={openAdd}
             style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
               cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
@@ -3131,7 +3153,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} />}
       </div>
     </div>
   );
