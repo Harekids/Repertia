@@ -1705,7 +1705,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
   ];
   const EMPTY_EVENT = {
     date:"", type:"recital", title:"", organizer:"", venue:"",
-    openTime:"", startTime:"", contact:"",
+    openTime:"", startTime:"", contact:"", otherLabel:"",
     items:[], notes:"", videoUrl:"", posterUrl:"",
   };
 
@@ -1963,6 +1963,17 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
                   {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
                 </select>
               </div>
+              {newEvent.type==="other" && (
+                <div style={{marginTop:6}}>
+                  <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>どんな催し？（自由入力）</div>
+                  <input
+                    value={newEvent.otherLabel||""}
+                    onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
+                    placeholder="例：マスタークラス、サロンコンサート など"
+                    style={inpE}
+                  />
+                </div>
+              )}
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>内容</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>場所</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
             </div>
