@@ -897,6 +897,7 @@ const PrintPage = (props) => {
   const {handlePhoto, photoInputRef} = props;
   const {saveProfile, profileSaveMsg} = props;
   const {documents, setDocuments, saveDocuments} = props;
+  const {docSaveMsg, setDocSaveMsg} = props;
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -1025,11 +1026,14 @@ const PrintPage = (props) => {
                     const next = [doc, ...documents];
                     setDocuments(next);
                     saveDocuments(next);
+                    setDocSaveMsg("ドキュメントを作成しました ✓");
+                    setTimeout(() => setDocSaveMsg(""), 3000);
                   }
                 }}
                 style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                 📦 ドキュメント作成
               </button>
+              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginLeft:8}}>{docSaveMsg}</span>}
             </div>
 
             {/* ── アカウント情報 ── */}
@@ -1119,7 +1123,7 @@ const PrintPage = (props) => {
               <button onClick={saveProfile}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
                   borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-                💾 保存
+                保存
               </button>
             </div>
 
@@ -1261,10 +1265,13 @@ const PrintPage = (props) => {
                     const doc = {id:Date.now(), name:(firstLine||"無題")+" / "+new Date().toLocaleDateString(), text:outText};
                     const next=[doc,...documents];
                     setDocuments(next); saveDocuments(next);
+                    setDocSaveMsg("ボックスに保存しました ✓");
+                    setTimeout(() => setDocSaveMsg(""), 3000);
                   }}
                   style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#E8ECF4",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📦 ボックスに保存
                 </button>
+                {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginLeft:8,alignSelf:"center"}}>{docSaveMsg}</span>}
               </div>
               <div style={{textAlign:"center",marginTop:10,fontSize:11,color:"#94A3BE",fontFamily:SANS}}>
                 Googleドキュメント等に貼り付けて編集できます
@@ -1401,6 +1408,7 @@ const BarChart = ({dashData}) => {
 const ManagePage = (props) => {
   const {pieces, setPieces, poolFiltered, showAdd, setShowAdd} = props;
   const {documents, setDocuments, saveDocuments} = props;
+  const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
@@ -1628,7 +1636,8 @@ const ManagePage = (props) => {
       </div>
 
       {/* ② ボタン行 — 右端に寄せる */}
-      <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginBottom:20,marginTop:8}}>
+      <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:20,marginTop:8}}>
+        {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
         <button onClick={()=>{
             const sel = pieces.filter(p=>p.candidate);
             const list = sel.length>0 ? sel : pieces;
@@ -1639,6 +1648,8 @@ const ManagePage = (props) => {
               const next = [doc, ...documents];
               setDocuments(next);
               saveDocuments(next);
+              setDocSaveMsg("ドキュメントを作成しました ✓");
+              setTimeout(() => setDocSaveMsg(""), 3000);
             }
           }}
           style={{background:"#0F1A33",border:"none",color:"#C8A860",
@@ -1703,7 +1714,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -1914,7 +1925,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
         {/* Top bar ④ 1行目：追加ボタン */}
-        <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginBottom:10}}>
+        <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:10}}>
+          {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
           <button onClick={()=>{
               const today = new Date().toISOString().slice(0,10);
               const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
@@ -1935,6 +1947,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
                 const next = [doc, ...documents];
                 setDocuments(next);
                 saveDocuments(next);
+                setDocSaveMsg("ドキュメントを作成しました ✓");
+                setTimeout(() => setDocSaveMsg(""), 3000);
               }
             }}
             style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
@@ -2093,7 +2107,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
           <button onClick={saveEvents}
             style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
               borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-            💾 保存
+            保存
           </button>
         </div>
 
@@ -2114,6 +2128,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
 const HomePage = (props) => {
   const {prog, updateProg, programs, activeProgramId, setActiveProgramId} = props;
   const {documents, setDocuments, saveDocuments} = props;
+  const {docSaveMsg, setDocSaveMsg} = props;
   const {editingProgramId, setEditingProgramId, editingName, setEditingName} = props;
   const {setPrograms, addProgram, deleteProgram} = props;
   const {programPieces, totalDuration, remaining} = props;
@@ -2357,16 +2372,19 @@ const HomePage = (props) => {
                     const next = [doc, ...documents];
                     setDocuments(next);
                     saveDocuments(next);
+                    setDocSaveMsg("ドキュメントを作成しました ✓");
+                    setTimeout(() => setDocSaveMsg(""), 3000);
                   }
                 }}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
                   borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
                 📦 ドキュメント作成
               </button>
+              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{docSaveMsg}</span>}
               <button onClick={savePrograms}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
                   borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-                💾 保存
+                保存
               </button>
             </div>
           </div>
@@ -2711,6 +2729,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [profileSaveMsg, setProfileSaveMsg]    = useState("");
   const [programsSaveMsg, setProgramsSaveMsg]  = useState("");
   const [eventsSaveMsg, setEventsSaveMsg]      = useState("");
+  const [docSaveMsg, setDocSaveMsg]            = useState(""); // 📦 ドキュメント作成の共通メッセージ
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
@@ -3140,7 +3159,7 @@ JSONのみ返してください:
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered}
-          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments}
+          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
@@ -3168,10 +3187,10 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
-          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments}
+          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
           editingProgramId={editingProgramId} setEditingProgramId={setEditingProgramId}
           editingName={editingName} setEditingName={setEditingName}
@@ -3199,7 +3218,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
     </div>
   );
