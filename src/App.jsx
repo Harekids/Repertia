@@ -231,8 +231,11 @@ const fmtDuration = (mins, secs) => {
 //   onToggleCandidate - 候補トグル
 //   isAI        - AI提案曲か
 //   showControls - ボタン類を表示するか（デフォルトtrue）
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[] }) => {
   const era = ERAS[p.era] || ERAS.modern;
+  const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
+  const statusBg = isAI ? "#9FB3C8" : isLearning ? "#E8E0CE" : null; // AI=青み銀 / Learning=クリーム / それ以外=紺(null)
+  const statusText = statusBg ? "#15233F" : null; // 色つき背景の上は濃紺
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
 
@@ -261,7 +264,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   return (
     <div style={{
-      background: expanded ? "#1C2E4A" : inProgram ? "#15233F" : "transparent",
+      background: expanded ? "#1C2E4A" : statusBg ? statusBg : inProgram ? "#15233F" : "transparent",
       borderBottom: "1px solid #1E2A45",
       position: "relative",
       opacity: inProgram ? 0.6 : 1,
@@ -285,14 +288,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
-          <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
+          <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
           {expanded ? <span style={{width:1,alignSelf:"stretch",background:"#7A8FB5",flexShrink:0,margin:"0 4px",display:"inline-block"}} /> : <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
-          <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
-          {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+          {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
-        <span style={{fontSize:14,color:expanded?"#F0E8D0":"#EDE6D6",fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+        <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {/* ①★候補を有効化・♥お気に入り・▼開閉は寝かせ中 */}
@@ -652,7 +655,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
           onKeyDown={handleKey}
           placeholder="曲名・作曲家を検索…"
           autoComplete="off"
-          style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",
+          style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",
             padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
@@ -1671,6 +1674,7 @@ const ManagePage = (props) => {
                 onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                 showControls={true}
                 onUpdatePiece={onUpdatePiece}
+                learningIds={learningIds}
               />
               {editMode && expandedId===p.id && (
                 <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
@@ -1779,7 +1783,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
     reader.readAsDataURL(file);
   };
 
-  const inpE={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const selE={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"};
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:SANS,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
@@ -2987,7 +2991,7 @@ JSONのみ返してください:
   };
 
   // ── Styles ──
-  const inpS={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpS={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const lblS={fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:SANS};
   const secTitle=(t)=>( <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div> );
   const addBtn=(label,onClick)=>(
@@ -3113,6 +3117,7 @@ JSONのみ返してください:
         onToggleCandidate={()=>toggleCandidate(p.id)}
         showControls={showControls}
         onUpdatePiece={onUpdatePiece}
+        learningIds={learningIds}
       />
     );
   };
