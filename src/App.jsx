@@ -1829,6 +1829,7 @@ const ManagePage = (props) => {
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
 const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+  const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -2039,6 +2040,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
         {/* Top bar ④ 1行目：追加ボタン */}
+        <div style={{display:"flex",gap:14,justifyContent:"flex-end",marginBottom:8,fontSize:12,fontFamily:SANS,color:"#C8CEDB",flexWrap:"wrap"}}>
+          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))}/> コンクール</label>
+          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.concert} onChange={e=>setEvtCheck(c=>({...c,concert:e.target.checked}))}/> コンサート</label>
+          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.recital} onChange={e=>setEvtCheck(c=>({...c,recital:e.target.checked}))}/> 発表会</label>
+          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.other} onChange={e=>setEvtCheck(c=>({...c,other:e.target.checked}))}/> その他</label>
+        </div>
         <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:10}}>
           {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
           <button onClick={()=>{
@@ -2051,13 +2058,22 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
               const other   = past.filter(e=>e.type==="other").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
               const fmt = arr => arr.map(e=>yr(e.date)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).join(String.fromCharCode(10));
               const blocks = [];
-              if (contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
-              if (concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
-              if (recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
-              if (other.length>0)   blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
+              if (evtCheck.contest && contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
+              if (evtCheck.concert && concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
+              if (evtCheck.recital && recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
+              if (evtCheck.other && other.length>0)     blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
               if (blocks.length>0) {
                 const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
-                const doc = { id: Date.now(), name: "演奏・コンクール歴 / "+new Date().toLocaleDateString(), text: text };
+                const labels = [];
+                if (evtCheck.contest && contest.length>0) labels.push("コンクール歴");
+                if (evtCheck.concert && concert.length>0) labels.push("コンサート");
+                if (evtCheck.recital && recital.length>0) labels.push("発表会");
+                if (evtCheck.other && other.length>0) labels.push("その他");
+                const defaultName = labels.length>0 ? labels.join("・") : "演奏歴";
+                const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
+                if (inputName===null) return;
+                const finalName = inputName.trim() || defaultName;
+                const doc = { id: Date.now(), name: finalName, text: text };
                 const next = [doc, ...documents];
                 setDocuments(next);
                 saveDocuments(next);
