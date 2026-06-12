@@ -899,6 +899,7 @@ const PrintPage = (props) => {
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {scratchItems, setScratchItems} = props;
+  const [showAddPanel, setShowAddPanel] = useState(false);
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -1340,18 +1341,30 @@ const PrintPage = (props) => {
               )}
               <button onClick={()=>{
                   if(documents.length===0){ window.alert("先にボックスにドキュメントを保存してください"); return; }
-                  const names = documents.map((d,i)=>(i+1)+". "+d.name).join(String.fromCharCode(10));
-                  const pick = window.prompt("追加するパーツの番号を入力"+String.fromCharCode(10)+names);
-                  if(pick===null) return;
-                  const n = parseInt(pick,10);
-                  if(n>=1 && n<=documents.length){
-                    const doc = documents[n-1];
-                    setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
-                  }
+                  setShowAddPanel(!showAddPanel);
                 }}
                 style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%"}}>
                 ＋ ボックスから追加
               </button>
+              {showAddPanel && (
+                <div style={{marginTop:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:6,padding:"8px 10px"}}>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>追加したいパーツをクリック</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                    {documents.map(doc=>(
+                      <button key={doc.id} onClick={()=>{
+                          setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
+                        }}
+                        style={{textAlign:"left",background:"#15233F",border:"1px solid #2A3A5A",color:"#C8CEDB",padding:"7px 10px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                        ＋ {doc.name}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={()=>setShowAddPanel(false)}
+                    style={{marginTop:8,background:"transparent",border:"none",color:"#6B7A90",padding:"4px 0",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                    閉じる
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
