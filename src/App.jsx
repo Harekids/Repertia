@@ -1151,6 +1151,8 @@ const PrintPage = (props) => {
 
             {/* ⑤ 全ステップを1ページに */}
 
+            {/* ▼▼ STEP 1〜3 を眠らせています（false で非表示・将来復活可能） ▼▼ */}
+            {false && (<React.Fragment>
             {/* STEP 1: 出力したい項目を選ぶ */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>STEP 1　出力したい項目を選んでください（複数選択可）</div>
@@ -1243,10 +1245,12 @@ const PrintPage = (props) => {
                 </button>
               </div>
             </div>
+            </React.Fragment>)}
+            {/* ▲▲ STEP 1〜3 ここまで眠り ▲▲ */}
 
             {/* STEP 4: 編集 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>STEP 4　編集</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>編集</div>
               <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
                 <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{outText.length} 文字</span>
               </div>
@@ -1258,7 +1262,7 @@ const PrintPage = (props) => {
 
             {/* STEP 5: 出力 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>STEP 5　出力</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>出力</div>
               <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center"}}>
                 <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#0F1A33'>"+html+"</body></html>");w.document.close();w.print();}}
                   style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
