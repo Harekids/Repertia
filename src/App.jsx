@@ -1057,6 +1057,10 @@ const PrintPage = (props) => {
                     if (tNames.length>0) lines.push("【師事】"+String.fromCharCode(10)+tNames.join("、")+"に師事。");
                   }
                   const text = lines.filter(Boolean).join(String.fromCharCode(10)+String.fromCharCode(10));
+                  if (!text) {
+                    window.alert("該当するデータがありません");
+                    return;
+                  }
                   if (text) {
                     const labels = [];
                     if (bioCheck.basic) labels.push("基本情報");
@@ -2062,6 +2066,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
               if (evtCheck.concert && concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
               if (evtCheck.recital && recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
               if (evtCheck.other && other.length>0)     blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
+              if (blocks.length===0) {
+                window.alert("該当するデータがありません");
+                return;
+              }
               if (blocks.length>0) {
                 const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
                 const labels = [];
