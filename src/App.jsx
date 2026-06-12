@@ -900,6 +900,17 @@ const PrintPage = (props) => {
   const {docSaveMsg, setDocSaveMsg} = props;
   const {scratchItems, setScratchItems} = props;
   const [showAddPanel, setShowAddPanel] = useState(false);
+  const [scratchDragId, setScratchDragId] = useState(null);
+  const [scratchOverId, setScratchOverId] = useState(null);
+  const onScratchDragEnd = () => {
+    if (scratchDragId==null||scratchOverId==null||scratchDragId===scratchOverId) { setScratchDragId(null); setScratchOverId(null); return; }
+    const arr=[...scratchItems];
+    const from=arr.findIndex(x=>x.id===scratchDragId), to=arr.findIndex(x=>x.id===scratchOverId);
+    const moved=arr[from];
+    arr.splice(from,1); arr.splice(to,0,moved);
+    setScratchItems(arr);
+    setScratchDragId(null); setScratchOverId(null);
+  };
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -1328,7 +1339,13 @@ const PrintPage = (props) => {
               ) : (
                 <div style={{display:"flex",flexDirection:"column",gap:6}}>
                   {scratchItems.map((item,idx)=>(
-                    <div key={item.id} style={{display:"flex",alignItems:"center",gap:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px"}}>
+                    <div key={item.id} draggable
+                      onDragStart={()=>setScratchDragId(item.id)}
+                      onDragEnter={()=>setScratchOverId(item.id)}
+                      onDragEnd={onScratchDragEnd}
+                      onDragOver={e=>e.preventDefault()}
+                      style={{display:"flex",alignItems:"center",gap:8,background:scratchOverId===item.id?"#1A2740":"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px",cursor:"grab"}}>
+                      <span style={{color:"#6B7A90",fontSize:13,cursor:"grab"}}>⠿</span>
                       <span style={{fontSize:12,color:"#6B7A90",fontFamily:SANS,minWidth:18}}>{idx+1}</span>
                       <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
                       <button onClick={()=>setScratchItems(scratchItems.filter((_,i)=>i!==idx))}
