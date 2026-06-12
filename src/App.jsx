@@ -900,6 +900,7 @@ const PrintPage = (props) => {
   const {docSaveMsg, setDocSaveMsg} = props;
   const {scratchItems, setScratchItems} = props;
   const [showAddPanel, setShowAddPanel] = useState(false);
+  const [bioCheck, setBioCheck] = useState({ basic:true, education:true, teacher:true });
   const [scratchDragId, setScratchDragId] = useState(null);
   const [scratchOverId, setScratchOverId] = useState(null);
   const onScratchDragEnd = () => {
@@ -1031,11 +1032,33 @@ const PrintPage = (props) => {
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
 
+            <div style={{display:"flex",gap:16,justifyContent:"flex-end",marginBottom:10,fontSize:12,fontFamily:SANS,color:"#C8CEDB"}}>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.basic} onChange={e=>setBioCheck(c=>({...c,basic:e.target.checked}))}/> 基本情報</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.education} onChange={e=>setBioCheck(c=>({...c,education:e.target.checked}))}/> 学歴</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.teacher} onChange={e=>setBioCheck(c=>({...c,teacher:e.target.checked}))}/> 師事</label>
+            </div>
+
             <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
               <button onClick={()=>{
-                  const text = buildBio("ja");
+                  const p = profile;
+                  const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
+                  const lines = [];
+                  if (bioCheck.basic) {
+                    const origin = (p.nationality && p.nationality!=="ー") ? p.nationality : "";
+                    const by = yr(p.birthDate||"");
+                    lines.push((p.nameJa||p.nameEn||"") + String.fromCharCode(10) + (by?by+"年、":"") + (origin?origin+"出身。":""));
+                  }
+                  if (bioCheck.education) {
+                    const eduList = (p.educations||[]).filter(e=>e.school);
+                    if (eduList.length>0) lines.push("【学歴】"+String.fromCharCode(10)+eduList.map(e=>(e.period?e.period+" ":"")+e.school+(e.status||"")).join(String.fromCharCode(10)));
+                  }
+                  if (bioCheck.teacher) {
+                    const tNames = (p.teachers||[]).map(t=>t.name).filter(Boolean);
+                    if (tNames.length>0) lines.push("【師事】"+String.fromCharCode(10)+tNames.join("、")+"に師事。");
+                  }
+                  const text = lines.filter(Boolean).join(String.fromCharCode(10)+String.fromCharCode(10));
                   if (text) {
-                    const doc = { id: Date.now(), name: "経歴文 / "+new Date().toLocaleDateString(), text: text };
+                    const doc = { id: Date.now(), name: "プロフィール / "+new Date().toLocaleDateString(), text: text };
                     const next = [doc, ...documents];
                     setDocuments(next);
                     saveDocuments(next);
