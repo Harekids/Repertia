@@ -898,6 +898,7 @@ const PrintPage = (props) => {
   const {saveProfile, profileSaveMsg} = props;
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
+  const {scratchItems, setScratchItems} = props;
 
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
@@ -1313,6 +1314,44 @@ const PrintPage = (props) => {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* 🎨 スクラッチ（組み立て） */}
+            <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
+              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>🎨 スクラッチ（組み立て）</div>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>ボックスのパーツを並べて、1つの書類に組み立てます</div>
+              {scratchItems.length===0 ? (
+                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
+                  下の「＋ボックスから追加」で、パーツを足してください
+                </div>
+              ) : (
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {scratchItems.map((item,idx)=>(
+                    <div key={item.id} style={{display:"flex",alignItems:"center",gap:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px"}}>
+                      <span style={{fontSize:12,color:"#6B7A90",fontFamily:SANS,minWidth:18}}>{idx+1}</span>
+                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
+                      <button onClick={()=>setScratchItems(scratchItems.filter((_,i)=>i!==idx))}
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                        外す
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button onClick={()=>{
+                  if(documents.length===0){ window.alert("先にボックスにドキュメントを保存してください"); return; }
+                  const names = documents.map((d,i)=>(i+1)+". "+d.name).join(String.fromCharCode(10));
+                  const pick = window.prompt("追加するパーツの番号を入力"+String.fromCharCode(10)+names);
+                  if(pick===null) return;
+                  const n = parseInt(pick,10);
+                  if(n>=1 && n<=documents.length){
+                    const doc = documents[n-1];
+                    setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
+                  }
+                }}
+                style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%"}}>
+                ＋ ボックスから追加
+              </button>
             </div>
 
           </div>
@@ -2716,6 +2755,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
   const [events, setEvents]                    = useState([]);
   const [documents, setDocuments]              = useState([]); // 📦 ドキュメントボックス
+  const [scratchItems, setScratchItems]        = useState([]); // 🎨 スクラッチ組み立て中のパーツ
   const [analysisAxis, setAnalysisAxis]        = useState("era");
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
@@ -3187,7 +3227,7 @@ JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
