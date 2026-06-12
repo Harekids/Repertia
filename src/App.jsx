@@ -1382,6 +1382,16 @@ const PrintPage = (props) => {
                   </button>
                 </div>
               )}
+              {scratchItems.length>0 && (
+                <button onClick={()=>{
+                    const combined = scratchItems.map(it=>it.text).join(String.fromCharCode(10)+String.fromCharCode(10));
+                    setOutText(combined);
+                    window.scrollTo({top:0, behavior:"smooth"});
+                  }}
+                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+                  ▲ この順番で、編集画面に送る
+                </button>
+              )}
             </div>
 
           </div>
