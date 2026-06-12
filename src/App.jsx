@@ -1248,6 +1248,72 @@ const PrintPage = (props) => {
             </React.Fragment>)}
             {/* ▲▲ STEP 1〜3 ここまで眠り ▲▲ */}
 
+            {/* 🎨 スクラッチ（組み立て） */}
+            <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
+              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>🎨 スクラッチ（組み立て）</div>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>ボックスのパーツを並べて、1つの書類に組み立てます</div>
+              {scratchItems.length===0 ? (
+                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
+                  下の「＋ボックスから追加」で、パーツを足してください
+                </div>
+              ) : (
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {scratchItems.map((item,idx)=>(
+                    <div key={item.id} draggable
+                      onDragStart={()=>setScratchDragId(item.id)}
+                      onDragEnter={()=>setScratchOverId(item.id)}
+                      onDragEnd={onScratchDragEnd}
+                      onDragOver={e=>e.preventDefault()}
+                      style={{display:"flex",alignItems:"center",gap:8,background:scratchOverId===item.id?"#1A2740":"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px",cursor:"grab"}}>
+                      <span style={{color:"#6B7A90",fontSize:13,cursor:"grab"}}>⠿</span>
+                      <span style={{fontSize:12,color:"#6B7A90",fontFamily:SANS,minWidth:18}}>{idx+1}</span>
+                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
+                      <button onClick={()=>setScratchItems(scratchItems.filter((_,i)=>i!==idx))}
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
+                        外す
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button onClick={()=>{
+                  if(documents.length===0){ window.alert("先にボックスにドキュメントを保存してください"); return; }
+                  setShowAddPanel(!showAddPanel);
+                }}
+                style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%"}}>
+                ＋ ボックスから追加
+              </button>
+              {showAddPanel && (
+                <div style={{marginTop:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:6,padding:"8px 10px"}}>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>追加したいパーツをクリック</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                    {documents.map(doc=>(
+                      <button key={doc.id} onClick={()=>{
+                          setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
+                        }}
+                        style={{textAlign:"left",background:"#15233F",border:"1px solid #2A3A5A",color:"#C8CEDB",padding:"7px 10px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                        ＋ {doc.name}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={()=>setShowAddPanel(false)}
+                    style={{marginTop:8,background:"transparent",border:"none",color:"#6B7A90",padding:"4px 0",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                    閉じる
+                  </button>
+                </div>
+              )}
+              {scratchItems.length>0 && (
+                <button onClick={()=>{
+                    const combined = scratchItems.map(it=>it.text).join(String.fromCharCode(10)+String.fromCharCode(10));
+                    setOutText(combined);
+                    window.scrollTo({top:0, behavior:"smooth"});
+                  }}
+                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+                  ▲ この順番で、編集画面に送る
+                </button>
+              )}
+            </div>
+
             {/* STEP 4: 編集 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>編集</div>
@@ -1329,72 +1395,6 @@ const PrintPage = (props) => {
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-
-            {/* 🎨 スクラッチ（組み立て） */}
-            <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
-              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>🎨 スクラッチ（組み立て）</div>
-              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>ボックスのパーツを並べて、1つの書類に組み立てます</div>
-              {scratchItems.length===0 ? (
-                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
-                  下の「＋ボックスから追加」で、パーツを足してください
-                </div>
-              ) : (
-                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  {scratchItems.map((item,idx)=>(
-                    <div key={item.id} draggable
-                      onDragStart={()=>setScratchDragId(item.id)}
-                      onDragEnter={()=>setScratchOverId(item.id)}
-                      onDragEnd={onScratchDragEnd}
-                      onDragOver={e=>e.preventDefault()}
-                      style={{display:"flex",alignItems:"center",gap:8,background:scratchOverId===item.id?"#1A2740":"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px",cursor:"grab"}}>
-                      <span style={{color:"#6B7A90",fontSize:13,cursor:"grab"}}>⠿</span>
-                      <span style={{fontSize:12,color:"#6B7A90",fontFamily:SANS,minWidth:18}}>{idx+1}</span>
-                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
-                      <button onClick={()=>setScratchItems(scratchItems.filter((_,i)=>i!==idx))}
-                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                        外す
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <button onClick={()=>{
-                  if(documents.length===0){ window.alert("先にボックスにドキュメントを保存してください"); return; }
-                  setShowAddPanel(!showAddPanel);
-                }}
-                style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%"}}>
-                ＋ ボックスから追加
-              </button>
-              {showAddPanel && (
-                <div style={{marginTop:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:6,padding:"8px 10px"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>追加したいパーツをクリック</div>
-                  <div style={{display:"flex",flexDirection:"column",gap:5}}>
-                    {documents.map(doc=>(
-                      <button key={doc.id} onClick={()=>{
-                          setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
-                        }}
-                        style={{textAlign:"left",background:"#15233F",border:"1px solid #2A3A5A",color:"#C8CEDB",padding:"7px 10px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                        ＋ {doc.name}
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={()=>setShowAddPanel(false)}
-                    style={{marginTop:8,background:"transparent",border:"none",color:"#6B7A90",padding:"4px 0",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                    閉じる
-                  </button>
-                </div>
-              )}
-              {scratchItems.length>0 && (
-                <button onClick={()=>{
-                    const combined = scratchItems.map(it=>it.text).join(String.fromCharCode(10)+String.fromCharCode(10));
-                    setOutText(combined);
-                    window.scrollTo({top:0, behavior:"smooth"});
-                  }}
-                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
-                  ▲ この順番で、編集画面に送る
-                </button>
               )}
             </div>
 
