@@ -1058,7 +1058,15 @@ const PrintPage = (props) => {
                   }
                   const text = lines.filter(Boolean).join(String.fromCharCode(10)+String.fromCharCode(10));
                   if (text) {
-                    const doc = { id: Date.now(), name: "プロフィール / "+new Date().toLocaleDateString(), text: text };
+                    const labels = [];
+                    if (bioCheck.basic) labels.push("基本情報");
+                    if (bioCheck.education) labels.push("学歴");
+                    if (bioCheck.teacher) labels.push("師事");
+                    const defaultName = labels.length>0 ? labels.join("・") : "プロフィール";
+                    const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
+                    if (inputName===null) return;
+                    const finalName = inputName.trim() || defaultName;
+                    const doc = { id: Date.now(), name: finalName, text: text };
                     const next = [doc, ...documents];
                     setDocuments(next);
                     saveDocuments(next);
