@@ -2915,6 +2915,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   // ── Search/Filter states (shared between Program & Learning) ──
   const [composerFilter, setComposerFilter]   = useState("");
   const [titleFilter,    setTitleFilter]      = useState("");
+  const [composerFilterP, setComposerFilterP] = useState(""); // Program用（Learningと分離）
+  const [titleFilterP,    setTitleFilterP]    = useState(""); // Program用（Learningと分離）
   const [eraFilter,      setEraFilter]        = useState("");
   const [yearMin,        setYearMin]          = useState("");
   const [yearMax,        setYearMax]          = useState("");
@@ -3445,8 +3447,8 @@ JSONのみ返してください:
           toggle={toggle} toggleFav={toggleFav} toggleCandidate={toggleCandidate}
           dragId={dragId} dragOver={dragOver} onDragEnd={onDragEnd}
           poolMode={poolMode} setPoolMode={setPoolMode}
-          composerFilter={composerFilter} setComposerFilter={setComposerFilter}
-          titleFilter={titleFilter} setTitleFilter={setTitleFilter}
+          composerFilter={composerFilterP} setComposerFilter={setComposerFilterP}
+          titleFilter={titleFilterP} setTitleFilter={setTitleFilterP}
           eraFilter={eraFilter} setEraFilter={setEraFilter}
           yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
           durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
