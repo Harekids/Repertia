@@ -1999,6 +1999,21 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             ))}
           </div>
         )}
+        {ev.programId && (() => {
+          const pg = (programs||[]).find(p=>p.id===ev.programId);
+          if(!pg) return null;
+          const songs = (pg.pieceIds||[]).map(id=>(allPool||[]).find(x=>x.id===id)).filter(Boolean);
+          return (
+            <div style={{marginTop:6}}>
+              <div style={{color:"#94A3BE",marginBottom:3}}>プログラム：{pg.name||"無題"}</div>
+              {songs.map((s,i)=>(
+                <div key={s.id} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
+                  {(i+1)+". "+s.composer+" / "+s.title}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
         {ev.notes && <div><span style={{color:"#94A3BE"}}>メモ：</span>{ev.notes}</div>}
         {ev.videoUrl && <div><span style={{color:"#94A3BE"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
         {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #1E2A45",alignSelf:"flex-start",marginTop:4}}/>}
@@ -2243,6 +2258,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             </div>
 
             {/* ⑧ プログラム */}
+            {false && (<React.Fragment>
             <div style={{marginTop:16,marginBottom:8}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>プログラム</div>
               {newEvent.items.map((it,idx)=>(
@@ -2267,6 +2283,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
               {/* ⑤ 休憩ボタン削除 */}
               <button onClick={()=>addItem("piece")} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>＋ 曲を追加</button>
             </div>
+            </React.Fragment>)}
 
             <div style={{marginTop:16,marginBottom:14}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>Archive</div>
