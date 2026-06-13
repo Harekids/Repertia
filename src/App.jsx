@@ -1973,7 +1973,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:SANS,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
   // ── Event detail card ──
-  const EventDetail = ({ev, compact=false}) => {
+  const EventDetail = ({ev, compact=false, programs, allPool}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
       <div style={{borderTop:"1px solid #15233F",paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:SANS,display:"flex",flexDirection:"column",gap:5}}>
@@ -2068,7 +2068,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                       {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
                       <span style={{marginLeft:"auto",fontSize:10,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
                     </div>
-                    {isSelected && <EventDetail ev={ev}/>}
+                    {isSelected && <EventDetail ev={ev} programs={programs} allPool={allPool}/>}
                   </div>
                 </div>
               );
@@ -2099,7 +2099,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
               </div>
               {isSelected && (
                 <div style={{padding:"0 14px 12px"}}>
-                  <EventDetail ev={ev}/>
+                  <EventDetail ev={ev} programs={programs} allPool={allPool}/>
                 </div>
               )}
             </div>
