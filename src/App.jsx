@@ -2723,7 +2723,7 @@ const HomePage = (props) => {
                   letterSpacing:0.3}}>
                 from Repertoire
               </button>
-              <button onClick={()=>{ setPoolMode(m=>m==="ai"?"none":m==="repertoire"?"both":m==="both"?"repertoire":"ai"); if(poolMode==="none"||poolMode==="repertoire") askAI(); }}
+              <button onClick={()=>{ setPoolMode("ai"); askAI(); }}
                 disabled={aiLoading}
                 style={{flex:"0 0 30%",padding:"12px 6px",
                   background:(poolMode==="ai"||poolMode==="both")?"#0F1A33":"white",
