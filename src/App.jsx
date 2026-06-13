@@ -2327,6 +2327,8 @@ const HomePage = (props) => {
   const {canAdd, aiPieces, aiLoading, askAI} = props;
   const {allPool, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, sel} = props;
   const {savePrograms, programsSaveMsg} = props;
+  const [progDocIds, setProgDocIds] = useState([]);
+  const [showProgDocPanel, setShowProgDocPanel] = useState(false);
   // ── Local state for detail filter ──
   // filter states moved to App
 
@@ -2547,16 +2549,8 @@ const HomePage = (props) => {
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:12,borderTop:"1px solid #1E2A45"}}>
               {programsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{programsSaveMsg}</span>}
               <button onClick={()=>{
-                  if (programPieces.length>0) {
-                    const body = programPieces.map((p,i)=>(i+1)+". "+p.composer+" / "+p.title).join(String.fromCharCode(10));
-                    const text = "【プログラム】"+String.fromCharCode(10)+body;
-                    const doc = { id: Date.now(), name: "プログラム "+(prog.name||"")+" / "+new Date().toLocaleDateString(), text: text };
-                    const next = [doc, ...documents];
-                    setDocuments(next);
-                    saveDocuments(next);
-                    setDocSaveMsg("ドキュメントを作成しました ✓");
-                    setTimeout(() => setDocSaveMsg(""), 3000);
-                  }
+                  if (programs.length===0) { window.alert("該当するデータがありません"); return; }
+                  setShowProgDocPanel(!showProgDocPanel);
                 }}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
                   borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
@@ -2569,6 +2563,54 @@ const HomePage = (props) => {
                 保存
               </button>
             </div>
+            {showProgDocPanel && (
+              <div style={{marginTop:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",textAlign:"left"}}>
+                <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>出力するプログラムを選んでください（複数可）</div>
+                <div style={{display:"flex",flexDirection:"column",gap:5}}>
+                  {programs.map(pg=>{
+                    const checked=progDocIds.includes(pg.id);
+                    const cnt=(pg.pieceIds||[]).length;
+                    return (
+                      <label key={pg.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",
+                        background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
+                        border:checked?"1.5px solid #C8A860":"1px solid #1E2A45",
+                        fontSize:12,fontFamily:SANS,color:checked?"#15233F":"#C8CEDB"}}>
+                        <input type="checkbox" checked={checked}
+                          onChange={e=>setProgDocIds(prev=>e.target.checked?[...prev,pg.id]:prev.filter(x=>x!==pg.id))}
+                          style={{accentColor:"#C8A860"}}/>
+                        <span style={{flex:1}}>{pg.name||"無題"}</span>
+                        <span style={{fontSize:10,color:"#94A3BE"}}>{cnt}曲</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <button onClick={()=>{
+                    const targets = programs.filter(pg=>progDocIds.includes(pg.id));
+                    if (targets.length===0) { window.alert("該当するデータがありません"); return; }
+                    const blocks = targets.map(pg=>{
+                      const found = (pg.pieceIds||[]).map(id=>allPool.find(x=>x.id===id)).filter(Boolean);
+                      const body = found.map((px,i)=>(i+1)+". "+px.composer+" / "+px.title).join(String.fromCharCode(10));
+                      return "【"+(pg.name||"プログラム")+"】"+String.fromCharCode(10)+body;
+                    });
+                    const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
+                    const defaultName = targets.length>1 ? "プログラム比較（"+targets.length+"件）" : "プログラム "+(targets[0].name||"");
+                    const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
+                    if (inputName===null) return;
+                    const finalName = inputName.trim() || defaultName;
+                    const doc = { id: Date.now(), name: finalName, text: text };
+                    const next = [doc, ...documents];
+                    setDocuments(next);
+                    saveDocuments(next);
+                    setShowProgDocPanel(false);
+                    setProgDocIds([]);
+                    setDocSaveMsg("ドキュメントを作成しました ✓");
+                    setTimeout(() => setDocSaveMsg(""), 3000);
+                  }}
+                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+                  ✓ チェックしたプログラムで、ドキュメント作成
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
