@@ -1541,6 +1541,8 @@ const ManagePage = (props) => {
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
+  const [showRepDocPanel, setShowRepDocPanel] = useState(false);
+  const [repDocIds, setRepDocIds] = useState([]);
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
@@ -1757,18 +1759,8 @@ const ManagePage = (props) => {
       <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:20,marginTop:8}}>
         {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
         <button onClick={()=>{
-            const sel = pieces.filter(p=>p.candidate);
-            const list = sel.length>0 ? sel : pieces;
-            if (list.length>0) {
-              const body = list.map(p=>p.composer+" / "+p.title).join(String.fromCharCode(10));
-              const text = "【レパートリー】"+String.fromCharCode(10)+body;
-              const doc = { id: Date.now(), name: "レパートリー（"+(sel.length>0 ? "★"+sel.length+"曲" : "全"+pieces.length+"曲")+"） / "+new Date().toLocaleDateString(), text: text };
-              const next = [doc, ...documents];
-              setDocuments(next);
-              saveDocuments(next);
-              setDocSaveMsg("ドキュメントを作成しました ✓");
-              setTimeout(() => setDocSaveMsg(""), 3000);
-            }
+            if (poolFiltered.length===0) { window.alert("該当するデータがありません"); return; }
+            setShowRepDocPanel(!showRepDocPanel);
           }}
           style={{background:"#0F1A33",border:"none",color:"#C8A860",
             padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
@@ -1780,6 +1772,58 @@ const ManagePage = (props) => {
           ＋ 曲を追加
         </button>
       </div>
+
+      {showRepDocPanel && (
+        <div style={{marginTop:10,marginBottom:20,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS}}>出力する曲を選んでください</div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={()=>setRepDocIds(poolFiltered.map(p=>p.id))}
+                style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて選択</button>
+              <button onClick={()=>setRepDocIds([])}
+                style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて解除</button>
+            </div>
+          </div>
+          <div style={{maxHeight:240,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
+            {poolFiltered.map(p=>{
+              const checked=repDocIds.includes(p.id);
+              return (
+                <label key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",
+                  background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
+                  border:checked?"1.5px solid #C8A860":"1px solid #1E2A45",
+                  fontSize:12,fontFamily:SANS,color:checked?"#15233F":"#94A3BE"}}>
+                  <input type="checkbox" checked={checked}
+                    onChange={e=>setRepDocIds(prev=>e.target.checked?[...prev,p.id]:prev.filter(x=>x!==p.id))}
+                    style={{accentColor:"#C8A860"}}/>
+                  <span style={{fontSize:10,flexShrink:0}}>{p.composer}</span>
+                  <span style={{flex:1}}>{p.title}</span>
+                </label>
+              );
+            })}
+          </div>
+          <button onClick={()=>{
+              const sel = poolFiltered.filter(p=>repDocIds.includes(p.id));
+              if (sel.length===0) { window.alert("該当するデータがありません"); return; }
+              const body = sel.map(p=>p.composer+" / "+p.title).join(String.fromCharCode(10));
+              const text = "【レパートリー】"+String.fromCharCode(10)+body;
+              const defaultName = "レパートリー（"+sel.length+"曲）";
+              const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
+              if (inputName===null) return;
+              const finalName = inputName.trim() || defaultName;
+              const doc = { id: Date.now(), name: finalName, text: text };
+              const next = [doc, ...documents];
+              setDocuments(next);
+              saveDocuments(next);
+              setShowRepDocPanel(false);
+              setRepDocIds([]);
+              setDocSaveMsg("ドキュメントを作成しました ✓");
+              setTimeout(() => setDocSaveMsg(""), 3000);
+            }}
+            style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+            ✓ チェックした曲で、ドキュメント作成
+          </button>
+        </div>
+      )}
 
       {/* 曲追加フォーム — 境界線で視覚的に分離 */}
       {showAdd && (
