@@ -1999,6 +1999,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             ))}
           </div>
         )}
+        <div style={{background:"#3A1A1A",color:"#FFD0D0",padding:6,fontSize:10,marginTop:6,wordBreak:"break-all"}}>
+          [デバッグ] programId={String(ev.programId)} / programs数={(programs||[]).length} / allPool数={(allPool||[]).length}
+        </div>
         {ev.programId && (() => {
           const pg = (programs||[]).find(p=>p.id===ev.programId);
           if(!pg) return null;
