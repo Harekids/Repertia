@@ -1932,11 +1932,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   const saveEvent = () => {
     if (!newEvent.date) return;
-    if (editingId) {
-      setEvents(prev=>prev.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort((a,b)=>a.date.localeCompare(b.date)));
-    } else {
-      setEvents(prev=>[...prev,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date)));
-    }
+    const nextEvents = editingId
+      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort((a,b)=>a.date.localeCompare(b.date))
+      : [...events,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date));
+    setEvents(nextEvents);
+    saveEvents(nextEvents);
     setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT);
   };
 
@@ -3053,9 +3053,10 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     }
   };
 
-  const saveEvents = async () => {
+  const saveEvents = async (evs) => {
+    const dataToSave = Array.isArray(evs) ? evs : events;
     const { error } = await supabase.from('events')
-      .upsert({ user_id: user.id, data: events }, { onConflict: 'user_id' });
+      .upsert({ user_id: user.id, data: dataToSave }, { onConflict: 'user_id' });
     if (!error) {
       setEventsSaveMsg("保存しました ✓");
       setTimeout(() => setEventsSaveMsg(""), 3000);
