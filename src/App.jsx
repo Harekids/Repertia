@@ -901,6 +901,7 @@ const PrintPage = (props) => {
   const {scratchItems, setScratchItems} = props;
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [bioCheck, setBioCheck] = useState({ basic:true, education:true, teacher:true });
+  const [showBioPanel, setShowBioPanel] = useState(false);
   const [scratchDragId, setScratchDragId] = useState(null);
   const [scratchOverId, setScratchOverId] = useState(null);
   const onScratchDragEnd = () => {
@@ -1032,14 +1033,22 @@ const PrintPage = (props) => {
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
           <div style={{maxWidth:720,margin:"0 auto"}}>
 
-            <div style={{display:"flex",gap:16,justifyContent:"flex-end",marginBottom:10,fontSize:12,fontFamily:SANS,color:"#C8CEDB"}}>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.basic} onChange={e=>setBioCheck(c=>({...c,basic:e.target.checked}))}/> 基本情報</label>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.education} onChange={e=>setBioCheck(c=>({...c,education:e.target.checked}))}/> 学歴</label>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.teacher} onChange={e=>setBioCheck(c=>({...c,teacher:e.target.checked}))}/> 師事</label>
+            <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:16}}>
+              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:8}}>{docSaveMsg}</span>}
+              <button onClick={()=>setShowBioPanel(!showBioPanel)}
+                style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
+                📦 ドキュメント作成
+              </button>
             </div>
-
-            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
-              <button onClick={()=>{
+            {showBioPanel && (
+              <div style={{marginTop:10,marginBottom:16,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+                <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する項目を選んでください</div>
+                <div style={{display:"flex",gap:16,marginBottom:12,fontSize:12,fontFamily:SANS,color:"#C8CEDB"}}>
+                  <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.basic} onChange={e=>setBioCheck(c=>({...c,basic:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 基本情報</label>
+                  <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.education} onChange={e=>setBioCheck(c=>({...c,education:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 学歴</label>
+                  <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.teacher} onChange={e=>setBioCheck(c=>({...c,teacher:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 師事</label>
+                </div>
+                <button onClick={()=>{
                   const p = profile;
                   const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
                   const lines = [];
@@ -1076,13 +1085,14 @@ const PrintPage = (props) => {
                     saveDocuments(next);
                     setDocSaveMsg("ドキュメントを作成しました ✓");
                     setTimeout(() => setDocSaveMsg(""), 3000);
+                    setShowBioPanel(false);
                   }
                 }}
-                style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                📦 ドキュメント作成
-              </button>
-              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginLeft:8}}>{docSaveMsg}</span>}
-            </div>
+                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+                  ✓ チェックした項目で、ドキュメント作成
+                </button>
+              </div>
+            )}
 
             {/* ── アカウント情報 ── */}
             <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
@@ -1878,6 +1888,7 @@ const ManagePage = (props) => {
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
 const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
+  const [showEvtPanel, setShowEvtPanel] = useState(false);
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -2088,15 +2099,29 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
       <div style={{maxWidth:820,margin:"0 auto"}}>
 
         {/* Top bar ④ 1行目：追加ボタン */}
-        <div style={{display:"flex",gap:14,justifyContent:"flex-end",marginBottom:8,fontSize:12,fontFamily:SANS,color:"#C8CEDB",flexWrap:"wrap"}}>
-          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))}/> コンクール</label>
-          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.concert} onChange={e=>setEvtCheck(c=>({...c,concert:e.target.checked}))}/> コンサート</label>
-          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.recital} onChange={e=>setEvtCheck(c=>({...c,recital:e.target.checked}))}/> 発表会</label>
-          <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.other} onChange={e=>setEvtCheck(c=>({...c,other:e.target.checked}))}/> その他</label>
-        </div>
         <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:10}}>
           {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
-          <button onClick={()=>{
+          <button onClick={()=>setShowEvtPanel(!showEvtPanel)}
+            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
+            📦 ドキュメント作成
+          </button>
+          <button onClick={openAdd}
+            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
+            ＋ イベントを追加
+          </button>
+        </div>
+        {showEvtPanel && (
+          <div style={{marginBottom:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+            <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する種類を選んでください</div>
+            <div style={{display:"flex",gap:14,marginBottom:12,fontSize:12,fontFamily:SANS,color:"#C8CEDB",flexWrap:"wrap"}}>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンクール</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.concert} onChange={e=>setEvtCheck(c=>({...c,concert:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンサート</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.recital} onChange={e=>setEvtCheck(c=>({...c,recital:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 発表会</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.other} onChange={e=>setEvtCheck(c=>({...c,other:e.target.checked}))} style={{accentColor:"#C8A860"}}/> その他</label>
+            </div>
+            <button onClick={()=>{
               const today = new Date().toISOString().slice(0,10);
               const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
               const past = events.filter(e=>(e.date||"")<=today);
@@ -2131,18 +2156,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
                 saveDocuments(next);
                 setDocSaveMsg("ドキュメントを作成しました ✓");
                 setTimeout(() => setDocSaveMsg(""), 3000);
+                setShowEvtPanel(false);
               }
             }}
-            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
-              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-            📦 ドキュメント作成
-          </button>
-          <button onClick={openAdd}
-            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
-              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-            ＋ イベントを追加
-          </button>
-        </div>
+              style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
+              ✓ チェックした種類で、ドキュメント作成
+            </button>
+          </div>
+        )}
         {/* ⑤ 2行目：検索・フィルター */}
         <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
           <input
