@@ -1886,7 +1886,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const EVENT_TYPES = {
@@ -1905,7 +1905,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
   const EMPTY_EVENT = {
     date:"", type:"recital", title:"", organizer:"", venue:"",
     openTime:"", startTime:"", contact:"", otherLabel:"",
-    items:[], notes:"", videoUrl:"", posterUrl:"",
+    items:[], notes:"", videoUrl:"", posterUrl:"", programId:"",
   };
 
   const [evSearch, setEvSearch]        = useState("");
@@ -2222,6 +2222,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, sav
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>共演者</div><input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="14:00" style={inpE}/></div>
+                  </div>
+                  <div style={{marginBottom:12}}>
+                    <label style={{display:"block",fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:4}}>プログラム（任意）</label>
+                    <select value={newEvent.programId||""} onChange={e=>setNewEvent({...newEvent,programId:e.target.value})}
+                      style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"8px 10px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+                      <option value="">― プログラムを選ぶ ―</option>
+                      {(programs||[]).map(pg=>(
+                        <option key={pg.id} value={pg.id}>{pg.name||"無題"}（{(pg.pieceIds||[]).length}曲）</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>備考</div>
@@ -3466,7 +3476,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
     </div>
   );
