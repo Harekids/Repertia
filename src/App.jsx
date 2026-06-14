@@ -1763,10 +1763,11 @@ const ManagePage = (props) => {
                     <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
                   {/* ③ 昇格ボタン */}
-                  <button onClick={()=>{
+                  <button onClick={async()=>{
                       if(window.confirm(p.title+" をRepertoireに昇格しますか？（✦になります）")){
-                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:false,fav:true}:x));
+                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:false,fav:true,learning:false}:x));
                         setLearningIds(prev=>prev.filter(x=>x!==p.id));
+                        await supabase.from('pieces').update({is_learning: false, is_fav: true}).eq('id', p.id);
                       }
                     }}
                     title="Repertoireに昇格（✦）"
@@ -1775,10 +1776,11 @@ const ManagePage = (props) => {
                       display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                     ✦
                   </button>
-                  <button onClick={()=>{
+                  <button onClick={async()=>{
                       if(!learningIds.includes(p.id)){
                         setLearningIds(prev=>[...prev,p.id]);
-                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:true}:x));
+                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:true,learning:true}:x));
+                        await supabase.from('pieces').update({is_learning: true}).eq('id', p.id);
                       }
                       toggle(p.id);
                     }}
@@ -3190,8 +3192,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           memo: p.memo || '',
           fav: p.is_fav || false,
           candidate: p.is_candidate || false,
+          learning: p.is_learning || false,
           mine: true,
         })));
+        const learnIds = data.filter(p => p.is_learning).map(p => p.id);
+        setLearningIds(learnIds);
       }
       setPiecesLoading(false);
     };
@@ -3292,8 +3297,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       if (learningIds.includes(id)) {
         if (window.confirm("Learningからも削除しますか？")) {
           setLearningIds(prev=>prev.filter(x=>x!==id));
-          setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
-          await supabase.from('pieces').update({is_candidate: false}).eq('id', id);
+          setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false,learning:false}:p));
+          await supabase.from('pieces').update({is_candidate: false, is_learning: false}).eq('id', id);
         }
       } else {
         setPieces(ps=>ps.map(p=>p.id===id?{...p,candidate:false}:p));
@@ -3482,6 +3487,7 @@ JSONのみ返してください:
         memo: piece.memo || '',
         is_fav: false,
         is_candidate: false,
+        is_learning: true,
       }).select().single();
       if (!error && data) {
         setPieces(ps => [...ps, {
@@ -3489,7 +3495,7 @@ JSONのみ返してください:
           year: data.year, era: data.era, duration: data.duration,
           difficulty: data.difficulty, readiness: data.readiness,
           key: data.key, form: data.form, country: data.country,
-          memo: data.memo, fav: false, candidate: false, mine: true,
+          memo: data.memo, fav: false, candidate: false, learning: true, mine: true,
         }]);
         addedIds.push(data.id);
       }
