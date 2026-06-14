@@ -170,24 +170,28 @@ const TITLE_ALIASES = {
 const searchMatch = (p, q) => {
   if (!q.trim()) return true;
   const lower = q.toLowerCase().trim();
-  const title = p.title.toLowerCase();
-  const composer = p.composer.toLowerCase();
+  const title = (p.title||"").toLowerCase();
+  const composer = (p.composer||"").toLowerCase();
 
-  // Direct match
+  // Direct match（直接の部分一致：これは従来通り）
   if (title.includes(lower) || composer.includes(lower)) return true;
 
-  // Title alias match
+  // エイリアス照合は3文字以上の入力のみ（短い入力での暴発を防ぐ）
+  if (lower.length < 3) return false;
+
+  // Title alias match：その曲の正式名が canonical を含むときだけ、別名を照合
   for (const [canonical, aliases] of Object.entries(TITLE_ALIASES)) {
-    if (canonical.includes(q) || p.title.includes(canonical)) {
-      if (aliases.some(a => a.includes(lower) || lower.includes(a.substring(0,3)))) return true;
+    const canon = canonical.toLowerCase();
+    if (title.includes(canon) || canon.includes(title)) {
+      if (aliases.some(a => a.toLowerCase().includes(lower))) return true;
     }
-    if (aliases.some(a => a.includes(lower) || title.includes(a))) return true;
   }
 
-  // Composer alias match
+  // Composer alias match：その曲の作曲家が canonical を含むときだけ、別名を照合
   for (const [canonical, aliases] of Object.entries(SEARCH_ALIASES)) {
-    if (p.composer.includes(canonical) || canonical.includes(p.composer)) {
-      if (aliases.some(a => a.includes(lower) || lower.includes(a.substring(0,3)))) return true;
+    const canon = canonical.toLowerCase();
+    if (composer.includes(canon) || canon.includes(composer)) {
+      if (aliases.some(a => a.toLowerCase().includes(lower))) return true;
     }
   }
   return false;
