@@ -1886,7 +1886,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, pieces, learningIds, addPiecesFromProgram, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const EVENT_TYPES = {
@@ -1937,6 +1937,21 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
       : [...events,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date));
     setEvents(nextEvents);
     saveEvents(nextEvents);
+
+    // ★紐付けたプログラムの「白い曲」をDBに本登録してLearning入り
+    if (newEvent.programId) {
+      const pg = (programs||[]).find(p=>String(p.id)===String(newEvent.programId));
+      if (pg) {
+        const whiteIds = (pg.pieceIds||[]).filter(id=>!(pieces||[]).find(x=>String(x.id)===String(id)));
+        if (whiteIds.length>0) {
+          const whitePieces = whiteIds.map(id=>(allPool||[]).find(x=>String(x.id)===String(id))).filter(Boolean);
+          if (whitePieces.length>0 && addPiecesFromProgram) {
+            addPiecesFromProgram(whitePieces);
+          }
+        }
+      }
+    }
+
     setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT);
   };
 
@@ -3335,6 +3350,45 @@ JSONのみ返してください:
     setShowAdd(false);
   };
 
+  // ★ イベント紐付け時：プログラムの「白い曲」をDBに本登録し、Learning入りさせる
+  const addPiecesFromProgram = async (whitePieces) => {
+    if (!whitePieces || whitePieces.length===0) return;
+    const addedIds = [];
+    for (const piece of whitePieces) {
+      const era = eraFromYear(piece.year);
+      const { data, error } = await supabase.from('pieces').insert({
+        user_id: user.id,
+        title: piece.title,
+        composer: piece.composer || '',
+        year: piece.year || null,
+        era: era,
+        duration: piece.duration || 5,
+        difficulty: piece.difficulty || 3,
+        readiness: piece.readiness || 50,
+        key: piece.key || '',
+        form: piece.form || '',
+        country: piece.country || '',
+        memo: piece.memo || '',
+        is_fav: false,
+        is_candidate: false,
+      }).select().single();
+      if (!error && data) {
+        setPieces(ps => [...ps, {
+          id: data.id, title: data.title, composer: data.composer,
+          year: data.year, era: data.era, duration: data.duration,
+          difficulty: data.difficulty, readiness: data.readiness,
+          key: data.key, form: data.form, country: data.country,
+          memo: data.memo, fav: false, candidate: false, mine: true,
+        }]);
+        addedIds.push(data.id);
+      }
+    }
+    if (addedIds.length>0) {
+      setLearningIds(prev => [...prev, ...addedIds]);
+      window.alert(addedIds.length+"曲をLearningに追加しました ✓");
+    }
+  };
+
   // ── filtered/sorted pool ──
   const poolFiltered = pieces
     .filter(p => !filterEra || p.era===filterEra)
@@ -3494,7 +3548,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
     </div>
   );
