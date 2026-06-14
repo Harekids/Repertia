@@ -2947,6 +2947,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [pieces, setPieces]                   = useState([]);
   const [piecesLoading, setPiecesLoading]     = useState(true);
   const [aiPieces, setAiPieces]               = useState([]);
+  const [aiPiecesP, setAiPiecesP]             = useState([]); // Program専用のAI提案結果（Learningと分離）
   const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
   const [activeProgramId, setActiveProgramId] = useState(1);
   const [editingProgramId, setEditingProgramId] = useState(null);
@@ -3159,7 +3160,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     loadDocuments();
   }, [user.id]);
   const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
-  const allPool        = [...pieces, ...aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))];
+  const allPool        = [...pieces, ...aiPiecesP.filter(a=>!pieces.find(p=>p.id===a.id))];
   const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
   const totalIntervalSecs = programPieces.length>1
     ? programPieces.slice(1).reduce((sum,_,i)=>{
@@ -3258,7 +3259,7 @@ JSONのみ返してください:
       const text = data.content.map(b=>b.text||"").join("");
       const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
       const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
-      setAiPieces(prev=>[...prev,...newAI]);
+      setAiPiecesP(prev=>[...prev,...newAI]);
     } catch(e){ console.error(e); }
     setAiLoading(false);
   };
@@ -3546,7 +3547,7 @@ JSONのみ返してください:
           localSortAsc={localSortAsc} setLocalSortAsc={setLocalSortAsc}
           learningIds={learningIds} setLearningIds={setLearningIds}
           pieces={pieces} setPieces={setPieces}
-          canAdd={canAdd} aiPieces={aiPieces} aiLoading={aiLoading} askAI={askAI}
+          canAdd={canAdd} aiPieces={aiPiecesP} setAiPieces={setAiPiecesP} aiLoading={aiLoading} askAI={askAI}
           allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
           sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
           sel={sel}
