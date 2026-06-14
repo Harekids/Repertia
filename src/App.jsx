@@ -719,7 +719,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     sugTimer.current = setTimeout(async () => {
       setSugLoading(true);
       try {
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を6名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:500,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setComposerSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
@@ -741,7 +741,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       setSugLoading(true);
       try {
         const composerStr = piece.composer ? "作曲家: "+piece.composer+"の" : "";
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を最大6曲挙げてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1400,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
@@ -1571,7 +1571,7 @@ const ManagePage = (props) => {
     sugTimerC.current = setTimeout(async () => {
       setSugLoadingC(true);
       try {
-        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:"「"+val+"」で始まるまたは含むクラシックピアノ作曲家を6名挙げてください。JSONのみ:{\"composers\":[\"名前1\",\"名前2\",\"名前3\",\"名前4\",\"名前5\",\"名前6\"]}"}]})});
+        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:500,messages:[{role:"user",content:"「"+val+"」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{\"composers\":[\"名前1\",\"名前2\",\"名前3\",\"名前4\",\"名前5\",\"名前6\"]}"}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSugComposers(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
@@ -1587,7 +1587,7 @@ const ManagePage = (props) => {
       setSugLoadingT(true);
       try {
         const composerStr = composerFilter ? "作曲家: "+composerFilter+"の" : "";
-        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:composerStr+"クラシックピアノ曲で「"+val+"」を含む曲を最大6曲挙げてください。JSONのみ:{\"pieces\":[{\"title\":\"正式な曲名\",\"composer\":\"作曲家名\",\"year\":作曲年数値,\"country\":\"出身国\",\"key\":\"調性（日本語）\",\"duration\":標準的な演奏時間分数数値,\"difficulty\":難易度1-5数値,\"era\":\"baroque/classical/romantic/modern/contemporary\"}]}"}]})});
+        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1400,messages:[{role:"user",content:composerStr+"クラシックピアノ曲で「"+val+"」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{\"pieces\":[{\"title\":\"正式な曲名\",\"composer\":\"作曲家名\",\"year\":作曲年数値,\"country\":\"出身国\",\"key\":\"調性（日本語）\",\"duration\":標準的な演奏時間分数数値,\"difficulty\":難易度1-5数値,\"era\":\"baroque/classical/romantic/modern/contemporary\"}]}"}]})});
         const data = await res.json();
         const text = data.content.map(b=>b.text||"").join("");
         setSugPieces(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
@@ -3346,15 +3346,21 @@ JSONのみ返してください:
     setAiLoadingL(true);
     const cond = [];
     if (composerFilter && composerFilter.trim()) cond.push("作曲家: "+composerFilter.trim());
-    if (titleFilter && titleFilter.trim()) cond.push("曲名・キーワード: "+titleFilter.trim());
-    const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの代表的な名曲を幅広く";
-    const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を6曲提案してください。"
+    if (titleFilter && titleFilter.trim())       cond.push("曲名・キーワード: "+titleFilter.trim());
+    if (kwFilter && kwFilter.trim())             cond.push("キーワード: "+kwFilter.trim());
+    if (eraFilter)                               cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
+    if (yearMin || yearMax)                      cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
+    if (durMin || durMax)                        cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
+    if (Number(diffMin)>1 || Number(diffMax)<5)  cond.push("難易度(1易〜5難): "+(diffMin||1)+"〜"+(diffMax||5));
+    if (Number(freqMin)>1 || Number(freqMax)<5)  cond.push("演奏頻度(1低〜5高): "+(freqMin||1)+"〜"+(freqMax||5));
+    const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの曲を幅広く";
+    const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を10〜12曲提案してください。"
       + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
-      + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。"
+      + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。代表的な名曲だけでなく、あまり知られていない曲も含めて幅広く挙げてください。"
       + String.fromCharCode(10) + "JSONのみ返してください:"
       + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"一言説明"}]}';
     try {
-      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
       const text = data.content.map(b=>b.text||"").join("");
       const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
