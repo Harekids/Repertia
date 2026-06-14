@@ -1553,10 +1553,58 @@ const ManagePage = (props) => {
   const {durMin, setDurMin, durMax, setDurMax} = props;
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
-  const {aiPieces, setAiPieces, aiLoading, askAI, askAILearning, toggle, canAdd, prog} = props;
+  const {aiPieces, setAiPieces, aiLoading, askAILearning, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
+  // ★ Search Piece の AIサジェスト（作曲家・曲名）
+  const [sugComposers, setSugComposers] = useState([]);
+  const [sugPieces, setSugPieces] = useState([]);
+  const [sugLoadingC, setSugLoadingC] = useState(false);
+  const [sugLoadingT, setSugLoadingT] = useState(false);
+  const sugTimerC = useRef(null);
+  const sugTimerT = useRef(null);
+  const onComposerSearchChange = (val) => {
+    setComposerFilter(val); setSugComposers([]);
+    if (sugTimerC.current) clearTimeout(sugTimerC.current);
+    if (!val.trim()) return;
+    sugTimerC.current = setTimeout(async () => {
+      setSugLoadingC(true);
+      try {
+        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:"「"+val+"」で始まるまたは含むクラシックピアノ作曲家を6名挙げてください。JSONのみ:{\"composers\":[\"名前1\",\"名前2\",\"名前3\",\"名前4\",\"名前5\",\"名前6\"]}"}]})});
+        const data = await res.json();
+        const text = data.content.map(b=>b.text||"").join("");
+        setSugComposers(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
+      } catch(e){ console.error(e); }
+      setSugLoadingC(false);
+    }, 400);
+  };
+  const onTitleSearchChange = (val) => {
+    setTitleFilter(val); setSugPieces([]);
+    if (sugTimerT.current) clearTimeout(sugTimerT.current);
+    if (!val.trim()) return;
+    sugTimerT.current = setTimeout(async () => {
+      setSugLoadingT(true);
+      try {
+        const composerStr = composerFilter ? "作曲家: "+composerFilter+"の" : "";
+        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:composerStr+"クラシックピアノ曲で「"+val+"」を含む曲を最大6曲挙げてください。JSONのみ:{\"pieces\":[{\"title\":\"正式な曲名\",\"composer\":\"作曲家名\",\"year\":作曲年数値,\"country\":\"出身国\",\"key\":\"調性（日本語）\",\"duration\":標準的な演奏時間分数数値,\"difficulty\":難易度1-5数値,\"era\":\"baroque/classical/romantic/modern/contemporary\"}]}"}]})});
+        const data = await res.json();
+        const text = data.content.map(b=>b.text||"").join("");
+        setSugPieces(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
+      } catch(e){ console.error(e); }
+      setSugLoadingT(false);
+    }, 500);
+  };
+  const selectSugComposer = (name) => {
+    setComposerFilter(name); setSugComposers([]);
+  };
+  const selectSugPiece = (s) => {
+    setSugPieces([]);
+    if (onAddPiece) {
+      onAddPiece({...s, yearText: String(s.year||""), frequency: s.frequency ?? 3, readiness: 0, mine: true});
+      window.alert("「"+s.title+"」をLearningに追加しました ✓");
+    }
+  };
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
@@ -1584,11 +1632,39 @@ const ManagePage = (props) => {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>作曲家</div>
-              <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{position:"relative"}}>
+                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>✧</div>}
+                {sugComposers.length>0 && (
+                  <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:180,overflowY:"auto"}}>
+                    {sugComposers.map((name,i)=>(
+                      <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSugComposer(name)}
+                        style={{padding:"6px 10px",cursor:"pointer",fontSize:12,color:"#EDE6D6",fontFamily:SANS}}>{name}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>曲名</div>
-              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{position:"relative"}}>
+                <input value={titleFilter} onChange={e=>onTitleSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                {sugLoadingT && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>✧</div>}
+                {sugPieces.length>0 && (
+                  <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:220,overflowY:"auto"}}>
+                    {sugPieces.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
+                      <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSugPiece(s)}
+                        style={{padding:"7px 10px",cursor:"pointer",fontSize:12,color:"#EDE6D6",fontFamily:SANS,borderBottom:"1px solid #1E2A45"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <span style={{width:6,height:6,borderRadius:"50%",background:era.color,flexShrink:0}}/>
+                          <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.title}</span>
+                        </div>
+                        <div style={{fontSize:10,color:"#94A3BE",marginTop:2,paddingLeft:12}}>{s.composer}{s.year?"・"+s.year+"年":""}{s.key?"・"+s.key:""}</div>
+                      </div>
+                    ); })}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>時代</div>
@@ -3434,7 +3510,6 @@ JSONのみ返してください:
       return sortAsc ? d : -d;
     });
 
-  const aiFiltered     = aiPieces.filter(p => searchMatch(p, searchQ));
   const showRuler      = sortBy==="year" && filterEra==="";
   const inp = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
   const sel = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
@@ -3536,7 +3611,7 @@ JSONのみ返してください:
           diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
           freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
           kwFilter={kwFilter} setKwFilter={setKwFilter}
-          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoadingL} askAI={askAI} askAILearning={askAILearning}
+          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoadingL} askAILearning={askAILearning}
           toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
