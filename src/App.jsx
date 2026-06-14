@@ -1553,7 +1553,7 @@ const ManagePage = (props) => {
   const {durMin, setDurMin, durMax, setDurMax} = props;
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
-  const {aiPieces, setAiPieces, aiLoading, askAI, toggle, canAdd, prog} = props;
+  const {aiPieces, setAiPieces, aiLoading, askAI, askAILearning, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
@@ -1649,7 +1649,7 @@ const ManagePage = (props) => {
             </div>
           </div>
                       <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
-            <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAI(); }}
+            <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAILearning(); }}
               disabled={aiLoading}
               style={{flex:"0 0 30%",padding:"12px 6px",
                 background:poolMode==="ai"?"#0F1A33":"white",
@@ -2981,6 +2981,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [comparePieces, setComparePieces]     = useState([]); // ③ 比較対象
   const [editMode, setEditMode]               = useState(false); // ⑦ manage page edit mode
   const [aiLoading, setAiLoading]             = useState(false);
+  const [aiLoadingL, setAiLoadingL]           = useState(false); // Learning専用のローディング
   const [showConstraints, setShowConstraints] = useState(false);
   const [constraints, setConstraints]         = useState({ requireEras:[] });
   const [libraryTab, setLibraryTab]           = useState("repertoire");
@@ -3264,6 +3265,29 @@ JSONのみ返してください:
     setAiLoading(false);
   };
 
+  // ★ Learning用：プログラム文脈を使わない、シンプルな曲検索AI
+  const askAILearning = async () => {
+    setAiLoadingL(true);
+    const cond = [];
+    if (composerFilter && composerFilter.trim()) cond.push("作曲家: "+composerFilter.trim());
+    if (titleFilter && titleFilter.trim()) cond.push("曲名・キーワード: "+titleFilter.trim());
+    const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの代表的な名曲を幅広く";
+    const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を6曲提案してください。"
+      + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
+      + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。"
+      + String.fromCharCode(10) + "JSONのみ返してください:"
+      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"一言説明"}]}';
+    try {
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const data = await res.json();
+      const text = data.content.map(b=>b.text||"").join("");
+      const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
+      const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
+      setAiPieces(prev=>[...prev,...newAI]);
+    } catch(e){ console.error(e); }
+    setAiLoadingL(false);
+  };
+
   const photoInputRef = useRef(null);
 
   // ── helpers for editable lists ──
@@ -3512,7 +3536,7 @@ JSONのみ返してください:
           diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
           freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
           kwFilter={kwFilter} setKwFilter={setKwFilter}
-          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoading} askAI={askAI}
+          aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoadingL} askAI={askAI} askAILearning={askAILearning}
           toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
