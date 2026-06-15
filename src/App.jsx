@@ -1538,7 +1538,7 @@ const BarChart = ({dashData}) => {
 
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
-  const {pieces, setPieces, poolFiltered, showAdd, setShowAdd} = props;
+  const {pieces, setPieces, poolFiltered, learningPoolFiltered, showAdd, setShowAdd} = props;
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
@@ -1795,10 +1795,43 @@ const ManagePage = (props) => {
             })
           }
         </div>
+
+        {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
+        <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
+          <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>My Learning（{learningPoolFiltered.length}曲）</div>
+          <div style={{background:"#15233F",borderRadius:8,border:"1px solid #1E2A45",overflow:"hidden"}}>
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
+            <div style={{padding:"8px 8px"}}>
+              {learningPoolFiltered.length===0 ? (
+                <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
+              ) : learningPoolFiltered.map(p => (
+                <div key={p.id}>
+                  <PieceCardUnified
+                    p={p}
+                    expanded={expandedId===p.id}
+                    onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
+                    inProgram={undefined}
+                    onToggleFav={()=>toggleFav(p.id)}
+                    onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
+                    showControls={true}
+                    onUpdatePiece={onUpdatePiece}
+                    learningIds={learningIds}
+                  />
+                  {editMode && expandedId===p.id && (
+                    <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
+                      <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));setLearningIds(prev=>prev.filter(x=>x!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
+                        style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                        削除
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     )}
-
-
     {/* Repertoire タブ */}
     {libraryTab==="repertoire" && (
     <div style={{flex:1,overflowY:"auto"}}>
@@ -3522,6 +3555,21 @@ JSONのみ返してください:
       return sortAsc ? d : -d;
     });
 
+  const learningPoolFiltered = pieces
+    .filter(p => p.learning)
+    .filter(p => !filterEra || p.era===filterEra)
+    .filter(p => searchMatch(p, searchQ))
+    .sort((a,b) => {
+      let d = 0;
+      const ay = a.year||0, by2 = b.year||0;
+      if      (sortBy==="composer")   d = (a.composer||"").localeCompare(b.composer||"");
+      else if (sortBy==="year")       { if(!ay && by2) return 1; if(ay && !by2) return -1; d=ay-by2; }
+      else if (sortBy==="duration")   d = a.duration - b.duration;
+      else if (sortBy==="difficulty") d = a.difficulty - b.difficulty;
+      else if (sortBy==="frequency")  d = (a.frequency||0) - (b.frequency||0);
+      return sortAsc ? d : -d;
+    });
+
   const showRuler      = sortBy==="year" && filterEra==="";
   const inp = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
   const sel = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
@@ -3604,7 +3652,7 @@ JSONのみ返してください:
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
-          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered}
+          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
