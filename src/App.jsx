@@ -1720,7 +1720,8 @@ const ManagePage = (props) => {
           {aiPieces
             .map(p=>{
               const era=ERAS[p.era]||ERAS.modern;
-              const added=addedAiIds.includes(p.id);
+              const added=addedAiIds.includes(p.id)
+                || pieces.some(x => x.title===p.title && x.composer===p.composer && x.learning);
               return (
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
                   background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
@@ -1731,6 +1732,7 @@ const ManagePage = (props) => {
                   </div>
                   <button onClick={async()=>{
                       if(addedAiIds.includes(p.id)) return;
+                      if(pieces.some(x => x.title===p.title && x.composer===p.composer && x.learning)) return;
                       setAddedAiIds(prev=>[...prev,p.id]);
                       await addPiecesFromProgram([p], {silent:true});
                     }}
@@ -3493,6 +3495,7 @@ JSONのみ返してください:
 
   // ── filtered/sorted pool ──
   const poolFiltered = pieces
+    .filter(p => !p.learning)
     .filter(p => !filterEra || p.era===filterEra)
     .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
     .filter(p => searchMatch(p, searchQ))
