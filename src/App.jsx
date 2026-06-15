@@ -296,6 +296,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           {expanded ? <span style={{width:1,alignSelf:"stretch",background:"#7A8FB5",flexShrink:0,margin:"0 4px",display:"inline-block"}} /> : <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
           <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>}
+          {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
@@ -1954,7 +1956,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, pieces, learningIds, addPiecesFromProgram, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const EVENT_TYPES = {
@@ -2097,6 +2099,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             </div>
           );
         })()}
+        {ev.date <= today && !ev.in_history && (
+          <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
+            style={{marginTop:8,background:"#7A1F2B",border:"1px solid #C0556A",color:"#F4D4DA",
+              padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:5,width:"100%",fontWeight:600}}>
+            🔴 このイベントを History に登録する
+          </button>
+        )}
         {ev.notes && <div><span style={{color:"#94A3BE"}}>メモ：</span>{ev.notes}</div>}
         {ev.videoUrl && <div><span style={{color:"#94A3BE"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
         {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #1E2A45",alignSelf:"flex-start",marginTop:4}}/>}
@@ -2147,6 +2156,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                     <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                       
                       <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
+                      {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
                       {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:SANS}}>{ev.title}</span>}
                       {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
                       <span style={{marginLeft:"auto",fontSize:10,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
@@ -2176,6 +2186,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                 <span style={{fontSize:12,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{ev.date}</span>
+                {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
                 <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,flex:1,fontWeight:500}}>{ev.title||"（無題）"}</span>
                 {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
                 <span style={{fontSize:11,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
@@ -3179,6 +3190,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           fav: p.is_fav || false,
           candidate: p.is_candidate || false,
           learning: p.is_learning || false,
+          star: p.is_star || false,
+          pop: p.pop || 0,
           mine: true,
         })));
         const learnIds = data.filter(p => p.is_learning).map(p => p.id);
@@ -3493,6 +3506,30 @@ JSONのみ返してください:
     }
   };
 
+  // ★ ステップ4：イベントをHistoryに登録（弾いた曲に⭐️・Pop.+1・銀→金）
+  const registerEventToHistory = async (ev) => {
+    if (!ev || ev.in_history) return;
+    // a) イベントを in_history=true に
+    const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true} : e);
+    setEvents(nextEvents);
+    saveEvents(nextEvents);
+    // b) 紐づく曲を特定（programId → pieceIds → 曲）
+    const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
+    const songIds = pg ? (pg.pieceIds||[]) : [];
+    // c) 各曲に ⭐️・Pop.+1・銀→金
+    for (const sid of songIds) {
+      const piece = pieces.find(x=>String(x.id)===String(sid));
+      if (!piece) continue;
+      const newPop = (piece.pop||0) + 1;
+      setPieces(ps=>ps.map(x=>x.id===piece.id?{...x, star:true, pop:newPop, learning:false}:x));
+      setLearningIds(prev=>prev.filter(x=>x!==piece.id));
+      await supabase.from('pieces').update({is_star:true, pop:newPop, is_learning:false}).eq('id', piece.id);
+    }
+    // d) トースト通知
+    setEventsSaveMsg("History に登録しました ✓");
+    setTimeout(() => setEventsSaveMsg(""), 3000);
+  };
+
   // ── filtered/sorted pool ──
   const poolFiltered = pieces
     .filter(p => !p.learning)
@@ -3667,7 +3704,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
     </div>
   );
