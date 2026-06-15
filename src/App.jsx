@@ -1557,6 +1557,7 @@ const ManagePage = (props) => {
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
+  const [showLearnSearch, setShowLearnSearch] = useState(false); // Learning検索パネルの開閉（普段は閉じ）
   // ★ Search Piece の AIサジェスト（作曲家・曲名）
   const [sugComposers, setSugComposers] = useState([]);
   const [sugPieces, setSugPieces] = useState([]);
@@ -1626,6 +1627,15 @@ const ManagePage = (props) => {
     {/* Learning タブ（プレースホルダー） */}
     {libraryTab==="learning" && (
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        {/* +曲を追加（押すと検索が開く・Repertoireと同じ作法） */}
+        <div style={{padding:"12px 14px 0",flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
+          <button onClick={()=>{ setShowLearnSearch(!showLearnSearch); setEditMode(false); }}
+            style={{background:showLearnSearch?"#0F1A33":"transparent",border:"1px solid #C8A860",color:"#C8A860",
+              padding:"7px 16px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
+            {showLearnSearch?"× 閉じる":"＋ 曲を追加"}
+          </button>
+        </div>
+        {showLearnSearch && (<React.Fragment>
         {/* Search Piece パネル */}
         <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"#15233F",flexShrink:0}}>
           <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
@@ -1795,6 +1805,7 @@ const ManagePage = (props) => {
             })
           }
         </div>
+        </React.Fragment>)}
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
         <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
