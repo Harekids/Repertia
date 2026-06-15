@@ -1538,7 +1538,7 @@ const BarChart = ({dashData}) => {
 
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
-  const {pieces, setPieces, poolFiltered, learningPoolFiltered, showAdd, setShowAdd} = props;
+  const {pieces, setPieces, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd} = props;
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
@@ -1558,6 +1558,7 @@ const ManagePage = (props) => {
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
   const [showLearnSearch, setShowLearnSearch] = useState(false); // Learning検索パネルの開閉（普段は閉じ）
+  const [addedAiIds, setAddedAiIds] = useState([]); // 候補欄で「追加済み」にした曲のID（候補側の仮ID）
   // ★ Search Piece の AIサジェスト（作曲家・曲名）
   const [sugComposers, setSugComposers] = useState([]);
   const [sugPieces, setSugPieces] = useState([]);
@@ -1717,13 +1718,9 @@ const ManagePage = (props) => {
             <div style={{textAlign:"center",color:"#94A3BE",padding:"24px",fontSize:12,fontFamily:SANS}}>✧ 検索中…</div>
           )}
           {aiPieces
-            .filter(p=>!composerFilter||p.composer.includes(composerFilter))
-            .filter(p=>!titleFilter||p.title.includes(titleFilter))
-            .filter(p=>!eraFilter||p.era===eraFilter)
-            .filter(p=>!kwFilter||(p.keywords||"").includes(kwFilter))
             .map(p=>{
               const era=ERAS[p.era]||ERAS.modern;
-              const added=learningIds.includes(p.id);
+              const added=addedAiIds.includes(p.id);
               return (
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
                   background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
@@ -1733,11 +1730,9 @@ const ManagePage = (props) => {
                     <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
                   <button onClick={async()=>{
-                      if(!learningIds.includes(p.id)){
-                        setLearningIds(prev=>[...prev,p.id]);
-                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,learning:true}:x));
-                        await supabase.from('pieces').update({is_learning: true}).eq('id', p.id);
-                      }
+                      if(addedAiIds.includes(p.id)) return;
+                      setAddedAiIds(prev=>[...prev,p.id]);
+                      await addPiecesFromProgram([p], {silent:true});
                     }}
                     disabled={added}
                     style={{background:added?"#1E2A45":"#0F1A33",border:"none",color:added?"#7A8AAA":"#E8D090",
@@ -3456,8 +3451,9 @@ JSONのみ返してください:
   };
 
   // ★ イベント紐付け時：プログラムの「白い曲」をDBに本登録し、Learning入りさせる
-  const addPiecesFromProgram = async (whitePieces) => {
+  const addPiecesFromProgram = async (whitePieces, opts) => {
     if (!whitePieces || whitePieces.length===0) return;
+    const silent = opts && opts.silent;
     const addedIds = [];
     for (const piece of whitePieces) {
       const era = eraFromYear(piece.year);
@@ -3466,7 +3462,7 @@ JSONのみ返してください:
         title: piece.title,
         composer: piece.composer || '',
         year: piece.year || null,
-        era: era,
+        era: piece.era || era,
         duration: piece.duration || 5,
         difficulty: piece.difficulty || 3,
         readiness: piece.readiness || 50,
@@ -3491,7 +3487,7 @@ JSONのみ返してください:
     }
     if (addedIds.length>0) {
       setLearningIds(prev => [...prev, ...addedIds]);
-      window.alert(addedIds.length+"曲をLearningに追加しました ✓");
+      if (!silent) window.alert(addedIds.length+"曲をLearningに追加しました ✓");
     }
   };
 
@@ -3608,7 +3604,7 @@ JSONのみ返してください:
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
-          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered}
+          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
