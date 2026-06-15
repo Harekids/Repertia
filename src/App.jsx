@@ -1580,31 +1580,8 @@ const ManagePage = (props) => {
       setSugLoadingC(false);
     }, 400);
   };
-  const onTitleSearchChange = (val) => {
-    setTitleFilter(val); setSugPieces([]);
-    if (sugTimerT.current) clearTimeout(sugTimerT.current);
-    if (!val.trim()) return;
-    sugTimerT.current = setTimeout(async () => {
-      setSugLoadingT(true);
-      try {
-        const composerStr = composerFilter ? "作曲家: "+composerFilter+"の" : "";
-        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1400,messages:[{role:"user",content:composerStr+"クラシックピアノ曲で「"+val+"」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{\"pieces\":[{\"title\":\"正式な曲名\",\"composer\":\"作曲家名\",\"year\":作曲年数値,\"country\":\"出身国\",\"key\":\"調性（日本語）\",\"duration\":標準的な演奏時間分数数値,\"difficulty\":難易度1-5数値,\"era\":\"baroque/classical/romantic/modern/contemporary\"}]}"}]})});
-        const data = await res.json();
-        const text = data.content.map(b=>b.text||"").join("");
-        setSugPieces(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
-      } catch(e){ console.error(e); }
-      setSugLoadingT(false);
-    }, 500);
-  };
   const selectSugComposer = (name) => {
     setComposerFilter(name); setSugComposers([]);
-  };
-  const selectSugPiece = (s) => {
-    setSugPieces([]);
-    if (onAddPiece) {
-      onAddPiece({...s, yearText: String(s.year||""), frequency: s.frequency ?? 3, readiness: 0, mine: true});
-      window.alert("「"+s.title+"」をLearningに追加しました ✓");
-    }
   };
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
@@ -1657,24 +1634,7 @@ const ManagePage = (props) => {
             </div>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>曲名</div>
-              <div style={{position:"relative"}}>
-                <input value={titleFilter} onChange={e=>onTitleSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-                {sugLoadingT && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>✧</div>}
-                {sugPieces.length>0 && (
-                  <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:220,overflowY:"auto"}}>
-                    {sugPieces.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
-                      <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSugPiece(s)}
-                        style={{padding:"7px 10px",cursor:"pointer",fontSize:12,color:"#EDE6D6",fontFamily:SANS,borderBottom:"1px solid #1E2A45"}}>
-                        <div style={{display:"flex",alignItems:"center",gap:6}}>
-                          <span style={{width:6,height:6,borderRadius:"50%",background:era.color,flexShrink:0}}/>
-                          <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.title}</span>
-                        </div>
-                        <div style={{fontSize:10,color:"#94A3BE",marginTop:2,paddingLeft:12}}>{s.composer}{s.year?"・"+s.year+"年":""}{s.key?"・"+s.key:""}</div>
-                      </div>
-                    ); })}
-                  </div>
-                )}
-              </div>
+              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>時代</div>
@@ -1763,7 +1723,7 @@ const ManagePage = (props) => {
             .filter(p=>!kwFilter||(p.keywords||"").includes(kwFilter))
             .map(p=>{
               const era=ERAS[p.era]||ERAS.modern;
-              const inProg=prog.pieceIds.includes(p.id);
+              const added=learningIds.includes(p.id);
               return (
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
                   background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
@@ -1772,33 +1732,18 @@ const ManagePage = (props) => {
                     <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
                     <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
-                  {/* ③ 昇格ボタン */}
-                  <button onClick={async()=>{
-                      if(window.confirm(p.title+" をRepertoireに昇格しますか？（✦になります）")){
-                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:false,fav:true,learning:false}:x));
-                        setLearningIds(prev=>prev.filter(x=>x!==p.id));
-                        await supabase.from('pieces').update({is_learning: false, is_fav: true}).eq('id', p.id);
-                      }
-                    }}
-                    title="Repertoireに昇格（✦）"
-                    style={{background:"none",border:"1px solid #C8963C",color:"#C8963C",
-                      width:20,height:20,borderRadius:"50%",cursor:"pointer",fontSize:10,
-                      display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    ✦
-                  </button>
                   <button onClick={async()=>{
                       if(!learningIds.includes(p.id)){
                         setLearningIds(prev=>[...prev,p.id]);
-                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,candidate:true,learning:true}:x));
+                        setPieces(ps=>ps.map(x=>x.id===p.id?{...x,learning:true}:x));
                         await supabase.from('pieces').update({is_learning: true}).eq('id', p.id);
                       }
-                      toggle(p.id);
                     }}
-                    disabled={inProg}
-                    style={{background:inProg?"#1E2A45":"#0F1A33",border:"none",color:inProg?"#4A5A7A":"#E8D090",
-                      width:22,height:22,borderRadius:"50%",cursor:inProg?"not-allowed":"pointer",
-                      fontSize:15,lineHeight:"22px",textAlign:"center",flexShrink:0}}>
-                    {inProg?"✓":"+"}
+                    disabled={added}
+                    style={{background:added?"#1E2A45":"#0F1A33",border:"none",color:added?"#7A8AAA":"#E8D090",
+                      padding:"5px 12px",borderRadius:4,cursor:added?"default":"pointer",
+                      fontSize:11,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
+                    {added?"✓ 追加済み":"＋ 追加"}
                   </button>
                 </div>
               );
