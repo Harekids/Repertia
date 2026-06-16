@@ -1797,7 +1797,7 @@ const ManagePage = (props) => {
         {/* 総レパートリー数 + グラフ切り替えボタン */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-            <span style={{fontSize:36,fontWeight:700,color:"#EDE6D6",fontFamily:FONT,lineHeight:1}}>{pieces.length}</span>
+            <span style={{fontSize:36,fontWeight:700,color:"#EDE6D6",fontFamily:FONT,lineHeight:1}}>{pieces.filter(p=>!p.learning).length}</span>
             <span style={{fontSize:13,color:"#94A3BE",fontFamily:SANS}}>曲</span>
           </div>
           <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
@@ -1821,7 +1821,7 @@ const ManagePage = (props) => {
 
         {/* グラフ + 凡例 */}
         <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
-          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal} piecesTotal={pieces.length}/> : <BarChart dashData={dashData}/>}
+          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal} piecesTotal={pieces.filter(p=>!p.learning).length}/> : <BarChart dashData={dashData}/>}
           <div style={{display:"flex",flexDirection:"column",gap:5,flex:1}}>
             {dashData.map((d,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:7}}>
@@ -2084,7 +2084,17 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             ))}
           </div>
         )}
-        {ev.programId && (() => {
+        {ev.in_history && Array.isArray(ev.historyItems) && ev.historyItems.length>0 && (
+          <div style={{marginTop:6}}>
+            <div style={{color:"#94A3BE",marginBottom:3}}>演奏した曲（記録）：</div>
+            {ev.historyItems.map((s,i)=>(
+              <div key={s.id||i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
+                {(i+1)+". "+s.composer+" / "+s.title}
+              </div>
+            ))}
+          </div>
+        )}
+        {!ev.in_history && ev.programId && (() => {
           const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
           if(!pg) return null;
           const songs = (pg.pieceIds||[]).map(id=>(allPool||[]).find(x=>x.id===id)).filter(Boolean);
@@ -3065,18 +3075,18 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   const getDashData = () => {
     if (dashAxis==="era") {
-      return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+      return ERA_ORDER.map(k=>({label:ERAS[k].label,color:ERAS[k].color,count:pieces.filter(p=>p.era===k && !p.learning).length})).filter(d=>d.count>0);
     }
     if (dashAxis==="difficulty") {
-      return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n).length})).filter(d=>d.count>0);
+      return [1,2,3,4,5].map(n=>({label:"難易度"+n,color:["#A8D5A2","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>p.difficulty===n && !p.learning).length})).filter(d=>d.count>0);
     }
     if (dashAxis==="frequency") {
-      return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n).length})).filter(d=>d.count>0);
+      return [1,2,3,4,5].map(n=>({label:"頻度"+n,color:["#BDD5E5","#7EC8A4","#C8963C","#B85C72","#5B7FA6"][n-1],count:pieces.filter(p=>(p.frequency||0)===n && !p.learning).length})).filter(d=>d.count>0);
     }
     return [];
   };
   const dashData  = getDashData();
-  const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.length;
+  const dashTotal = dashData.reduce((s,d)=>s+d.count,0)||pieces.filter(p=>!p.learning).length;
 
   // SVG Pie
 
@@ -3509,13 +3519,22 @@ JSONのみ返してください:
   // ★ ステップ4：イベントをHistoryに登録（弾いた曲に⭐️・Pop.+1・銀→金）
   const registerEventToHistory = async (ev) => {
     if (!ev || ev.in_history) return;
-    // a) イベントを in_history=true に
-    const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true} : e);
-    setEvents(nextEvents);
-    saveEvents(nextEvents);
-    // b) 紐づく曲を特定（programId → pieceIds → 曲）
+    // b) 紐づく曲を特定（programId → pieceIds → 曲）※先に出す
     const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
     const songIds = pg ? (pg.pieceIds||[]) : [];
+    // ★スナップショット：曲の情報をコピーして固定（参照でなく実体を保存）
+    const snapshot = songIds.map(sid => {
+      const p = pieces.find(x=>String(x.id)===String(sid));
+      return p ? {
+        id: p.id, title: p.title, composer: p.composer,
+        year: p.year, key: p.key, duration: p.duration,
+        difficulty: p.difficulty, era: p.era, form: p.form,
+      } : null;
+    }).filter(Boolean);
+    // a) イベントを in_history=true に＋スナップショットを保存
+    const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true, historyItems: snapshot} : e);
+    setEvents(nextEvents);
+    saveEvents(nextEvents);
     // c) 各曲に ⭐️・Pop.+1・銀→金
     for (const sid of songIds) {
       const piece = pieces.find(x=>String(x.id)===String(sid));
@@ -3669,7 +3688,7 @@ JSONのみ返してください:
           expandedId={expandedId} setExpandedId={setExpandedId}
           toggleCandidate={toggleCandidate}
           onUpdatePiece={onUpdatePiece}
-          dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.length}
+          dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.filter(p=>!p.learning).length}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
