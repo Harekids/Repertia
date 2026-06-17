@@ -786,7 +786,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
-              placeholder="作曲家名を入力…" autoComplete="off"
+              placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
               style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerLocked?"#8BAED4":"#C8CEDB",background:composerLocked?"#F0F5FF":"white",color:"#15233F"}} />
             {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerSuggestions.length>0 && (
@@ -2377,7 +2377,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                   <span style={{color:"#2A3F6A",fontSize:12,flexShrink:0}}>⣿</span>
                   <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
                   {/* ⑥ 作曲・曲目・時間・演奏者 の順に */}
-                  <input value={it.composer||""} onChange={e=>updateItem(it.id,{composer:e.target.value})} placeholder="作曲" style={{...inpE,flex:"0 0 90px"}}/>
+                  <input value={it.composer||""} onChange={e=>updateItem(it.id,{composer:e.target.value})} placeholder="例:F.Chopin" style={{...inpE,flex:"0 0 90px"}}/>
                   <input value={it.pieceTitle} onChange={e=>updateItem(it.id,{pieceTitle:e.target.value})} placeholder="曲目" style={{...inpE,flex:1}}/>
                   <input value={it.duration} onChange={e=>updateItem(it.id,{duration:e.target.value})} placeholder="時間" style={{...inpE,flex:"0 0 48px"}}/>
                   <input value={it.performer} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
