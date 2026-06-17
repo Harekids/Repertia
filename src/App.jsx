@@ -2476,7 +2476,7 @@ const HomePage = (props) => {
   const {kwFilter, setKwFilter, showFavOnly, setShowFavOnly} = props;
   const {localSortBy, setLocalSortBy, localSortAsc, setLocalSortAsc} = props;
   const {learningIds, setLearningIds, pieces, setPieces} = props;
-  const {canAdd, aiPieces, aiLoading, askAI} = props;
+  const {canAdd, aiPieces, setAiPieces, aiLoading, askAI, addPiecesFromProgram} = props;
   const {allPool, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, sel} = props;
   const {savePrograms, programsSaveMsg} = props;
   const [progDocIds, setProgDocIds] = useState([]);
@@ -2546,7 +2546,19 @@ const HomePage = (props) => {
           </div>
           <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
         </div>
-        {inProg
+        {isAI
+          ? <button onClick={async()=>{
+                if(addPiecesFromProgram){
+                  await addPiecesFromProgram([p], {silent:true});
+                  if(setAiPieces) setAiPieces(prev=>prev.filter(x=>x.id!==p.id));
+                }
+              }}
+              title="Learningに登録（銀にして棚へ）"
+              style={{background:"#0F1A33",border:"1px solid #C8A860",color:"#E8D090",
+                padding:"4px 8px",borderRadius:4,cursor:"pointer",fontSize:10,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
+              ＋Learning
+            </button>
+          : inProg
           ? <button onClick={()=>toggle(p.id)}
               style={{background:"#FFF0EE",border:"1px solid #E8C0B0",color:"#A04030",width:20,height:20,borderRadius:"50%",cursor:"pointer",fontSize:11,flexShrink:0}}>×</button>
           : <button onClick={()=>toggle(p.id)} disabled={!canAdd(p)}
@@ -2617,12 +2629,10 @@ const HomePage = (props) => {
             <div style={{fontSize:12,letterSpacing:2,color:"#EDE6D6",fontFamily:SANS,fontWeight:700,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <span>Program</span>
               <button onClick={()=>{
-                const newFromDB = programPieces.filter(p=>learningIds.includes(p.id));
                 const isOver = remaining < 0;
                 let msg = "プログラムを確定しますか？";
-                if(newFromDB.length>0) msg += "\n（Databaseからの曲"+newFromDB.length+"曲がLearningに追加されます）";
-                if(isOver){const overSecs=Math.round(Math.abs(remaining)*60);const overMin=Math.floor(overSecs/60);const overS=overSecs%60;msg += "\n⚠️ 時間が"+(overMin>0?overMin+"分":"")+(overS>0?overS+"秒":"")+"超過しています";}
-                window.confirm(msg);
+                if(isOver){const overSecs=Math.round(Math.abs(remaining)*60);const overMin=Math.floor(overSecs/60);const overS=overSecs%60;msg += String.fromCharCode(10)+"⚠️ 時間が"+(overMin>0?overMin+"分":"")+(overS>0?overS+"秒":"")+"超過しています";}
+                if(window.confirm(msg) && savePrograms) savePrograms();
               }}
                 style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"4px 12px",
                   cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4,fontWeight:600}}>
@@ -3718,6 +3728,7 @@ JSONのみ返してください:
           learningIds={learningIds} setLearningIds={setLearningIds}
           pieces={pieces} setPieces={setPieces}
           canAdd={canAdd} aiPieces={aiPiecesP} setAiPieces={setAiPiecesP} aiLoading={aiLoading} askAI={askAI}
+          addPiecesFromProgram={addPiecesFromProgram}
           allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
           sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
           sel={sel}
