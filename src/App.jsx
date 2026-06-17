@@ -2348,7 +2348,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                       style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"8px 10px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                       <option value="">― プログラムを選ぶ ―</option>
                       {(programs||[]).map(pg=>(
-                        <option key={pg.id} value={pg.id}>{pg.name||"無題"}（{(pg.pieceIds||[]).length}曲）</option>
+                        <option key={pg.id} value={pg.id}>{pg.name||"無題"}（{(pg.pieceIds||[]).filter(id=>(allPool||[]).find(x=>String(x.id)===String(id))).length}曲）</option>
                       ))}
                     </select>
                   </div>
@@ -2513,7 +2513,10 @@ const HomePage = (props) => {
   };
 
   const myPool  = sortPool(filterPieces(pieces));
-  const aiPool  = sortPool(filterPieces(aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))));
+  const aiPool  = sortPool(filterPieces(
+    aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))
+            .filter(a=>!pieces.some(p=>p.title===a.title && p.composer===a.composer))
+  ));
   const showMy  = poolMode==="repertoire"||poolMode==="both";
   const showAI  = poolMode==="ai"||poolMode==="both";
 
@@ -2548,6 +2551,10 @@ const HomePage = (props) => {
         </div>
         {isAI
           ? <button onClick={async()=>{
+                if (pieces.some(x => x.title===p.title && x.composer===p.composer)) {
+                  if(setAiPieces) setAiPieces(prev=>prev.filter(x=>x.id!==p.id));
+                  return;
+                }
                 if(addPiecesFromProgram){
                   await addPiecesFromProgram([p], {silent:true});
                   if(setAiPieces) setAiPieces(prev=>prev.filter(x=>x.id!==p.id));
@@ -2731,7 +2738,7 @@ const HomePage = (props) => {
                 <div style={{display:"flex",flexDirection:"column",gap:5}}>
                   {programs.map(pg=>{
                     const checked=progDocIds.includes(pg.id);
-                    const cnt=(pg.pieceIds||[]).length;
+                    const cnt=(pg.pieceIds||[]).filter(id=>(allPool||[]).find(x=>String(x.id)===String(id))).length;
                     return (
                       <label key={pg.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",
                         background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
@@ -2862,9 +2869,9 @@ const HomePage = (props) => {
                   color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#94A3BE",
                   cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                   letterSpacing:0.3}}>
-                from Repertoire
+                from Library
               </button>
-              <button onClick={()=>{ setPoolMode("ai"); askAI(); }}
+              <button onClick={()=>{ setAiPieces([]); setPoolMode("ai"); askAI(); }}
                 disabled={aiLoading}
                 style={{flex:"0 0 30%",padding:"12px 6px",
                   background:(poolMode==="ai"||poolMode==="both")?"#0F1A33":"white",
@@ -2919,7 +2926,7 @@ const HomePage = (props) => {
             {/* MY 一覧 */}
             {showMy && (
               <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
-                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY REPERTOIRE ({myPool.length}曲)</div>}
+                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY LIBRARY ({myPool.length}曲) <span style={{color:"#94A3BE",letterSpacing:0}}>金=Repertoire / 銀=Learning</span></div>}
                 {myPool.length===0
                   ? <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
                   : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
@@ -2930,7 +2937,11 @@ const HomePage = (props) => {
             {/* AI 一覧 */}
             {showAI && (
               <div>
-                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",marginBottom:5,fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</div>}
+                {poolMode==="both" && <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
+                  <span style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</span>
+                  {aiPool.length>0 && <button onClick={()=>setAiPieces([])}
+                    style={{background:"none",border:"1px solid #2A3F6A",color:"#8A8AAA",padding:"2px 8px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:3}}>クリア</button>}
+                </div>}
                 {aiPool.length===0&&!aiLoading && (
                   <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>
                     「New from Database」で追加した曲はLearningリストに保存されます
