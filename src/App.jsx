@@ -2578,34 +2578,34 @@ const HomePage = (props) => {
   return (
     <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
 
-      {/* Program selector row（プルダウン式・はみ出さない） */}
-      <div style={{background:"#1E2A45",borderBottom:"2px solid #1E2A45",padding:"8px 16px",display:"flex",alignItems:"center",gap:8,flexShrink:0,flexWrap:"wrap"}}>
-        {editingProgramId===activeProgramId
-          ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
-              onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
-              onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}}
-              autoFocus style={{background:"#15233F",border:"1px solid #C8A860",color:"#EDE6D6",padding:"5px 8px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:140}} />
-          : <select value={activeProgramId} onChange={e=>setActiveProgramId(Number(e.target.value))}
-              style={{background:"#15233F",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"6px 10px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:140,cursor:"pointer"}}>
-              {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-        }
-        {editingProgramId!==activeProgramId &&
-          <button onClick={()=>{setEditingProgramId(activeProgramId);setEditingName(prog.name);}}
-            title="名前を変更"
-            style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>✏️</button>}
-        {programs.length>1 &&
-          <button onClick={()=>deleteProgram(activeProgramId)}
-            title="このプログラムを削除"
-            style={{background:"none",border:"1px solid #6A3A40",color:"#C0808A",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>×</button>}
-        <button onClick={addProgram} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 12px",borderRadius:4,whiteSpace:"nowrap",flexShrink:0}}>＋ 新規</button>
-      </div>
-
       {/* 2-column main area */}
       <div style={{display:"flex",flex:1,overflow:"hidden"}}>
 
         {/* ── LEFT: 設定 + タイムライン ── */}
         <div style={{width:"38%",minWidth:260,borderRight:"2px solid #1E2A45",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+          {/* プログラム選択（左カラム先頭・はみ出さない） */}
+          <div style={{background:"#F0EBE0",borderBottom:"1px solid #D8CFBA",padding:"8px 12px",display:"flex",alignItems:"center",gap:6,flexShrink:0,flexWrap:"wrap"}}>
+            {editingProgramId===activeProgramId
+              ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
+                  onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
+                  onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}}
+                  autoFocus style={{background:"white",border:"1px solid #C8A860",color:"#15233F",padding:"5px 8px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120}} />
+              : <select value={activeProgramId} onChange={e=>setActiveProgramId(Number(e.target.value))}
+                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 10px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120,cursor:"pointer"}}>
+                  {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+            }
+            {editingProgramId!==activeProgramId &&
+              <button onClick={()=>{setEditingProgramId(activeProgramId);setEditingName(prog.name);}}
+                title="名前を変更"
+                style={{background:"white",border:"1px solid #C8CEDB",color:"#6B7A90",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>✏️</button>}
+            {programs.length>1 &&
+              <button onClick={()=>deleteProgram(activeProgramId)}
+                title="このプログラムを削除"
+                style={{background:"white",border:"1px solid #D8A0A8",color:"#B05060",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>×</button>}
+            <button onClick={addProgram} style={{background:"none",border:"1px dashed #B0A890",color:"#7A7058",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 12px",borderRadius:4,whiteSpace:"nowrap",flexShrink:0}}>＋ 新規</button>
+          </div>
 
           {/* 左上: プログラム設定 */}
           <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"#F0EBE0",flexShrink:0}}>
@@ -2917,6 +2917,13 @@ const HomePage = (props) => {
                   display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
                 {showFavOnly?"✦":"✧"} お気に入り
               </button>
+            </div>
+
+            {/* 大見出し：今どちらを見ているか */}
+            <div style={{fontSize:14,fontWeight:700,color:poolMode==="ai"?"#8A8AAA":"#C8963C",fontFamily:SANS,marginBottom:10,paddingBottom:6,borderBottom:"1px solid #1E2A45"}}>
+              {poolMode==="ai"
+                ? "AIから"
+                : <span>ライブラリーから <span style={{fontSize:10,fontWeight:400,color:"#94A3BE"}}>金=Repertoire / 銀=Learning</span></span>}
             </div>
 
             {/* MY 一覧 */}
