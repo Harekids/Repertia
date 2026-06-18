@@ -2517,8 +2517,8 @@ const HomePage = (props) => {
     aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))
             .filter(a=>!pieces.some(p=>p.title===a.title && p.composer===a.composer))
   ));
-  const showMy  = poolMode==="repertoire"||poolMode==="both";
-  const showAI  = poolMode==="ai"||poolMode==="both";
+  const showMy  = poolMode==="repertoire";
+  const showAI  = poolMode==="ai";
 
   const inp2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"4px 7px",fontFamily:SANS,fontSize:11,borderRadius:4,boxSizing:"border-box",...ex});
   const sel2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"4px 6px",fontFamily:SANS,fontSize:11,borderRadius:4,...ex});
@@ -2578,25 +2578,27 @@ const HomePage = (props) => {
   return (
     <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
 
-      {/* Program tabs row */}
-      <div style={{background:"#1E2A45",borderBottom:"2px solid #1E2A45",padding:"0 16px",display:"flex",alignItems:"center",gap:0,flexShrink:0,overflowX:"auto"}}>
-        {programs.map(p=>(
-          <div key={p.id} style={{display:"flex",alignItems:"center",borderBottom:p.id===activeProgramId?"3px solid #8B5E3C":"3px solid transparent",padding:"7px 0",marginRight:2}}>
-            {editingProgramId===p.id
-              ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
-                  onBlur={()=>{updateProg({name:editingName});setEditingProgramId(null);}}
-                  onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===p.id?{...x,name:editingName}:x));setEditingProgramId(null);}}}
-                  autoFocus style={{background:"#15233F",border:"1px solid #C8A860",color:"#EDE6D6",padding:"2px 7px",fontSize:11,fontFamily:SANS,borderRadius:3,width:120}} />
-              : <button onClick={()=>setActiveProgramId(p.id)}
-                  onDoubleClick={()=>{setEditingProgramId(p.id);setEditingName(p.name);}}
-                  style={{background:"none",border:"none",color:p.id===activeProgramId?"#0F1A33":"#94A3BE",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"0 10px",whiteSpace:"nowrap"}}>
-                  {p.name}
-                </button>
-            }
-            {programs.length>1 && <button onClick={()=>deleteProgram(p.id)} style={{background:"none",border:"none",color:"#C0A080",cursor:"pointer",fontSize:12,padding:"0 3px"}}>×</button>}
-          </div>
-        ))}
-        <button onClick={addProgram} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:11,fontFamily:SANS,padding:"3px 10px",borderRadius:4,marginLeft:6,whiteSpace:"nowrap",flexShrink:0}}>＋ 新規</button>
+      {/* Program selector row（プルダウン式・はみ出さない） */}
+      <div style={{background:"#1E2A45",borderBottom:"2px solid #1E2A45",padding:"8px 16px",display:"flex",alignItems:"center",gap:8,flexShrink:0,flexWrap:"wrap"}}>
+        {editingProgramId===activeProgramId
+          ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
+              onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
+              onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}}
+              autoFocus style={{background:"#15233F",border:"1px solid #C8A860",color:"#EDE6D6",padding:"5px 8px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:140}} />
+          : <select value={activeProgramId} onChange={e=>setActiveProgramId(Number(e.target.value))}
+              style={{background:"#15233F",border:"1px solid #2A3F6A",color:"#EDE6D6",padding:"6px 10px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:140,cursor:"pointer"}}>
+              {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+        }
+        {editingProgramId!==activeProgramId &&
+          <button onClick={()=>{setEditingProgramId(activeProgramId);setEditingName(prog.name);}}
+            title="名前を変更"
+            style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>✏️</button>}
+        {programs.length>1 &&
+          <button onClick={()=>deleteProgram(activeProgramId)}
+            title="このプログラムを削除"
+            style={{background:"none",border:"1px solid #6A3A40",color:"#C0808A",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>×</button>}
+        <button onClick={addProgram} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 12px",borderRadius:4,whiteSpace:"nowrap",flexShrink:0}}>＋ 新規</button>
       </div>
 
       {/* 2-column main area */}
@@ -2860,26 +2862,26 @@ const HomePage = (props) => {
                 </div>
               </div>
             </div>
-            {/* ⑥ ボタン行 */}
-            <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
-              <button onClick={()=>setPoolMode(m=>m==="repertoire"?"none":m==="ai"?"both":m==="both"?"ai":"repertoire")}
-                style={{flex:"0 0 30%",padding:"12px 6px",
-                  background:(poolMode==="repertoire"||poolMode==="both")?"#0F1A33":"white",
-                  border:"2px solid "+((poolMode==="repertoire"||poolMode==="both")?"#0F1A33":"#2A3F6A"),
-                  color:(poolMode==="repertoire"||poolMode==="both")?"#C8A860":"#94A3BE",
+            {/* ⑥ ボタン行：ライブラリー / AI の2択切替 */}
+            <div style={{display:"flex",gap:12,marginTop:16,marginBottom:16,justifyContent:"center"}}>
+              <button onClick={()=>setPoolMode("repertoire")}
+                style={{flex:"0 0 38%",padding:"12px 6px",
+                  background:poolMode==="repertoire"?"#0F1A33":"white",
+                  border:"2px solid "+(poolMode==="repertoire"?"#0F1A33":"#2A3F6A"),
+                  color:poolMode==="repertoire"?"#C8A860":"#94A3BE",
                   cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                   letterSpacing:0.3}}>
-                from Library
+                ライブラリーから表示
               </button>
               <button onClick={()=>{ setAiPieces([]); setPoolMode("ai"); askAI(); }}
                 disabled={aiLoading}
-                style={{flex:"0 0 30%",padding:"12px 6px",
-                  background:(poolMode==="ai"||poolMode==="both")?"#0F1A33":"white",
-                  border:"2px solid "+((poolMode==="ai"||poolMode==="both")?"#0F1A33":"#2A3F6A"),
-                  color:(poolMode==="ai"||poolMode==="both")?"#C8A860":"#94A3BE",
+                style={{flex:"0 0 38%",padding:"12px 6px",
+                  background:poolMode==="ai"?"#0F1A33":"white",
+                  border:"2px solid "+(poolMode==="ai"?"#0F1A33":"#2A3F6A"),
+                  color:poolMode==="ai"?"#C8A860":"#94A3BE",
                   cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
                   letterSpacing:0.3}}>
-                {aiLoading?"…":"New from Database"}
+                {aiLoading?"…":"AIから探す"}
               </button>
             </div>
           </div>
@@ -2917,16 +2919,10 @@ const HomePage = (props) => {
               </button>
             </div>
 
-            {poolMode==="none" && (
-              <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
-                「New from Database」で追加した曲はLearningリストに保存されます
-              </div>
-            )}
-
             {/* MY 一覧 */}
             {showMy && (
               <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
-                {poolMode==="both" && <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY LIBRARY ({myPool.length}曲) <span style={{color:"#94A3BE",letterSpacing:0}}>金=Repertoire / 銀=Learning</span></div>}
+                <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY LIBRARY ({myPool.length}曲) <span style={{color:"#94A3BE",letterSpacing:0}}>金=Repertoire / 銀=Learning</span></div>
                 {myPool.length===0
                   ? <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
                   : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
@@ -2937,14 +2933,14 @@ const HomePage = (props) => {
             {/* AI 一覧 */}
             {showAI && (
               <div>
-                {poolMode==="both" && <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
                   <span style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</span>
                   {aiPool.length>0 && <button onClick={()=>setAiPieces([])}
                     style={{background:"none",border:"1px solid #2A3F6A",color:"#8A8AAA",padding:"2px 8px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:3}}>クリア</button>}
-                </div>}
+                </div>
                 {aiPool.length===0&&!aiLoading && (
                   <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>
-                    「New from Database」で追加した曲はLearningリストに保存されます
+                    「AIから探す」で曲を検索できます。気に入った曲は＋Learningで棚に登録されます
                   </div>
                 )}
                 {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
@@ -3064,7 +3060,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [filterEra, setFilterEra]             = useState("");
   const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
   const [searchQ, setSearchQ]                 = useState("");
-  const [poolMode, setPoolMode]               = useState("none");
+  const [poolMode, setPoolMode]               = useState("repertoire");
   // ── Search/Filter states (shared between Program & Learning) ──
   const [composerFilter, setComposerFilter]   = useState("");
   const [titleFilter,    setTitleFilter]      = useState("");
