@@ -1956,7 +1956,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, savedPrograms, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const EVENT_TYPES = {
@@ -2171,7 +2171,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                       {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
                       <span style={{marginLeft:"auto",fontSize:10,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
                     </div>
-                    {isSelected && <EventDetail ev={ev} programs={programs} allPool={allPool}/>}
+                    {isSelected && <EventDetail ev={ev} programs={savedPrograms} allPool={allPool}/>}
                   </div>
                 </div>
               );
@@ -2203,7 +2203,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
               </div>
               {isSelected && (
                 <div style={{padding:"0 14px 12px"}}>
-                  <EventDetail ev={ev} programs={programs} allPool={allPool}/>
+                  <EventDetail ev={ev} programs={savedPrograms} allPool={allPool}/>
                 </div>
               )}
             </div>
@@ -2347,7 +2347,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                     <select value={newEvent.programId||""} onChange={e=>setNewEvent({...newEvent,programId:e.target.value})}
                       style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"8px 10px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                       <option value="">― プログラムを選ぶ ―</option>
-                      {(programs||[]).map(pg=>(
+                      {(savedPrograms||[]).map(pg=>(
                         <option key={pg.id} value={pg.id}>{pg.name||"無題"}（{(pg.pieceIds||[]).filter(id=>(allPool||[]).find(x=>String(x.id)===String(id))).length}曲）</option>
                       ))}
                     </select>
@@ -2591,7 +2591,10 @@ const HomePage = (props) => {
                   onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
                   onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}}
                   autoFocus style={{background:"white",border:"1px solid #C8A860",color:"#15233F",padding:"5px 8px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120}} />
-              : <select value={activeProgramId} onChange={e=>setActiveProgramId(Number(e.target.value))}
+              : <select value={activeProgramId} onChange={e=>{
+                  if (editingProgramId !== null) { setPrograms(ps=>ps.map(x=>x.id===editingProgramId?{...x,name:editingName}:x)); setEditingProgramId(null); }
+                  setActiveProgramId(Number(e.target.value));
+                }}
                   style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 10px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120,cursor:"pointer"}}>
                   {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
@@ -2716,7 +2719,7 @@ const HomePage = (props) => {
                   </React.Fragment>
                 ); })
             }
-            {/* 保存ボタン（v148: 第1予防線 — 編集の流れの最後に、はっきりした保存ボタン）*/}
+            {/* 保存ボタン（v149: 編集の流れの最後に、はっきりした保存ボタン）*/}
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:12,borderTop:"1px solid #1E2A45",flexWrap:"wrap"}}>
               <button onClick={()=>{
                   if (programs.length===0) { window.alert("該当するデータがありません"); return; }
@@ -2728,12 +2731,16 @@ const HomePage = (props) => {
               </button>
               {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{docSaveMsg}</span>}
               <button onClick={savePrograms}
-                style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"9px 32px",
-                  borderRadius:6,cursor:"pointer",fontSize:14,fontFamily:SANS,fontWeight:700}}>
+                style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#C8A860",padding:"9px 30px",
+                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS,fontWeight:600}}>
                 このプログラムを保存
               </button>
               {programsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{programsSaveMsg}</span>}
               {!programsSaveMsg && isDirty && <span style={{fontSize:11,color:"#B85C72",fontFamily:SANS}}>● 未保存の変更があります</span>}
+            </div>
+            {/* v149: 構造で防ぐ — 静かに一言だけ教える */}
+            <div style={{textAlign:"center",fontSize:11,color:"#7A7058",fontFamily:SANS,marginTop:6}}>
+              ※保存したプログラムだけ、イベントに紐づけることができます
             </div>
             {showProgDocPanel && (
               <div style={{marginTop:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",textAlign:"left"}}>
@@ -3134,9 +3141,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   });
   const [profileSaveMsg, setProfileSaveMsg]    = useState("");
   const [programsSaveMsg, setProgramsSaveMsg]  = useState("");
-  const [savedPrograms, setSavedPrograms]      = useState(null);   // 最後に保存したprogramsの内容（未保存判定用）
-  const [skipSaveWarn, setSkipSaveWarn]        = useState(false);  // ☑今後このメッセージを表示しない
-  const [saveWarnTarget, setSaveWarnTarget]    = useState(null);   // 移動先ページ（確認ダイアログ表示中はページ名、非表示時はnull）
+  const [savedPrograms, setSavedPrograms]      = useState(null);   // 最後に保存したprogramsの内容（未保存判定・イベント紐付け用）
   const [eventsSaveMsg, setEventsSaveMsg]      = useState("");
   const [docSaveMsg, setDocSaveMsg]            = useState(""); // 📦 ドキュメント作成の共通メッセージ
   const sugTimer  = useRef(null);
@@ -3249,7 +3254,13 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         .select('data')
         .eq('user_id', user.id)
         .single();
-      if (data?.data) { setPrograms(data.data); setSavedPrograms(JSON.parse(JSON.stringify(data.data))); } // 読み込んだ内容を保存済みの基準にする
+      if (data?.data) {
+        setPrograms(data.data);
+        setSavedPrograms(JSON.parse(JSON.stringify(data.data))); // 読み込んだ内容を保存済みの基準にする
+        // ⑦ 二重表示・id衝突の防止：新規採番が既存idと衝突しないようにする
+        const maxId = Math.max(0, ...data.data.map(p=>Number(p.id)||0));
+        if (nextId.current <= maxId) nextId.current = maxId + 1;
+      }
     };
     loadPrograms();
   }, [user.id]);
@@ -3294,17 +3305,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   const updateProg = (u) => setPrograms(ps=>ps.map(p=>p.id===prog.id?{...p,...u}:p));
 
-  // ── 未保存判定 & ページ移動ガード（v148: 保存の2段予防線）──
+  // ── 未保存判定（v149: 編集中の目印として使用。移動時モーダルは廃止）──
   // savedProgramsがnull（初回ロード前）の時は未保存扱いにしない
   const isDirty = savedPrograms !== null && JSON.stringify(programs) !== JSON.stringify(savedPrograms);
-  // ページ移動時、Programページ(home)で未保存があり、かつ「今後表示しない」でなければ確認を出す
-  const goPage = (p) => {
-    if (page==="home" && isDirty && !skipSaveWarn) {
-      setSaveWarnTarget(p); // 確認ダイアログを開く（移動先を覚えておく）
-    } else {
-      setPage(p);
-    }
-  };
 
   const canAdd = (piece) =>
     // ⑤ 時間オーバーでも追加可能（赤アラートのみ）
@@ -3369,7 +3372,16 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     dragId.current=null; dragOver.current=null;
   };
 
-  const addProgram    = () => { const id=++nextId.current; setPrograms(ps=>[...ps,{...EMPTY_PROGRAM(id),name:`プログラム ${ps.length+1}`}]); setActiveProgramId(id); };
+  const addProgram    = () => {
+    // 名前編集中(未確定)なら、新規に切り替える前に編集内容を反映（取りこぼし防止）
+    if (editingProgramId !== null) {
+      setPrograms(ps=>ps.map(x=>x.id===editingProgramId?{...x,name:editingName}:x));
+      setEditingProgramId(null);
+    }
+    const id=++nextId.current;
+    setPrograms(ps=>[...ps,{...EMPTY_PROGRAM(id),name:`プログラム ${ps.length+1}`}]);
+    setActiveProgramId(id);
+  };
   const deleteProgram = (id) => { if(programs.length<=1)return; setPrograms(ps=>ps.filter(p=>p.id!==id)); if(activeProgramId===id) setActiveProgramId(programs.find(p=>p.id!==id)?.id); };
 
   const askAI = async () => {
@@ -3629,7 +3641,7 @@ JSONのみ返してください:
   // ── Shared header (① stable, ② bigger nav) ──────────────────────────────────
   const Header = () => (
     <header style={{background:"#0F1A33",display:"flex",alignItems:"stretch",flexShrink:0,height:54}}>
-      <div onClick={()=>goPage("manage")}
+      <div onClick={()=>setPage("manage")}
         style={{cursor:"pointer",userSelect:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
           padding:"0 22px 0 24px",borderRight:"1px solid #3A3020",flexShrink:0}}>
         <span style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,lineHeight:1.1}}>𝄞 Repertia</span>
@@ -3638,7 +3650,7 @@ JSONのみ返してください:
       {/* ② bigger nav — same height as header, underline indicator */}
       <nav style={{display:"flex",alignItems:"stretch"}}>
         {NAV.map(([p,l]) => (
-          <button key={p} onClick={()=>goPage(p)}
+          <button key={p} onClick={()=>setPage(p)}
             style={{background:"none",border:"none",
               borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
               borderTop:    "3px solid transparent",
@@ -3702,31 +3714,6 @@ JSONのみ返してください:
     <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
-      {/* v148: 第2予防線 — 未保存のままProgramページを離れる時の確認ダイアログ */}
-      {saveWarnTarget && (
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <div style={{background:"#15233F",border:"1px solid #2A3F6A",borderRadius:10,padding:"24px 26px",width:380,maxWidth:"90vw",boxShadow:"0 8px 32px rgba(0,0,0,0.5)"}}>
-            <div style={{fontSize:15,color:"#EDE6D6",fontFamily:SANS,fontWeight:700,marginBottom:10}}>プログラムを保存しますか？</div>
-            <div style={{fontSize:12,color:"#94A3BE",fontFamily:SANS,lineHeight:1.7,marginBottom:16}}>
-              保存したプログラムだけ、イベントに紐付けできます。
-            </div>
-            <label style={{display:"flex",alignItems:"center",gap:7,fontSize:11,color:"#94A3BE",fontFamily:SANS,cursor:"pointer",marginBottom:18}}>
-              <input type="checkbox" checked={skipSaveWarn} onChange={e=>setSkipSaveWarn(e.target.checked)} style={{cursor:"pointer"}} />
-              今後このメッセージを表示しない
-            </label>
-            <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
-              <button onClick={()=>{const t=saveWarnTarget;setSaveWarnTarget(null);setPage(t);}}
-                style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",padding:"8px 16px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS}}>
-                保存せずに移動
-              </button>
-              <button onClick={async()=>{const t=saveWarnTarget;await savePrograms();setSaveWarnTarget(null);setPage(t);}}
-                style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 18px",borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:700}}>
-                保存して移動
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
@@ -3790,7 +3777,7 @@ JSONのみ返してください:
           sel={sel}
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg} isDirty={isDirty}
         />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} savedPrograms={savedPrograms} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
     </div>
   );
