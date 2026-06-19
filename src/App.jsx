@@ -3401,8 +3401,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   const askAI = async () => {
     setAiLoading(true);
-    // show ai section automatically
-    setPoolMode(m => m==="repertoire" ? "both" : m==="none" ? "ai" : m);
+    // v151: 呼び出し元ボタンで poolMode="ai" を設定済み。
+    // 旧3状態design（"both"/"none"）の名残でここで poolMode を上書きすると、
+    // どちらのリストも描画されない "both" 状態になり得たため削除。
     const prompt = `クラシックピアノのプログラム編成の専門家として、以下の条件で曲を4曲提案してください。
 【現在のプログラム: ${prog.name}】
 ${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.composer}、${p.year}年）${p.key} ${p.duration}分`).join(String.fromCharCode(10))}
