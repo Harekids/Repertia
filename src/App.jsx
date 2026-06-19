@@ -3165,6 +3165,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const dragOver  = useRef(null);
   const reqIdAskAI  = useRef(0); // v152: askAI レース対策（世代管理）
   const reqIdAskAIL = useRef(0); // v152: askAILearning レース対策（世代管理）
+  const reqIdAskAIP = useRef(0); // v153: Programページ条件検索AI レース対策
 
   // ── Supabase: プロフィール読み込み ──
   useEffect(() => {
@@ -3429,6 +3430,41 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       setAiPiecesP(newAI); // v152: 置き換え（足し込まない）
     } catch(e){ if(myId===reqIdAskAI.current) console.error(e); }
     if (myId===reqIdAskAI.current) setAiLoading(false);
+  };
+
+  // v153: Programページ「AIから探す」専用。入力した条件（作曲家・曲名など）で曲を探し、
+  // Programページが表示する箱(aiPiecesP)に入れる。プログラム編成提案(askAI)とは別物。
+  const askAIProgramSearch = async () => {
+    const myId = ++reqIdAskAIP.current;
+    setAiLoading(true);
+    setAiPiecesP([]);
+    const cond = [];
+    if (composerFilterP && composerFilterP.trim()) cond.push("作曲家: "+composerFilterP.trim());
+    if (titleFilterP && titleFilterP.trim())       cond.push("曲名・キーワード: "+titleFilterP.trim());
+    if (kwFilter && kwFilter.trim())               cond.push("キーワード: "+kwFilter.trim());
+    if (eraFilter)                                 cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
+    if (yearMin || yearMax)                        cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
+    if (durMin || durMax)                          cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
+    if (Number(diffMin)>1 || Number(diffMax)<5)    cond.push("難易度(1易〜5難): "+(diffMin||1)+"〜"+(diffMax||5));
+    if (Number(freqMin)>1 || Number(freqMax)<5)    cond.push("演奏頻度(1低〜5高): "+(freqMin||1)+"〜"+(freqMax||5));
+    const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの曲を幅広く";
+    const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を10曲前後提案してください。"
+      + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
+      + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。代表的な名曲だけでなく、あまり知られていない曲も含めて幅広く挙げてください。"
+      + String.fromCharCode(10) + "reasonは15字以内で簡潔に。JSONのみ返してください:"
+      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}';
+    try {
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
+      const data = await res.json();
+      if (myId !== reqIdAskAIP.current) return;
+      const text = data.content.map(b=>b.text||"").join("");
+      let parsed = {};
+      try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
+      catch(parseErr){ console.error("askAIProgramSearch parse失敗:",parseErr); parsed = {}; }
+      const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
+      setAiPiecesP(newAI);
+    } catch(e){ if(myId===reqIdAskAIP.current) console.error(e); }
+    if (myId===reqIdAskAIP.current) setAiLoading(false);
   };
 
   // ★ Learning用：プログラム文脈を使わない、シンプルな曲検索AI
@@ -3798,7 +3834,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           localSortAsc={localSortAsc} setLocalSortAsc={setLocalSortAsc}
           learningIds={learningIds} setLearningIds={setLearningIds}
           pieces={pieces} setPieces={setPieces}
-          canAdd={canAdd} aiPieces={aiPiecesP} setAiPieces={setAiPiecesP} aiLoading={aiLoading} askAI={askAI}
+          canAdd={canAdd} aiPieces={aiPiecesP} setAiPieces={setAiPiecesP} aiLoading={aiLoading} askAI={askAIProgramSearch}
           addPiecesFromProgram={addPiecesFromProgram}
           allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
           sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
