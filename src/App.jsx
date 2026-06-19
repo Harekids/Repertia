@@ -712,6 +712,8 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   const [sugLoading, setSugLoading]           = useState(false);
   const [durationEdited, setDurationEdited]   = useState(false);
   const sugTimer = useRef(null);
+  const reqIdComposer = useRef(0); // v150: レース対策（最新の返事だけ採用）
+  const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
 
   const onComposerChange = (val) => {
     setPiece(p=>({...p, composer:val, title:""}));
@@ -719,14 +721,18 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
     sugTimer.current = setTimeout(async () => {
+      const myId = ++reqIdComposer.current; // この検索の世代番号
       setSugLoading(true);
       try {
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:500,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
         const data = await res.json();
+        if (myId !== reqIdComposer.current) return; // 自分が最新でなければ捨てる
         const text = data.content.map(b=>b.text||"").join("");
-        setComposerSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
-      } catch(e){ console.error(e); }
-      setSugLoading(false);
+        try {
+          setComposerSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
+        } catch(parseErr){ console.error("composer parse失敗:",parseErr); setComposerSuggestions([]); }
+      } catch(e){ if(myId===reqIdComposer.current){ console.error(e); setComposerSuggestions([]); } }
+      if (myId===reqIdComposer.current) setSugLoading(false);
     }, 400);
   };
 
@@ -740,15 +746,19 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
     sugTimer.current = setTimeout(async () => {
+      const myId = ++reqIdTitle.current; // この検索の世代番号
       setSugLoading(true);
       try {
         const composerStr = piece.composer ? "作曲家: "+piece.composer+"の" : "";
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1400,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"作曲家名","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
+        if (myId !== reqIdTitle.current) return; // 自分が最新でなければ捨てる
         const text = data.content.map(b=>b.text||"").join("");
-        setSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
-      } catch(e){ console.error(e); }
-      setSugLoading(false);
+        try {
+          setSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).pieces||[]);
+        } catch(parseErr){ console.error("title parse失敗:",parseErr); setSuggestions([]); }
+      } catch(e){ if(myId===reqIdTitle.current){ console.error(e); setSuggestions([]); } }
+      if (myId===reqIdTitle.current) setSugLoading(false);
     }, 500);
   };
 
@@ -1568,19 +1578,24 @@ const ManagePage = (props) => {
   const [sugLoadingT, setSugLoadingT] = useState(false);
   const sugTimerC = useRef(null);
   const sugTimerT = useRef(null);
+  const reqIdC = useRef(0); // v150: レース対策
   const onComposerSearchChange = (val) => {
     setComposerFilter(val); setSugComposers([]);
     if (sugTimerC.current) clearTimeout(sugTimerC.current);
     if (!val.trim()) return;
     sugTimerC.current = setTimeout(async () => {
+      const myId = ++reqIdC.current;
       setSugLoadingC(true);
       try {
-        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:500,messages:[{role:"user",content:"「"+val+"」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{\"composers\":[\"名前1\",\"名前2\",\"名前3\",\"名前4\",\"名前5\",\"名前6\"]}"}]})});
+        const res = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:"「"+val+"」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{\"composers\":[\"名前1\",\"名前2\",\"名前3\",\"名前4\",\"名前5\",\"名前6\"]}"}]})});
         const data = await res.json();
+        if (myId !== reqIdC.current) return;
         const text = data.content.map(b=>b.text||"").join("");
-        setSugComposers(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
-      } catch(e){ console.error(e); }
-      setSugLoadingC(false);
+        try {
+          setSugComposers(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
+        } catch(parseErr){ console.error("composer parse失敗:",parseErr); setSugComposers([]); }
+      } catch(e){ if(myId===reqIdC.current){ console.error(e); setSugComposers([]); } }
+      if (myId===reqIdC.current) setSugLoadingC(false);
     }, 400);
   };
   const selectSugComposer = (name) => {
@@ -3398,10 +3413,12 @@ ${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras
 JSONのみ返してください:
 {"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
     try {
-      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
       const text = data.content.map(b=>b.text||"").join("");
-      const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
+      let parsed = {};
+      try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
+      catch(parseErr){ console.error("askAI parse失敗:",parseErr); parsed = {}; }
       const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
       setAiPiecesP(prev=>[...prev,...newAI]);
     } catch(e){ console.error(e); }
@@ -3427,10 +3444,12 @@ JSONのみ返してください:
       + String.fromCharCode(10) + "JSONのみ返してください:"
       + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"一言説明"}]}';
     try {
-      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
       const text = data.content.map(b=>b.text||"").join("");
-      const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
+      let parsed = {};
+      try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
+      catch(parseErr){ console.error("askAILearning parse失敗:",parseErr); parsed = {}; }
       const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
       setAiPieces(prev=>[...prev,...newAI]);
     } catch(e){ console.error(e); }
