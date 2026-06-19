@@ -3163,6 +3163,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
+  const reqIdAskAI  = useRef(0); // v152: askAI レース対策（世代管理）
+  const reqIdAskAIL = useRef(0); // v152: askAILearning レース対策（世代管理）
 
   // ── Supabase: プロフィール読み込み ──
   useEffect(() => {
@@ -3400,7 +3402,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const deleteProgram = (id) => { if(programs.length<=1)return; setPrograms(ps=>ps.filter(p=>p.id!==id)); if(activeProgramId===id) setActiveProgramId(programs.find(p=>p.id!==id)?.id); };
 
   const askAI = async () => {
+    const myId = ++reqIdAskAI.current; // v152: この検索の世代番号
     setAiLoading(true);
+    setAiPiecesP([]); // v152: 新検索は積み重ねず置き換え（古い候補の混入を防ぐ）
     // v151: 呼び出し元ボタンで poolMode="ai" を設定済み。
     // 旧3状態design（"both"/"none"）の名残でここで poolMode を上書きすると、
     // どちらのリストも描画されない "both" 状態になり得たため削除。
@@ -3411,24 +3415,27 @@ ${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.
 - 残り時間: 約${remaining}分以内
 - 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
 ${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras.map(e=>ERAS[e]?.label).join("、")}`:""}
-JSONのみ返してください:
-{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"推薦理由1文"}]}`;
+reasonは15字以内で簡潔に。JSONのみ返してください:
+{"suggestions":[{"title":"曲名","composer":"作曲家","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}`;
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
+      if (myId !== reqIdAskAI.current) return; // v152: 自分が最新でなければ捨てる
       const text = data.content.map(b=>b.text||"").join("");
       let parsed = {};
       try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
       catch(parseErr){ console.error("askAI parse失敗:",parseErr); parsed = {}; }
       const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
-      setAiPiecesP(prev=>[...prev,...newAI]);
-    } catch(e){ console.error(e); }
-    setAiLoading(false);
+      setAiPiecesP(newAI); // v152: 置き換え（足し込まない）
+    } catch(e){ if(myId===reqIdAskAI.current) console.error(e); }
+    if (myId===reqIdAskAI.current) setAiLoading(false);
   };
 
   // ★ Learning用：プログラム文脈を使わない、シンプルな曲検索AI
   const askAILearning = async () => {
+    const myId = ++reqIdAskAIL.current; // v152: この検索の世代番号
     setAiLoadingL(true);
+    setAiPieces([]); // v152: 新検索は積み重ねず置き換え
     const cond = [];
     if (composerFilter && composerFilter.trim()) cond.push("作曲家: "+composerFilter.trim());
     if (titleFilter && titleFilter.trim())       cond.push("曲名・キーワード: "+titleFilter.trim());
@@ -3447,14 +3454,15 @@ JSONのみ返してください:
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
+      if (myId !== reqIdAskAIL.current) return; // v152: 自分が最新でなければ捨てる
       const text = data.content.map(b=>b.text||"").join("");
       let parsed = {};
       try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
       catch(parseErr){ console.error("askAILearning parse失敗:",parseErr); parsed = {}; }
       const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
-      setAiPieces(prev=>[...prev,...newAI]);
-    } catch(e){ console.error(e); }
-    setAiLoadingL(false);
+      setAiPieces(newAI); // v152: 置き換え（足し込まない）
+    } catch(e){ if(myId===reqIdAskAIL.current) console.error(e); }
+    if (myId===reqIdAskAIL.current) setAiLoadingL(false);
   };
 
   const photoInputRef = useRef(null);
