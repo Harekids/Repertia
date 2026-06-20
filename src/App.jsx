@@ -2508,8 +2508,8 @@ const HomePage = (props) => {
     .filter(p => !yearMax        || (p.year||0) <= +yearMax)
     .filter(p => !durMin         || p.duration >= +durMin)
     .filter(p => !durMax         || p.duration <= +durMax)
-    .filter(p => p.difficulty >= diffMin && p.difficulty <= diffMax)
-    .filter(p => (p.frequency||0) >= freqMin && (p.frequency||0) <= freqMax)
+    .filter(p => (!diffMin || p.difficulty >= diffMin) && (!diffMax || p.difficulty <= diffMax))
+    .filter(p => (!freqMin || (p.frequency||0) >= freqMin) && (!freqMax || (p.frequency||0) <= freqMax))
     .filter(p => !kwFilter       || (p.keywords||"").includes(kwFilter))
     .filter(p => !showFavOnly    || p.candidate);
 
@@ -3445,8 +3445,12 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     if (eraFilter)                                 cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
     if (yearMin || yearMax)                        cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
     if (durMin || durMax)                          cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
-    if (Number(diffMin)>1 || Number(diffMax)<5)    cond.push("難易度(1易〜5難): "+(diffMin||1)+"〜"+(diffMax||5));
-    if (Number(freqMin)>1 || Number(freqMax)<5)    cond.push("演奏頻度(1低〜5高): "+(freqMin||1)+"〜"+(freqMax||5));
+    const dLowP = Number(diffMin)>=1 ? Number(diffMin) : 1; // 0(—)は指定なし→下限1
+    const dHighP = Number(diffMax)>=1 ? Number(diffMax) : 5; // 0(—)は指定なし→上限5
+    if (dLowP>1 || dHighP<5) cond.push("難易度(1易〜5難): "+dLowP+"〜"+dHighP);
+    const fLowP = Number(freqMin)>=1 ? Number(freqMin) : 1;
+    const fHighP = Number(freqMax)>=1 ? Number(freqMax) : 5;
+    if (fLowP>1 || fHighP<5) cond.push("演奏頻度(1低〜5高): "+fLowP+"〜"+fHighP);
     const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの曲を幅広く";
     const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を10曲前後提案してください。"
       + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
@@ -3479,8 +3483,12 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     if (eraFilter)                               cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
     if (yearMin || yearMax)                      cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
     if (durMin || durMax)                        cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
-    if (Number(diffMin)>1 || Number(diffMax)<5)  cond.push("難易度(1易〜5難): "+(diffMin||1)+"〜"+(diffMax||5));
-    if (Number(freqMin)>1 || Number(freqMax)<5)  cond.push("演奏頻度(1低〜5高): "+(freqMin||1)+"〜"+(freqMax||5));
+    const dLowL = Number(diffMin)>=1 ? Number(diffMin) : 1;
+    const dHighL = Number(diffMax)>=1 ? Number(diffMax) : 5;
+    if (dLowL>1 || dHighL<5) cond.push("難易度(1易〜5難): "+dLowL+"〜"+dHighL);
+    const fLowL = Number(freqMin)>=1 ? Number(freqMin) : 1;
+    const fHighL = Number(freqMax)>=1 ? Number(freqMax) : 5;
+    if (fLowL>1 || fHighL<5) cond.push("演奏頻度(1低〜5高): "+fLowL+"〜"+fHighL);
     const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの曲を幅広く";
     const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を10〜12曲提案してください。"
       + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
