@@ -34,11 +34,11 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
-  baroque:      { label:"バロック",  short:"バロック",  color:"#8B5E3C", bg:"#FDF5ED", year:[1600,1750] },
-  classical:    { label:"古典派",   short:"古典派",   color:"#2C6B82", bg:"#EDF5FB", year:[1750,1820] },
-  romantic:     { label:"ロマン派", short:"ロマン派", color:"#7A2E5A", bg:"#FBEdf5", year:[1820,1900] },
-  modern:       { label:"近現代",   short:"近現代",   color:"#2E6B3A", bg:"#EDF8EF", year:[1900,2000] },
-  contemporary: { label:"現代",     short:"現代",     color:"#5A3A8A", bg:"#F3EDF8", year:[2000,2030] },
+  baroque:      { label:"バロック",  short:"バロック",  color:"#B83048", bg:"#FDF5ED", year:[1600,1750] },
+  classical:    { label:"古典派",   short:"古典派",   color:"#6FA050", bg:"#EDF5FB", year:[1750,1820] },
+  romantic:     { label:"ロマン派", short:"ロマン派", color:"#9444A0", bg:"#FBEdf5", year:[1820,1900] },
+  modern:       { label:"近現代",   short:"近現代",   color:"#3F78C0", bg:"#EDF8EF", year:[1900,2000] },
+  contemporary: { label:"現代",     short:"現代",     color:"#7E8C96", bg:"#F3EDF8", year:[2000,2030] },
 };
 const ERA_ORDER = ["baroque","classical","romantic","modern","contemporary"];
 
@@ -238,8 +238,16 @@ const fmtDuration = (mins, secs) => {
 const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[] }) => {
   const era = ERAS[p.era] || ERAS.modern;
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
-  const statusBg = isAI ? "#9FB3C8" : isLearning ? "#E8E0CE" : null; // AI=青み銀 / Learning=クリーム / それ以外=紺(null)
-  const statusText = statusBg ? "#15233F" : null; // 色つき背景の上は濃紺
+  // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
+  // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
+  const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
+  // AI候補だけメモ用紙の地。それ以外は紺(透明)のまま。
+  const memoBg = "#ECE9DF";
+  const memoRule = "repeating-linear-gradient(180deg, transparent, transparent 27px, #E4E0D1 27px, #E4E0D1 28px)";
+  const statusBg = isAI ? memoBg : null;
+  const statusText = isAI ? txtColor : null; // AIメモ地の上は茶系文字
+  // 1行目の文字色：AIは常にメモ茶。金銀は通常時=状態色、展開時=明るいクリーム。
+  const mainTxt = isAI ? txtColor : (expanded ? "#F0E8D0" : txtColor);
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
 
@@ -268,8 +276,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   return (
     <div style={{
-      background: expanded ? "#1C2E4A" : statusBg ? statusBg : inProgram ? "#15233F" : "transparent",
-      borderBottom: "1px solid #1E2A45",
+      background: expanded ? (isAI ? memoBg : "#1C2E4A") : isAI ? memoBg : inProgram ? "#15233F" : "transparent",
+      backgroundImage: isAI ? memoRule : "none",
+      borderRadius: 5,
+      marginBottom: 6,
       position: "relative",
       opacity: inProgram ? 0.6 : 1,
       transition: "all 0.2s",
@@ -292,16 +302,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
-          <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
-          {expanded ? <span style={{width:1,alignSelf:"stretch",background:"#7A8FB5",flexShrink:0,margin:"0 4px",display:"inline-block"}} /> : <span style={{fontSize:13,color:"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
-          <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
-          {p.key && <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
+          {expanded ? <span style={{width:1,alignSelf:"stretch",background:isAI?"#B5AF9A":"#7A8FB5",flexShrink:0,margin:"0 4px",display:"inline-block"}} /> : <span style={{fontSize:13,color:isAI?"#B5AF9A":"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
+          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+          {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>}
           {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>}
-          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#1E2A45",color:"#94A3BE",padding:"1px 5px",borderRadius:6,border:"1px solid #2A3F6A",marginLeft:4}}>AI</span>}
+          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
-        <span style={{fontSize:14,color:expanded?"#F0E8D0":(statusText||"#EDE6D6"),fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+        <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {/* ①★候補を有効化・♥お気に入り・▼開閉は寝かせ中 */}
@@ -331,7 +341,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
       {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"0 12px 10px 13px",background:"#1C2E4A"}} onClick={onToggleExpand}>
+        <div style={{padding:"0 12px 10px 13px",background:isAI?memoBg:"#1C2E4A"}} onClick={onToggleExpand}>
           {!editing ? (
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
@@ -350,7 +360,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:8}}>
                   {/* ③時代情報行＋リンクを同じ行に */}
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:"#C8D4E8",fontFamily:SANS,marginBottom:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#C8D4E8",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
                     <span>{yearStr}</span>
@@ -375,9 +385,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                   {/* メモ(ある時だけ) */}
                   {(p.memo||p.reason) && (
-                    <div style={{fontSize:12,color:"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
+                    <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
                       {p.memo && <div>{p.memo}</div>}
-                      {p.reason && <div style={{fontStyle:"italic",marginTop:p.memo?4:0}}>💡 {p.reason}</div>}
+                      {p.reason && <div style={{fontStyle:"normal",marginTop:p.memo?4:0,color:isAI?"#5A564A":"#94A3BE"}}>💡 {p.reason}</div>}
                     </div>
                   )}
                 </div>
