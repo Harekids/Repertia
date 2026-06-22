@@ -918,6 +918,33 @@ const PrintPage = (props) => {
   const {prog, allPool, programs, pieces} = props;
   const {activeProgramId, setActiveProgramId} = props;
   const {profile, setProfile, events} = props;
+  // v156: パスワード変更
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pwNew, setPwNew] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [pwMsg, setPwMsg] = useState("");
+  const [pwErr, setPwErr] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
+  const handleChangePassword = async () => {
+    setPwErr(""); setPwMsg("");
+    if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
+    if (pwNew !== pwConfirm) { setPwErr("確認用パスワードが一致しません"); return; }
+    setPwLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: pwNew });
+    if (error) {
+      // Secure password change / 再認証が必要な場合に分かりやすく
+      const m = (error.message||"").toLowerCase();
+      if (m.includes("reauth") || m.includes("session") || m.includes("recent") || m.includes("again")) {
+        setPwErr("セキュリティのため、一度ログインし直してから変更してください。");
+      } else {
+        setPwErr("変更に失敗しました: " + error.message);
+      }
+    } else {
+      setPwMsg("パスワードを変更しました。");
+      setPwNew(""); setPwConfirm("");
+    }
+    setPwLoading(false);
+  };
   const {portfolioTab, setPortfolioTab} = props;
   const {addListItem, updateListItem, removeListItem} = props;
   const {handlePhoto, photoInputRef} = props;
@@ -1126,7 +1153,22 @@ const PrintPage = (props) => {
               {[
                 ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
                 ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
-                ["パスワード",     <button disabled style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"not-allowed",fontSize:12,fontFamily:SANS}}>変更（準備中）</button>],
+                ["パスワード",     <div style={{flex:1}}>
+                  {!pwOpen ? (
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
+                  ) : (
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <input type="password" value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS}}/>
+                      <input type="password" value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS}}/>
+                      <div style={{display:"flex",gap:8}}>
+                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
+                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
+                      </div>
+                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:SANS}}>{pwErr}</div>}
+                      {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS}}>{pwMsg}</div>}
+                    </div>
+                  )}
+                </div>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
@@ -3024,6 +3066,18 @@ const AuthPage = ({ onLogin }) => {
     setLoading(false);
   };
 
+  // v156: パスワード再設定メールを送る
+  const handleResetPassword = async () => {
+    if (!email) { setError(""); setMessage(""); setError("メールアドレスを入力してください"); return; }
+    setLoading(true); setError(""); setMessage("");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password"
+    });
+    if (error) setError("送信に失敗しました: " + error.message);
+    else setMessage("パスワード再設定メールを送りました。メールボックスをご確認ください（迷惑メールフォルダもご確認ください）。");
+    setLoading(false);
+  };
+
   return (
     <div style={{height:"100vh",background:"#0F1A33",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"#15233F",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
@@ -3048,6 +3102,14 @@ const AuthPage = ({ onLogin }) => {
             placeholder="パスワード（6文字以上）" style={inpS}
             onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
         </div>
+        {mode==="login" && (
+          <div style={{textAlign:"right",marginTop:8}}>
+            <button onClick={handleResetPassword} disabled={loading}
+              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              パスワードをお忘れですか？
+            </button>
+          </div>
+        )}
         {error && <div style={{marginTop:12,fontSize:12,color:"#C0405A",fontFamily:SANS}}>{error}</div>}
         {message && <div style={{marginTop:12,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
         <button onClick={handleSubmit} disabled={loading}
@@ -3061,10 +3123,70 @@ const AuthPage = ({ onLogin }) => {
   );
 };
 
+// ── v156: パスワード再設定画面（リセットメールのリンクから来た時） ──
+const SetNewPasswordPage = ({ onDone }) => {
+  const SANS = "'Noto Sans JP', sans-serif";
+  const [newPassword, setNewPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [done, setDone] = useState(false);
+
+  const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #1E2A45",
+    borderRadius:6, fontSize:14, fontFamily:SANS, color:"#EDE6D6",
+    background:"#15233F", boxSizing:"border-box", outline:"none" };
+
+  const handleSetNewPassword = async () => {
+    setError(""); setMessage("");
+    if (newPassword.length < 6) { setError("6文字以上にしてください"); return; }
+    if (newPassword !== confirm) { setError("確認用パスワードが一致しません"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) setError("更新に失敗しました: " + error.message);
+    else { setMessage("パスワードを更新しました。ログインしてください。"); setDone(true); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{height:"100vh",background:"#0F1A33",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <div style={{background:"#15233F",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:22,fontWeight:"bold",color:"#EDE6D6",fontFamily:SANS,letterSpacing:2}}>Repertia</div>
+          <div style={{fontSize:13,color:"#A8B4C8",fontFamily:SANS,marginTop:8}}>新しいパスワードを設定</div>
+        </div>
+        {!done ? (
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)}
+              placeholder="新しいパスワード（6文字以上）" style={inpS}/>
+            <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)}
+              placeholder="新しいパスワード（確認）" style={inpS}
+              onKeyDown={e=>e.key==="Enter"&&handleSetNewPassword()}/>
+            <button onClick={handleSetNewPassword} disabled={loading}
+              style={{width:"100%",marginTop:8,padding:"11px",background:"#0F1A33",border:"none",
+                color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer",opacity:loading?0.6:1}}>
+              {loading?"処理中...":"パスワードを更新する"}
+            </button>
+          </div>
+        ) : (
+          <button onClick={onDone}
+            style={{width:"100%",padding:"11px",background:"#0F1A33",border:"none",
+              color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer"}}>
+            ログイン画面へ
+          </button>
+        )}
+        {error && <div style={{marginTop:12,fontSize:12,color:"#C0405A",fontFamily:SANS}}>{error}</div>}
+        {message && <div style={{marginTop:12,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [pageState, setPage] = useState("manage");
+  const [recovery, setRecovery] = useState(false); // パスワード再設定リンクから来た状態
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -3072,6 +3194,7 @@ export default function App() {
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === "PASSWORD_RECOVERY") setRecovery(true); // リセットメールのリンク経由
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
@@ -3080,6 +3203,7 @@ export default function App() {
   const handleLogout = async () => { await supabase.auth.signOut(); };
 
   if (authLoading) return <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#0F1A33",color:"#94A3BE",fontFamily:"'Noto Sans JP', sans-serif"}}>読み込み中...</div>;
+  if (recovery) return <SetNewPasswordPage onDone={()=>{ setRecovery(false); }} />;
   if (!user) return <AuthPage />;
   return <MainApp user={user} handleLogout={handleLogout} pageState={pageState} setPage={setPage} />;
 }
