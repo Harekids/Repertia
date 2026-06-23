@@ -925,6 +925,7 @@ const PrintPage = (props) => {
   const [pwMsg, setPwMsg] = useState("");
   const [pwErr, setPwErr] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
+  const [pwShow, setPwShow] = useState(false);
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -942,6 +943,7 @@ const PrintPage = (props) => {
     } else {
       setPwMsg("パスワードを変更しました。");
       setPwNew(""); setPwConfirm("");
+      setPwOpen(false); // ★変更完了後はフォームを閉じる（謎の入力欄・ボタンを残さない）
     }
     setPwLoading(false);
   };
@@ -1158,16 +1160,21 @@ const PrintPage = (props) => {
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
                   ) : (
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <input type="password" value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS}}/>
-                      <input type="password" value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS}}/>
+                      <div style={{position:"relative"}}>
+                        <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
+                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
+                      </div>
+                      <div style={{position:"relative"}}>
+                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:52}}/>
+                      </div>
                       <div style={{display:"flex",gap:8}}>
                         <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
                         <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
                       </div>
                       {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:SANS}}>{pwErr}</div>}
-                      {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS}}>{pwMsg}</div>}
                     </div>
                   )}
+                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS,marginTop:6}}>{pwMsg}</div>}
                 </div>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
@@ -3048,6 +3055,7 @@ const AuthPage = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #1E2A45",
     borderRadius:6, fontSize:14, fontFamily:SANS, color:"#EDE6D6",
@@ -3098,9 +3106,12 @@ const AuthPage = ({ onLogin }) => {
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
             placeholder="メールアドレス" style={inpS}/>
-          <input type="password" value={password} onChange={e=>setPassword(e.target.value)}
-            placeholder="パスワード（6文字以上）" style={inpS}
-            onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
+          <div style={{position:"relative"}}>
+            <input type={showPw?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)}
+              placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:52}}
+              onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
+            <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
+          </div>
         </div>
         {mode==="login" && (
           <div style={{textAlign:"right",marginTop:8}}>
@@ -3132,6 +3143,7 @@ const SetNewPasswordPage = ({ onDone }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #1E2A45",
     borderRadius:6, fontSize:14, fontFamily:SANS, color:"#EDE6D6",
@@ -3143,8 +3155,10 @@ const SetNewPasswordPage = ({ onDone }) => {
     if (newPassword !== confirm) { setError("確認用パスワードが一致しません"); return; }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) setError("更新に失敗しました: " + error.message);
-    else { setMessage("パスワードを更新しました。ログインしてください。"); setDone(true); }
+    if (error) { setError("更新に失敗しました: " + error.message); setLoading(false); return; }
+    setMessage("パスワードを更新しました。新しいパスワードでログインしてください。");
+    await supabase.auth.signOut(); // ★本人確認のため一度ログアウト→再ログインを促す
+    setDone(true);
     setLoading(false);
   };
 
@@ -3157,9 +3171,12 @@ const SetNewPasswordPage = ({ onDone }) => {
         </div>
         {!done ? (
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)}
-              placeholder="新しいパスワード（6文字以上）" style={inpS}/>
-            <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)}
+            <div style={{position:"relative"}}>
+              <input type={showPw?"text":"password"} value={newPassword} onChange={e=>setNewPassword(e.target.value)}
+                placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
+              <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
+            </div>
+            <input type={showPw?"text":"password"} value={confirm} onChange={e=>setConfirm(e.target.value)}
               placeholder="新しいパスワード（確認）" style={inpS}
               onKeyDown={e=>e.key==="Enter"&&handleSetNewPassword()}/>
             <button onClick={handleSetNewPassword} disabled={loading}
