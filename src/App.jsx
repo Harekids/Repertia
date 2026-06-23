@@ -2233,17 +2233,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                   </div>
                   {/* Card */}
                   <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                    style={{background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+et.color,
+                    style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"3px solid "+et.color,
                       borderRadius:6,padding:"9px 12px",cursor:"pointer",
-                      boxShadow:isSelected?"0 2px 10px rgba(0,0,0,0.08)":"none",
-                      transition:"box-shadow 0.2s"}}>
+                      boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
+                      transition:"all 0.2s"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                       
                       <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
                       {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
                       {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:SANS}}>{ev.title}</span>}
                       {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
-                      <span style={{marginLeft:"auto",fontSize:10,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
                     </div>
                     {isSelected && <EventDetail ev={ev} programs={savedPrograms} allPool={allPool}/>}
                   </div>
@@ -2265,7 +2264,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           const et=EVENT_TYPES[ev.type]||EVENT_TYPES.other;
           const isSelected=selectedEvent===ev.id;
           return (
-            <div key={ev.id} style={{background:"#15233F",border:"1px solid #1E2A45",borderLeft:"4px solid "+et.color,borderRadius:6,marginBottom:6,overflow:"hidden"}}>
+            <div key={ev.id} style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"4px solid "+et.color,borderRadius:6,marginBottom:6,overflow:"hidden",boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",transition:"all 0.2s"}}>
               <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
@@ -2273,7 +2272,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                 {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
                 <span style={{fontSize:13,color:"#EDE6D6",fontFamily:SANS,flex:1,fontWeight:500}}>{ev.title||"（無題）"}</span>
                 {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
-                <span style={{fontSize:11,color:"#2A3F6A"}}>{isSelected?"▲":"▼"}</span>
               </div>
               {isSelected && (
                 <div style={{padding:"0 14px 12px"}}>
