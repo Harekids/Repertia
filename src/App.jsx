@@ -1867,7 +1867,7 @@ const ManagePage = (props) => {
     <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
       {/* ① Dashboard セクション */}
-      <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:10,padding:"18px 20px",marginBottom:20}}>
+      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"4px 2px 18px",marginBottom:20}}>
         {/* 総レパートリー数 + グラフ切り替えボタン */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
@@ -3202,6 +3202,13 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [pageState, setPage] = useState("manage");
   const [recovery, setRecovery] = useState(false); // パスワード再設定リンクから来た状態
+
+  useEffect(() => {
+    // A: ブラウザ標準の白背景（両脇・上下）を紺で塗りつぶす
+    document.body.style.background = "#0F1A33";
+    document.body.style.margin = "0";
+    document.documentElement.style.background = "#0F1A33";
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
