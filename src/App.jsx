@@ -1664,12 +1664,12 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー */}
-    <div style={{background:"#1E2A45",borderBottom:"2px solid #1E2A45",padding:"0 20px",display:"flex",alignItems:"stretch",flexShrink:0}}>
+    <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 20px",display:"flex",alignItems:"stretch",flexShrink:0}}>
       {[["repertoire","Repertoire ✦"],["learning","Learning ✧"]].map(([k,l])=>(
         <button key={k} onClick={()=>setLibraryTab(k)}
           style={{background:"none",border:"none",
-            borderBottom:libraryTab===k?"3px solid #8B5E3C":"3px solid transparent",
-            color:libraryTab===k?"#0F1A33":"#94A3BE",
+            borderBottom:libraryTab===k?"3px solid #C8A860":"3px solid transparent",
+            color:libraryTab===k?"#C8A860":"#94A3BE",
             padding:"10px 20px",cursor:"pointer",fontSize:13,
             fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
             fontWeight:libraryTab===k?600:400}}>
@@ -1691,7 +1691,7 @@ const ManagePage = (props) => {
         </div>
         {showLearnSearch && (<React.Fragment>
         {/* Search Piece パネル */}
-        <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"#15233F",flexShrink:0}}>
+        <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
           <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
             <div>
@@ -1828,7 +1828,7 @@ const ManagePage = (props) => {
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
         <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
           <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>My Learning（{learningPoolFiltered.length}曲）</div>
-          <div style={{background:"#15233F",borderRadius:8,border:"1px solid #1E2A45",overflow:"hidden"}}>
+          <div style={{background:"transparent",overflow:"hidden"}}>
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
             <div style={{padding:"8px 8px"}}>
               {learningPoolFiltered.length===0 ? (
@@ -1867,7 +1867,7 @@ const ManagePage = (props) => {
     <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
 
       {/* ① Dashboard セクション */}
-      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"4px 2px 18px",marginBottom:20}}>
+      <div style={{background:"#15233F",border:"1px solid #2A3A5C",borderRadius:10,padding:"18px 20px",marginBottom:20,boxShadow:"0 2px 12px rgba(0,0,0,0.25)"}}>
         {/* 総レパートリー数 + グラフ切り替えボタン */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
@@ -1928,7 +1928,7 @@ const ManagePage = (props) => {
       </div>
 
       {showRepDocPanel && (
-        <div style={{marginTop:10,marginBottom:20,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+        <div style={{marginTop:10,marginBottom:20,background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 2px 14px"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS}}>出力する曲を選んでください</div>
             <div style={{display:"flex",gap:6}}>
@@ -1987,7 +1987,7 @@ const ManagePage = (props) => {
       )}
 
       {/* 一覧エリア — フォームと分ける境界 */}
-      <div style={{background:"#15233F",borderRadius:8,border:"1px solid #1E2A45",overflow:"hidden"}}>
+      <div style={{background:"transparent",overflow:"hidden"}}>
         <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
         <div style={{padding:"8px 8px"}}>
           {poolFiltered.map(p => (
