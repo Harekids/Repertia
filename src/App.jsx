@@ -3947,7 +3947,8 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     </div>
   );
   return (
-    <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
+      <div style={{width:"100%",maxWidth:1126,margin:"0 auto",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
@@ -4014,6 +4015,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           savePrograms={savePrograms} programsSaveMsg={programsSaveMsg} isDirty={isDirty}
         />}
         {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} savedPrograms={savedPrograms} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+      </div>
       </div>
     </div>
   );
