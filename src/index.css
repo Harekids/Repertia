@@ -15,3 +15,24 @@ html, body {
 #root {
   min-height: 100vh;
 }
+
+/* v166: スクロールバーを紺地に馴染ませる（細く・控えめに） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A3A5A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A4A6A;
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2A3A5A transparent;
+}

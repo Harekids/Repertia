@@ -1180,7 +1180,7 @@ const PrintPage = (props) => {
                 </div>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
                   {input}
                 </div>
               ))}
@@ -1214,7 +1214,7 @@ const PrintPage = (props) => {
                 ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
                   {input}
                 </div>
               ))}
@@ -1224,7 +1224,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:16}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"学歴":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
                   <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
@@ -1244,7 +1244,7 @@ const PrintPage = (props) => {
               </div>
               {(profile.teachers||[]).map((t,idx)=>(
                 <div key={t.id} style={{display:"flex",alignItems:"center",gap:8}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{idx===0?"師事者":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
                   <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                   <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
@@ -1259,7 +1259,12 @@ const PrintPage = (props) => {
             </React.Fragment>)}
 
             {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
-            {profileSaveMsg && <div style={{textAlign:"center",marginTop:10,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{profileSaveMsg}</div>}
+            {/* v166: 保存トースト（右上にふわっと・数秒で消える） */}
+            {profileSaveMsg && (
+              <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A7A3A",color:"#7FCF94",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:SANS,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
+                {profileSaveMsg}
+              </div>
+            )}
 
           </div>
         </div>
