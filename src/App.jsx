@@ -906,6 +906,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
 // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
 const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["print","Portfolio"]];
+const CONTENT_W = 1000; // v164: 全ページ共通のコンテンツ幅（ここ1か所で全体幅を調整）
 
 const NOTATION_STYLES = {
   ja:     { label:"日本語（標準）",   example:"バラード 第1番 ト短調 Op.23" },
@@ -1069,12 +1070,12 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs */}
-      <div style={{background:"#1E2A45",borderBottom:"2px solid #1E2A45",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
+      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
         {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
           <button key={k} onClick={()=>setPortfolioTab(k)}
             style={{background:"none",border:"none",
-              borderBottom:portfolioTab===k?"3px solid #8B5E3C":"3px solid transparent",
-              color:portfolioTab===k?"#0F1A33":"#94A3BE",
+              borderBottom:portfolioTab===k?"3px solid #C8A860":"3px solid transparent",
+              color:portfolioTab===k?"#C8A860":"#94A3BE",
               padding:"10px 22px",cursor:"pointer",fontSize:13,
               fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
               fontWeight:portfolioTab===k?600:400}}>
@@ -1086,7 +1087,7 @@ const PrintPage = (props) => {
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
         <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
-          <div style={{maxWidth:720,margin:"0 auto"}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
             <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:16}}>
               {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:8}}>{docSaveMsg}</span>}
@@ -1267,7 +1268,7 @@ const PrintPage = (props) => {
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
         <div style={{flex:1,overflowY:"auto",padding:"20px 28px"}}>
-          <div style={{maxWidth:680,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
 
             {/* ⑤ 全ステップを1ページに */}
 
@@ -1864,7 +1865,7 @@ const ManagePage = (props) => {
     {/* Repertoire タブ */}
     {libraryTab==="repertoire" && (
     <div style={{flex:1,overflowY:"auto"}}>
-    <div style={{maxWidth:960,margin:"0 auto",padding:"20px 28px"}}>
+    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px"}}>
 
       {/* ① Dashboard セクション */}
       <div style={{background:"#15233F",border:"1px solid #2A3A5C",borderRadius:10,padding:"18px 20px",marginBottom:20,boxShadow:"0 2px 12px rgba(0,0,0,0.25)"}}>
@@ -2287,7 +2288,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   return (
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
-      <div style={{maxWidth:820,margin:"0 auto"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
         {/* Top bar ④ 1行目：追加ボタン */}
         <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:10}}>
@@ -3932,7 +3933,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   );
   return (
     <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
-      <div style={{width:"100%",maxWidth:1126,margin:"0 auto",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{width:"100%",maxWidth:CONTENT_W,margin:"0 auto",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
