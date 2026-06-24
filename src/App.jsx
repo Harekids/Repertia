@@ -927,6 +927,7 @@ const PrintPage = (props) => {
   const [pwErr, setPwErr] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
   const [pwShow, setPwShow] = useState(false);
+  const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -1154,8 +1155,8 @@ const PrintPage = (props) => {
             <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
             <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
               {[
-                ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1}}/>],
+                ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:420}}/>],
                 ["パスワード",     <div style={{flex:1}}>
                   {!pwOpen ? (
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
@@ -1185,15 +1186,20 @@ const PrintPage = (props) => {
               ))}
             </div>
 
-            {/* ── プロフィール詳細 ── */}
-            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS}}>プロフィール詳細</div>
+            {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
+            <div onClick={()=>setShowProfileDetail(v=>!v)}
+              style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
+              <span>プロフィール詳細</span>
+              <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
+            </div>
+            {showProfileDetail && (<React.Fragment>
             <div style={{display:"flex",flexDirection:"column",gap:18}}>
               {[
-                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1}}/>],
+                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1,maxWidth:200}}/>],
                 ["国籍",           <div style={{flex:1,position:"relative"}}>
-                  <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%"}}/>
+                  <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%",maxWidth:240}}/>
                   {(profile.nationality||"").trim().length>0 && !COUNTRY_LIST.some(c=>c.ja===profile.nationality||c.en===profile.nationality) && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
                       {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
@@ -1202,10 +1208,10 @@ const PrintPage = (props) => {
                     </div>
                   )}
                 </div>],
-                ["郵便番号",       <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,flex:1}}/>],
-                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1}}/>],
+                ["郵便番号",       <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:160}}/>],
+                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:520}}/>],
+                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:240}}/>],
+                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0}}>{label}</div>
@@ -1250,16 +1256,10 @@ const PrintPage = (props) => {
                 {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
               </div>
             </div>
+            </React.Fragment>)}
 
-            {/* 保存ボタン */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:8,paddingTop:16,borderTop:"1px solid #1E2A45"}}>
-              {profileSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{profileSaveMsg}</span>}
-              <button onClick={saveProfile}
-                style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
-                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-                保存
-              </button>
-            </div>
+            {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
+            {profileSaveMsg && <div style={{textAlign:"center",marginTop:10,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{profileSaveMsg}</div>}
 
           </div>
         </div>
@@ -3317,6 +3317,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const reqIdAskAIP = useRef(0); // v153: Programページ条件検索AI レース対策
 
   // ── Supabase: プロフィール読み込み ──
+  const profileLoaded = useRef(false);
   useEffect(() => {
     const loadProfile = async () => {
       const { data } = await supabase
@@ -3334,6 +3335,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           contact:    { ...prev.contact, ...(d.contact || {}) },
         };
       });
+      profileLoaded.current = true; // ロード完了後に自動保存を解禁
     };
     loadProfile();
   }, [user.id]);
@@ -3349,6 +3351,16 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       setTimeout(() => setProfileSaveMsg(""), 3000);
     }
   };
+
+  // v165: プロフィール自動保存（編集が止まって少ししたら保存）。
+  // ロード完了(profileLoaded)後のユーザー編集だけ保存する。
+  const profileSaveTimer = useRef(null);
+  useEffect(() => {
+    if (!profileLoaded.current) return; // ロード前・ロード直後の流し込みは保存しない
+    if (profileSaveTimer.current) clearTimeout(profileSaveTimer.current);
+    profileSaveTimer.current = setTimeout(() => { saveProfile(); }, 800);
+    return () => { if (profileSaveTimer.current) clearTimeout(profileSaveTimer.current); };
+  }, [profile]);
 
   const savePrograms = async () => {
     const { error } = await supabase.from('programs')
