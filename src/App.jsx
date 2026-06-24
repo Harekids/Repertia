@@ -1531,7 +1531,7 @@ const PrintPage = (props) => {
 const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS}) => {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div style={{borderBottom:"1px solid #1E2A45",background:"#15233F",flexShrink:0}}>
+    <div style={{borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
       <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
@@ -3204,10 +3204,18 @@ export default function App() {
   const [recovery, setRecovery] = useState(false); // パスワード再設定リンクから来た状態
 
   useEffect(() => {
-    // A: ブラウザ標準の白背景（両脇・上下）を紺で塗りつぶす
+    // A/②: ブラウザ標準の白背景・両脇の白い線を消す（body/html/#root を紺に、枠線を除去）
     document.body.style.background = "#0F1A33";
     document.body.style.margin = "0";
+    document.body.style.border = "none";
     document.documentElement.style.background = "#0F1A33";
+    const root = document.getElementById("root");
+    if (root) {
+      root.style.background = "#0F1A33";
+      root.style.border = "none";
+      root.style.margin = "0";
+      root.style.maxWidth = "none";
+    }
   }, []);
 
   useEffect(() => {
@@ -3882,7 +3890,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
             style={{background:"none",border:"none",
               borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
               borderTop:    "3px solid transparent",
-              color: page===p ? "#0F1A33" : "#9A8868",
+              color: page===p ? "#C8A860" : "#9A8868",
               padding:"0 24px",cursor:"pointer",
               fontSize:14,letterSpacing:0.3,
               fontFamily:"'Cormorant Garamond',serif",
