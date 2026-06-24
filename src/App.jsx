@@ -2654,10 +2654,10 @@ const HomePage = (props) => {
       <div style={{display:"flex",flex:1,overflow:"hidden"}}>
 
         {/* ── LEFT: 設定 + タイムライン ── */}
-        <div style={{width:"38%",minWidth:260,borderRight:"2px solid #1E2A45",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+        <div style={{width:"50%",minWidth:260,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
           {/* プログラム選択（左カラム先頭・はみ出さない） */}
-          <div style={{background:"#F0EBE0",borderBottom:"1px solid #D8CFBA",padding:"8px 12px",display:"flex",alignItems:"center",gap:6,flexShrink:0,flexWrap:"wrap"}}>
+          <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"8px 12px",display:"flex",alignItems:"center",gap:6,flexShrink:0,flexWrap:"wrap"}}>
             {editingProgramId===activeProgramId
               ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
                   onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
@@ -2683,7 +2683,7 @@ const HomePage = (props) => {
           </div>
 
           {/* 左上: プログラム設定 */}
-          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"#F0EBE0",flexShrink:0}}>
+          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
             <div style={{fontSize:9,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>プログラム設定</div>
             <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
               <div style={{display:"flex",alignItems:"center",gap:4}}>
@@ -2869,7 +2869,7 @@ const HomePage = (props) => {
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
           {/* 右上: 詳細フィルター */}
-          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"#15233F",flexShrink:0}}>
+          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
             <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
             {/* ⑦ Search Piece - labeled fields */}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
@@ -2942,34 +2942,28 @@ const HomePage = (props) => {
                 </div>
               </div>
             </div>
-            {/* ⑥ ボタン行：ライブラリー / AI の2択切替 */}
-            <div style={{display:"flex",gap:12,marginTop:16,marginBottom:16,justifyContent:"center"}}>
-              <button onClick={()=>setPoolMode("repertoire")}
-                style={{flex:"0 0 38%",padding:"12px 6px",
-                  background:poolMode==="repertoire"?"#0F1A33":"white",
-                  border:"2px solid "+(poolMode==="repertoire"?"#0F1A33":"#2A3F6A"),
-                  color:poolMode==="repertoire"?"#C8A860":"#94A3BE",
-                  cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
-                  letterSpacing:0.3}}>
-                ライブラリーから表示
-              </button>
-              <button onClick={()=>{ setAiPieces([]); setPoolMode("ai"); askAI(); }}
-                disabled={aiLoading}
-                style={{flex:"0 0 38%",padding:"12px 6px",
-                  background:poolMode==="ai"?"#0F1A33":"white",
-                  border:"2px solid "+(poolMode==="ai"?"#0F1A33":"#2A3F6A"),
-                  color:poolMode==="ai"?"#C8A860":"#94A3BE",
-                  cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600,
-                  letterSpacing:0.3}}>
-                {aiLoading?"…":"AIから探す"}
-              </button>
-            </div>
           </div>
 
           {/* 右下: 曲目一覧 */}
           <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
-            {/* ⑪ 並べ替え右寄せ・小さく */}
-            <div style={{display:"flex",gap:4,alignItems:"stretch",marginBottom:8,justifyContent:"flex-end"}}>
+            {/* ⑥ ライブラリー/AI切替 ＋ ⑪並べ替え（候補リストの上にまとめる） */}
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:10,justifyContent:"space-between",flexWrap:"wrap"}}>
+              <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
+                <button onClick={()=>setPoolMode("repertoire")}
+                  style={{padding:"5px 14px",background:poolMode==="repertoire"?"#0F1A33":"transparent",
+                    border:"1px solid "+(poolMode==="repertoire"?"#C8A860":"#2A3F6A"),
+                    color:poolMode==="repertoire"?"#C8A860":"#94A3BE",
+                    cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:"4px 0 0 4px",borderRight:"none",fontWeight:600}}>
+                  ライブラリー
+                </button>
+                <button onClick={()=>{ setAiPieces([]); setPoolMode("ai"); askAI(); }} disabled={aiLoading}
+                  style={{padding:"5px 14px",background:poolMode==="ai"?"#0F1A33":"transparent",
+                    border:"1px solid "+(poolMode==="ai"?"#C8A860":"#2A3F6A"),
+                    color:poolMode==="ai"?"#C8A860":"#94A3BE",
+                    cursor:aiLoading?"wait":"pointer",fontSize:11,fontFamily:SANS,borderRadius:"0 4px 4px 0",fontWeight:600}}>
+                  {aiLoading?"…":"AI"}
+                </button>
+              </div>
               <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
                 <select value={localSortBy} onChange={e=>setLocalSortBy(e.target.value)}
                   style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"3px 6px",fontFamily:SANS,fontSize:10,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
@@ -2987,16 +2981,6 @@ const HomePage = (props) => {
                   {localSortAsc?"▲":"▼"}
                 </button>
               </div>
-              {/* ✦✧ お気に入りフィルター */}
-              <button onClick={()=>setShowFavOnly(v=>!v)}
-                title="お気に入りのみ"
-                style={{background:showFavOnly?"#FFF8E8":"white",
-                  border:"1px solid "+(showFavOnly?"#C8963C":"#1E2A45"),
-                  color:showFavOnly?"#C8963C":"#94A3BE",
-                  padding:"4px 9px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,
-                  display:"flex",alignItems:"center",gap:2,flexShrink:0}}>
-                {showFavOnly?"✦":"✧"} お気に入り
-              </button>
             </div>
 
             {/* 大見出し：今どちらを見ているか */}
