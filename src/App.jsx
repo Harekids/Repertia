@@ -953,6 +953,7 @@ const PrintPage = (props) => {
   const {addListItem, updateListItem, removeListItem} = props;
   const {handlePhoto, photoInputRef} = props;
   const {saveProfile, profileSaveMsg} = props;
+  const {handleLogout} = props; // v167: ログアウト（ヘッダーから移設）
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {scratchItems, setScratchItems} = props;
@@ -1184,6 +1185,16 @@ const PrintPage = (props) => {
                   {input}
                 </div>
               ))}
+            </div>
+
+            {/* v167: ログアウト（ヘッダーから移設） */}
+            <div style={{marginBottom:28}}>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",display:"inline-block",verticalAlign:"middle"}}></div>
+              <button onClick={handleLogout}
+                style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"6px 16px",
+                  borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,verticalAlign:"middle"}}>
+                ログアウト
+              </button>
             </div>
 
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
@@ -3876,16 +3887,16 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   const inp = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
   const sel = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
 
-  // ── Shared header (① stable, ② bigger nav) ──────────────────────────────────
+  // ── Shared header (v167: Rくん + ゴシック + 高さ64) ──────────────────────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"stretch",flexShrink:0,height:54}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"stretch",flexShrink:0,height:64}}>
+      {/* Rくん（クリックでホーム＝Library） */}
       <div onClick={()=>setPage("manage")}
-        style={{cursor:"pointer",userSelect:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-          padding:"0 22px 0 24px",borderRight:"1px solid #3A3020",flexShrink:0}}>
-        <span style={{fontSize:21,color:"#C8A860",letterSpacing:3,fontFamily:"'Cormorant Garamond',serif",fontWeight:700,lineHeight:1.1}}>𝄞 Repertia</span>
-        <span style={{fontSize:8,color:"#7A6840",letterSpacing:4,fontFamily:"'Cormorant Garamond',serif",marginTop:1}}>REPERTIA</span>
+        style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
+          padding:"0 28px 0 28px",flexShrink:0}}>
+        <img src="/rkun-round.png" alt="Repertia" style={{height:42,width:42,display:"block"}}/>
       </div>
-      {/* ② bigger nav — same height as header, underline indicator */}
+      {/* メニュー（ゴシック・現在地は金＋下線） */}
       <nav style={{display:"flex",alignItems:"stretch"}}>
         {NAV.map(([p,l]) => (
           <button key={p} onClick={()=>setPage(p)}
@@ -3893,23 +3904,15 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
               borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
               borderTop:    "3px solid transparent",
               color: page===p ? "#C8A860" : "#9A8868",
-              padding:"0 24px",cursor:"pointer",
-              fontSize:14,letterSpacing:0.3,
-              fontFamily:"'Cormorant Garamond',serif",
+              padding:"0 28px",cursor:"pointer",
+              fontSize:14,letterSpacing:1,
+              fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
               transition:"color 0.15s"}}>
             {l}
           </button>
         ))}
       </nav>
-      <div style={{marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:16}}>
-        
-        <button onClick={handleLogout}
-          style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"4px 12px",
-            borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:"'Noto Sans JP',sans-serif"}}>
-          ログアウト
-        </button>
-      </div>
     </header>
   );
 
@@ -3984,7 +3987,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
         />}
-        {page==="print"  && <PrintPage prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
+        {page==="print"  && <PrintPage handleLogout={handleLogout} prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
