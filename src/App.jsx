@@ -277,7 +277,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   return (
     <div style={{
-      background: expanded ? (isAI ? memoBg : "#1C2E4A") : isAI ? memoBg : inProgram ? "#15233F" : "transparent",
+      background: expanded ? (isAI ? memoBg : "#18283F") : isAI ? memoBg : inProgram ? "#15233F" : "transparent",
       backgroundImage: isAI ? memoRule : "none",
       borderRadius: 5,
       marginBottom: 6,
@@ -342,7 +342,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
       {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"0 12px 10px 13px",background:isAI?memoBg:"#1C2E4A"}} onClick={onToggleExpand}>
+        <div style={{padding:"0 12px 10px 13px",background:isAI?memoBg:"#18283F"}} onClick={onToggleExpand}>
           {!editing ? (
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
@@ -361,7 +361,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:8}}>
                   {/* ③時代情報行＋リンクを同じ行に */}
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#C8D4E8",fontFamily:SANS,marginBottom:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS,marginBottom:6}}>
                     <span style={{color:era.color}}>{era.label}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
                     <span>{yearStr}</span>
