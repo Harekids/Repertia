@@ -1072,15 +1072,16 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs */}
-      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 24px",display:"flex",gap:0,flexShrink:0}}>
+      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 28px",display:"flex",gap:0,flexShrink:0}}>
         {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
           <button key={k} onClick={()=>setPortfolioTab(k)}
             style={{background:"none",border:"none",
-              borderBottom:portfolioTab===k?"3px solid #C8A860":"3px solid transparent",
               color:portfolioTab===k?"#C8A860":"#94A3BE",
-              padding:"10px 22px",cursor:"pointer",fontSize:13,
-              fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
-              fontWeight:portfolioTab===k?600:400}}>
+              padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
+              fontFamily:SANS,letterSpacing:1,
+              fontWeight:portfolioTab===k?600:400,
+              borderBottom:portfolioTab===k?"2px solid #C8A860":"2px solid transparent",
+              marginBottom:-1}}>
             {l}
           </button>
         ))}
@@ -1088,7 +1089,7 @@ const PrintPage = (props) => {
 
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
-        <div style={{flex:1,overflowY:"auto",padding:"24px 28px"}}>
+        <div style={{flex:1,overflowY:"auto",padding:"28px 28px"}}>
           <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
             <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:16}}>
@@ -1681,15 +1682,16 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー */}
-    <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 20px",display:"flex",alignItems:"stretch",flexShrink:0}}>
+    <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 28px",display:"flex",alignItems:"center",flexShrink:0}}>
       {[["repertoire","Repertoire ✦"],["learning","Learning ✧"]].map(([k,l])=>(
         <button key={k} onClick={()=>setLibraryTab(k)}
           style={{background:"none",border:"none",
-            borderBottom:libraryTab===k?"3px solid #C8A860":"3px solid transparent",
             color:libraryTab===k?"#C8A860":"#94A3BE",
-            padding:"10px 20px",cursor:"pointer",fontSize:13,
-            fontFamily:"'Cormorant Garamond',serif",letterSpacing:1,
-            fontWeight:libraryTab===k?600:400}}>
+            padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
+            fontFamily:SANS,letterSpacing:1,
+            fontWeight:libraryTab===k?600:400,
+            borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent",
+            marginBottom:-1}}>
           {l}
         </button>
       ))}
@@ -1881,7 +1883,7 @@ const ManagePage = (props) => {
     {/* Repertoire タブ */}
     {libraryTab==="repertoire" && (
     <div style={{flex:1,overflowY:"auto"}}>
-    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px"}}>
+    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px"}}>
 
       {/* ① Dashboard セクション */}
       <div style={{background:"#15233F",border:"1px solid #2A3A5C",borderRadius:10,padding:"18px 20px",marginBottom:20,boxShadow:"0 2px 12px rgba(0,0,0,0.25)"}}>
@@ -3887,27 +3889,27 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   const inp = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
   const sel = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,...ex});
 
-  // ── Shared header (v167: Rくん + ゴシック + 高さ64) ──────────────────────────
+  // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"stretch",flexShrink:0,height:64}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:72,paddingLeft:24,paddingRight:24}}>
       {/* Rくん（クリックでホーム＝Library） */}
       <div onClick={()=>setPage("manage")}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
-          padding:"0 28px 0 28px",flexShrink:0}}>
-        <img src="/rkun-round.png" alt="Repertia" style={{height:42,width:42,display:"block"}}/>
+          paddingRight:24,flexShrink:0}}>
+        <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
       </div>
-      {/* メニュー（ゴシック・現在地は金＋下線） */}
-      <nav style={{display:"flex",alignItems:"stretch"}}>
+      {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線） */}
+      <nav style={{display:"flex",alignItems:"center",gap:8}}>
         {NAV.map(([p,l]) => (
           <button key={p} onClick={()=>setPage(p)}
             style={{background:"none",border:"none",
-              borderBottom: page===p ? "3px solid #C8A860" : "3px solid transparent",
-              borderTop:    "3px solid transparent",
               color: page===p ? "#C8A860" : "#9A8868",
-              padding:"0 28px",cursor:"pointer",
-              fontSize:14,letterSpacing:1,
+              padding:"6px 20px",cursor:"pointer",
+              fontSize:15,letterSpacing:1,
               fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
+              borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
+              paddingBottom:4,
               transition:"color 0.15s"}}>
             {l}
           </button>
