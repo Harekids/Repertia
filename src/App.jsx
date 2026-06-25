@@ -2789,24 +2789,28 @@ const HomePage = (props) => {
                       </div>
                     )}
                     <div draggable onDragStart={()=>dragId.current=p.id} onDragEnter={()=>dragOver.current=p.id} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}
-                      style={{display:"flex",alignItems:"center",gap:6,padding:"7px 8px",background:"#15233F",
+                      style={{display:"flex",alignItems:"flex-start",gap:6,padding:"7px 8px",background:"#15233F",
                         border:"1px solid "+era.color+"33",borderLeft:"3px solid "+era.color,
                         borderRadius:5,marginBottom:3,cursor:"grab"}}>
-                      <span style={{color:"#2A3F6A",fontSize:11}}>⠿</span>
-                      <div style={{width:18,height:18,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#EDE6D6",flexShrink:0}}>{i+1}</div>
-                      {/* ③ Library と同じ表記 */}
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"baseline",gap:4,marginBottom:1}}>
-                          <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{p.composer}</span>
-                          <span style={{fontSize:12,color:"#EDE6D6",fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+                      <span style={{color:"#2A3F6A",fontSize:11,marginTop:3}}>⠿</span>
+                      <div style={{width:18,height:18,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#EDE6D6",flexShrink:0,marginTop:1}}>{i+1}</div>
+                      <div style={{flex:1,minWidth:0,cursor:"pointer"}}
+                        onClick={()=>setProgExpandId(progExpandId===p.id?null:p.id)}>
+                        <div style={{display:"flex",alignItems:"baseline",gap:6}}>
+                          <span style={{fontSize:12,color:"#EDE6D6",fontWeight:600,flex:1,minWidth:0,
+                            whiteSpace: progExpandId===p.id ? "normal" : "nowrap",
+                            overflow:"hidden",textOverflow:"ellipsis",lineHeight:1.35}}>{p.title}</span>
+                          <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{fmtDuration(p.duration,p.durationSecs)}</span>
                         </div>
-                        <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,display:"flex",gap:4}}>
-                          <span>{era.label}</span>
-                          <span>{p.key}</span>
-                          <span>{fmtDuration(p.duration,p.durationSecs)}</span>
-                        </div>
+                        {progExpandId===p.id && (
+                          <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS,display:"flex",gap:8,flexWrap:"wrap",marginTop:4}}>
+                            {p.composer && <span>{p.composer}</span>}
+                            {p.year && <span>{p.year}</span>}
+                            {p.key && <span>{p.key}</span>}
+                          </div>
+                        )}
                       </div>
-                      <button onClick={()=>toggle(p.id)} style={{background:"none",border:"none",color:"#C8A0A0",cursor:"pointer",fontSize:13,padding:"0 2px",flexShrink:0}}>×</button>
+                      <button onClick={()=>toggle(p.id)} style={{background:"none",border:"none",color:"#C8A0A0",cursor:"pointer",fontSize:13,padding:"0 2px",flexShrink:0,marginTop:1}}>×</button>
                     </div>
                   </React.Fragment>
                 ); })
@@ -3331,6 +3335,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
+  const [progExpandId, setProgExpandId] = React.useState(null); // v171: プログラム左カードの展開（1曲だけ）
   const reqIdAskAI  = useRef(0); // v152: askAI レース対策（世代管理）
   const reqIdAskAIL = useRef(0); // v152: askAILearning レース対策（世代管理）
   const reqIdAskAIP = useRef(0); // v153: Programページ条件検索AI レース対策
