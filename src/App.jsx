@@ -247,7 +247,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const statusBg = isAI ? memoBg : null;
   const statusText = isAI ? txtColor : null; // AIメモ地の上は茶系文字
   // 1行目の文字色：AIは常にメモ茶。金銀は通常時=状態色、展開時=明るいクリーム。
-  const mainTxt = isAI ? txtColor : (expanded ? "#F0E8D0" : txtColor);
+  const mainTxtExpanded = isLearning ? "#E2E7F0" : "#E0C888"; // v169: 展開時も身分色を保つ（金は金・銀は銀）
+  const mainTxt = isAI ? txtColor : (expanded ? mainTxtExpanded : txtColor);
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
 
@@ -293,7 +294,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         top: expanded ? 4 : 5,
         bottom: expanded ? 4 : 5,
         width: 3,
-        background: expanded ? "#C8A860" : era.color,
+        background: era.color,
         borderRadius: 0,
       }} />
 
