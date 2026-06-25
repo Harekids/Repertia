@@ -2573,6 +2573,7 @@ const HomePage = (props) => {
   const {savePrograms, programsSaveMsg, isDirty} = props;
   const [progDocIds, setProgDocIds] = useState([]);
   const [showProgDocPanel, setShowProgDocPanel] = useState(false);
+  const [progExpandId, setProgExpandId] = useState(null); // v171fix: プログラム左カードの展開（1曲だけ）HomePage内で定義
   // ── Local state for detail filter ──
   // filter states moved to App
 
@@ -3335,7 +3336,6 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
-  const [progExpandId, setProgExpandId] = React.useState(null); // v171: プログラム左カードの展開（1曲だけ）
   const reqIdAskAI  = useRef(0); // v152: askAI レース対策（世代管理）
   const reqIdAskAIL = useRef(0); // v152: askAILearning レース対策（世代管理）
   const reqIdAskAIP = useRef(0); // v153: Programページ条件検索AI レース対策
