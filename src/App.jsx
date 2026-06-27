@@ -2434,6 +2434,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="14:00" style={inpE}/></div>
                   </div>
+                  {false && (
                   <div style={{marginBottom:12}}>
                     <label style={{display:"block",fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:4}}>プログラム（任意）</label>
                     <select value={newEvent.programId||""} onChange={e=>setNewEvent({...newEvent,programId:e.target.value})}
@@ -2444,6 +2445,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                       ))}
                     </select>
                   </div>
+                  )}
                   <div>
                     <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>備考</div>
                     <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
@@ -2454,7 +2456,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             </div>
 
             {/* ⑧ プログラム */}
-            {false && (<React.Fragment>
+            {true && (<React.Fragment>
             <div style={{marginTop:16,marginBottom:8}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>プログラム</div>
               {newEvent.items.map((it,idx)=>(
