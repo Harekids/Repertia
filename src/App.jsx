@@ -906,7 +906,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
 
 
 // ── PORTFOLIO PAGE ────────────────────────────────────────────────────────────
-const NAV  = [["manage","Library"],["home","Program"],["events","Events"],["print","Portfolio"]];
+const NAV  = [["manage","Library"],["events","Events"],["print","Portfolio"]];
 const CONTENT_W = 1000; // v164: 全ページ共通のコンテンツ幅（ここ1か所で全体幅を調整）
 
 const NOTATION_STYLES = {
