@@ -321,13 +321,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 title="選ぶ（出力・プログラム用）"
                 style={{background:"none",border:"none",color:p.candidate?"#C8A860":"#4A5A7A",fontSize:13,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>★</button>
             )}
-            {/* ♥お気に入り: 揃える日まで寝かせ中
             {onToggleFav && (
               <button onClick={e=>{e.stopPropagation();onToggleFav();}}
                 title="お気に入り"
                 style={{background:"none",border:"none",color:p.fav?"#C0556A":"#4A5A7A",fontSize:14,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>♥</button>
             )}
-            */}
             {inProgram !== undefined && (
               inProgram
                 ? <button onClick={e=>{e.stopPropagation();onRemove&&onRemove();}}
