@@ -300,14 +300,23 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         borderRadius: 0,
       }} />
 
+      {/* 作曲家列の貫通縦線（1行目〜展開部を1本で貫く・v177） */}
+      <div style={{
+        position:"absolute",
+        left: 157,
+        top: expanded ? 14 : 10,
+        bottom: expanded ? 14 : 10,
+        width: 1,
+        background: isAI ? "#B5AF9A" : "#7A8FB5",
+      }} />
+
       {/* ── 1行目（常に表示） ── */}
       <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
-          {expanded ? <span style={{width:1,alignSelf:"stretch",background:isAI?"#B5AF9A":"#7A8FB5",flexShrink:0,margin:"0 4px",display:"inline-block"}} /> : <span style={{fontSize:13,color:isAI?"#B5AF9A":"#7A8FB5",flexShrink:0,margin:"0 4px"}}>｜</span>}
-          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</span>
+          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:8}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>}
           {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>}
@@ -337,7 +346,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
               <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
                 {/* 左カラム: 縦線のみ（編集ボタンは⋯メニューへ移動・境界線一本化のため） */}
-                <div style={{width:"10em",flexShrink:0,borderRight:"1px solid #7A8FB5"}}>
+                <div style={{width:"10em",flexShrink:0}}>
                 </div>
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:8}}>
