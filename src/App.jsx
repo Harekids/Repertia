@@ -316,7 +316,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"10em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
-          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:12}}>{p.title}</span>
+          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>}
           {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>}
