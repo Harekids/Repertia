@@ -251,6 +251,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const mainTxt = isAI ? txtColor : (expanded ? mainTxtExpanded : txtColor);
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
+  const [menuOpen, setMenuOpen] = React.useState(false); // v176: ⋯メニュー（PieceCardUnified内）
+  React.useEffect(() => { if (!expanded) setMenuOpen(false); }, [expanded]);
 
   React.useEffect(() => {
     if (!expanded) setEditing(false);
@@ -315,17 +317,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
-            {/* ①★候補を有効化・♥お気に入り・▼開閉は寝かせ中 */}
-            {onToggleCandidate && (
-              <button onClick={e=>{e.stopPropagation();onToggleCandidate();}}
-                title="選ぶ（出力・プログラム用）"
-                style={{background:"none",border:"none",color:p.candidate?"#C8A860":"#4A5A7A",fontSize:13,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>★</button>
-            )}
-            {onToggleFav && (
-              <button onClick={e=>{e.stopPropagation();onToggleFav();}}
-                title="お気に入り"
-                style={{background:"none",border:"none",color:p.fav?"#C0556A":"#4A5A7A",fontSize:14,cursor:"pointer",padding:"2px 3px",lineHeight:1}}>♥</button>
-            )}
+            {/* ★candidate・♥favは⋯メニューへ移行のため普段表示から削除（candidate機能はコード温存）*/}
             {inProgram !== undefined && (
               inProgram
                 ? <button onClick={e=>{e.stopPropagation();onRemove&&onRemove();}}
@@ -333,7 +325,6 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 : <button onClick={e=>{e.stopPropagation();onAdd&&onAdd();}} disabled={!canAdd}
                     style={{background:canAdd?"#C8A860":"#1E2A45",border:"none",color:canAdd?"#0F1A33":"#4A5A7A",width:22,height:22,borderRadius:"50%",cursor:canAdd?"pointer":"not-allowed",fontSize:16,lineHeight:"22px",textAlign:"center",fontWeight:"bold"}}>+</button>
             )}
-            {/* ①▼開閉非表示（機能は保持: onToggleExpandで動作）*/}
           </div>
         )}
       </div>
@@ -345,16 +336,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
               <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
-                {/* 左カラム: 縦線＋編集ボタン */}
-                {/* ②幅を calc(9em+4px) に調整して1行目の｜と揃える */}
-                <div style={{width:"10em",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-start",paddingTop:8,borderRight:"1px solid #7A8FB5"}}>
-                  {/* ①編集ボタン: 左寄せ */}
-                  <button onClick={startEdit}
-                    style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",
-                      padding:"2px 8px",borderRadius:3,cursor:"pointer",fontSize:11,fontFamily:SANS,
-                      position:"relative",zIndex:1}}>
-                    編集
-                  </button>
+                {/* 左カラム: 縦線のみ（編集ボタンは⋯メニューへ移動・境界線一本化のため） */}
+                <div style={{width:"10em",flexShrink:0,borderRight:"1px solid #7A8FB5"}}>
                 </div>
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:8}}>
@@ -390,6 +373,22 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     </div>
                   )}
                 </div>
+              </div>
+              {/* ⋯メニュー：展開時の右下 */}
+              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}} onClick={e=>e.stopPropagation()}>
+                <button onClick={e=>{e.stopPropagation();setMenuOpen(!menuOpen);}}
+                  title="メニュー"
+                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",padding:"0 6px",lineHeight:1}}>⋯</button>
+                {menuOpen && (
+                  <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
+                    <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
+                      style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>編集</button>
+                    {onToggleFav && (
+                      <button onClick={e=>{e.stopPropagation();setMenuOpen(false);onToggleFav();}}
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           ) : (
