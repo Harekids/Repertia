@@ -349,10 +349,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{width:"10em",flexShrink:0}}>
                 </div>
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
-                <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:12}}>
+                <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:7}}>
                   {/* ③時代情報行＋リンクを同じ行に */}
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS,marginBottom:6}}>
-                    <span style={{color:era.color}}>{era.label}</span>
+                    <span>{era.label}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
                     <span>{yearStr}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
