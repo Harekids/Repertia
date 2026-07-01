@@ -235,6 +235,15 @@ const fmtDuration = (mins, secs) => {
 //   onToggleCandidate - 候補トグル
 //   isAI        - AI提案曲か
 //   showControls - ボタン類を表示するか（デフォルトtrue）
+function LinkIcon({ type }) {
+  const common = { width:13, height:13, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:1.6, strokeLinecap:"round", strokeLinejoin:"round" };
+  if (type === "desc") return <span style={{fontStyle:"italic",fontFamily:"Georgia,serif",fontSize:12}}>i</span>;
+  if (type === "score") return (<svg {...common}><path d="M12 5v14"/><path d="M12 5C10 3.5 6.5 3.5 4 4.5v13c2.5-1 6-1 8 .5"/><path d="M12 5c2-1.5 5.5-1.5 8-.5v13c-2.5-1-6-1-8 .5"/></svg>);
+  if (type === "audio") return (<svg {...common}><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 8c1.2 1.2 1.2 6.8 0 8"/></svg>);
+  if (type === "video") return (<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 5v14l11-7z"/></svg>);
+  return null;
+}
+
 const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[] }) => {
   const era = ERAS[p.era] || ERAS.modern;
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
@@ -264,6 +273,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
       title:p.title, composer:p.composer, key:p.key||"",
       yearText:p.yearText||"", duration:p.duration||0, durationSecs:p.durationSecs||0,
       memo:p.memo||"", keywords:p.keywords||"",
+      links: Array.isArray(p.links) ? p.links.map(l=>({...l})) : [],
     });
     setEditing(true);
   };
@@ -373,6 +383,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                             border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
                           onClick={e=>e.stopPropagation()}>{mark}</a>
                       ))}
+                      {Array.isArray(p.links) && p.links.map((lk,i)=>(
+                        <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
+                          style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
+                            fontSize:11,color:"#94A3BE",textDecoration:"none",
+                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
+                          onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
+                      ))}
                     </span>
                   </div>
                   {/* メモ(ある時だけ) */}
@@ -472,7 +489,31 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   placeholder="カンマ区切り"
                   style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
               </div>
-              {/* 保存ボタン */}
+              {/* 演奏リンク（最大3個） */}
+              <div style={{marginBottom:10}}>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏リンク（最大3個）</div>
+                {(draft.links||[]).map((lk,i)=>(
+                  <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
+                    <select value={lk.type||"video"} onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:e.target.value}:x);setDraft({...draft,links:nl});}}
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 6px",fontFamily:SANS,fontSize:12,borderRadius:3,flexShrink:0}}>
+                      <option value="desc">解説</option>
+                      <option value="score">楽譜</option>
+                      <option value="audio">音源</option>
+                      <option value="video">動画</option>
+                    </select>
+                    <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,flex:2,minWidth:0,boxSizing:"border-box"}} />
+                    <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,flex:1,minWidth:0,boxSizing:"border-box"}} />
+                    <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
+                      style={{background:"none",border:"none",color:"#C0405A",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>✕</button>
+                  </div>
+                ))}
+                {(draft.links||[]).length < 3 && (
+                  <button onClick={()=>{setDraft({...draft,links:[...(draft.links||[]),{type:"video",url:"",title:""}]});}}
+                    style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
+                )}
+              </div>
               <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
                 <button onClick={saveEdit}
                   style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
