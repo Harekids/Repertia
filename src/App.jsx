@@ -383,6 +383,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                             border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
                           onClick={e=>e.stopPropagation()}>{mark}</a>
                       ))}
+                      {Array.isArray(p.links) && p.links.length>0 && <span style={{width:8,flexShrink:0,display:"inline-block"}} />}
                       {Array.isArray(p.links) && p.links.map((lk,i)=>(
                         <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
                           style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
@@ -494,13 +495,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏リンク（最大3個）</div>
                 {(draft.links||[]).map((lk,i)=>(
                   <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
-                    <select value={lk.type||"video"} onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 6px",fontFamily:SANS,fontSize:12,borderRadius:3,flexShrink:0}}>
-                      <option value="desc">解説</option>
-                      <option value="score">楽譜</option>
-                      <option value="audio">音源</option>
-                      <option value="video">動画</option>
-                    </select>
+                    <div style={{display:"flex",gap:3,flexShrink:0}}>
+                      {["desc","score","audio","video"].map(t=>(
+                        <button key={t} type="button" title={t}
+                          onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
+                          style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
+                            background:(lk.type||"video")===t?"#DCE4F0":"white",
+                            border:(lk.type||"video")===t?"1px solid #5B7FA6":"1px solid #C8CEDB",
+                            color:"#15233F",borderRadius:3,cursor:"pointer",padding:0,flexShrink:0}}>
+                          <LinkIcon type={t} />
+                        </button>
+                      ))}
+                    </div>
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
                       style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,flex:2,minWidth:0,boxSizing:"border-box"}} />
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
