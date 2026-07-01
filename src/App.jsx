@@ -3495,6 +3495,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           learning: p.is_learning || false,
           star: p.is_star || false,
           pop: p.pop || 0,
+          links: p.links || [],
           mine: true,
         })));
         const learnIds = data.filter(p => p.is_learning).map(p => p.id);
@@ -3592,6 +3593,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       durationSecs: updated.durationSecs||0,
       memo: updated.memo||'',
       keywords: updated.keywords||'',
+      links: updated.links||[],
     }).eq('id', updated.id);
   };
 
