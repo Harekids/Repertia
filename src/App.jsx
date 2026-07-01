@@ -344,7 +344,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           {!editing ? (
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
-              <div style={{display:"flex",alignItems:"stretch",gap:0}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:"flex",alignItems:"stretch",gap:0}}>
                 {/* 左カラム: 縦線のみ（編集ボタンは⋯メニューへ移動・境界線一本化のため） */}
                 <div style={{width:"10em",flexShrink:0}}>
                 </div>
