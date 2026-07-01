@@ -324,7 +324,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
         <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
-        <span style={{flexShrink:0,fontSize:13,lineHeight:1,width:16,height:16,display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#C0405A",marginRight:4,visibility:p.fav?"visible":"hidden"}} title="お気に入り">♥</span>
+        <span style={{flexShrink:0,fontSize:13,lineHeight:1,width:16,height:16,display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#C0405A",marginRight:4,visibility:p.fav?"visible":"hidden"}} title="お気に入り">♪</span>
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {/* ★candidate・♥favは⋯メニューへ移行のため普段表示から削除（candidate機能はコード温存）*/}
