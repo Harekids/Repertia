@@ -384,7 +384,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
               </div>
               {/* ⋯メニュー：展開時の右下 */}
-              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}} onClick={e=>e.stopPropagation()}>
+              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}}>
                 <button onClick={e=>{e.stopPropagation();setMenuOpen(!menuOpen);}}
                   title="メニュー"
                   style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",padding:"0 6px",lineHeight:1}}>⋯</button>
