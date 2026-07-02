@@ -1015,6 +1015,7 @@ const PrintPage = (props) => {
   const [showAddPanel, setShowAddPanel] = useState(false);
   const [bioCheck, setBioCheck] = useState({ basic:true, education:true, teacher:true });
   const [showBioPanel, setShowBioPanel] = useState(false);
+  const [hamPfOpen, setHamPfOpen] = useState(false); // v196: Portfolioの三線メニュー
   const [scratchDragId, setScratchDragId] = useState(null);
   const [scratchOverId, setScratchOverId] = useState(null);
   const onScratchDragEnd = () => {
@@ -1147,12 +1148,30 @@ const PrintPage = (props) => {
         <div style={{flex:1,overflowY:"auto",padding:"28px 28px"}}>
           <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-            <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:16}}>
+            {/* 境界線＋≡（v196: Libraryと同じ体裁） */}
+            <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:20,paddingBottom:12,borderBottom:"1px solid #1E2A45",position:"relative"}}>
               {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:8}}>{docSaveMsg}</span>}
-              <button onClick={()=>setShowBioPanel(!showBioPanel)}
-                style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"8px 18px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
-                📦 ドキュメント作成
-              </button>
+              <div style={{position:"relative"}}>
+                <button onClick={()=>setHamPfOpen(v=>!v)}
+                  title="メニュー"
+                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
+                    padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+                    alignItems:"center",justifyContent:"center"}}>
+                  ≡
+                </button>
+                {hamPfOpen && (
+                  <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
+                    border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
+                    boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+                    <button onClick={()=>{setShowBioPanel(true);setHamPfOpen(false);}}
+                      style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                        border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                        fontSize:12,fontFamily:SANS}}>
+                      📦 ドキュメントを作成
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {showBioPanel && (
               <div style={{marginTop:10,marginBottom:16,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
@@ -2129,6 +2148,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   };
 
   const [evSearch, setEvSearch]        = useState("");
+  const [hamEvOpen, setHamEvOpen]      = useState(false); // v196: Eventsの三線メニュー
   const [evTypeFilter, setEvTypeFilter] = useState("");
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState(null);
@@ -2365,20 +2385,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-        {/* Top bar ④ 1行目：追加ボタン */}
-        <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:10}}>
-          {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
-          <button onClick={()=>setShowEvtPanel(!showEvtPanel)}
-            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
-              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-            📦 ドキュメント作成
-          </button>
-          <button onClick={openAdd}
-            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 20px",
-              cursor:"pointer",fontSize:13,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-            ＋ イベントを追加
-          </button>
-        </div>
+        {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
           <div style={{marginBottom:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
             <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する種類を選んでください</div>
@@ -2443,6 +2450,35 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             <option value="">すべての種別</option>
             {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
           </select>
+          <div style={{flex:1}} />
+          {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
+          <div style={{position:"relative",flexShrink:0}}>
+            <button onClick={()=>setHamEvOpen(v=>!v)}
+              title="メニュー"
+              style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
+                padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+                alignItems:"center",justifyContent:"center"}}>
+              ≡
+            </button>
+            {hamEvOpen && (
+              <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
+                border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
+                boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+                <button onClick={()=>{openAdd();setHamEvOpen(false);}}
+                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                    fontSize:12,fontFamily:SANS}}>
+                  ＋ イベントを追加
+                </button>
+                <button onClick={()=>{setShowEvtPanel(v=>!v);setHamEvOpen(false);}}
+                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                    fontSize:12,fontFamily:SANS}}>
+                  📦 ドキュメントを作成
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Add / Edit form */}
