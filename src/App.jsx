@@ -1128,12 +1128,12 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs */}
-      <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 28px",display:"flex",gap:0,flexShrink:0}}>
+      <div style={{background:"transparent",padding:"0 28px",display:"flex",gap:0,flexShrink:0}}>
         {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
           <button key={k} onClick={()=>setPortfolioTab(k)}
             style={{background:"none",border:"none",
               color:portfolioTab===k?"#C8A860":"#94A3BE",
-              padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
+              padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:13,
               fontFamily:SANS,letterSpacing:1,
               fontWeight:portfolioTab===k?600:400,
               borderBottom:"2px solid transparent"}}>
