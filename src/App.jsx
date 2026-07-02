@@ -1646,6 +1646,41 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
 };
 
 // ── PieChart (top-level) ────────────────────────────────────────────────────
+const EraBar = ({pieces, learning=false}) => {
+  const pool = learning ? pieces.filter(p=>p.learning) : pieces.filter(p=>!p.learning);
+  const total = pool.length;
+  if (total===0) return null;
+  const counts = ERA_ORDER.map(k=>({key:k, ...ERAS[k], count:pool.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+  const stops = [];
+  let pct = 0;
+  counts.forEach((d,i)=>{
+    const w = d.count/total*100;
+    if (i===0) stops.push(d.color+" "+pct.toFixed(1)+"%");
+    else stops.push(d.color+" "+pct.toFixed(1)+"%");
+    pct += w;
+    stops.push(d.color+" "+pct.toFixed(1)+"%");
+  });
+  const grad = "linear-gradient(to right, "+stops.join(", ")+")";
+  return (
+    <div style={{marginBottom:20}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:10}}>
+        <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
+        <span style={{fontSize:18,fontWeight:700,color:learning?"#94A3BE":"#EDE6D6",fontFamily:FONT}}>{total}</span>
+        <span style={{fontSize:12,color:"#94A3BE",fontFamily:SANS}}>曲</span>
+      </div>
+      <div style={{height:10,borderRadius:5,background:grad,marginBottom:10}}/>
+      <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+        {counts.map(d=>(
+          <div key={d.key} style={{display:"flex",alignItems:"center",gap:5}}>
+            <div style={{width:7,height:7,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+            <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const PieChart = ({dashData, dashTotal, piecesTotal}) => {
   const angle2=[-90]; // mutable via array
   const cx=70,cy=70,r=54;
@@ -1901,7 +1936,7 @@ const ManagePage = (props) => {
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
         <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
-          <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>My Learning（{learningPoolFiltered.length}曲）</div>
+          <EraBar pieces={pieces} learning={true} />
           <div style={{background:"transparent",overflow:"hidden"}}>
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
             <div style={{padding:"8px 8px"}}>
@@ -1940,48 +1975,8 @@ const ManagePage = (props) => {
     <div style={{flex:1,overflowY:"auto"}}>
     <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px"}}>
 
-      {/* ① Dashboard セクション */}
-      <div style={{background:"#15233F",border:"1px solid #2A3A5C",borderRadius:10,padding:"18px 20px",marginBottom:20,boxShadow:"0 2px 12px rgba(0,0,0,0.25)"}}>
-        {/* 総レパートリー数 + グラフ切り替えボタン */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
-          <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-            <span style={{fontSize:36,fontWeight:700,color:"#EDE6D6",fontFamily:FONT,lineHeight:1}}>{pieces.filter(p=>!p.learning).length}</span>
-            <span style={{fontSize:13,color:"#94A3BE",fontFamily:SANS}}>曲</span>
-          </div>
-          <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-            {/* 軸切り替え */}
-            {[["era","時代別"],["difficulty","難易度別"],["frequency","演奏頻度別"]].map(([k,l])=>(
-              <button key={k} onClick={()=>setDashAxis(k)}
-                style={{background:dashAxis===k?"#0F1A33":"white",border:"1px solid "+(dashAxis===k?"#0F1A33":"#1E2A45"),color:dashAxis===k?"#C8A860":"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
-                {l}
-              </button>
-            ))}
-            <div style={{width:1,height:16,background:"#1E2A45",margin:"0 2px"}}/>
-            {/* グラフ種別 */}
-            {[["pie","●"],["bar","▬"]].map(([k,icon])=>(
-              <button key={k} onClick={()=>setDashChart(k)}
-                style={{background:dashChart===k?"#0F1A33":"white",border:"1px solid "+(dashChart===k?"#0F1A33":"#1E2A45"),color:dashChart===k?"#C8A860":"#94A3BE",padding:"4px 9px",cursor:"pointer",fontSize:13,borderRadius:4}}>
-                {icon}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* グラフ + 凡例 */}
-        <div style={{display:"flex",gap:20,alignItems:"center",flexWrap:"wrap"}}>
-          {dashChart==="pie" ? <PieChart dashData={dashData} dashTotal={dashTotal} piecesTotal={pieces.filter(p=>!p.learning).length}/> : <BarChart dashData={dashData}/>}
-          <div style={{display:"flex",flexDirection:"column",gap:5,flex:1}}>
-            {dashData.map((d,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:7}}>
-                <div style={{width:9,height:9,borderRadius:"50%",background:d.color,flexShrink:0}}/>
-                <span style={{fontSize:11,color:"#EDE6D6",fontFamily:SANS,flex:1}}>{d.label}</span>
-                <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.count}曲</span>
-                <span style={{fontSize:10,color:"#4A5A7A",fontFamily:SANS,width:32,textAlign:"right"}}>{Math.round(d.count/dashTotal*100)}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* ① EraBar */}
+      <EraBar pieces={pieces} learning={false} />
 
       {/* ② ボタン行 — 右端に寄せる */}
       <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:20,marginTop:8}}>
