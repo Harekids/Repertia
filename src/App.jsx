@@ -1826,8 +1826,7 @@ const ManagePage = (props) => {
             padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:13,
             fontFamily:SANS,letterSpacing:1,
             fontWeight:libraryTab===k?600:400,
-            borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent",
-            marginBottom:-1}}>
+            borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent"}}>
           {l}
         </button>
       ))}
