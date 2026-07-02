@@ -1655,8 +1655,8 @@ const EraBar = ({pieces, learning=false}) => {
   let pct = 0;
   counts.forEach((d,i)=>{
     const w = d.count/total*100;
-    const s = Math.max(0, pct-1.5).toFixed(1);
-    const e = Math.min(100, pct+w+1.5).toFixed(1);
+    const s = Math.max(0, pct-4).toFixed(1);
+    const e = Math.min(100, pct+w+4).toFixed(1);
     if (i===0) stops.push(d.color+" 0%");
     else stops.push(d.color+" "+s+"%");
     stops.push(d.color+" "+e+"%");
@@ -1776,8 +1776,8 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー */}
-    <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 28px",display:"flex",alignItems:"center",flexShrink:0}}>
-      {[["repertoire","Repertoire ✦"],["learning","Learning ✧"]].map(([k,l])=>(
+    <div style={{background:"transparent",padding:"0 28px",display:"flex",alignItems:"center",flexShrink:0}}>
+      {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
         <button key={k} onClick={()=>setLibraryTab(k)}
           style={{background:"none",border:"none",
             color:libraryTab===k?"#C8A860":"#94A3BE",
@@ -3954,9 +3954,9 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:72,paddingLeft:24,paddingRight:24}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:24,paddingRight:24}}>
       {/* Rくん（クリックでホーム＝Library） */}
-      <div onClick={()=>setPage("manage")}
+      <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
           paddingRight:24,flexShrink:0}}>
         <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
