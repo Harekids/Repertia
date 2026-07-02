@@ -34,11 +34,11 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
-  baroque:      { label:"バロック",  short:"バロック",  color:"#B83048", bg:"#FDF5ED", year:[1600,1750] },
-  classical:    { label:"古典派",   short:"古典派",   color:"#6FA050", bg:"#EDF5FB", year:[1750,1820] },
-  romantic:     { label:"ロマン派", short:"ロマン派", color:"#9444A0", bg:"#FBEdf5", year:[1820,1900] },
-  modern:       { label:"近現代",   short:"近現代",   color:"#3F78C0", bg:"#EDF8EF", year:[1900,2000] },
-  contemporary: { label:"現代",     short:"現代",     color:"#7E8C96", bg:"#F3EDF8", year:[2000,2030] },
+  baroque:      { label:"バロック",  short:"バロック",  color:"#9B3045", bg:"#FDF5ED", year:[1600,1750] },
+  classical:    { label:"古典派",   short:"古典派",   color:"#BA6F12", bg:"#EDF5FB", year:[1750,1820] },
+  romantic:     { label:"ロマン派", short:"ロマン派", color:"#8C327A", bg:"#FBEdf5", year:[1820,1900] },
+  modern:       { label:"近現代",   short:"近現代",   color:"#3A3A9A", bg:"#EDF8EF", year:[1900,2000] },
+  contemporary: { label:"現代",     short:"現代",     color:"#6A6A7A", bg:"#F3EDF8", year:[2000,2030] },
 };
 const ERA_ORDER = ["baroque","classical","romantic","modern","contemporary"];
 
