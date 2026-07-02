@@ -1136,8 +1136,7 @@ const PrintPage = (props) => {
               padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
               fontFamily:SANS,letterSpacing:1,
               fontWeight:portfolioTab===k?600:400,
-              borderBottom:"2px solid transparent",
-              marginBottom:-1}}>
+              borderBottom:"2px solid transparent"}}>
             {l}
           </button>
         ))}
@@ -1150,7 +1149,7 @@ const PrintPage = (props) => {
 
 
             {/* ── アカウント情報 ── */}
-            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
+            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,paddingBottom:8,marginBottom:12,marginTop:4,fontFamily:SANS,borderBottom:"1px solid #1E2A45"}}>アカウント情報</div>
             <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
               {[
                 ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
@@ -1194,31 +1193,6 @@ const PrintPage = (props) => {
               </button>
             </div>
 
-            {/* 境界線＋≡（v196: Libraryと同じ体裁） */}
-            <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:20,paddingBottom:12,borderBottom:"1px solid #1E2A45",position:"relative"}}>
-              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:8}}>{docSaveMsg}</span>}
-              <div style={{position:"relative"}}>
-                <button onClick={()=>setHamPfOpen(v=>!v)}
-                  title="メニュー"
-                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
-                    padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
-                    alignItems:"center",justifyContent:"center"}}>
-                  ≡
-                </button>
-                {hamPfOpen && (
-                  <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
-                    border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
-                    boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
-                    <button onClick={()=>{setShowBioPanel(true);setHamPfOpen(false);}}
-                      style={{display:"block",width:"100%",textAlign:"left",background:"none",
-                        border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                        fontSize:12,fontFamily:SANS}}>
-                      📦 ドキュメントを作成
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
             {showBioPanel && (
               <div style={{marginTop:10,marginBottom:16,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
                 <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する項目を選んでください</div>
@@ -1273,10 +1247,33 @@ const PrintPage = (props) => {
               </div>
             )}
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
-            <div onClick={()=>setShowProfileDetail(v=>!v)}
-              style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
-              <span>プロフィール詳細</span>
-              <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #1E2A45",paddingBottom:8,marginBottom:16,marginTop:8}}>
+              <div onClick={()=>setShowProfileDetail(v=>!v)}
+                style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
+                <span>プロフィール詳細</span>
+                <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
+              </div>
+              <div style={{position:"relative"}}>
+                <button onClick={()=>setHamPfOpen(v=>!v)}
+                  title="メニュー"
+                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
+                    padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+                    alignItems:"center",justifyContent:"center"}}>
+                  ≡
+                </button>
+                {hamPfOpen && (
+                  <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
+                    border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
+                    boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+                    <button onClick={()=>{setShowBioPanel(true);setHamPfOpen(false);}}
+                      style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                        border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                        fontSize:12,fontFamily:SANS}}>
+                      📦 ドキュメントを作成
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {showProfileDetail && (<React.Fragment>
             <div style={{display:"flex",flexDirection:"column",gap:18}}>
