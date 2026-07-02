@@ -1601,8 +1601,9 @@ const PrintPage = (props) => {
 // ── HomePage (top-level) ────────────────────────
 
 // ── FilterBar / PieChart / BarChart / ManagePage (top-level) ──────────────
-const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS}) => {
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc}) => {
   const [expanded, setExpanded] = useState(false);
+  const [hamOpen, setHamOpen] = useState(false);
   return (
     <div style={{borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
       <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
@@ -1633,12 +1634,37 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
           <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
         </button>
-        <button onClick={()=>setEditMode(!editMode)}
-          title={editMode?"削除モード終了":"削除モード"}
-          style={{background:"none",border:"none",color:editMode?"#8A8A8A":"#C8C8C8",
-            fontSize:15,cursor:"pointer",padding:"3px 5px",lineHeight:1,fontWeight:editMode?"bold":"normal"}}>
-          ➖
-        </button>
+        <div style={{position:"relative",flexShrink:0}}>
+          <button onClick={()=>setHamOpen(v=>!v)}
+            title="メニュー"
+            style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
+              padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+              alignItems:"center",justifyContent:"center"}}>
+            ≡
+          </button>
+          {hamOpen && (
+            <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
+              border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:140,
+              boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+              {onAdd && (
+                <button onClick={()=>{onAdd();setHamOpen(false);}}
+                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                    fontSize:12,fontFamily:SANS}}>
+                  ＋ 曲を追加
+                </button>
+              )}
+              {onDoc && (
+                <button onClick={()=>{onDoc();setHamOpen(false);}}
+                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                    fontSize:12,fontFamily:SANS}}>
+                  📦 ドキュメントを作成
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
     </div>
@@ -1794,14 +1820,7 @@ const ManagePage = (props) => {
     {/* Learning タブ（プレースホルダー） */}
     {libraryTab==="learning" && (
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-        {/* +曲を追加（押すと検索が開く・Repertoireと同じ作法） */}
-        <div style={{padding:"12px 14px 0",flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
-          <button onClick={()=>{ setShowLearnSearch(!showLearnSearch); setEditMode(false); }}
-            style={{background:showLearnSearch?"#0F1A33":"transparent",border:"1px solid #C8A860",color:"#C8A860",
-              padding:"7px 16px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,letterSpacing:0.5}}>
-            {showLearnSearch?"× 閉じる":"＋ 曲を追加"}
-          </button>
-        </div>
+        {/* +曲を追加はFilterBarの三線メニューに移動（v195） */}
         {showLearnSearch && (<React.Fragment>
         {/* Search Piece パネル */}
         <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
@@ -1939,10 +1958,10 @@ const ManagePage = (props) => {
         </React.Fragment>)}
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
-        <div style={{flex:1,overflowY:"auto",padding:"12px 14px"}}>
+        <div style={{flex:1,overflowY:"auto",padding:"40px 28px 28px"}}>
           <EraBar pieces={pieces} learning={true} />
           <div style={{background:"transparent",overflow:"hidden"}}>
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
             <div style={{padding:"8px 8px"}}>
               {learningPoolFiltered.length===0 ? (
                 <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
@@ -1982,23 +2001,7 @@ const ManagePage = (props) => {
       {/* ① EraBar */}
       <EraBar pieces={pieces} learning={false} />
 
-      {/* ② ボタン行 — 右端に寄せる */}
-      <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",gap:10,marginBottom:20,marginTop:8}}>
-        {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
-        <button onClick={()=>{
-            if (poolFiltered.length===0) { window.alert("該当するデータがありません"); return; }
-            setShowRepDocPanel(!showRepDocPanel);
-          }}
-          style={{background:"#0F1A33",border:"none",color:"#C8A860",
-            padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-          📦 ドキュメント作成
-        </button>
-        <button onClick={()=>{ setShowAdd(!showAdd); setEditMode(false); }}
-          style={{background:"#0F1A33",border:"none",color:"#C8A860",
-            padding:"10px 24px",cursor:"pointer",fontSize:14,fontFamily:SANS,borderRadius:4,letterSpacing:0.5,fontWeight:"bold"}}>
-          ＋ 曲を追加
-        </button>
-      </div>
+      {/* ② ボタン行はFilterBarの三線メニューに移動（v195） */}
 
       {showRepDocPanel && (
         <div style={{marginTop:10,marginBottom:20,background:"transparent",borderBottom:"1px solid #1E2A45",padding:"0 2px 14px"}}>
@@ -2061,7 +2064,7 @@ const ManagePage = (props) => {
 
       {/* 一覧エリア — フォームと分ける境界 */}
       <div style={{background:"transparent",overflow:"hidden"}}>
-        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} />
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} />
         <div style={{padding:"8px 8px"}}>
           {poolFiltered.map(p => (
             <div key={p.id}>
