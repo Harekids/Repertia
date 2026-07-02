@@ -1781,7 +1781,7 @@ const ManagePage = (props) => {
         <button key={k} onClick={()=>setLibraryTab(k)}
           style={{background:"none",border:"none",
             color:libraryTab===k?"#C8A860":"#94A3BE",
-            padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
+            padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:11,
             fontFamily:SANS,letterSpacing:1,
             fontWeight:libraryTab===k?600:400,
             borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent",
@@ -1977,7 +1977,7 @@ const ManagePage = (props) => {
     {/* Repertoire タブ */}
     {libraryTab==="repertoire" && (
     <div style={{flex:1,overflowY:"auto"}}>
-    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px"}}>
+    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
 
       {/* ① EraBar */}
       <EraBar pieces={pieces} learning={false} />
@@ -3954,7 +3954,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:24,paddingRight:24}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:24}}>
       {/* Rくん（クリックでホーム＝Library） */}
       <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
@@ -3971,7 +3971,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
               fontSize:15,letterSpacing:1,
               fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
-              borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
+              borderBottom: (page===p && p!=="manage") ? "2px solid #C8A860" : "2px solid transparent",
               paddingBottom:4,
               transition:"color 0.15s"}}>
             {l}
