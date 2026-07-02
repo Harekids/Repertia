@@ -1655,28 +1655,32 @@ const EraBar = ({pieces, learning=false}) => {
   let pct = 0;
   counts.forEach((d,i)=>{
     const w = d.count/total*100;
-    if (i===0) stops.push(d.color+" "+pct.toFixed(1)+"%");
-    else stops.push(d.color+" "+pct.toFixed(1)+"%");
+    const s = Math.max(0, pct-1.5).toFixed(1);
+    const e = Math.min(100, pct+w+1.5).toFixed(1);
+    if (i===0) stops.push(d.color+" 0%");
+    else stops.push(d.color+" "+s+"%");
+    stops.push(d.color+" "+e+"%");
     pct += w;
-    stops.push(d.color+" "+pct.toFixed(1)+"%");
   });
+  if (stops.length>0) stops[stops.length-1] = counts[counts.length-1].color+" 100%";
   const grad = "linear-gradient(to right, "+stops.join(", ")+")";
   return (
     <div style={{marginBottom:20}}>
-      <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:10}}>
-        <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
-        <span style={{fontSize:18,fontWeight:700,color:learning?"#94A3BE":"#EDE6D6",fontFamily:FONT}}>{total}</span>
-        <span style={{fontSize:12,color:"#94A3BE",fontFamily:SANS}}>曲</span>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
+        <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
+          <span style={{fontSize:18,fontWeight:700,color:learning?"#94A3BE":"#EDE6D6",fontFamily:FONT}}>{total}</span>
+        </div>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
+          {counts.map(d=>(
+            <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+              <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
+            </div>
+          ))}
+        </div>
       </div>
-      <div style={{height:10,borderRadius:5,background:grad,marginBottom:10}}/>
-      <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-        {counts.map(d=>(
-          <div key={d.key} style={{display:"flex",alignItems:"center",gap:5}}>
-            <div style={{width:7,height:7,borderRadius:"50%",background:d.color,flexShrink:0}}/>
-            <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
-          </div>
-        ))}
-      </div>
+      <div style={{height:10,borderRadius:5,background:grad}}/>
     </div>
   );
 };
