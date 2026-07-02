@@ -1136,7 +1136,7 @@ const PrintPage = (props) => {
               padding:"10px 0",marginRight:28,cursor:"pointer",fontSize:13,
               fontFamily:SANS,letterSpacing:1,
               fontWeight:portfolioTab===k?600:400,
-              borderBottom:portfolioTab===k?"2px solid #C8A860":"2px solid transparent",
+              borderBottom:"2px solid transparent",
               marginBottom:-1}}>
             {l}
           </button>
@@ -1147,6 +1147,52 @@ const PrintPage = (props) => {
       {portfolioTab==="profile" && (
         <div style={{flex:1,overflowY:"auto",padding:"28px 28px"}}>
           <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
+
+
+            {/* ── アカウント情報 ── */}
+            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
+            <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
+              {[
+                ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:420}}/>],
+                ["パスワード",     <div style={{flex:1}}>
+                  {!pwOpen ? (
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
+                  ) : (
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <div style={{position:"relative"}}>
+                        <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
+                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
+                      </div>
+                      <div style={{position:"relative"}}>
+                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:52}}/>
+                      </div>
+                      <div style={{display:"flex",gap:8}}>
+                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
+                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
+                      </div>
+                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:SANS}}>{pwErr}</div>}
+                    </div>
+                  )}
+                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS,marginTop:6}}>{pwMsg}</div>}
+                </div>],
+              ].map(([label, input])=>(
+                <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
+                  {input}
+                </div>
+              ))}
+            </div>
+
+            {/* v167: ログアウト（ヘッダーから移設） */}
+            <div style={{marginBottom:28}}>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",display:"inline-block",verticalAlign:"middle"}}></div>
+              <button onClick={handleLogout}
+                style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"6px 16px",
+                  borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,verticalAlign:"middle"}}>
+                ログアウト
+              </button>
+            </div>
 
             {/* 境界線＋≡（v196: Libraryと同じ体裁） */}
             <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",marginBottom:20,paddingBottom:12,borderBottom:"1px solid #1E2A45",position:"relative"}}>
@@ -1226,52 +1272,6 @@ const PrintPage = (props) => {
                 </button>
               </div>
             )}
-
-            {/* ── アカウント情報 ── */}
-            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,marginTop:4,fontFamily:SANS}}>アカウント情報</div>
-            <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
-              {[
-                ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
-                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:420}}/>],
-                ["パスワード",     <div style={{flex:1}}>
-                  {!pwOpen ? (
-                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
-                  ) : (
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <div style={{position:"relative"}}>
-                        <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
-                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
-                      </div>
-                      <div style={{position:"relative"}}>
-                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:52}}/>
-                      </div>
-                      <div style={{display:"flex",gap:8}}>
-                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
-                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
-                      </div>
-                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:SANS}}>{pwErr}</div>}
-                    </div>
-                  )}
-                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS,marginTop:6}}>{pwMsg}</div>}
-                </div>],
-              ].map(([label, input])=>(
-                <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
-                  {input}
-                </div>
-              ))}
-            </div>
-
-            {/* v167: ログアウト（ヘッダーから移設） */}
-            <div style={{marginBottom:28}}>
-              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",display:"inline-block",verticalAlign:"middle"}}></div>
-              <button onClick={handleLogout}
-                style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"6px 16px",
-                  borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,verticalAlign:"middle"}}>
-                ログアウト
-              </button>
-            </div>
-
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
             <div onClick={()=>setShowProfileDetail(v=>!v)}
               style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,marginBottom:12,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
@@ -1826,7 +1826,7 @@ const ManagePage = (props) => {
         <button key={k} onClick={()=>setLibraryTab(k)}
           style={{background:"none",border:"none",
             color:libraryTab===k?"#C8A860":"#94A3BE",
-            padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:11,
+            padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:13,
             fontFamily:SANS,letterSpacing:1,
             fontWeight:libraryTab===k?600:400,
             borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent",
@@ -2388,6 +2388,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
           <div style={{marginBottom:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
+              <button onClick={()=>setShowEvtPanel(false)}
+                style={{background:"none",border:"none",color:"#94A3BE",fontSize:14,cursor:"pointer",padding:"2px 6px"}}>✕</button>
+            </div>
             <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する種類を選んでください</div>
             <div style={{display:"flex",gap:14,marginBottom:12,fontSize:12,fontFamily:SANS,color:"#C8CEDB",flexWrap:"wrap"}}>
               <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンクール</label>
@@ -4007,7 +4011,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
             style={{background:"none",border:"none",
               color: page===p ? "#C8A860" : "#9A8868",
               padding:"6px 20px",cursor:"pointer",
-              fontSize:15,letterSpacing:1,
+              fontSize:16,letterSpacing:1,
               fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
               borderBottom: (page===p && p!=="manage") ? "2px solid #C8A860" : "2px solid transparent",
