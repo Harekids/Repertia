@@ -1839,7 +1839,10 @@ const ManagePage = (props) => {
         {showLearnSearch && (<React.Fragment>
         {/* Search Piece パネル */}
         <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-          <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+            <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,fontWeight:600}}>Search Piece</div>
+            <button onClick={()=>setShowLearnSearch(false)} style={{background:"transparent",border:"1px solid #2A3A5A",color:"#94A3BE",fontFamily:SANS,fontSize:11,padding:"3px 10px",borderRadius:4,cursor:"pointer"}}>✕ 閉じる</button>
+          </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
             <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>作曲家</div>
@@ -1931,7 +1934,7 @@ const ManagePage = (props) => {
           </div>
         </div>
         {/* 結果一覧 */}
-        <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
+        <div style={{flex:1,minHeight:showLearnSearch?340:0,overflowY:"auto",padding:"14px 12px 8px"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
               「New from Database」で追加した曲はLearningリストに保存されます
