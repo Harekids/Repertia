@@ -815,7 +815,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
       setSugLoading(true);
       try {
         const composerStr = piece.composer ? "作曲家: "+piece.composer+"の" : "";
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{"pieces":[{"title":"正式な曲名","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
+        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:`${composerStr}クラシックピアノ曲で「${val}」を含む曲を10曲以上挙げてください。代表的な曲だけでなく、マイナーな曲・知られていない曲も含めてください。JSONのみ:{"pieces":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。ただしClair de lune等の仏語原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性（日本語）","duration":標準的な演奏時間分数数値,"difficulty":難易度1-5数値,"era":"baroque/classical/romantic/modern/contemporary"}]}`}]})});
         const data = await res.json();
         if (myId !== reqIdTitle.current) return; // 自分が最新でなければ捨てる
         const text = data.content.map(b=>b.text||"").join("");
@@ -3698,7 +3698,7 @@ ${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.
 - 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
 ${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras.map(e=>ERAS[e]?.label).join("、")}`:""}
 reasonは15字以内で簡潔に。JSONのみ返してください:
-{"suggestions":[{"title":"曲名","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}`;
+{"suggestions":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。仏語等の原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}`;
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
@@ -3737,7 +3737,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
       + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。代表的な名曲だけでなく、あまり知られていない曲も含めて幅広く挙げてください。"
       + String.fromCharCode(10) + "reasonは15字以内で簡潔に。JSONのみ返してください:"
-      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}';
+      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。仏語等の原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}';
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
@@ -3775,7 +3775,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
       + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。代表的な名曲だけでなく、あまり知られていない曲も含めて幅広く挙げてください。"
       + String.fromCharCode(10) + "JSONのみ返してください:"
-      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"一言説明"}]}';
+      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。仏語等の原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"一言説明"}]}';
     try {
       const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
       const data = await res.json();
