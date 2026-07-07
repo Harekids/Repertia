@@ -328,8 +328,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
-          {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>}
-          {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>}
+          {/* v205: ⭐️・Pop.は育成中のためカード表示を一時非表示（star/popデータとHistory加算ロジックは温存・イベント紐付けから復元可能） */}
+          {/* {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>} */}
+          {/* {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>} */}
           {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
@@ -1711,7 +1712,7 @@ const EraBar = ({pieces, learning=false}) => {
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
         <div style={{display:"flex",alignItems:"baseline",gap:8}}>
           <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
-          <span style={{fontSize:18,fontWeight:700,color:learning?"#94A3BE":"#EDE6D6",fontFamily:FONT}}>{total}</span>
+          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{total}</span>
         </div>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
           {counts.map(d=>(
@@ -1848,7 +1849,7 @@ const ManagePage = (props) => {
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>作曲家</div>
               <div style={{position:"relative"}}>
                 <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-                {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>✧</div>}
+                {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>…</div>}
                 {sugComposers.length>0 && (
                   <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:180,overflowY:"auto"}}>
                     {sugComposers.map((name,i)=>(
@@ -3979,6 +3980,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   const learningPoolFiltered = pieces
     .filter(p => p.learning)
     .filter(p => !filterEra || p.era===filterEra)
+    .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
     .filter(p => searchMatch(p, searchQ))
     .sort((a,b) => {
       let d = 0;
