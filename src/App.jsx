@@ -727,6 +727,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
           onKeyDown={handleKey}
           placeholder="曲名・作曲家を検索…"
           autoComplete="off"
+          className="rp-search"
           style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",
             padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
@@ -4063,6 +4064,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   );
   return (
     <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
+      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;}"}</style>
       <div style={{width:"100%",maxWidth:CONTENT_W,margin:"0 auto",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
