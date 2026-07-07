@@ -1628,7 +1628,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"5px 7px",fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 7px",fontFamily:SANS,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
             <option value="" disabled>並べ替え</option>
             <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
@@ -1637,9 +1637,9 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             <option value="frequency">Pop.</option>
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 8px",
-              cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
-              display:"flex",alignItems:"center"}}>
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 8px",
+              cursor:"pointer",fontSize:11,fontFamily:SANS,lineHeight:1.2,borderRadius:"0 4px 4px 0",
+              display:"flex",alignItems:"center",boxSizing:"border-box"}}>
             {sortAsc?"▲":"▼"}
           </button>
         </div>
