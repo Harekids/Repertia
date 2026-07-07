@@ -1627,7 +1627,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-            style={{...sel(),fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:11,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
             <option value="" disabled>並べ替え</option>
             <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
@@ -1636,7 +1636,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             <option value="frequency">Pop.</option>
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
-            style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"0 8px",
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 8px",
               cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
               display:"flex",alignItems:"center"}}>
             {sortAsc?"▲":"▼"}
@@ -1646,10 +1646,10 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   
         <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
           title="お気に入りのみ"
-          style={{background:"none",border:"none",color:filterMark==="fav"?"#B85C72":"#C8B8C0",
+          style={{background:"none",border:"none",color:filterMark==="fav"?"#C0405A":"#8A94A8",
             fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
             width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
-          <span style={{fontSize:16,lineHeight:1}}>{filterMark==="fav"?"♥":"♡"}</span>
+          <span style={{fontSize:16,lineHeight:1}}>♪</span>
         </button>
         <div style={{position:"relative",flexShrink:0}}>
           <button onClick={()=>setHamOpen(v=>!v)}
@@ -3357,7 +3357,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [editingProgramId, setEditingProgramId] = useState(null);
   const [editingName, setEditingName]         = useState("");
   const [expandedId, setExpandedId]           = useState(null);
-  const [sortBy, setSortBy]                   = useState("year");
+  const [sortBy, setSortBy]                   = useState("");
   const [sortAsc, setSortAsc]                 = useState(true);
   const [filterEra, setFilterEra]             = useState("");
   const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
