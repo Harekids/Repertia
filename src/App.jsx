@@ -1870,10 +1870,11 @@ const ManagePage = (props) => {
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
             </div>
-            <div>
+            {/* v204: キーワード（感情タグ）は育成中のため一時非表示。データがたまったら復活 */}
+            {/* <div>
               <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>キーワード</div>
               <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-            </div>
+            </div> */}
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
@@ -1906,7 +1907,8 @@ const ManagePage = (props) => {
                 </select>
               </div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:3}}>
+            {/* v204: 演奏頻度（Pop.系）は育成中のため一時非表示。データがたまったら復活 */}
+            {/* <div style={{display:"flex",flexDirection:"column",gap:3}}>
               <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>演奏頻度</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
@@ -1919,7 +1921,7 @@ const ManagePage = (props) => {
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
               </div>
-            </div>
+            </div> */}
           </div>
                       <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
             <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAILearning(); }}
@@ -1941,7 +1943,7 @@ const ManagePage = (props) => {
             </div>
           )}
           {aiLoading && (
-            <div style={{textAlign:"center",color:"#94A3BE",padding:"24px",fontSize:12,fontFamily:SANS}}>✧ 検索中…</div>
+            <div style={{textAlign:"center",color:"#94A3BE",padding:"24px",fontSize:12,fontFamily:SANS}}>検索中…</div>
           )}
           {aiPieces
             .map(p=>{
@@ -1951,7 +1953,6 @@ const ManagePage = (props) => {
               return (
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
                   background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
-                  <span style={{fontSize:11,color:"#A0A0A8",flexShrink:0}}>✧</span>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
                     <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
