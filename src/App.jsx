@@ -2402,7 +2402,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
         {/* サブメニューなしページも金ライン位置を統一（v215：Library実測で計算 padding20+13=33=他ページと一致／B=24） */}
         <div style={{marginTop:17,marginBottom:24}}>
-          <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
+          <div style={{height:1.5,background:"#C8A860",marginLeft:4,marginRight:4}}/>
         </div>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
