@@ -1623,8 +1623,8 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   return (
-    <div style={{borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-      <div style={{padding:"4px 12px",display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end"}}>
+    <div style={{background:"transparent",flexShrink:0}}>
+      <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
@@ -1688,7 +1688,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
 };
 
 // ── PieChart (top-level) ────────────────────────────────────────────────────
-const EraBar = ({pieces, learning=false}) => {
+const EraBar = ({pieces, learning=false, filterBar=null}) => {
   const pool = learning ? pieces.filter(p=>p.learning) : pieces.filter(p=>!p.learning);
   const total = pool.length;
   if (total===0) return null;
@@ -1713,16 +1713,17 @@ const EraBar = ({pieces, learning=false}) => {
           <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
           <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{total}</span>
         </div>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
-          {counts.map(d=>(
-            <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
-              <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
-              <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
-            </div>
-          ))}
-        </div>
+        {filterBar}
       </div>
       <div style={{height:10,borderRadius:5,background:grad}}/>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",justifyContent:"flex-end",marginTop:6}}>
+        {counts.map(d=>(
+          <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+            <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -1978,9 +1979,10 @@ const ManagePage = (props) => {
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
         <div style={{flex:1,overflowY:"auto",padding:"40px 28px 28px"}}>
-          <EraBar pieces={pieces} learning={true} />
-          <div style={{background:"transparent",overflow:"hidden"}}>
+          <EraBar pieces={pieces} learning={true} filterBar={
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
+          } />
+          <div style={{background:"transparent",overflow:"hidden"}}>
             <div style={{padding:"2px 8px"}}>
               {learningPoolFiltered.length===0 ? (
                 <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
@@ -2017,8 +2019,10 @@ const ManagePage = (props) => {
     <div style={{flex:1,overflowY:"auto"}}>
     <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
 
-      {/* ① EraBar */}
-      <EraBar pieces={pieces} learning={false} />
+      {/* ① EraBar（検索類をタイトル行に相乗り v211） */}
+      <EraBar pieces={pieces} learning={false} filterBar={
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} />
+      } />
 
       {/* ② ボタン行はFilterBarの三線メニューに移動（v195） */}
 
@@ -2081,9 +2085,8 @@ const ManagePage = (props) => {
         </div>
       )}
 
-      {/* 一覧エリア — フォームと分ける境界 */}
+      {/* 一覧エリア — フォームと分ける境界（FilterBarはEraBarへ移動 v211） */}
       <div style={{background:"transparent",overflow:"hidden"}}>
-        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} />
         <div style={{padding:"2px 8px"}}>
           {poolFiltered.map(p => (
             <div key={p.id}>
