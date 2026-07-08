@@ -1129,19 +1129,25 @@ const PrintPage = (props) => {
   return (
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-      {/* Inner tabs */}
-      <div style={{background:"transparent",padding:"0 28px",display:"flex",gap:0,flexShrink:0}}>
-        {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
-          <button key={k} onClick={()=>setPortfolioTab(k)}
-            style={{background:"none",border:"none",
-              color:portfolioTab===k?"#C8A860":"#94A3BE",
-              padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:13,
-              fontFamily:SANS,letterSpacing:1,
-              fontWeight:portfolioTab===k?600:400,
-              borderBottom:"2px solid transparent"}}>
-            {l}
-          </button>
-        ))}
+      {/* Inner tabs（インデックスタブ v213：Libraryと統一） */}
+      <div style={{background:"transparent",padding:"0 28px",marginTop:16,flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
+          {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
+            <button key={k} onClick={()=>setPortfolioTab(k)}
+              style={{
+                background:portfolioTab===k?"#C8A860":"transparent",
+                border:"none",
+                color:portfolioTab===k?"#1A1206":"#94A3BE",
+                padding:portfolioTab===k?"7px 18px":"7px 14px",
+                cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
+                fontWeight:portfolioTab===k?700:400,
+                borderRadius:"6px 6px 0 0",
+                transition:"all 0.15s"}}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
       </div>
 
       {/* ── PROFILE ── */}
@@ -2393,6 +2399,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   return (
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
+
+        {/* サブメニューなしページも金ライン位置を統一（v213：微動だにしないように） */}
+        <div style={{marginTop:16,marginBottom:4}}>
+          <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
+        </div>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
