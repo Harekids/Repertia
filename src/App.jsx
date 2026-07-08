@@ -1818,19 +1818,25 @@ const ManagePage = (props) => {
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-    {/* ② Library タブバー */}
-    <div style={{background:"transparent",padding:"0 28px",display:"flex",alignItems:"center",flexShrink:0}}>
-      {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
-        <button key={k} onClick={()=>setLibraryTab(k)}
-          style={{background:"none",border:"none",
-            color:libraryTab===k?"#C8A860":"#94A3BE",
-            padding:"6px 0",marginRight:28,cursor:"pointer",fontSize:13,
-            fontFamily:SANS,letterSpacing:1,
-            fontWeight:libraryTab===k?600:400,
-            borderBottom:libraryTab===k?"2px solid #C8A860":"2px solid transparent"}}>
-          {l}
-        </button>
-      ))}
+    {/* ② Library タブバー（インデックスタブ v212：金塗り＋細い金ライン1本・箱なし） */}
+    <div style={{background:"transparent",padding:"0 28px",marginTop:16,flexShrink:0}}>
+      <div style={{display:"flex",alignItems:"flex-end",gap:4,position:"relative"}}>
+        {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
+          <button key={k} onClick={()=>setLibraryTab(k)}
+            style={{
+              background:libraryTab===k?"#C8A860":"transparent",
+              border:"none",
+              color:libraryTab===k?"#1A1206":"#94A3BE",
+              padding:libraryTab===k?"7px 18px":"7px 14px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
+              fontWeight:libraryTab===k?700:400,
+              borderRadius:"6px 6px 0 0",
+              transition:"all 0.15s"}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
     </div>
 
     {/* Learning タブ（プレースホルダー） */}
@@ -4018,7 +4024,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
               fontSize:16,letterSpacing:1,
               fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
-              borderBottom: (page===p && p!=="manage") ? "2px solid #C8A860" : "2px solid transparent",
+              borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
               paddingBottom:4,
               transition:"color 0.15s"}}>
             {l}
