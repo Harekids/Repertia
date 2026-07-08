@@ -2400,8 +2400,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-        {/* サブメニューなしページも金ライン位置を統一（v214：下駄=A+タブ高さ／B=24で全ページ一致） */}
-        <div style={{marginTop:40,marginBottom:24}}>
+        {/* サブメニューなしページも金ライン位置を統一（v215：Library実測で計算 padding20+13=33=他ページと一致／B=24） */}
+        <div style={{marginTop:13,marginBottom:24}}>
           <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
         </div>
 
