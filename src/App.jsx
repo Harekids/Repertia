@@ -1624,7 +1624,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [hamOpen, setHamOpen] = useState(false);
   return (
     <div style={{borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-      <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center"}}>
+      <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
@@ -1709,7 +1709,7 @@ const EraBar = ({pieces, learning=false}) => {
   if (stops.length>0) stops[stops.length-1] = counts[counts.length-1].color+" 100%";
   const grad = "linear-gradient(to right, "+stops.join(", ")+")";
   return (
-    <div style={{marginBottom:20}}>
+    <div style={{marginBottom:10}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
         <div style={{display:"flex",alignItems:"baseline",gap:8}}>
           <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
