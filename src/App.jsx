@@ -1624,7 +1624,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [hamOpen, setHamOpen] = useState(false);
   return (
     <div style={{borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-      <div style={{padding:"8px 12px",display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end"}}>
+      <div style={{padding:"4px 12px",display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
@@ -1643,8 +1643,6 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             {sortAsc?"▲":"▼"}
           </button>
         </div>
-        <span style={{flex:1}}/>
-  
         <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
           title="お気に入りのみ"
           style={{background:"none",border:"none",color:filterMark==="fav"?"#C0405A":"#8A94A8",
@@ -1983,7 +1981,7 @@ const ManagePage = (props) => {
           <EraBar pieces={pieces} learning={true} />
           <div style={{background:"transparent",overflow:"hidden"}}>
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
-            <div style={{padding:"8px 8px"}}>
+            <div style={{padding:"2px 8px"}}>
               {learningPoolFiltered.length===0 ? (
                 <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
               ) : learningPoolFiltered.map(p => (
@@ -2086,7 +2084,7 @@ const ManagePage = (props) => {
       {/* 一覧エリア — フォームと分ける境界 */}
       <div style={{background:"transparent",overflow:"hidden"}}>
         <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} />
-        <div style={{padding:"8px 8px"}}>
+        <div style={{padding:"2px 8px"}}>
           {poolFiltered.map(p => (
             <div key={p.id}>
               <PieceCardUnified
