@@ -2401,7 +2401,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
         {/* サブメニューなしページも金ライン位置を統一（v215：Library実測で計算 padding20+13=33=他ページと一致／B=24） */}
-        <div style={{marginTop:23,marginBottom:24}}>
+        <div style={{marginTop:19,marginBottom:24}}>
           <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
         </div>
 
