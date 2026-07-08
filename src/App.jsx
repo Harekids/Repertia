@@ -1130,7 +1130,7 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs（インデックスタブ v213：Libraryと統一） */}
-      <div style={{background:"transparent",padding:"0 28px",marginTop:16,flexShrink:0}}>
+      <div style={{background:"transparent",padding:"0 28px",marginTop:6,marginBottom:24,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
           {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
             <button key={k} onClick={()=>setPortfolioTab(k)}
@@ -1825,7 +1825,7 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー（インデックスタブ v212：金塗り＋細い金ライン1本・箱なし） */}
-    <div style={{background:"transparent",padding:"0 28px",marginTop:16,flexShrink:0}}>
+    <div style={{background:"transparent",padding:"0 28px",marginTop:6,marginBottom:24,flexShrink:0}}>
       <div style={{display:"flex",alignItems:"flex-end",gap:4,position:"relative"}}>
         {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
           <button key={k} onClick={()=>setLibraryTab(k)}
@@ -2400,8 +2400,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-        {/* サブメニューなしページも金ライン位置を統一（v213：微動だにしないように） */}
-        <div style={{marginTop:16,marginBottom:4}}>
+        {/* サブメニューなしページも金ライン位置を統一（v214：下駄=A+タブ高さ／B=24で全ページ一致） */}
+        <div style={{marginTop:40,marginBottom:24}}>
           <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
         </div>
 
