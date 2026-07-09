@@ -725,7 +725,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
           onCompositionEnd={handleCompositionEnd}
           onFocus={()=>setOpen(true)}
           onKeyDown={handleKey}
-          placeholder="曲名・作曲家を検索…"
+          placeholder="作曲家・曲名で検索"
           autoComplete="off"
           className="rp-search"
           style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",
