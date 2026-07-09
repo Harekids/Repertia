@@ -1132,7 +1132,7 @@ const PrintPage = (props) => {
       {/* Inner tabs（インデックスタブ v213：Libraryと統一） */}
       <div style={{background:"transparent",padding:"0 28px",marginTop:6,marginBottom:24,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
-          {[["profile","Profile"],["output","Output"]].map(([k,l])=>(
+          {[["profile","Profile"],["output","Documents"]].map(([k,l])=>(
             <button key={k} onClick={()=>setPortfolioTab(k)}
               style={{
                 background:portfolioTab===k?"#C8A860":"transparent",
@@ -1157,7 +1157,7 @@ const PrintPage = (props) => {
 
 
             {/* ── アカウント情報 ── */}
-            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,paddingBottom:8,marginBottom:12,marginTop:4,fontFamily:SANS,borderBottom:"1px solid #1E2A45"}}>アカウント情報</div>
+            <div style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,paddingBottom:8,marginBottom:12,marginTop:4,fontFamily:SANS,borderBottom:"1px solid #1E2A45"}}>Account</div>
             <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
               {[
                 ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
@@ -1258,7 +1258,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #1E2A45",paddingBottom:8,marginBottom:16,marginTop:8}}>
               <div onClick={()=>setShowProfileDetail(v=>!v)}
                 style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
-                <span>プロフィール詳細</span>
+                <span>Biography</span>
                 <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
               </div>
               <div style={{position:"relative"}}>
@@ -1716,7 +1716,7 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
     <div style={{marginBottom:10}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
         <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"My Learning":"My Repertoire"}</span>
+          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"Learning":"Repertoire"}</span>
           <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{total}</span>
         </div>
         {filterBar}
@@ -2658,10 +2658,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
               ))}
             </div>
             {eventsTab==="history" && (filteredPast.length>0
-              ? <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={true}/>
+              ? <TimelineSection label="History" evs={filteredPast} defaultOpen={true}/>
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>まだ演奏の記録がありません。</div>)}
             {eventsTab==="upcoming" && (filteredFuture.length>0
-              ? <TimelineSection label="UPCOMING" evs={filteredFuture} defaultOpen={true}/>
+              ? <TimelineSection label="Upcoming" evs={filteredFuture} defaultOpen={true}/>
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>これからの予定はまだありません。</div>)}
           </>
         )}
