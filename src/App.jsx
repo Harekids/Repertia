@@ -2365,7 +2365,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     if (!evs.length) return null;
     return (
-      <div style={{marginTop:20,marginBottom:24}}>
+      <div style={{marginBottom:24}}>
         {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
@@ -2448,10 +2448,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   return (
     <div style={{flex:1,overflowY:"auto"}}>
-      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
 
         {/* Events サブタブ（v234：親ラッパー内なのでmaxWidth/padding不要・本文と頭を揃える） */}
-        <div style={{marginTop:-14,marginBottom:24}}>
+        <div style={{marginTop:-34,marginBottom:24}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
               <button key={k} onClick={()=>setEventsTab(k)}
