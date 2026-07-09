@@ -2481,10 +2481,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           <input
             value={evSearch} onChange={e=>setEvSearch(e.target.value)}
             placeholder="キーワードで検索"
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
           />
           <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
             <option value="">すべての種別</option>
             {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
           </select>
