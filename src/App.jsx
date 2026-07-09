@@ -2653,16 +2653,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           </>
         )}
 
-        {/* 保存ボタン */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:16,borderTop:"1px solid #1E2A45"}}>
-          {eventsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{eventsSaveMsg}</span>}
-          <button onClick={saveEvents}
-            style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
-              borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-            保存
-          </button>
-        </div>
-
       </div>
     </div>
   );
