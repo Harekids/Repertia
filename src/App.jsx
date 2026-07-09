@@ -2644,15 +2644,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           </div>
         ) : (
           <>
-            {/* 凡例 */}
-            <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
-              {LEGEND.map(l=>(
-                <div key={l.color} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:12,height:12,borderRadius:"50% 50% 50% 0",transform:"rotate(-45deg)",background:l.color,flexShrink:0}}/>
-                  <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{l.label}</span>
-                </div>
-              ))}
-            </div>
             {eventsTab==="history" && (filteredPast.length>0
               ? <TimelineSection label="History" evs={filteredPast} defaultOpen={true}/>
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>まだ演奏の記録がありません。</div>)}
