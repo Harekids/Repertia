@@ -2143,6 +2143,7 @@ const ManagePage = (props) => {
 const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, savedPrograms, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
+  const [eventsTab, setEventsTab] = useState("history"); // v222: History先・Upcoming後（確定した歴史が主役）
   const EVENT_TYPES = {
     recital: {label:"発表会",    color:"#C8963C"},
     contest: {label:"コンクール", color:"#5B7FA6"},
@@ -2400,9 +2401,25 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-        {/* サブメニューなしページも金ライン位置を統一（v215：Library実測で計算 padding20+13=33=他ページと一致／B=24） */}
-        <div style={{marginTop:18,marginBottom:24}}>
-          <div style={{height:1.5,background:"#C8A860",marginLeft:4,marginRight:4}}/>
+        {/* Events サブタブ（v222：History先・Upcoming後／Libraryと統一のインデックスタブ） */}
+        <div style={{marginTop:6,marginBottom:24}}>
+          <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
+            {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
+              <button key={k} onClick={()=>setEventsTab(k)}
+                style={{
+                  background:eventsTab===k?"#C8A860":"transparent",
+                  border:"none",
+                  color:eventsTab===k?"#1A1206":"#94A3BE",
+                  padding:eventsTab===k?"7px 18px":"7px 14px",
+                  cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
+                  fontWeight:eventsTab===k?700:400,
+                  borderRadius:"6px 6px 0 0",
+                  transition:"all 0.15s"}}>
+                {l}
+              </button>
+            ))}
+          </div>
+          <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
         </div>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
@@ -2640,8 +2657,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                 </div>
               ))}
             </div>
-            {filteredFuture.length>0 && <TimelineSection label="UPCOMING" evs={filteredFuture} defaultOpen={true}/>}
-            {filteredPast.length>0 && <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={true}/>}
+            {eventsTab==="history" && (filteredPast.length>0
+              ? <TimelineSection label="HISTORY" evs={filteredPast} defaultOpen={true}/>
+              : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>まだ演奏の記録がありません。</div>)}
+            {eventsTab==="upcoming" && (filteredFuture.length>0
+              ? <TimelineSection label="UPCOMING" evs={filteredFuture} defaultOpen={true}/>
+              : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>これからの予定はまだありません。</div>)}
           </>
         )}
 
