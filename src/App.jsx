@@ -4025,7 +4025,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:24}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:24,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box"}}>
       {/* Rくん（クリックでホーム＝Library） */}
       <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
@@ -4090,7 +4090,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   return (
     <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
       <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;}"}</style>
-      <div style={{width:"100%",maxWidth:CONTENT_W,margin:"0 auto",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
