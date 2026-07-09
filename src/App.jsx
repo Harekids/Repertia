@@ -1152,8 +1152,8 @@ const PrintPage = (props) => {
 
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
-        <div style={{flex:1,overflowY:"auto",padding:"28px 28px"}}>
-          <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
+        <div style={{flex:1,overflowY:"auto"}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px"}}>
 
 
             {/* ── アカウント情報 ── */}
@@ -1363,8 +1363,8 @@ const PrintPage = (props) => {
 
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
-        <div style={{flex:1,overflowY:"auto",padding:"20px 28px"}}>
-          <div style={{maxWidth:CONTENT_W,margin:"0 auto",display:"flex",flexDirection:"column",gap:20}}>
+        <div style={{flex:1,overflowY:"auto"}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px",display:"flex",flexDirection:"column",gap:20}}>
 
             {/* ⑤ 全ステップを1ページに */}
 
@@ -1990,7 +1990,8 @@ const ManagePage = (props) => {
         </React.Fragment>)}
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
-        <div style={{flex:1,overflowY:"auto",padding:"40px 28px 28px"}}>
+        <div style={{flex:1,overflowY:"auto"}}>
+        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
           } />
@@ -2023,6 +2024,7 @@ const ManagePage = (props) => {
               ))}
             </div>
           </div>
+        </div>
         </div>
       </div>
     )}
@@ -2445,11 +2447,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   );
 
   return (
-    <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
-      <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
+    <div style={{flex:1,overflowY:"auto"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px"}}>
 
-        {/* Events サブタブ（v224：位置-14＋左右4pxで他ページと幅も一致） */}
-        <div style={{marginTop:-14,marginBottom:24,marginLeft:"auto",marginRight:"auto",width:"100%",maxWidth:CONTENT_W,paddingLeft:4,paddingRight:4,boxSizing:"border-box"}}>
+        {/* Events サブタブ（v234：親ラッパー内なのでmaxWidth/padding不要・本文と頭を揃える） */}
+        <div style={{marginTop:-14,marginBottom:24}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
               <button key={k} onClick={()=>setEventsTab(k)}
