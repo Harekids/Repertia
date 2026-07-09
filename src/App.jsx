@@ -715,7 +715,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
   const handleBlur  = (e) => { if (!boxRef.current?.contains(e.relatedTarget)) { setOpen(false); setCursor(-1); } };
 
   return (
-    <div ref={boxRef} style={{position:"relative",width:200}} onBlur={handleBlur}>
+    <div ref={boxRef} style={{position:"relative",width:160}} onBlur={handleBlur}>
       <div style={{position:"relative",display:"flex",alignItems:"center"}}>
         <span style={{position:"absolute",left:8,fontSize:11,color:"#94A3BE",pointerEvents:"none"}}>🔍</span>
         <input
@@ -2365,7 +2365,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     if (!evs.length) return null;
     return (
-      <div style={{marginBottom:24}}>
+      <div style={{marginTop:20,marginBottom:24}}>
         {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
