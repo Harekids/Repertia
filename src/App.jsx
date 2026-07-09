@@ -2365,7 +2365,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     if (!evs.length) return null;
     return (
-      <div style={{paddingTop:30,marginBottom:24}}>
+      <div style={{paddingTop:38,marginBottom:24}}>
         {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
           <div style={{display:"flex",alignItems:"baseline",gap:8}}>
