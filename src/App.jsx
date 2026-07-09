@@ -2372,8 +2372,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           </div>
           {eventSearchRow}
         </div>
-        {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）*/}
-        <div style={{height:10,borderRadius:5,background:"#7A1F2B",marginBottom:16}}/>
+        {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
+        <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:16}}/>
         {(
           <div style={{position:"relative",paddingLeft:36}}>
             <div style={{position:"absolute",left:12,top:0,bottom:0,width:2,background:"#1E2A45"}}/>
