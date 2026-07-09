@@ -2401,8 +2401,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
-        {/* Events サブタブ（v223：History先・Upcoming後／本文padding20を打ち消して他ページと位置一致） */}
-        <div style={{marginTop:-14,marginBottom:24}}>
+        {/* Events サブタブ（v224：位置-14＋左右4pxで他ページと幅も一致） */}
+        <div style={{marginTop:-14,marginBottom:24,marginLeft:4,marginRight:4}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
               <button key={k} onClick={()=>setEventsTab(k)}
