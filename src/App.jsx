@@ -1130,7 +1130,7 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs（インデックスタブ v213：Libraryと統一） */}
-      <div style={{background:"transparent",padding:"0 28px",marginTop:6,marginBottom:24,flexShrink:0}}>
+      <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
         <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
           {[["profile","Profile"],["output","Documents"]].map(([k,l])=>(
             <button key={k} onClick={()=>setPortfolioTab(k)}
@@ -1825,7 +1825,7 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー（インデックスタブ v212：金塗り＋細い金ライン1本・箱なし） */}
-    <div style={{background:"transparent",padding:"0 28px",marginTop:6,marginBottom:24,flexShrink:0}}>
+    <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
       <div style={{display:"flex",alignItems:"flex-end",gap:4,position:"relative"}}>
         {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
           <button key={k} onClick={()=>setLibraryTab(k)}
@@ -2449,7 +2449,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
       <div style={{maxWidth:CONTENT_W,margin:"0 auto"}}>
 
         {/* Events サブタブ（v224：位置-14＋左右4pxで他ページと幅も一致） */}
-        <div style={{marginTop:-14,marginBottom:24,marginLeft:4,marginRight:4}}>
+        <div style={{marginTop:-14,marginBottom:24,marginLeft:"auto",marginRight:"auto",width:"100%",maxWidth:CONTENT_W,paddingLeft:4,paddingRight:4,boxSizing:"border-box"}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
               <button key={k} onClick={()=>setEventsTab(k)}
