@@ -2317,17 +2317,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   // ── Timeline section ──
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
-    const [open, setOpen] = useState(defaultOpen);
     if (!evs.length) return null;
     return (
       <div style={{marginBottom:24}}>
-        <button onClick={()=>setOpen(v=>!v)}
-          style={{background:"none",border:"none",display:"flex",alignItems:"baseline",gap:8,cursor:"pointer",marginBottom:open?12:0,padding:0}}>
+        <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:12}}>
           <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
           <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
-          <span style={{fontSize:11,color:"#2A3F6A",alignSelf:"center"}}>{open?"▲":"▼"}</span>
-        </button>
-        {open && (
+        </div>
+        {(
           <div style={{position:"relative",paddingLeft:36}}>
             <div style={{position:"absolute",left:12,top:0,bottom:0,width:2,background:"#1E2A45"}}/>
             {evs.map(ev=>{
