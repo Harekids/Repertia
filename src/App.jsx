@@ -2315,15 +2315,65 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     );
   };
 
+  // ── 検索行（タイトル行の右側に相乗り：Repertoireのfilterと同じ思想）──
+  const eventSearchRow = (
+    <div style={{display:"flex",gap:8,alignItems:"center"}}>
+      <input
+        value={evSearch} onChange={e=>setEvSearch(e.target.value)}
+        placeholder="キーワードで検索"
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
+      />
+      <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
+        <option value="">すべての種別</option>
+        {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
+      </select>
+      {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
+      <div style={{position:"relative",flexShrink:0}}>
+        <button onClick={()=>setHamEvOpen(v=>!v)}
+          title="メニュー"
+          style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
+            padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+            alignItems:"center",justifyContent:"center"}}>
+          ≡
+        </button>
+        {hamEvOpen && (
+          <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
+            border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
+            boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+            <button onClick={()=>{openAdd();setHamEvOpen(false);}}
+              style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                fontSize:12,fontFamily:SANS}}>
+              ＋ イベントを追加
+            </button>
+            <button onClick={()=>{setShowEvtPanel(v=>!v);setHamEvOpen(false);}}
+              style={{display:"block",width:"100%",textAlign:"left",background:"none",
+                border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
+                fontSize:12,fontFamily:SANS}}>
+              📦 ドキュメントを作成
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   // ── Timeline section ──
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     if (!evs.length) return null;
     return (
       <div style={{marginBottom:24}}>
-        <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:12}}>
-          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
-          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
+        {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
+          <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+            <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
+            <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
+          </div>
+          {eventSearchRow}
         </div>
+        {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）*/}
+        <div style={{height:10,borderRadius:5,background:"#7A1F2B",marginBottom:16}}/>
         {(
           <div style={{position:"relative",paddingLeft:36}}>
             <div style={{position:"absolute",left:12,top:0,bottom:0,width:2,background:"#1E2A45"}}/>
@@ -2476,47 +2526,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             </button>
           </div>
         )}
-        {/* ⑤ 2行目：検索・フィルター */}
-        <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
-          <input
-            value={evSearch} onChange={e=>setEvSearch(e.target.value)}
-            placeholder="キーワードで検索"
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
-          />
-          <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:SANS,fontSize:12,borderRadius:4}}>
-            <option value="">すべての種別</option>
-            {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
-          </select>
-          {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
-          <div style={{position:"relative",flexShrink:0}}>
-            <button onClick={()=>setHamEvOpen(v=>!v)}
-              title="メニュー"
-              style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
-                padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
-                alignItems:"center",justifyContent:"center"}}>
-              ≡
-            </button>
-            {hamEvOpen && (
-              <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",
-                border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:160,
-                boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
-                <button onClick={()=>{openAdd();setHamEvOpen(false);}}
-                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
-                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                    fontSize:12,fontFamily:SANS}}>
-                  ＋ イベントを追加
-                </button>
-                <button onClick={()=>{setShowEvtPanel(v=>!v);setHamEvOpen(false);}}
-                  style={{display:"block",width:"100%",textAlign:"left",background:"none",
-                    border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                    fontSize:12,fontFamily:SANS}}>
-                  📦 ドキュメントを作成
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Add / Edit form */}
         {showForm && (
