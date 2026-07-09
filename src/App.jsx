@@ -2322,10 +2322,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     return (
       <div style={{marginBottom:24}}>
         <button onClick={()=>setOpen(v=>!v)}
-          style={{background:"none",border:"none",display:"flex",alignItems:"center",gap:6,cursor:"pointer",marginBottom:open?12:0}}>
-          <span style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS}}>{label}</span>
-          <span style={{fontSize:10,color:"#4A5A7A",fontFamily:SANS}}>({evs.length}件)</span>
-          <span style={{fontSize:11,color:"#2A3F6A"}}>{open?"▲":"▼"}</span>
+          style={{background:"none",border:"none",display:"flex",alignItems:"baseline",gap:8,cursor:"pointer",marginBottom:open?12:0,padding:0}}>
+          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
+          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
+          <span style={{fontSize:11,color:"#2A3F6A",alignSelf:"center"}}>{open?"▲":"▼"}</span>
         </button>
         {open && (
           <div style={{position:"relative",paddingLeft:36}}>
