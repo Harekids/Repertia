@@ -2451,7 +2451,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
       <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
 
         {/* Events サブタブ（v234：親ラッパー内なのでmaxWidth/padding不要・本文と頭を揃える） */}
-        <div style={{marginTop:-34,marginBottom:24}}>
+        <div style={{marginTop:-14,marginBottom:24}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
               <button key={k} onClick={()=>setEventsTab(k)}
