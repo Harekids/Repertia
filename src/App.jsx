@@ -2321,6 +2321,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const eventSearchRow = (
     <div style={{display:"flex",gap:8,alignItems:"center"}}>
       <input
+        key="event-search-input"
         value={evSearch} onChange={e=>setEvSearch(e.target.value)}
         placeholder="キーワードで検索"
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
@@ -2655,10 +2656,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
         {(
           <>
             {eventsTab==="history" && (past.length>0
-              ? <TimelineSection label="History" evs={filteredPast} defaultOpen={true}/>
+              ? TimelineSection({label:"History", evs:filteredPast, defaultOpen:true})
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>まだ演奏の記録がありません。</div>)}
             {eventsTab==="upcoming" && (future.length>0
-              ? <TimelineSection label="Upcoming" evs={filteredFuture} defaultOpen={true}/>
+              ? TimelineSection({label:"Upcoming", evs:filteredFuture, defaultOpen:true})
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>これからの予定はまだありません。</div>)}
           </>
         )}
