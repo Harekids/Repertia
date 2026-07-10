@@ -1193,7 +1193,7 @@ const PrintPage = (props) => {
 
 
             {/* ── アカウント情報 ── */}
-            <div style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",paddingBottom:10,marginBottom:16,marginTop:18,borderBottom:"2px solid #4A5A7A"}}>Account</div>
+            <div style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",paddingBottom:10,marginBottom:16,marginTop:19,borderBottom:"2px solid #4A5A7A"}}>Account</div>
             <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
               {[
                 ["ニックネーム",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
