@@ -244,7 +244,7 @@ function LinkIcon({ type }) {
   return null;
 }
 
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[] }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece }) => {
   const era = ERAS[p.era] || ERAS.modern;
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
@@ -521,7 +521,27 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
                 )}
               </div>
-              <div style={{display:"flex",justifyContent:"flex-end",marginTop:16}}>
+              {Array.isArray(eventsForPiece) && eventsForPiece.length>0 && (
+                <div style={{marginTop:16,paddingTop:12,borderTop:"1px solid #26344F"}}>
+                  <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6,fontFamily:SANS}}>
+                    <span style={{color:"#C8A860"}}>♪</span> 演奏したイベント
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {eventsForPiece.map(ev => (
+                      <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#0F1A33",borderRadius:4,borderLeft:"2px solid #8B2A50"}}>
+                        <span style={{color:"#C8A860",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:SANS}}>{ev.date}</span>
+                        <span style={{color:"#EDE6D6",fontSize:11,fontFamily:SANS}}>{ev.title||"（無題）"}</span>
+                        {ev.venue && <span style={{color:"#5A6B8C",fontSize:10,fontFamily:SANS}}>{ev.venue}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16}}>
+                {onDeletePiece ? (
+                  <button onClick={onDeletePiece}
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>この曲を削除</button>
+                ) : <span/>}
                 <button onClick={saveEdit}
                   style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
               </div>
@@ -2128,32 +2148,14 @@ const ManagePage = (props) => {
                 showControls={true}
                 onUpdatePiece={onUpdatePiece}
                 learningIds={learningIds}
+                eventsForPiece={findEventsForPiece(p.id)}
+                onDeletePiece={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));setExpandedId(null);await supabase.from('pieces').delete().eq('id',p.id);}}
               />
               {editMode && expandedId===p.id && (
-                <div style={{padding:"4px 12px 10px",background:"#15233F"}}>
-                  {(() => {
-                    const usedIn = findEventsForPiece(p.id);
-                    if (usedIn.length===0) return null;
-                    return (
-                      <div style={{marginBottom:12}}>
-                        <div style={{color:"#7A8AA8",fontSize:11,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                          <span style={{color:"#C8A860"}}>♪</span> 演奏したイベント
-                        </div>
-                        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                          {usedIn.map(ev => (
-                            <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"6px 10px",background:"#0F1A33",borderRadius:4,borderLeft:"2px solid #8B2A50"}}>
-                              <span style={{color:"#C8A860",fontSize:12,fontWeight:600,minWidth:82,flexShrink:0}}>{ev.date}</span>
-                              <span style={{color:"#EDE6D6",fontSize:12}}>{ev.title||"（無題）"}</span>
-                              {ev.venue && <span style={{color:"#5A6B8C",fontSize:11}}>{ev.venue}</span>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })()}
+                <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
                   <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
                     style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                    この曲を削除
+                    削除
                   </button>
                 </div>
               )}
