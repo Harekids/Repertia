@@ -539,7 +539,23 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               )}
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16}}>
                 {onDeletePiece ? (
-                  <button onClick={onDeletePiece}
+                  <button onClick={()=>{
+                    const list = Array.isArray(eventsForPiece)?eventsForPiece:[];
+                    const today = new Date().toISOString().slice(0,10);
+                    const hCount = list.filter(ev=>ev.in_history || (ev.date&&ev.date<=today)).length;
+                    const uCount = list.length - hCount;
+                    const NL = String.fromCharCode(10);
+                    let msg;
+                    if (list.length>0) {
+                      msg = "イベント登録状況：History "+hCount+"件 / Upcoming "+uCount+"件"+NL+NL
+                          + "History（過去のイベント）の演奏履歴には残ります。"+NL
+                          + "Upcoming（これからのイベント）のプログラムからは外されます。"+NL+NL
+                          + "本当に削除しますか？";
+                    } else {
+                      msg = "この曲を削除しますか？";
+                    }
+                    if (window.confirm(msg)) { onDeletePiece(); }
+                  }}
                     style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>この曲を削除</button>
                 ) : <span/>}
                 <button onClick={saveEdit}
