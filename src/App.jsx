@@ -1189,7 +1189,7 @@ const PrintPage = (props) => {
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
         <div style={{flex:1,overflowY:"auto"}}>
-          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px"}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px 140px"}}>
 
 
             {/* ── アカウント情報 ── */}
@@ -1200,7 +1200,7 @@ const PrintPage = (props) => {
                 ログアウト
               </button>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:28}}>
+            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56}}>
               {[
                 ["表示名",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
@@ -1287,7 +1287,7 @@ const PrintPage = (props) => {
               </div>
             )}
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:7,marginBottom:16,marginTop:19}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:7,marginBottom:40,marginTop:19}}>
               <div onClick={()=>setShowProfileDetail(v=>!v)}
                 style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
                 <span>Biography</span>
@@ -1316,7 +1316,7 @@ const PrintPage = (props) => {
               </div>
             </div>
             {showProfileDetail && (<React.Fragment>
-            <div style={{display:"flex",flexDirection:"column",gap:18}}>
+            <div style={{display:"flex",flexDirection:"column",gap:28}}>
               {[
                 ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
@@ -1396,7 +1396,7 @@ const PrintPage = (props) => {
       {/* ── OUTPUT ── */}
       {portfolioTab==="output" && (
         <div style={{flex:1,overflowY:"auto"}}>
-          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px",display:"flex",flexDirection:"column",gap:20}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px 140px",display:"flex",flexDirection:"column",gap:20}}>
 
             {/* ⑤ 全ステップを1ページに */}
 
@@ -2037,7 +2037,7 @@ const ManagePage = (props) => {
 
         {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
         <div style={{flex:1,overflowY:"auto"}}>
-        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
+        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
             <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
           } />
@@ -2077,7 +2077,7 @@ const ManagePage = (props) => {
     {/* Repertoire タブ */}
     {libraryTab==="repertoire" && (
     <div style={{flex:1,overflowY:"auto"}}>
-    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 28px"}}>
+    <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
 
       {/* ① EraBar（検索類をタイトル行に相乗り v211） */}
       <EraBar pieces={pieces} learning={false} filterBar={
@@ -2510,7 +2510,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   return (
     <div style={{flex:1,overflowY:"auto"}}>
-      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px 28px"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px 140px"}}>
 
         {/* Events サブタブ（v234：親ラッパー内なのでmaxWidth/padding不要・本文と頭を揃える） */}
         <div style={{marginTop:-14,marginBottom:24}}>
