@@ -1193,8 +1193,14 @@ const PrintPage = (props) => {
 
 
             {/* ── アカウント情報 ── */}
-            <div style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",paddingBottom:13,marginBottom:40,marginTop:19,borderBottom:"2px solid #4A5A7A"}}>Account</div>
-            <div style={{display:"flex",flexDirection:"column",gap:18,marginBottom:28}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:13,marginBottom:40,marginTop:19}}>
+              <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>Account</span>
+              <button onClick={handleLogout}
+                style={{background:"none",border:"none",color:"#9A8868",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:0,letterSpacing:"0.03em"}}>
+                ログアウト
+              </button>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:28}}>
               {[
                 ["表示名",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
@@ -1225,16 +1231,6 @@ const PrintPage = (props) => {
                   {input}
                 </div>
               ))}
-            </div>
-
-            {/* v167: ログアウト（ヘッダーから移設） */}
-            <div style={{marginBottom:28}}>
-              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",display:"inline-block",verticalAlign:"middle"}}></div>
-              <button onClick={handleLogout}
-                style={{background:"none",border:"1px solid #1E2A45",color:"#9A8868",padding:"6px 16px",
-                  borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,verticalAlign:"middle"}}>
-                ログアウト
-              </button>
             </div>
 
             {showBioPanel && (
