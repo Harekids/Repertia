@@ -1348,7 +1348,7 @@ const PrintPage = (props) => {
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
-                  <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
+                  <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
                   <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
                     <option value="">ー</option>
@@ -1368,7 +1368,7 @@ const PrintPage = (props) => {
               {(profile.teachers||[]).map((t,idx)=>(
                 <div key={t.id} style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
-                  <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 100px"}}/>
+                  <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                   <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
                   <button onClick={()=>removeListItem("teachers",t.id)} style={{background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>×</button>
@@ -4149,7 +4149,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   );
   return (
     <div style={{height:"100vh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
-      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;}"}</style>
+      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;} input::placeholder,textarea::placeholder{color:#8A94A8;opacity:1;}"}</style>
       <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
