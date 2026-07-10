@@ -2166,6 +2166,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   };
 
   const [evSearch, setEvSearch]        = useState("");
+  const [evSearchDebounced, setEvSearchDebounced] = useState(""); // 検索に使う値（入力が落ち着いてから追従）
+  const evComposingRef = React.useRef(false); // 日本語変換中フラグ
+  React.useEffect(() => {
+    // 変換中は待つ。入力が止まって300msで検索値を更新
+    if (evComposingRef.current) return;
+    const t = setTimeout(() => setEvSearchDebounced(evSearch), 300);
+    return () => clearTimeout(t);
+  }, [evSearch]);
   const [hamEvOpen, setHamEvOpen]      = useState(false); // v196: Eventsの三線メニュー
   const [evTypeFilter, setEvTypeFilter] = useState("");
   const [showForm, setShowForm]       = useState(false);
@@ -2178,7 +2186,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const today      = new Date().toISOString().slice(0,10);
   const filteredEvents = events
     .filter(e=>!evTypeFilter||e.type===evTypeFilter)
-    .filter(e=>!evSearch||(e.title||"").includes(evSearch)||(e.venue||"").includes(evSearch)||(e.notes||"").includes(evSearch));
+    .filter(e=>!evSearchDebounced||(e.title||"").includes(evSearchDebounced)||(e.venue||"").includes(evSearchDebounced)||(e.notes||"").includes(evSearchDebounced));
   const filteredPast   = filteredEvents.filter(e=>e.date<=today).sort((a,b)=>b.date.localeCompare(a.date));
   const filteredFuture = filteredEvents.filter(e=>e.date>today).sort((a,b)=>a.date.localeCompare(b.date));
   const past   = events.filter(e=>e.date <= today).sort((a,b)=>b.date.localeCompare(a.date));
@@ -2323,6 +2331,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
       <input
         key="event-search-input"
         value={evSearch} onChange={e=>setEvSearch(e.target.value)}
+        onCompositionStart={()=>{evComposingRef.current=true;}}
+        onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
         placeholder="キーワードで検索"
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:SANS,fontSize:12,borderRadius:4,width:160}}
       />
