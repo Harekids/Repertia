@@ -2363,7 +2363,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   // ── Timeline section ──
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
-    if (!evs.length) return null;
     return (
       <div style={{paddingTop:40,marginBottom:24}}>
         {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
@@ -2376,7 +2375,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
         <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:16}}/>
-        {(
+        {evs.length===0 ? (
+          <div style={{padding:"32px 0",textAlign:"center",color:"#94A3BE",fontSize:13,fontFamily:SANS}}>
+            該当するイベントがありません
+          </div>
+        ) : (
           <div style={{position:"relative",paddingLeft:36}}>
             <div style={{position:"absolute",left:12,top:0,bottom:0,width:2,background:"#1E2A45"}}/>
             {evs.map(ev=>{
@@ -2655,10 +2658,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           </div>
         ) : (
           <>
-            {eventsTab==="history" && (filteredPast.length>0
+            {eventsTab==="history" && (past.length>0
               ? <TimelineSection label="History" evs={filteredPast} defaultOpen={true}/>
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>まだ演奏の記録がありません。</div>)}
-            {eventsTab==="upcoming" && (filteredFuture.length>0
+            {eventsTab==="upcoming" && (future.length>0
               ? <TimelineSection label="Upcoming" evs={filteredFuture} defaultOpen={true}/>
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:SANS}}>これからの予定はまだありません。</div>)}
           </>
