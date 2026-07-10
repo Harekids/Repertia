@@ -1787,6 +1787,7 @@ const ManagePage = (props) => {
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAILearning, toggle, canAdd, prog} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
+  const {events=[], programs=[]} = props; // 逆引き用（この曲どのイベントで弾いた？）
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
   const [showLearnSearch, setShowLearnSearch] = useState(false); // Learning検索パネルの開閉（普段は閉じ）
@@ -1820,6 +1821,19 @@ const ManagePage = (props) => {
   };
   const selectSugComposer = (name) => {
     setComposerFilter(name); setSugComposers([]);
+  };
+  // 逆引き：この曲(pieceId)が使われたイベントを返す
+  // 過去=historyItems(スナップショット)のid照合／未来=programId→pieceIds照合
+  const findEventsForPiece = (pieceId) => {
+    const pid = String(pieceId);
+    return (events||[]).filter(ev => {
+      if (Array.isArray(ev.historyItems) && ev.historyItems.some(s => String(s.id)===pid)) return true;
+      if (ev.programId) {
+        const pg = (programs||[]).find(p => String(p.id)===String(ev.programId));
+        if (pg && (pg.pieceIds||[]).some(id => String(id)===pid)) return true;
+      }
+      return false;
+    }).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   };
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
@@ -2116,10 +2130,30 @@ const ManagePage = (props) => {
                 learningIds={learningIds}
               />
               {editMode && expandedId===p.id && (
-                <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
+                <div style={{padding:"4px 12px 10px",background:"#15233F"}}>
+                  {(() => {
+                    const usedIn = findEventsForPiece(p.id);
+                    if (usedIn.length===0) return null;
+                    return (
+                      <div style={{marginBottom:12}}>
+                        <div style={{color:"#7A8AA8",fontSize:11,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                          <span style={{color:"#C8A860"}}>♪</span> 演奏したイベント
+                        </div>
+                        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                          {usedIn.map(ev => (
+                            <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"6px 10px",background:"#0F1A33",borderRadius:4,borderLeft:"2px solid #8B2A50"}}>
+                              <span style={{color:"#C8A860",fontSize:12,fontWeight:600,minWidth:82,flexShrink:0}}>{ev.date}</span>
+                              <span style={{color:"#EDE6D6",fontSize:12}}>{ev.title||"（無題）"}</span>
+                              {ev.venue && <span style={{color:"#5A6B8C",fontSize:11}}>{ev.venue}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <button onClick={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));await supabase.from('pieces').delete().eq('id',p.id);}}
                     style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
-                    削除
+                    この曲を削除
                   </button>
                 </div>
               )}
@@ -4135,6 +4169,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.filter(p=>!p.learning).length}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
+          events={events} programs={programs}
         />}
         {page==="print"  && <PrintPage handleLogout={handleLogout} prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
         {page==="home" && <HomePage
