@@ -2651,12 +2651,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
           </div>
         )}
 
-        {/* Content — タイムラインのみ表示 */}
-        {filteredEvents.length===0 ? (
-          <div style={{textAlign:"center",padding:"60px 0",color:"#C0B090",fontSize:13,fontFamily:SANS,border:"2px dashed #E0D8C8",borderRadius:8}}>
-            {events.length===0 ? "「＋ イベントを追加」からコンサートや発表会を記録しましょう" : "該当するイベントがありません"}
-          </div>
-        ) : (
+        {/* Content — タイムライン（検索0件でも検索ボックスを消さないため、常にタブを表示） */}
+        {(
           <>
             {eventsTab==="history" && (past.length>0
               ? <TimelineSection label="History" evs={filteredPast} defaultOpen={true}/>
