@@ -1291,9 +1291,9 @@ const PrintPage = (props) => {
               </div>
             )}
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #1E2A45",paddingBottom:8,marginBottom:16,marginTop:8}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:10,marginBottom:16,marginTop:19}}>
               <div onClick={()=>setShowProfileDetail(v=>!v)}
-                style={{fontSize:13,letterSpacing:2,color:"#A8B4C8",fontWeight:600,fontFamily:SANS,cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
+                style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
                 <span>Biography</span>
                 <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
               </div>
