@@ -1384,7 +1384,7 @@ const PrintPage = (props) => {
             {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
             {/* v166: 保存トースト（右上にふわっと・数秒で消える） */}
             {profileSaveMsg && (
-              <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A7A3A",color:"#7FCF94",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:SANS,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
+              <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A3A5A",color:"#EDE6D6",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:SANS,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
                 {profileSaveMsg}
               </div>
             )}
