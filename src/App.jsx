@@ -1344,7 +1344,7 @@ const PrintPage = (props) => {
             </div>
 
             {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
-            <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:16}}>
+            <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
@@ -1366,7 +1366,7 @@ const PrintPage = (props) => {
                 {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
               </div>
               {(profile.teachers||[]).map((t,idx)=>(
-                <div key={t.id} style={{display:"flex",alignItems:"center",gap:8}}>
+                <div key={t.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:idx===0?10:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
                   <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
