@@ -1323,7 +1323,7 @@ const PrintPage = (props) => {
                 ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1,maxWidth:200}}/>],
                 ["国籍",           <div style={{flex:1,position:"relative"}}>
                   <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%",maxWidth:240}}/>
-                  {(profile.nationality||"").trim().length>0 && !COUNTRY_LIST.some(c=>c.ja===profile.nationality||c.en===profile.nationality) && (
+                  {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
                       {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
                         <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:SANS}}>{c.ja} / {c.en}</div>
