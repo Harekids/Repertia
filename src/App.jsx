@@ -671,7 +671,15 @@ const COMPOSER_PREFIXES = [
   { prefix:["v","vi","viv","viva"],          name:"ヴィヴァルディ",aliases:["Vivaldi","Antonio"] },
 ];
 
-const buildSuggestions = (q, pool) => {
+// v263: composers（293人マスタ）を reading / display / fullName の3列で照合
+const matchComposerRow = (row, lower) => {
+  const disp = (row.display  || "").toLowerCase();
+  const read = (row.reading  || "").toLowerCase();
+  const full = (row.fullName || "").toLowerCase();
+  return disp.includes(lower) || read.includes(lower) || full.includes(lower);
+};
+
+const buildSuggestions = (q, pool, composerPool = []) => {
   if (!q.trim()) return [];
   const lower = q.toLowerCase().trim();
 
@@ -685,25 +693,39 @@ const buildSuggestions = (q, pool) => {
   const matched = pool.filter(p => searchMatch(p, q));
   const matchedComposers = [...new Set(matched.map(p=>p.composer))];
 
-  // merge, deduplicate
-  const allComposers = [...new Set([...prefixComposers, ...matchedComposers])].slice(0,4);
+  // v263: composersマスタ（293人）からの照合。display をキーに、reading を添える
+  const masterMatched = composerPool.filter(row => matchComposerRow(row, lower));
+  const masterComposers = masterMatched
+    .slice(0, 6)
+    .map(row => ({ type:"composer", label: row.display, reading: row.reading || "" }));
+
+  // 既存pool由来（登録曲の作曲家名・文字列）
+  const poolComposerLabels = [...new Set([...prefixComposers, ...matchedComposers])];
+  // マスタに既に出ている display と重複しないものだけ残す
+  const masterLabelSet = new Set(masterComposers.map(c=>c.label));
+  const poolComposers = poolComposerLabels
+    .filter(c => !masterLabelSet.has(c))
+    .map(c => ({ type:"composer", label:c, reading:"" }));
+
+  // マスタ優先 → 既存pool の順で最大4件
+  const allComposers = [...masterComposers, ...poolComposers].slice(0,4);
   const titles = matched.slice(0,5).map(p=>({type:"piece", piece:p}));
 
   return [
-    ...allComposers.map(c=>({type:"composer", label:c})),
+    ...allComposers,
     ...titles,
   ].slice(0,8);
 };
 
 // ② Fixed SearchBox — IME-safe (composition events) + stable English input
-const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
+const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
   const [open, setOpen]       = useState(false);
   const [cursor, setCursor]   = useState(-1);
   const [displayVal, setDisplayVal] = useState(searchQ);
   const composing = useRef(false); // ① track IME composition
   const boxRef    = useRef(null);
 
-  const candidates = buildSuggestions(displayVal, allPool);
+  const candidates = buildSuggestions(displayVal, allPool, composerPool);
 
   const handleChange = (e) => {
     const v = e.target.value;
@@ -784,6 +806,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool }) => {
                   borderBottom:"1px solid #15233F",fontFamily:SANS}}>
                 <span style={{fontSize:10,color:"#94A3BE",background:"#15233F",padding:"1px 6px",borderRadius:8}}>作曲家</span>
                 <span style={{fontWeight:500}}>{item.label}</span>
+                {item.reading && <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{item.reading}</span>}
               </div>
             );
             const p = item.piece; const era = ERAS[p.era]||ERAS.modern;
@@ -1657,13 +1680,13 @@ const PrintPage = (props) => {
 // ── HomePage (top-level) ────────────────────────
 
 // ── FilterBar / PieChart / BarChart / ManagePage (top-level) ──────────────
-const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc}) => {
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[]}) => {
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   return (
     <div style={{background:"transparent",flexShrink:0}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap"}}>
-        <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} />
+        <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
             style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 7px",fontFamily:SANS,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
@@ -1803,6 +1826,7 @@ const BarChart = ({dashData}) => {
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
   const {pieces, setPieces, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd} = props;
+  const {composers=[]} = props; // v263: 293人マスタ（検索用）
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
@@ -2039,7 +2063,7 @@ const ManagePage = (props) => {
         <div style={{flex:1,overflowY:"auto"}}>
         <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} />
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
           } />
           <div style={{background:"transparent",overflow:"hidden"}}>
             <div style={{padding:"2px 8px"}}>
@@ -2081,7 +2105,7 @@ const ManagePage = (props) => {
 
       {/* ① EraBar（検索類をタイトル行に相乗り v211） */}
       <EraBar pieces={pieces} learning={false} filterBar={
-        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} />
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} composerPool={composers} />
       } />
 
       {/* ② ボタン行はFilterBarの三線メニューに移動（v195） */}
@@ -3436,6 +3460,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const page = pageState;
   const [pieces, setPieces]                   = useState([]);
   const [piecesLoading, setPiecesLoading]     = useState(true);
+  const [composers, setComposers]             = useState([]); // v263: 293人マスタ（検索用）
   const [aiPieces, setAiPieces]               = useState([]);
   const [aiPiecesP, setAiPiecesP]             = useState([]); // Program専用のAI提案結果（Learningと分離）
   const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
@@ -3634,6 +3659,31 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     };
     loadPieces();
   }, [user.id]);
+
+  // ── Supabase: composers（293人マスタ）読み込み v263 ──
+  // 共有マスタ（user紐付けなし）。検索用に display / reading / fullName を読む
+  useEffect(() => {
+    const loadComposers = async () => {
+      const { data, error } = await supabase
+        .from('composers')
+        .select('display, "fullName", reading, years, country_ja, country_en, era')
+        .order('display', { ascending: true });
+      if (!error && data) {
+        setComposers(data.map(c => ({
+          display:    c.display    || '',
+          fullName:   c.fullName   || '',
+          reading:    c.reading    || '',
+          years:      c.years      || '',
+          country_ja: c.country_ja || '',
+          country_en: c.country_en || '',
+          era:        c.era        || '',
+        })));
+      } else if (error) {
+        console.error('composers load失敗:', error);
+      }
+    };
+    loadComposers();
+  }, []);
 
   // ── Supabase: programs読み込み ──
   useEffect(() => {
@@ -4155,6 +4205,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       <Header />
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
+          composers={composers}
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
