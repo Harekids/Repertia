@@ -830,7 +830,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
 
 
 // ── AddPieceForm — fully self-contained, no App state dependency ──────────────
-const AddPieceForm = ({ onAdd, onCancel }) => {
+const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const [piece, setPiece]                     = useState(EMPTY_PIECE);
   const [composerSuggestions, setComposerSuggestions] = useState([]);
   const [composerLocked, setComposerLocked]   = useState(false);
@@ -838,7 +838,7 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
   const [sugLoading, setSugLoading]           = useState(false);
   const [durationEdited, setDurationEdited]   = useState(false);
   const sugTimer = useRef(null);
-  const reqIdComposer = useRef(0); // v150: レース対策（最新の返事だけ採用）
+  const reqIdComposer = useRef(0); // v264以降未使用（作曲家欄はcomposers参照化）。曲名側reqIdTitleは現役
   const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
 
   const onComposerChange = (val) => {
@@ -846,20 +846,17 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
     setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
-    sugTimer.current = setTimeout(async () => {
-      const myId = ++reqIdComposer.current; // この検索の世代番号
-      setSugLoading(true);
-      try {
-        const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:800,messages:[{role:"user",content:`「${val}」で始まるまたは含むクラシックピアノ作曲家を8〜10名挙げてください。JSONのみ:{"composers":["名前1","名前2","名前3","名前4","名前5","名前6"]}`}]})});
-        const data = await res.json();
-        if (myId !== reqIdComposer.current) return; // 自分が最新でなければ捨てる
-        const text = data.content.map(b=>b.text||"").join("");
-        try {
-          setComposerSuggestions(JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)).composers||[]);
-        } catch(parseErr){ console.error("composer parse失敗:",parseErr); setComposerSuggestions([]); }
-      } catch(e){ if(myId===reqIdComposer.current){ console.error(e); setComposerSuggestions([]); } }
-      if (myId===reqIdComposer.current) setSugLoading(false);
-    }, 400);
+    // v264: AI生成 → composers（293人マスタ）参照に切り替え。
+    // matchComposerRow が display/reading/fullName を全て toLowerCase 照合するため
+    // 大文字小文字は非区別（chopin / Chopin / CHOPIN すべてヒット）。
+    sugTimer.current = setTimeout(() => {
+      const lower = val.toLowerCase().trim();
+      const matched = composerPool
+        .filter(row => matchComposerRow(row, lower))
+        .slice(0, 8)
+        .map(row => ({ label: row.display, reading: row.reading || "" }));
+      setComposerSuggestions(matched);
+    }, 200);
   };
 
   const selectComposer = (name) => {
@@ -927,11 +924,14 @@ const AddPieceForm = ({ onAdd, onCancel }) => {
             {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerSuggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
-                {composerSuggestions.map((name,i)=>(
-                  <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectComposer(name)}
-                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS}}
+                {composerSuggestions.map((item,i)=>(
+                  <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectComposer(item.label)}
+                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS,display:"flex",alignItems:"baseline",gap:8}}
                     onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
-                    onMouseLeave={e=>e.currentTarget.style.background="white"}>{name}</div>
+                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                    <span>{item.label}</span>
+                    {item.reading && <span style={{fontSize:11,color:"#94A3BE"}}>{item.reading}</span>}
+                  </div>
                 ))}
               </div>
             )}
@@ -2165,7 +2165,7 @@ const ManagePage = (props) => {
       {/* 曲追加フォーム — 境界線で視覚的に分離 */}
       {showAdd && (
         <div style={{marginBottom:24}}>
-          <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} />
+          <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} />
         </div>
       )}
 
