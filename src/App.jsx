@@ -679,6 +679,41 @@ const matchComposerRow = (row, lower) => {
   return disp.includes(lower) || read.includes(lower) || full.includes(lower);
 };
 
+// v265: 関連度スコア。企画決定に対応
+//   ① 前方一致(startsWith)を、途中一致(includes)より上に
+//   ② 列の重み：display ＞ reading ＞ fullName
+//   0 を返したらマッチなし（＝候補から除外）
+//   同点は呼び出し側の安定ソートで元の display 昇順が保たれる（③）
+const scoreComposerRow = (row, lower) => {
+  const disp = (row.display  || "").toLowerCase();
+  const read = (row.reading  || "").toLowerCase();
+  const full = (row.fullName || "").toLowerCase();
+  // display のイニシャル接頭辞（"F." "W.A." 等）を除いた姓部分。
+  // 例：F.Chopin → chopin、C.Chaminade → chaminade。
+  // 「ch」で Chopin/Chaminade を前方一致扱いにするため（企画①）。
+  const surname = disp.replace(/^([a-z]\.)+/i, "");
+  // 前方一致ボーナスは display（＝姓含む）/ reading のみ。
+  // fullName は「含む」判定だけ（下の名前で始まっても優遇しない）。
+  if (disp.startsWith(lower) || surname.startsWith(lower)) return 60;
+  if (read.startsWith(lower)) return 50;
+  if (disp.includes(lower))   return 30;
+  if (read.includes(lower))   return 20;
+  if (full.includes(lower))   return 10;
+  return 0;
+};
+
+// v265: スコア順に並べ替えて上位を返す共通ヘルパー。
+// Search側・AddPiece側で同じ並び順にするため一本化。
+// 安定ソートのため score 同点時は元の index（display昇順）を保つ。
+const rankComposers = (composerPool, lower, limit) => {
+  return composerPool
+    .map((row, idx) => ({ row, score: scoreComposerRow(row, lower), idx }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => (b.score - a.score) || (a.idx - b.idx))
+    .slice(0, limit)
+    .map(x => x.row);
+};
+
 const buildSuggestions = (q, pool, composerPool = []) => {
   if (!q.trim()) return [];
   const lower = q.toLowerCase().trim();
@@ -694,9 +729,9 @@ const buildSuggestions = (q, pool, composerPool = []) => {
   const matchedComposers = [...new Set(matched.map(p=>p.composer))];
 
   // v263: composersマスタ（293人）からの照合。display をキーに、reading を添える
-  const masterMatched = composerPool.filter(row => matchComposerRow(row, lower));
+  // v265: rankComposers で関連度順に並べる（前方一致優先・列重み付け）
+  const masterMatched = rankComposers(composerPool, lower, 6);
   const masterComposers = masterMatched
-    .slice(0, 6)
     .map(row => ({ type:"composer", label: row.display, reading: row.reading || "" }));
 
   // 既存pool由来（登録曲の作曲家名・文字列）
@@ -849,11 +884,10 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // v264: AI生成 → composers（293人マスタ）参照に切り替え。
     // matchComposerRow が display/reading/fullName を全て toLowerCase 照合するため
     // 大文字小文字は非区別（chopin / Chopin / CHOPIN すべてヒット）。
+    // v265: rankComposers で関連度順（前方一致優先・列重み付け）。Search側と同じ並び。
     sugTimer.current = setTimeout(() => {
       const lower = val.toLowerCase().trim();
-      const matched = composerPool
-        .filter(row => matchComposerRow(row, lower))
-        .slice(0, 8)
+      const matched = rankComposers(composerPool, lower, 8)
         .map(row => ({ label: row.display, reading: row.reading || "" }));
       setComposerSuggestions(matched);
     }, 200);
