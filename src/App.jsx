@@ -1971,6 +1971,8 @@ const ManagePage = (props) => {
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
         {/* +曲を追加はFilterBarの三線メニューに移動（v195） */}
         {showLearnSearch && (<React.Fragment>
+        {/* v267: RPと同じ中央寄せ幅（CONTENT_W）に揃える */}
+        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px",width:"100%",boxSizing:"border-box",flexShrink:0}}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -2068,8 +2070,10 @@ const ManagePage = (props) => {
             </button>
           </div>
         </div>
+        </div>
         {/* 結果一覧 */}
-        <div style={{flex:1,minHeight:showLearnSearch?340:0,overflowY:"auto",padding:"14px 12px 8px"}}>
+        <div style={{flex:1,minHeight:showLearnSearch?340:0,overflowY:"auto"}}>
+        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"14px 28px 8px",boxSizing:"border-box"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
               「検索結果を表示」で追加した曲はLearningリストに保存されます
@@ -2106,6 +2110,7 @@ const ManagePage = (props) => {
               );
             })
           }
+        </div>
         </div>
         </React.Fragment>)}
 
