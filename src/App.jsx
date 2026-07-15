@@ -367,10 +367,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     <span>{era.label}</span>
                     <span style={{color:"#7A8FB5"}}>·</span>
                     <span>{yearStr}</span>
-                    <span style={{color:"#7A8FB5"}}>·</span>
-                    <span>{p.difficulty ? "Lv."+p.difficulty : <span style={{color:"#7A8FB5"}}>Lv. 育成中</span>}</span>
-                    <span style={{color:"#7A8FB5"}}>·</span>
-                    <span style={{color:"#7A8FB5"}}>Pop. 育成中</span>
+                    {/* v269: Lv.・Pop.はコミュニティデータで決まるもの。ユーザー不在の今、AI自動入力値には根拠がないためカード表示を一時非表示（difficulty/popデータとsortByロジックは温存） */}
+                    {/* <span style={{color:"#7A8FB5"}}>·</span> */}
+                    {/* <span>{p.difficulty ? "Lv."+p.difficulty : <span style={{color:"#7A8FB5"}}>Lv. 育成中</span>}</span> */}
+                    {/* <span style={{color:"#7A8FB5"}}>·</span> */}
+                    {/* <span style={{color:"#7A8FB5"}}>Pop. 育成中</span> */}
                     {/* ③リンクをPop.の後に1em空けて続ける */}
                     <span style={{marginLeft:"1em",display:"inline-flex",gap:4}}>
                       {[
@@ -1728,8 +1729,9 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
             <option value="year">作曲年</option>
-            <option value="difficulty">Lv.</option>
-            <option value="frequency">Pop.</option>
+            {/* v269: カードに表示しない数字で並べ替えられると、序列という形で数字が見えてしまうため一時非表示（sortByロジックは温存） */}
+            {/* <option value="difficulty">Lv.</option> */}
+            {/* <option value="frequency">Pop.</option> */}
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
             style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 8px",
