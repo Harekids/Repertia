@@ -1890,6 +1890,23 @@ const ManagePage = (props) => {
   const sugTimerC = useRef(null);
   const sugTimerT = useRef(null);
   const reqIdC = useRef(0); // v150: レース対策
+  // v266: Search Piece を閉じる＆入力内容を全クリア
+  const clearLearnSearchFields = () => {
+    setComposerFilter(""); setTitleFilter(""); setEraFilter("");
+    setYearMin(""); setYearMax("");
+    setDurMin(""); setDurMax("");
+    setDiffMin(0); setDiffMax(5);
+    setSugComposers([]); setSugPieces([]);
+    setAiPieces([]);
+  };
+  const closeAndClearLearnSearch = () => {
+    setShowLearnSearch(false);
+    clearLearnSearchFields();
+  };
+  // v266: ページ移動（ManagePageのアンマウント）時にも入力内容をクリア
+  useEffect(() => {
+    return () => { clearLearnSearchFields(); };
+  }, []);
   const onComposerSearchChange = (val) => {
     setComposerFilter(val); setSugComposers([]);
     if (sugTimerC.current) clearTimeout(sugTimerC.current);
@@ -1955,16 +1972,15 @@ const ManagePage = (props) => {
         {/* +曲を追加はFilterBarの三線メニューに移動（v195） */}
         {showLearnSearch && (<React.Fragment>
         {/* Search Piece パネル */}
-        <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-            <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,fontWeight:600}}>Search Piece</div>
-            <button onClick={()=>setShowLearnSearch(false)} style={{background:"transparent",border:"1px solid #2A3A5A",color:"#94A3BE",fontFamily:SANS,fontSize:11,padding:"3px 10px",borderRadius:4,cursor:"pointer"}}>✕ 閉じる</button>
-          </div>
+        <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
+          <button onClick={closeAndClearLearnSearch} title="キャンセル"
+            style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
+          <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Search Piece</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
             <div>
-              <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>作曲家</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>作曲家</div>
               <div style={{position:"relative"}}>
-                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>…</div>}
                 {sugComposers.length>0 && (
                   <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:180,overflowY:"auto"}}>
@@ -1977,48 +1993,48 @@ const ManagePage = (props) => {
               </div>
             </div>
             <div>
-              <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>曲名</div>
-              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>曲名</div>
+              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             <div>
-              <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>時代</div>
-              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"}}>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>時代</div>
+              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>
                 <option value="">ー</option>
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
             </div>
             {/* v204: キーワード（感情タグ）は育成中のため一時非表示。データがたまったら復活 */}
             {/* <div>
-              <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>キーワード</div>
-              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>キーワード</div>
+              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div> */}
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>作曲年</span>
+              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>作曲年</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>演奏時間（分）</span>
+              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>演奏時間（分）</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>難易度</span>
+              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>難易度</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
+                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
                 <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
+                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
@@ -2026,14 +2042,14 @@ const ManagePage = (props) => {
             </div>
             {/* v204: 演奏頻度（Pop.系）は育成中のため一時非表示。データがたまったら復活 */}
             {/* <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>演奏頻度</span>
+              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>演奏頻度</span>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
+                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
                 <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
+                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
                   <option value={0}>ー</option>
                   {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
                 </select>
@@ -2048,7 +2064,7 @@ const ManagePage = (props) => {
                 border:"2px solid "+(poolMode==="ai"?"#0F1A33":"#2A3F6A"),
                 color:poolMode==="ai"?"#C8A860":"#94A3BE",
                 cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
-              {aiLoading?"…":"New from Database"}
+              {aiLoading?"…":"検索結果を表示"}
             </button>
           </div>
         </div>
@@ -2056,7 +2072,7 @@ const ManagePage = (props) => {
         <div style={{flex:1,minHeight:showLearnSearch?340:0,overflowY:"auto",padding:"14px 12px 8px"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
-              「New from Database」で追加した曲はLearningリストに保存されます
+              「検索結果を表示」で追加した曲はLearningリストに保存されます
             </div>
           )}
           {aiLoading && (
