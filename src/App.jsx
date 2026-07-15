@@ -948,8 +948,8 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
       <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Add Piece</div>
 
-      {/* 1行目: 作曲家・曲名 */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+      {/* 1行目: 作曲家・曲名（v270: 幅比 1:2） */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:12,marginBottom:12}}>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
@@ -999,11 +999,16 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         </div>
       </div>
 
-      {/* 2行目: 調性・作曲年・演奏時間(国を削除) */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      {/* 2行目: 調性・時代・作曲年・演奏時間（v270: 均等4分割） */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
+        </div>
+        <div>
+          {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
+          <select value={piece.era||"romantic"} onChange={e=>setPiece({...piece,era:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
@@ -1874,6 +1879,7 @@ const ManagePage = (props) => {
   const {toggleCandidate, onUpdatePiece} = props;
   const {composerFilter, setComposerFilter, titleFilter, setTitleFilter} = props;
   const {eraFilter, setEraFilter, yearMin, setYearMin, yearMax, setYearMax} = props;
+  const {keyFilter, setKeyFilter} = props; // v270: LP調性フィルタ
   const {durMin, setDurMin, durMax, setDurMax} = props;
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
@@ -1895,6 +1901,7 @@ const ManagePage = (props) => {
   // v266: Search Piece を閉じる＆入力内容を全クリア
   const clearLearnSearchFields = () => {
     setComposerFilter(""); setTitleFilter(""); setEraFilter("");
+    setKeyFilter(""); // v270
     setYearMin(""); setYearMax("");
     setDurMin(""); setDurMax("");
     setDiffMin(0); setDiffMax(5);
@@ -1987,7 +1994,8 @@ const ManagePage = (props) => {
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
             style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
           <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Search Piece</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
+          {/* v270: 1行目 作曲家・曲名（幅比 1:2） */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:6,marginBottom:8}}>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>作曲家</div>
               <div style={{position:"relative"}}>
@@ -2007,65 +2015,43 @@ const ManagePage = (props) => {
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>曲名</div>
               <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
-            <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>時代</div>
-              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>
-                <option value="">ー</option>
-                {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
-              </select>
-            </div>
             {/* v204: キーワード（感情タグ）は育成中のため一時非表示。データがたまったら復活 */}
             {/* <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>キーワード</div>
               <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div> */}
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
-            <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>作曲年</span>
+          {/* v270: 2行目 6分割 — 調性(1)・時代(1)・作曲年〜(2)・演奏時間〜(2)。難易度はv269でLv/Popを外したため除外 */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:10,alignItems:"end"}}>
+            <div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>調性</div>
+              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+                {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
+              </select>
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>時代</div>
+              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+                <option value="">ー</option>
+                {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+              </select>
+            </div>
+            <div style={{gridColumn:"span 2"}}>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>作曲年</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
+                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>演奏時間（分）</span>
+            <div style={{gridColumn:"span 2"}}>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>演奏時間（分）</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1,boxSizing:"border-box"}} />
+                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
+                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>難易度</span>
-              <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
-                  <option value={0}>ー</option>
-                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                </select>
-                <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
-                  <option value={0}>ー</option>
-                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                </select>
-              </div>
-            </div>
-            {/* v204: 演奏頻度（Pop.系）は育成中のため一時非表示。データがたまったら復活 */}
-            {/* <div style={{display:"flex",flexDirection:"column",gap:3}}>
-              <span style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS}}>演奏頻度</span>
-              <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
-                  <option value={0}>ー</option>
-                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                </select>
-                <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,flex:1}}>
-                  <option value={0}>ー</option>
-                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                </select>
-              </div>
-            </div> */}
           </div>
                       <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
             <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAILearning(); }}
@@ -3537,6 +3523,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [composerFilterP, setComposerFilterP] = useState(""); // Program用（Learningと分離）
   const [titleFilterP,    setTitleFilterP]    = useState(""); // Program用（Learningと分離）
   const [eraFilter,      setEraFilter]        = useState("");
+  const [keyFilter,      setKeyFilter]        = useState(""); // v270: LP調性フィルタ（単発選択）
   const [yearMin,        setYearMin]          = useState("");
   const [yearMax,        setYearMax]          = useState("");
   const [durMin,         setDurMin]           = useState("");
@@ -3960,6 +3947,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     if (titleFilter && titleFilter.trim())       cond.push("曲名・キーワード: "+titleFilter.trim());
     if (kwFilter && kwFilter.trim())             cond.push("キーワード: "+kwFilter.trim());
     if (eraFilter)                               cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
+    if (keyFilter && keyFilter.trim())           cond.push("調性: "+keyFilter.trim());
     if (yearMin || yearMax)                      cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
     if (durMin || durMax)                        cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
     const dLowL = Number(diffMin)>=1 ? Number(diffMin) : 1;
@@ -4277,6 +4265,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           composerFilter={composerFilter} setComposerFilter={setComposerFilter}
           titleFilter={titleFilter} setTitleFilter={setTitleFilter}
           eraFilter={eraFilter} setEraFilter={setEraFilter}
+          keyFilter={keyFilter} setKeyFilter={setKeyFilter}
           yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
           durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
           diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
