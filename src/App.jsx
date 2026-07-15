@@ -873,6 +873,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const [suggestions, setSuggestions]         = useState([]);
   const [sugLoading, setSugLoading]           = useState(false);
   const [durationEdited, setDurationEdited]   = useState(false);
+  const [eraEdited, setEraEdited]             = useState(false); // v271: 時代を手で選び直したか（durationEditedと同じ作り）
   const sugTimer = useRef(null);
   const reqIdComposer = useRef(0); // v264以降未使用（作曲家欄はcomposers参照化）。曲名側reqIdTitleは現役
   const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
@@ -922,7 +923,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
 
   const selectSuggestion = (s) => {
     setPiece(p=>({...p, ...s, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
-    setDurationEdited(false); setSuggestions([]);
+    setDurationEdited(false); setEraEdited(false); setSuggestions([]);
   };
 
   const handleAdd = () => {
@@ -933,9 +934,10 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     if (yt === "不明") yearNum = 0;
     else if (/^\d{4}-\d{4}$/.test(yt)) yearNum = parseInt(yt.split("-")[0]);
     else if (/^\d{4}$/.test(yt)) yearNum = parseInt(yt);
-    onAdd({...piece, year:yearNum, yearText: yt||String(yearNum)});
+    // v271: 時代は手で選び直したときだけその値を送る。触っていなければ作曲年から補完（durationEditedと同じ考え方）
+    onAdd({...piece, year:yearNum, yearText: yt||String(yearNum), era: eraEdited ? piece.era : eraFromYear(yearNum)});
     setPiece(EMPTY_PIECE); setComposerSuggestions([]); setSuggestions([]);
-    setComposerLocked(false); setDurationEdited(false);
+    setComposerLocked(false); setDurationEdited(false); setEraEdited(false);
   };
 
   const inp2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
@@ -1008,7 +1010,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
-          <select value={piece.era||"romantic"} onChange={e=>setPiece({...piece,era:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
+          <select value={piece.era||"romantic"} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
@@ -4038,7 +4040,9 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
 
 
   const onAddPiece = async (piece) => {
-    const era = eraFromYear(piece.year);
+    // v271: 時代は様式上の役割で決まるもので、生年から機械的には決まらない。
+    // ユーザーが選んだ時代を優先し、未選択のときだけ作曲年から補完する。
+    const era = piece.era || eraFromYear(piece.year);
     const { data, error } = await supabase.from('pieces').insert({
       user_id: user.id,
       title: piece.title,
@@ -4073,7 +4077,8 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     const silent = opts && opts.silent;
     const addedIds = [];
     for (const piece of whitePieces) {
-      const era = eraFromYear(piece.year);
+      // v271: onAddPieceと同じ方針（選ばれた時代を優先・未選択なら作曲年から補完）
+      const era = piece.era || eraFromYear(piece.year);
       const { data, error } = await supabase.from('pieces').insert({
         user_id: user.id,
         title: piece.title,
