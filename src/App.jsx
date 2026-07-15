@@ -1970,9 +1970,16 @@ const ManagePage = (props) => {
     {libraryTab==="learning" && (
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
         {/* +曲を追加はFilterBarの三線メニューに移動（v195） */}
+
+        {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
+        <div style={{flex:1,overflowY:"auto"}}>
+        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
+          <EraBar pieces={pieces} learning={true} filterBar={
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
+          } />
         {showLearnSearch && (<React.Fragment>
-        {/* v267: RPと同じ中央寄せ幅（CONTENT_W）に揃える */}
-        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px",width:"100%",boxSizing:"border-box",flexShrink:0}}>
+        {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
+        <div style={{marginTop:10,marginBottom:20}}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -2072,8 +2079,8 @@ const ManagePage = (props) => {
         </div>
         </div>
         {/* 結果一覧 */}
-        <div style={{flex:1,minHeight:showLearnSearch?340:0,overflowY:"auto"}}>
-        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"14px 28px 8px",boxSizing:"border-box"}}>
+        <div style={{marginBottom:20}}>
+        <div style={{padding:"14px 0 8px"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
               「検索結果を表示」で追加した曲はLearningリストに保存されます
@@ -2113,13 +2120,6 @@ const ManagePage = (props) => {
         </div>
         </div>
         </React.Fragment>)}
-
-        {/* My Learning（棚の中身・銀の曲）— Repertoireと同じ作り */}
-        <div style={{flex:1,overflowY:"auto"}}>
-        <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
-          <EraBar pieces={pieces} learning={true} filterBar={
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
-          } />
           <div style={{background:"transparent",overflow:"hidden"}}>
             <div style={{padding:"2px 8px"}}>
               {learningPoolFiltered.length===0 ? (
