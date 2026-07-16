@@ -919,6 +919,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const [sugLoading, setSugLoading]           = useState(false);
   const [durationEdited, setDurationEdited]   = useState(false);
   const [eraEdited, setEraEdited]             = useState(false); // v271: 時代を手で選び直したか（durationEditedと同じ作り）
+  const [pendingComposers, setPendingComposers] = useState([]); // v280: AI曲名から入ったときの曖昧候補
   const sugTimer = useRef(null);
   const reqIdComposer = useRef(0); // v264以降未使用（作曲家欄はcomposers参照化）。曲名側reqIdTitleは現役
   const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
@@ -931,7 +932,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       const changed = composerLocked && p.composer && p.composer !== val;
       return {...p, composer:val, title: changed ? "" : p.title};
     });
-    setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]);
+    setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]); setPendingComposers([]);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
     // v264: AI生成 → composers（293人マスタ）参照に切り替え。
@@ -983,13 +984,33 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   };
 
   const selectSuggestion = (s) => {
-    // v278: AIが返した composer は使わない（照合キーだから）。
+    // v278: AIが返した composer は「登録する値」としては使わない（照合キーだから）。
     // 作曲家名は composers（293人マスタ）と突き合わせるもので、表記そのものが意味を持つ。
     // F.Chopin と Frédéric Chopin が別人になると、検索と並べ替えが壊れる。
     // 他の項目（曲名・作曲年・調性・演奏時間・時代）は突き合わせる先がないのでそのまま使う。
+    //
+    // v280: ただし「検索キー」としては使う（RAGと同じ構造：AIに答えさせて、典拠で確かめる）。
+    // AIの文字列で composers を rankComposers で引き、ヒットしたらリスト側の display を入れる。
+    // AIの文字列そのものは捨てる。AIは「誰の曲か」を知っている。「どう書くか」はリストが持っている。
+    // プロンプトの「F.姓形式」指定は当てにしない（ヒントであって保証ではない）。
+    // 何が返ってきても必ず照合を通す。通らなければ空欄。
     const { composer, ...rest } = s;
-    setPiece(p=>({...p, ...rest, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
+    const key  = (composer || "").toLowerCase().trim();
+    const hits = key ? rankComposers(composerPool, key, 8) : [];
+    // 一意に決まったときだけ自動で入れる。複数ヒットで1位を自動採用すると「AIが決めた」に戻る。
+    const decided = hits.length === 1 ? hits[0].display : "";
+    setPiece(p=>({...p, ...rest, composer: decided, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
+    setComposerLocked(hits.length === 1);
+    // 複数ヒットのときだけ候補を出してユーザーに選ばせる。0件は空欄（＝未登録作曲家の材料）。
+    setPendingComposers(hits.length > 1 ? hits.map(row => ({ label: row.display, reading: row.reading || "" })) : []);
     setDurationEdited(false); setEraEdited(false); setSuggestions([]);
+  };
+
+  // v280: 曖昧ヒット時の候補からユーザーが選んだとき。
+  // selectComposer と違い composerLocked の履歴を見ない（空欄→確定なので曲名は消さない）。
+  const selectPendingComposer = (name) => {
+    setPiece(p=>({...p, composer:name}));
+    setPendingComposers([]); setComposerLocked(true);
   };
 
   const handleAdd = () => {
@@ -1003,7 +1024,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // v271: 時代は手で選び直したときだけその値を送る。触っていなければ作曲年から補完（durationEditedと同じ考え方）
     onAdd({...piece, year:yearNum, yearText: yt||String(yearNum), era: eraEdited ? piece.era : eraFromYear(yearNum)});
     setPiece(EMPTY_PIECE); setComposerSuggestions([]); setSuggestions([]);
-    setComposerLocked(false); setDurationEdited(false); setEraEdited(false);
+    setComposerLocked(false); setDurationEdited(false); setEraEdited(false); setPendingComposers([]);
   };
 
   const inp2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
@@ -1025,6 +1046,20 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
               placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
               style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerLocked?"#8BAED4":"#C8CEDB",background:composerLocked?"#F0F5FF":"white",color:"#15233F"}} />
             {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
+            {pendingComposers.length>0 && (
+              <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
+                <div style={{padding:"5px 14px",fontSize:10,color:"#6B7A90",fontFamily:SANS,background:"#F0F4FA",borderBottom:"1px solid #E8ECF2"}}>作曲家を選んでください</div>
+                {pendingComposers.map((item,i)=>(
+                  <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectPendingComposer(item.label)}
+                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS,display:"flex",alignItems:"baseline",gap:8}}
+                    onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
+                    onMouseLeave={e=>e.currentTarget.style.background="white"}>
+                    <span>{item.label}</span>
+                    {item.reading && <span style={{fontSize:11,color:"#94A3BE"}}>{item.reading}</span>}
+                  </div>
+                ))}
+              </div>
+            )}
             {composerSuggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
                 {composerSuggestions.map((item,i)=>(
