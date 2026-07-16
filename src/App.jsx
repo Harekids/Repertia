@@ -385,9 +385,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     {/* <span style={{color:"#7A8FB5"}}>Pop. 育成中</span> */}
                     {/* ③リンクをPop.の後に1em空けて続ける */}
                     <span style={{marginLeft:"1em",display:"inline-flex",gap:4}}>
+                      {/* v275: W（Wikipedia）・I（IMSLP）はAIが組み立てたURLで実在確認をしていないため一時非表示。
+                          正解が1つあるものをAIに推測させるのが誤り（例: Claude Debussy → 正しくは「クロード・ドビュッシー」）。
+                          将来 composers テーブルに確認済みURL2列を持たせる設計へ移行する。
+                          ▶（YouTube）は特定の演奏を指さない検索URLなので残す。 */}
                       {[
-                        ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
-                        ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
+                        // ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
+                        // ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
                         ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
                       ].map(([href,mark,ttl])=>(
                         <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
