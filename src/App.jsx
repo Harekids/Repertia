@@ -967,7 +967,12 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   };
 
   const selectSuggestion = (s) => {
-    setPiece(p=>({...p, ...s, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
+    // v278: AIが返した composer は使わない（照合キーだから）。
+    // 作曲家名は composers（293人マスタ）と突き合わせるもので、表記そのものが意味を持つ。
+    // F.Chopin と Frédéric Chopin が別人になると、検索と並べ替えが壊れる。
+    // 他の項目（曲名・作曲年・調性・演奏時間・時代）は突き合わせる先がないのでそのまま使う。
+    const { composer, ...rest } = s;
+    setPiece(p=>({...p, ...rest, yearText: String(s.year||""), frequency: s.frequency ?? 3}));
     setDurationEdited(false); setEraEdited(false); setSuggestions([]);
   };
 
@@ -2140,9 +2145,12 @@ const ManagePage = (props) => {
                   </div>
                   <button onClick={async()=>{
                       if(addedAiIds.includes(p.id)) return;
-                      if(pieces.some(x => x.title===p.title && x.composer===p.composer && x.learning)) return;
+                      // v278: 登録時にcomposerを空にするため、重複判定も空基準に揃える（曲名で照合）
+                      if(pieces.some(x => x.title===p.title && x.learning)) return;
                       setAddedAiIds(prev=>[...prev,p.id]);
-                      await addPiecesFromProgram([p], {silent:true});
+                      // v278: AI検索結果の composer は登録しない（照合キーをAIに作らせない）。
+                      // 作曲家欄は空で登録され、ユーザーが手で埋めるかcomposersテーブルから選ぶ。
+                      await addPiecesFromProgram([{...p, composer:""}], {silent:true});
                     }}
                     disabled={added}
                     style={{background:added?"#1E2A45":"#0F1A33",border:"none",color:added?"#7A8AAA":"#E8D090",
