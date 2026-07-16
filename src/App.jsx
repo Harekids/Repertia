@@ -2160,7 +2160,12 @@ const ManagePage = (props) => {
           <div style={{background:"transparent",overflow:"hidden"}}>
             <div style={{padding:"2px 8px"}}>
               {learningPoolFiltered.length===0 ? (
-                <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
+                // v277: 「リストが空」と「検索結果がゼロ」は別の状態。同じメッセージを出さない
+                pieces.filter(p=>p.learning).length===0 ? (
+                  <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
+                ) : (
+                  <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>該当する曲はありません。</div>
+                )
               ) : learningPoolFiltered.map(p => (
                 <div key={p.id}>
                   <PieceCardUnified
@@ -2264,7 +2269,14 @@ const ManagePage = (props) => {
       {/* 一覧エリア — フォームと分ける境界（FilterBarはEraBarへ移動 v211） */}
       <div style={{background:"transparent",overflow:"hidden"}}>
         <div style={{padding:"2px 8px"}}>
-          {poolFiltered.map(p => (
+          {poolFiltered.length===0 ? (
+            // v277: LPと同じ判断。0件で真っ白にせず、状態を分けて伝える
+            pieces.filter(p=>!p.learning).length===0 ? (
+              <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだRepertoireの曲がありません。上で曲を追加してください。</div>
+            ) : (
+              <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>該当する曲はありません。</div>
+            )
+          ) : poolFiltered.map(p => (
             <div key={p.id}>
               <PieceCardUnified
                 p={p}
