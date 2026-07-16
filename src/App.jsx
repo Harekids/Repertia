@@ -272,6 +272,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
     setDraft({
       title:p.title, composer:p.composer, key:p.key||"",
       yearText:p.yearText||"", duration:p.duration||0, durationSecs:p.durationSecs||0,
+      era:p.era||"", // v272: 時代を編集可能に
       memo:p.memo||"", keywords:p.keywords||"",
       links: Array.isArray(p.links) ? p.links.map(l=>({...l})) : [],
     });
@@ -437,12 +438,20 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 ))}
               </div>
-              {/* 2行目: 5列均等グリッド */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(5, 1fr)",gap:8,marginBottom:8}}>
+              {/* 2行目: 6列均等グリッド（v272: 時代を追加。並びはAdd Pieceに合わせる） */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8}}>
                 <div>
                   <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                </div>
+                <div>
+                  {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
+                  <select value={draft.era||"romantic"} onChange={e=>setDraft({...draft,era:e.target.value})}
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}}>
+                    {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
+                  </select>
                 </div>
                 <div>
                   <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
@@ -3814,6 +3823,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       composer: updated.composer,
       key: updated.key||'',
       year: updated.year||0,
+      era: updated.era || eraFromYear(updated.year||0), // v272: 編集画面で選んだ時代を保存
       duration: updated.duration||0,
       durationSecs: updated.durationSecs||0,
       memo: updated.memo||'',
