@@ -3701,6 +3701,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           title: p.title,
           composer: p.composer || '',
           year: p.year || 0,
+          // v274: yearTextはDBに保存された表記をそのまま使う。
+          // 空（v274以前に登録した曲）のときだけ year から復元する。
+          yearText: p.yearText || (p.year ? String(p.year) : ''),
           era: p.era || 'modern',
           duration: p.duration || 5,
           difficulty: p.difficulty || 3,
@@ -3833,6 +3836,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       composer: updated.composer,
       key: updated.key||'',
       year: updated.year||0,
+      "yearText": updated.yearText || '', // v274: 「1815-1820」「不明」等の表記を保存
       era: updated.era || eraFromYear(updated.year||0), // v272: 編集画面で選んだ時代を保存
       duration: updated.duration||0,
       durationSecs: updated.durationSecs||0,
@@ -4068,6 +4072,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       title: piece.title,
       composer: piece.composer || '',
       year: piece.year || null,
+      "yearText": piece.yearText || '', // v274
       era: era,
       duration: piece.duration || 5,
       difficulty: piece.difficulty || 3,
@@ -4082,7 +4087,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     if (!error && data) {
       setPieces(ps => [...ps, {
         id: data.id, title: data.title, composer: data.composer,
-        year: data.year, era: data.era, duration: data.duration,
+        year: data.year, yearText: data.yearText || '', era: data.era, duration: data.duration,
         difficulty: data.difficulty, readiness: data.readiness,
         key: data.key, form: data.form, country: data.country,
         memo: data.memo, fav: false, candidate: false, mine: true,
@@ -4104,6 +4109,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
         title: piece.title,
         composer: piece.composer || '',
         year: piece.year || null,
+        "yearText": piece.yearText || '', // v274
         era: piece.era || era,
         duration: piece.duration || 5,
         difficulty: piece.difficulty || 3,
@@ -4119,7 +4125,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
       if (!error && data) {
         setPieces(ps => [...ps, {
           id: data.id, title: data.title, composer: data.composer,
-          year: data.year, era: data.era, duration: data.duration,
+          year: data.year, yearText: data.yearText || '', era: data.era, duration: data.duration,
           difficulty: data.difficulty, readiness: data.readiness,
           key: data.key, form: data.form, country: data.country,
           memo: data.memo, fav: false, candidate: false, learning: true, mine: true,
