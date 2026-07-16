@@ -924,7 +924,13 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
 
   const onComposerChange = (val) => {
-    setPiece(p=>({...p, composer:val, title:""}));
+    // v279: selectComposerと同じ判断。作曲家を打ち始めただけで曲名を消さない。
+    // 「作曲家→曲名」の順しかなかった時点の前提が、v278で更新された。
+    // 既に確定済み（composerLocked）の作曲家を別のものに打ち替えたときだけクリアする。
+    setPiece(p=>{
+      const changed = composerLocked && p.composer && p.composer !== val;
+      return {...p, composer:val, title: changed ? "" : p.title};
+    });
     setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
