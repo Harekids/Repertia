@@ -920,9 +920,11 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const [durationEdited, setDurationEdited]   = useState(false);
   const [eraEdited, setEraEdited]             = useState(false); // v271: 時代を手で選び直したか（durationEditedと同じ作り）
   const [pendingComposers, setPendingComposers] = useState([]); // v280: AI曲名から入ったときの曖昧候補
+  const [composerDoubt, setComposerDoubt]       = useState(false); // v281: AIが自分の回答を否定したか（！の表示）
   const sugTimer = useRef(null);
   const reqIdComposer = useRef(0); // v264以降未使用（作曲家欄はcomposers参照化）。曲名側reqIdTitleは現役
   const reqIdTitle    = useRef(0); // v150: レース対策（最新の返事だけ採用）
+  const reqIdVerify   = useRef(0); // v281: 照合後の裏取り。レース対策（最新の返事だけ採用）
 
   const onComposerChange = (val) => {
     // v279: selectComposerと同じ判断。作曲家を打ち始めただけで曲名を消さない。
@@ -932,7 +934,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       const changed = composerLocked && p.composer && p.composer !== val;
       return {...p, composer:val, title: changed ? "" : p.title};
     });
-    setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]); setPendingComposers([]);
+    setComposerLocked(false); setSuggestions([]); setComposerSuggestions([]); setPendingComposers([]); setComposerDoubt(false);
     if (sugTimer.current) clearTimeout(sugTimer.current);
     if (!val.trim()) return;
     // v264: AI生成 → composers（293人マスタ）参照に切り替え。
@@ -959,7 +961,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       const changed = composerLocked && p.composer && p.composer !== name;
       return {...p, composer:name, title: changed ? "" : p.title};
     });
-    setComposerSuggestions([]); setComposerLocked(true);
+    setComposerSuggestions([]); setComposerLocked(true); setComposerDoubt(false);
   };
 
   const onTitleChange = (val) => {
@@ -1003,7 +1005,36 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     setComposerLocked(hits.length === 1);
     // 複数ヒットのときだけ候補を出してユーザーに選ばせる。0件は空欄（＝未登録作曲家の材料）。
     setPendingComposers(hits.length > 1 ? hits.map(row => ({ label: row.display, reading: row.reading || "" })) : []);
-    setDurationEdited(false); setEraEdited(false); setSuggestions([]);
+    setDurationEdited(false); setEraEdited(false); setSuggestions([]); setComposerDoubt(false);
+    // v281: 照合が通ったときだけ裏取りする。空欄・候補提示中は確かめる対象がない。
+    if (hits.length === 1) verifyComposer(decided, rest.title || "");
+  };
+
+  // v281: AIの人違いに摩擦を作る。
+  // v280 が守るのは「表記の正しさ」であって「事実の正しさ」ではない。
+  // AIが Holiday Diary を A.Benjamin の曲だと間違えても、A.Benjamin がリストに居れば✓が付く。
+  // そこで、照合が通った直後に AI へ1問だけ聞き直し、AIが自分の回答を否定したら ！ を出す。
+  //
+  // これは判定ではない。AIの答えを採用して作曲家を消したり書き換えたりはしない（それはv269の逆行）。
+  // 出すのは印だけで、直すかどうかはユーザーが決める。
+  // 「いつもと違う挙動になれば、人間もアレ！？となる」— 判定を任せるのではなく、摩擦を作る。
+  const verifyComposer = async (name, title) => {
+    if (!name || !title) return;
+    const myId = ++reqIdVerify.current; // この裏取りの世代番号
+    try {
+      const q = "クラシックピアノの曲「" + title + "」は、作曲家 " + name + " の作品ですか。"
+        + "JSONのみ:{\"match\":true または false}。"
+        + "確信が持てない場合や、別の作曲家の作品である可能性が高い場合は false。";
+      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:200,messages:[{role:"user",content:q}]})});
+      const data = await res.json();
+      if (myId !== reqIdVerify.current) return; // 自分が最新でなければ捨てる
+      const text = data.content.map(b=>b.text||"").join("");
+      try {
+        const parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1));
+        // AIが明示的に false と言ったときだけ！。返事が壊れていたら何もしない（黙って✓のまま）。
+        setComposerDoubt(parsed.match === false);
+      } catch(parseErr){ console.error("verify parse失敗:",parseErr); }
+    } catch(e){ if(myId===reqIdVerify.current) console.error(e); }
   };
 
   // v280: 曖昧ヒット時の候補からユーザーが選んだとき。
@@ -1011,6 +1042,9 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const selectPendingComposer = (name) => {
     setPiece(p=>({...p, composer:name}));
     setPendingComposers([]); setComposerLocked(true);
+    // v281: ここも照合が通った瞬間なので裏取りする（selectSuggestionと対で存在する処理）。
+    setComposerDoubt(false);
+    verifyComposer(name, piece.title || "");
   };
 
   const handleAdd = () => {
@@ -1024,7 +1058,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // v271: 時代は手で選び直したときだけその値を送る。触っていなければ作曲年から補完（durationEditedと同じ考え方）
     onAdd({...piece, year:yearNum, yearText: yt||String(yearNum), era: eraEdited ? piece.era : eraFromYear(yearNum)});
     setPiece(EMPTY_PIECE); setComposerSuggestions([]); setSuggestions([]);
-    setComposerLocked(false); setDurationEdited(false); setEraEdited(false); setPendingComposers([]);
+    setComposerLocked(false); setDurationEdited(false); setEraEdited(false); setPendingComposers([]); setComposerDoubt(false);
   };
 
   const inp2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"7px 10px",fontFamily:FONT,fontSize:14,borderRadius:4,width:"100%",boxSizing:"border-box",...ex});
@@ -1044,8 +1078,9 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
-              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerLocked?"#8BAED4":"#C8CEDB",background:composerLocked?"#F0F5FF":"white",color:"#15233F"}} />
-            {composerLocked && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":(composerLocked?"#8BAED4":"#C8CEDB"),background:composerDoubt?"white":(composerLocked?"#F0F5FF":"white"),color:"#15233F"}} />
+            {composerLocked && !composerDoubt && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
+            {composerDoubt && <span style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#C0392B",fontWeight:500}}>!</span>}
             {pendingComposers.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
                 <div style={{padding:"5px 14px",fontSize:10,color:"#6B7A90",fontFamily:SANS,background:"#F0F4FA",borderBottom:"1px solid #E8ECF2"}}>作曲家を選んでください</div>
@@ -1074,6 +1109,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
               </div>
             )}
           </div>
+          {composerDoubt && <div style={{fontSize:10,color:"#C0392B",marginTop:4,fontFamily:SANS,textAlign:"left"}}>作曲家が違う可能性があります</div>}
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>曲名</div>
