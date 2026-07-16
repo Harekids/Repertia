@@ -951,8 +951,11 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // title:"" は「作曲家→曲名」の順しかなかった時点では正しい設計だった
     // （作曲家が変われば曲も変わるため）。v278で「曲名→作曲家」の順ができ、前提が変わった。
     // 設計意図（A→Bの変更なら曲名は無効）は保ちつつ、空→入力では消さない。
+    // 打鍵中の文字列（例:"Beethoven"）と確定形（例:"L.v.Beethoven"）は必ず違うため、
+    // 文字列比較では確定した瞬間に「変わった」と誤判定する。
+    // onComposerChangeと同じく、確定済み(composerLocked)からの選び直しだけをA→Bとみなす。
     setPiece(p=>{
-      const changed = p.composer && p.composer !== name; // A→B のときだけ true
+      const changed = composerLocked && p.composer && p.composer !== name;
       return {...p, composer:name, title: changed ? "" : p.title};
     });
     setComposerSuggestions([]); setComposerLocked(true);
