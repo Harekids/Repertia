@@ -202,6 +202,27 @@ const eraFromYear = (y) => {
   return "modern";
 };
 
+// v276: メニューを外クリック（とEsc）で閉じる共通フック。
+// 対象はメニューのみ。Add Piece / Search Piece の入力パネルには使わない
+// （v266の方針：入力途中の誤クリックで内容が消えるのを防ぐため、✕かページ移動でのみ閉じる）。
+const useCloseOnOutsideClick = (isOpen, onClose) => {
+  const ref = useRef(null);
+  const cbRef = useRef(onClose);
+  cbRef.current = onClose; // 毎レンダーで最新の閉じる処理を保持（購読を貼り直さないため）
+  useEffect(() => {
+    if (!isOpen) return;
+    const onDown = (e) => { if (ref.current && !ref.current.contains(e.target)) cbRef.current(); };
+    const onKey  = (e) => { if (e.key === "Escape") cbRef.current(); };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen]);
+  return ref;
+};
+
 const DotRating = ({ value, max=5, color }) => (
   <span style={{ letterSpacing:1, fontSize:11 }}>
     {Array.from({length:max}).map((_,i)=>(
@@ -262,6 +283,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const [draft, setDraft] = React.useState({});
   const [eraEditedDraft, setEraEditedDraft] = React.useState(false); // v273: 編集画面で時代を手で選び直したか（handleAddのeraEditedと同じ作り）
   const [menuOpen, setMenuOpen] = React.useState(false); // v176: ⋯メニュー（PieceCardUnified内）
+  const menuRef = useCloseOnOutsideClick(menuOpen, () => setMenuOpen(false)); // v276
   React.useEffect(() => { if (!expanded) setMenuOpen(false); }, [expanded]);
 
   React.useEffect(() => {
@@ -420,7 +442,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
               </div>
               {/* ⋯メニュー：展開時の右下 */}
-              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}}>
+              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}} ref={menuRef}>
                 <button onClick={e=>{e.stopPropagation();setMenuOpen(!menuOpen);}}
                   title="メニュー"
                   style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",padding:"0 6px",lineHeight:1}}>⋯</button>
@@ -1142,6 +1164,7 @@ const PrintPage = (props) => {
   const [bioCheck, setBioCheck] = useState({ basic:true, education:true, teacher:true });
   const [showBioPanel, setShowBioPanel] = useState(false);
   const [hamPfOpen, setHamPfOpen] = useState(false); // v196: Portfolioの三線メニュー
+  const hamPfRef = useCloseOnOutsideClick(hamPfOpen, () => setHamPfOpen(false)); // v276
   const [scratchDragId, setScratchDragId] = useState(null);
   const [scratchOverId, setScratchOverId] = useState(null);
   const onScratchDragEnd = () => {
@@ -1381,7 +1404,7 @@ const PrintPage = (props) => {
                 <span>Biography</span>
                 <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
               </div>
-              <div style={{position:"relative"}}>
+              <div style={{position:"relative"}} ref={hamPfRef}>
                 <button onClick={()=>setHamPfOpen(v=>!v)}
                   title="メニュー"
                   style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
@@ -1748,6 +1771,7 @@ const PrintPage = (props) => {
 const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[]}) => {
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
+  const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
   return (
     <div style={{background:"transparent",flexShrink:0}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap"}}>
@@ -1777,7 +1801,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
           <span style={{fontSize:16,lineHeight:1}}>♪</span>
         </button>
-        <div style={{position:"relative",flexShrink:0}}>
+        <div style={{position:"relative",flexShrink:0}} ref={hamRef}>
           <button onClick={()=>setHamOpen(v=>!v)}
             title="メニュー"
             style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
@@ -2315,6 +2339,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     return () => clearTimeout(t);
   }, [evSearch]);
   const [hamEvOpen, setHamEvOpen]      = useState(false); // v196: Eventsの三線メニュー
+  const hamEvRef = useCloseOnOutsideClick(hamEvOpen, () => setHamEvOpen(false)); // v276
   const [evTypeFilter, setEvTypeFilter] = useState("");
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState(null);
@@ -2482,7 +2507,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
         {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
       </select>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginRight:4}}>{docSaveMsg}</span>}
-      <div style={{position:"relative",flexShrink:0}}>
+      <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
         <button onClick={()=>setHamEvOpen(v=>!v)}
           title="メニュー"
           style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
