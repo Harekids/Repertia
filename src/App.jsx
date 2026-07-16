@@ -260,6 +260,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const mainTxt = isAI ? txtColor : (expanded ? mainTxtExpanded : txtColor);
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
+  const [eraEditedDraft, setEraEditedDraft] = React.useState(false); // v273: 編集画面で時代を手で選び直したか（handleAddのeraEditedと同じ作り）
   const [menuOpen, setMenuOpen] = React.useState(false); // v176: ⋯メニュー（PieceCardUnified内）
   React.useEffect(() => { if (!expanded) setMenuOpen(false); }, [expanded]);
 
@@ -276,11 +277,20 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
       memo:p.memo||"", keywords:p.keywords||"",
       links: Array.isArray(p.links) ? p.links.map(l=>({...l})) : [],
     });
+    setEraEditedDraft(false); // v273: 編集を開くたびに未編集から
     setEditing(true);
   };
   const saveEdit = (e) => {
     e.stopPropagation();
-    if (onUpdatePiece) onUpdatePiece({...p,...draft});
+    // v273: yearText → year の変換（不明・範囲対応）。handleAddと同じ実装
+    let yearNum = p.year;
+    const yt = (draft.yearText||"").trim();
+    if (yt === "不明") yearNum = 0;
+    else if (/^\d{4}-\d{4}$/.test(yt)) yearNum = parseInt(yt.split("-")[0]);
+    else if (/^\d{4}$/.test(yt)) yearNum = parseInt(yt);
+    // v273: 時代は手で選び直したときだけその値を使う。触っていなければ作曲年から補完（handleAddと同じ考え方）
+    const eraVal = eraEditedDraft ? draft.era : eraFromYear(yearNum);
+    if (onUpdatePiece) onUpdatePiece({...p, ...draft, year:yearNum, yearText: yt||String(yearNum), era: eraVal});
     setEditing(false);
   };
   const cancelEditFn = (e) => { e.stopPropagation(); setEditing(false); };
@@ -448,7 +458,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
                   <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
-                  <select value={draft.era||"romantic"} onChange={e=>setDraft({...draft,era:e.target.value})}
+                  <select value={draft.era||"romantic"} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}}>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
