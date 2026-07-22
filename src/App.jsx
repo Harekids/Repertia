@@ -2277,6 +2277,7 @@ const ManagePage = (props) => {
                     onUpdatePiece={onUpdatePiece}
                     learningIds={learningIds}
                     eventsForPiece={findEventsForPiece(p.id)}
+                    onDeletePiece={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));setLearningIds(prev=>prev.filter(x=>x!==p.id));setExpandedId(null);await supabase.from('pieces').delete().eq('id',p.id);}}
                   />
                   {editMode && expandedId===p.id && (
                     <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
