@@ -2276,6 +2276,7 @@ const ManagePage = (props) => {
                     showControls={true}
                     onUpdatePiece={onUpdatePiece}
                     learningIds={learningIds}
+                    eventsForPiece={findEventsForPiece(p.id)}
                   />
                   {editMode && expandedId===p.id && (
                     <div style={{padding:"4px 12px 8px",background:"#15233F"}}>
@@ -4345,9 +4346,16 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
   // ★ ステップ4：イベントをHistoryに登録（弾いた曲に⭐️・Pop.+1・銀→金）
   const registerEventToHistory = async (ev) => {
     if (!ev || ev.in_history) return;
-    // b) 紐づく曲を特定（programId → pieceIds → 曲）※先に出す
+    // b) 紐づく曲を特定。programId経由（パンセット）＋ v282新導線（items[].pieceId）の両方を集める。
+    //    v283-B: 新導線でつけた曲もHistoryスナップショットに実体保存する（記録を守る）。
     const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
-    const songIds = pg ? (pg.pieceIds||[]) : [];
+    const progIds = pg ? (pg.pieceIds||[]) : [];
+    const itemIds = Array.isArray(ev.items) ? ev.items.map(it=>it&&it.pieceId).filter(Boolean) : [];
+    // 重複除去（同じ曲がプログラムと単品の両方にある場合、スナップショットは1つ）
+    const songIds = [];
+    for (const sid of [...progIds, ...itemIds]) {
+      if (!songIds.some(x=>String(x)===String(sid))) songIds.push(sid);
+    }
     // ★スナップショット：曲の情報をコピーして固定（参照でなく実体を保存）
     const snapshot = songIds.map(sid => {
       const p = pieces.find(x=>String(x.id)===String(sid));
@@ -4361,15 +4369,9 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true, historyItems: snapshot} : e);
     setEvents(nextEvents);
     saveEvents(nextEvents);
-    // c) 各曲に ⭐️・Pop.+1・銀→金
-    for (const sid of songIds) {
-      const piece = pieces.find(x=>String(x.id)===String(sid));
-      if (!piece) continue;
-      const newPop = (piece.pop||0) + 1;
-      setPieces(ps=>ps.map(x=>x.id===piece.id?{...x, star:true, pop:newPop, learning:false}:x));
-      setLearningIds(prev=>prev.filter(x=>x!==piece.id));
-      await supabase.from('pieces').update({is_star:true, pop:newPop, is_learning:false}).eq('id', piece.id);
-    }
+    // v283-B: 銀→金・Pop.+1 の自動発火はしない（企画判断）。
+    //   History登録は「弾いた記録の保存」だけ。金にするかは本人の手動判断に委ねる。
+    //   「弾いた事実の記録」と「金にする決断」は別のこととして扱う。
     // d) トースト通知
     setEventsSaveMsg("History に登録しました ✓");
     setTimeout(() => setEventsSaveMsg(""), 3000);
