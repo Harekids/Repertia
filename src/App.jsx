@@ -2085,6 +2085,9 @@ const ManagePage = (props) => {
     const pid = String(pieceId);
     return (events||[]).filter(ev => {
       if (Array.isArray(ev.historyItems) && ev.historyItems.some(s => String(s.id)===pid)) return true;
+      // v282: 新導線でつけた単品（items[].pieceId）も逆引きの照合対象にする。
+      // これで曲削除時の「このイベントで使用中」警告と、曲からの演奏履歴逆引きが単品でも効く。
+      if (Array.isArray(ev.items) && ev.items.some(it => it && String(it.pieceId)===pid)) return true;
       if (ev.programId) {
         const pg = (programs||[]).find(p => String(p.id)===String(ev.programId));
         if (pg && (pg.pieceIds||[]).some(id => String(id)===pid)) return true;
@@ -2438,6 +2441,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
   const [evSearch, setEvSearch]        = useState("");
   const [evSearchDebounced, setEvSearchDebounced] = useState(""); // 検索に使う値（入力が落ち着いてから追従）
+  // v282: イベントへの曲づけをRP/LPインポート（pieceId参照）に一本化。
+  // 手入力（経路B=死んだ文字列）を廃止。曲を選ぶピッカーの開閉と絞り込み検索。
+  const [pickerOpen, setPickerOpen]    = useState(false);
+  const [pickerQuery, setPickerQuery]  = useState("");
   const evComposingRef = React.useRef(false); // 日本語変換中フラグ
   React.useEffect(() => {
     // 変換中は待つ。入力が止まって300msで検索値を更新
@@ -2498,8 +2505,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     setEvents(prev=>prev.filter(e=>e.id!==id)); setSelectedEvent(null);
   };
 
-  const addItem = (kind="piece") =>
-    setNewEvent(ev=>({...ev,items:[...ev.items,{id:Date.now(),kind,performer:"",pieceTitle:"",duration:""}]}));
+  // v282: RP/LPの曲をID参照で追加する。文字列（composer/pieceTitle）は持たせない。
+  // pieceId が逆引き（findEventsForPiece）の照合キーになる。performer だけイベント固有情報として残す。
+  const addPieceItem = (pieceId) =>
+    setNewEvent(ev=>({...ev,items:[...ev.items,{id:Date.now(),kind:"piece",pieceId,performer:""}]}));
   const updateItem = (id,patch) =>
     setNewEvent(ev=>({...ev,items:ev.items.map(it=>it.id===id?{...it,...patch}:it)}));
   const removeItem = (id) =>
@@ -2542,14 +2551,21 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
         {ev.items&&ev.items.length>0 && (
           <div>
             <div style={{color:"#94A3BE",marginBottom:3}}>曲目：</div>
-            {ev.items.map((it,idx)=>(
+            {ev.items.map((it,idx)=>{
+              // v282: pieceId から曲を解決して表示。旧データ（pieceTitle文字列）も後方互換で拾う。
+              const pc = it.pieceId ? (allPool||[]).find(x=>String(x.id)===String(it.pieceId)) : null;
+              const shownTitle = pc ? pc.title : (it.pieceTitle||"");
+              const shownComposer = pc ? pc.composer : (it.composer||"");
+              const shownDur = pc ? (pc.duration?pc.duration+"分":"") : (it.duration||"");
+              return (
               <div key={it.id} style={{paddingLeft:8,marginBottom:2,fontSize:11}}>
                 {it.kind==="break"
                   ? <span style={{color:"#94A3BE",fontStyle:"italic"}}>― 休憩 ―</span>
-                  : <span>{idx+1}. {it.performer&&<span style={{color:"#94A3BE"}}>{it.performer}　</span>}{it.pieceTitle}{it.duration&&<span style={{color:"#94A3BE"}}>　{it.duration}</span>}</span>
+                  : <span>{idx+1}. {it.performer&&<span style={{color:"#94A3BE"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#7A8FB5"}}>{shownComposer} </span>}{shownTitle}{shownDur&&<span style={{color:"#94A3BE"}}>　{shownDur}</span>}</span>
                 }
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
         {ev.in_history && Array.isArray(ev.historyItems) && ev.historyItems.length>0 && (
@@ -2885,7 +2901,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             {true && (<React.Fragment>
             <div style={{marginTop:16,marginBottom:8}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>プログラム</div>
-              {newEvent.items.map((it,idx)=>(
+              {newEvent.items.map((it,idx)=>{
+                // v282: pieceId から RP/LP の曲を引く。曲名・作曲家・時間は曲側が持つ（表示専用）。
+                const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
+                return (
                 <div key={it.id} draggable
                   onDragStart={()=>setDragItemId(it.id)}
                   onDragEnter={()=>setDragOverId(it.id)}
@@ -2896,17 +2915,65 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                     border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px",cursor:"grab"}}>
                   <span style={{color:"#2A3F6A",fontSize:12,flexShrink:0}}>⣿</span>
                   <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
-                  {/* ⑥ 作曲・曲目・時間・演奏者 の順に */}
-                  <input value={it.composer||""} onChange={e=>updateItem(it.id,{composer:e.target.value})} placeholder="例:F.Chopin" style={{...inpE,flex:"0 0 90px"}}/>
-                  <input value={it.pieceTitle} onChange={e=>updateItem(it.id,{pieceTitle:e.target.value})} placeholder="曲目" style={{...inpE,flex:1}}/>
-                  <input value={it.duration} onChange={e=>updateItem(it.id,{duration:e.target.value})} placeholder="時間" style={{...inpE,flex:"0 0 48px"}}/>
-                  <input value={it.performer} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
+                  {pc ? (
+                    <React.Fragment>
+                      <span style={{flex:"0 0 90px",fontSize:11,color:"#15233F",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pc.composer}</span>
+                      <span style={{flex:1,fontSize:11,color:"#15233F",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pc.title}</span>
+                      <span style={{flex:"0 0 48px",fontSize:11,color:"#7A8FB5",fontFamily:SANS}}>{pc.duration?pc.duration+"分":"—"}</span>
+                    </React.Fragment>
+                  ) : (
+                    // 参照先の曲が見つからない（削除された等）。IDは残すが赤字で警告。
+                    <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:SANS}}>曲が見つかりません（削除された可能性）</span>
+                  )}
+                  <input value={it.performer||""} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
                   <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
                 </div>
-              ))}
-              {/* ⑤ 休憩ボタン削除 */}
-              <button onClick={()=>addItem("piece")} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>＋ 曲を追加</button>
+                );
+              })}
+              {/* v282: 手入力欄を廃止。RP/LPから選ぶピッカーを開く */}
+              <button onClick={()=>{setPickerQuery("");setPickerOpen(true);}} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>＋ 曲を追加</button>
+              <div style={{fontSize:10,color:"#7A8FB5",fontFamily:SANS,marginTop:6,lineHeight:1.5}}>Repertoire / Learning の曲から選びます。一覧にない曲は Library の「Add Piece」で登録してから選んでください。</div>
             </div>
+            {/* v282: 曲ピッカー。RP/LPの曲を絞り込んで選ぶ。選ぶとpieceId参照で追加される */}
+            {pickerOpen && (
+              <div onClick={()=>setPickerOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,16,30,0.55)",zIndex:200,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:70}}>
+                <div onClick={e=>e.stopPropagation()} style={{background:"#0F1B30",border:"1px solid #2A3F6A",borderRadius:10,width:520,maxWidth:"92vw",maxHeight:"70vh",display:"flex",flexDirection:"column",boxShadow:"0 12px 40px rgba(0,0,0,0.5)"}}>
+                  <div style={{padding:"14px 16px 10px",borderBottom:"1px solid #1E2A45"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                      <span style={{fontSize:12,letterSpacing:1,color:"#EDE6D6",fontFamily:SANS}}>曲を選ぶ（Repertoire / Learning）</span>
+                      <button onClick={()=>setPickerOpen(false)} style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",lineHeight:1}}>×</button>
+                    </div>
+                    <input autoFocus value={pickerQuery} onChange={e=>setPickerQuery(e.target.value)} placeholder="作曲家名・曲名で絞り込み" style={{width:"100%",boxSizing:"border-box",background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"7px 10px",fontSize:13,borderRadius:5,fontFamily:SANS}}/>
+                  </div>
+                  <div style={{overflowY:"auto",padding:"6px 0"}}>
+                    {(() => {
+                      const q = pickerQuery.trim().toLowerCase();
+                      const list = (allPool||[]).filter(p=>{
+                        if (!q) return true;
+                        return (String(p.composer||"")+" "+String(p.title||"")).toLowerCase().includes(q);
+                      });
+                      if (list.length===0) return (
+                        <div style={{padding:"18px 16px",fontSize:12,color:"#7A8FB5",fontFamily:SANS,textAlign:"center"}}>該当する曲がありません。Library の「Add Piece」で登録してください。</div>
+                      );
+                      return list.map(p=>{
+                        const isLP = Array.isArray(learningIds) && learningIds.some(id=>String(id)===String(p.id));
+                        return (
+                          <div key={p.id} onClick={()=>{addPieceItem(p.id);setPickerOpen(false);}}
+                            style={{display:"flex",alignItems:"baseline",gap:8,padding:"8px 16px",cursor:"pointer",borderBottom:"1px solid #16233b"}}
+                            onMouseEnter={e=>e.currentTarget.style.background="#16233b"}
+                            onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                            <span style={{flex:"0 0 90px",fontSize:11,color:"#B9C6DC",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
+                            <span style={{flex:1,fontSize:12,color:"#EDE6D6",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</span>
+                            <span style={{flex:"0 0 auto",fontSize:9,color:isLP?"#8FA3C0":"#C8A860",fontFamily:SANS,letterSpacing:0.5}}>{isLP?"LP":"RP"}</span>
+                            <span style={{flex:"0 0 34px",fontSize:11,color:"#7A8FB5",fontFamily:SANS,textAlign:"right"}}>{p.duration?p.duration+"分":""}</span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
             </React.Fragment>)}
 
             <div style={{marginTop:16,marginBottom:14}}>
