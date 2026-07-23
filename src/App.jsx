@@ -2438,7 +2438,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const EMPTY_EVENT = {
     date:"", type:"recital", title:"", organizer:"", venue:"",
     openTime:"", startTime:"", contact:"", otherLabel:"",
-    items:[], notes:"", videoUrl:"", posterUrl:"", programId:"",
+    items:[], notes:"", videoUrl:"", posterUrl:"",
   };
 
   const [evSearch, setEvSearch]        = useState("");
@@ -2485,19 +2485,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
     setEvents(nextEvents);
     saveEvents(nextEvents);
 
-    // ★紐付けたプログラムの「白い曲」をDBに本登録してLearning入り
-    if (newEvent.programId) {
-      const pg = (programs||[]).find(p=>String(p.id)===String(newEvent.programId));
-      if (pg) {
-        const whiteIds = (pg.pieceIds||[]).filter(id=>!(pieces||[]).find(x=>String(x.id)===String(id)));
-        if (whiteIds.length>0) {
-          const whitePieces = whiteIds.map(id=>(allPool||[]).find(x=>String(x.id)===String(id))).filter(Boolean);
-          if (whitePieces.length>0 && addPiecesFromProgram) {
-            addPiecesFromProgram(whitePieces);
-          }
-        }
-      }
-    }
+    // v284: プログラム経由（programId）の「白い曲」本登録を廃止。
+    //   新導線ではRP/LPに既に存在する曲だけをID参照で選ぶため、白い曲が発生しない。
+    //   ※読み取り側（逆引き2091・History登録4352）は③まで両対応のまま残す。
 
     setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT);
   };
