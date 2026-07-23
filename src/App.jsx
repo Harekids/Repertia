@@ -2082,10 +2082,7 @@ const ManagePage = (props) => {
       // v282: 新導線でつけた単品（items[].pieceId）も逆引きの照合対象にする。
       // これで曲削除時の「このイベントで使用中」警告と、曲からの演奏履歴逆引きが単品でも効く。
       if (Array.isArray(ev.items) && ev.items.some(it => it && String(it.pieceId)===pid)) return true;
-      if (ev.programId) {
-        const pg = (programs||[]).find(p => String(p.id)===String(ev.programId));
-        if (pg && (pg.pieceIds||[]).some(id => String(id)===pid)) return true;
-      }
+      // v286(③-2): programId経由の逆引きを廃止（Atelierは別アプリへ分離）。
       return false;
     }).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   };
@@ -2564,21 +2561,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
             ))}
           </div>
         )}
-        {!ev.in_history && ev.programId && (() => {
-          const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
-          if(!pg) return null;
-          const songs = (pg.pieceIds||[]).map(id=>(allPool||[]).find(x=>x.id===id)).filter(Boolean);
-          return (
-            <div style={{marginTop:6}}>
-              <div style={{color:"#94A3BE",marginBottom:3}}>プログラム：{pg.name||"無題"}</div>
-              {songs.map((s,i)=>(
-                <div key={s.id} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
-                  {(i+1)+". "+s.composer+" / "+s.title}
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        {/* v286(③-2): programId経由のプログラム内容表示を廃止（Atelierは別アプリへ分離）。 */}
         {ev.date <= today && !ev.in_history && (
           <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
             style={{marginTop:8,background:"#7A1F2B",border:"1px solid #C0556A",color:"#F4D4DA",
@@ -4328,17 +4311,14 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
     }
   };
 
-  // ★ ステップ4：イベントをHistoryに登録（弾いた曲に⭐️・Pop.+1・銀→金）
+  // ★ ステップ4：イベントをHistoryに登録（弾いた記録をスナップショットで保存）
+  //    v283-B: 銀→金・Pop.+1 の自動発火はしない。記録の保存だけ行う。
   const registerEventToHistory = async (ev) => {
     if (!ev || ev.in_history) return;
-    // b) 紐づく曲を特定。programId経由（パンセット）＋ v282新導線（items[].pieceId）の両方を集める。
-    //    v283-B: 新導線でつけた曲もHistoryスナップショットに実体保存する（記録を守る）。
-    const pg = (programs||[]).find(p=>String(p.id)===String(ev.programId));
-    const progIds = pg ? (pg.pieceIds||[]) : [];
-    const itemIds = Array.isArray(ev.items) ? ev.items.map(it=>it&&it.pieceId).filter(Boolean) : [];
-    // 重複除去（同じ曲がプログラムと単品の両方にある場合、スナップショットは1つ）
+    // b) 紐づく曲を特定。v286(③-2)以降は新導線（items[].pieceId）のみ。
     const songIds = [];
-    for (const sid of [...progIds, ...itemIds]) {
+    const itemIds = Array.isArray(ev.items) ? ev.items.map(it=>it&&it.pieceId).filter(Boolean) : [];
+    for (const sid of itemIds) {
       if (!songIds.some(x=>String(x)===String(sid))) songIds.push(sid);
     }
     // ★スナップショット：曲の情報をコピーして固定（参照でなく実体を保存）
