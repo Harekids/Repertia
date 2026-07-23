@@ -94,7 +94,6 @@ const SAMPLE_PIECES = [
 
 const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"romantic", fav:false, candidate:false };
 
-const EMPTY_PROGRAM = (id) => ({ id, name:"新しいプログラム", maxDuration:40, maxPieces:999, pieceIds:[], intervalSecs:30 });
 
 // ── Multilingual Search Aliases ───────────────────────────────────────────────
 const SEARCH_ALIASES = {
@@ -2018,9 +2017,9 @@ const ManagePage = (props) => {
   const {durMin, setDurMin, durMax, setDurMax} = props;
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
-  const {aiPieces, setAiPieces, aiLoading, askAILearning, toggle, canAdd, prog} = props;
+  const {aiPieces, setAiPieces, aiLoading, askAILearning} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
-  const {events=[], programs=[]} = props; // 逆引き用（この曲どのイベントで弾いた？）
+  const {events=[]} = props; // 逆引き用（この曲どのイベントで弾いた？）
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
   const [repDocIds, setRepDocIds] = useState([]);
   const [showLearnSearch, setShowLearnSearch] = useState(false); // Learning検索パネルの開閉（普段は閉じ）
@@ -2074,7 +2073,7 @@ const ManagePage = (props) => {
     setComposerFilter(name); setSugComposers([]);
   };
   // 逆引き：この曲(pieceId)が使われたイベントを返す
-  // 過去=historyItems(スナップショット)のid照合／未来=programId→pieceIds照合
+  // 過去=historyItems(スナップショット)のid照合／未来=items[].pieceId照合
   const findEventsForPiece = (pieceId) => {
     const pid = String(pieceId);
     return (events||[]).filter(ev => {
@@ -2409,7 +2408,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, programs, savedPrograms, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const [eventsTab, setEventsTab] = useState("history"); // v222: History先・Upcoming後（確定した歴史が主役）
@@ -2518,7 +2517,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:SANS,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
   // ── Event detail card ──
-  const EventDetail = ({ev, compact=false, programs, allPool}) => {
+  const EventDetail = ({ev, compact=false, allPool}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
       <div style={{borderTop:"1px solid #15233F",paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:SANS,display:"flex",flexDirection:"column",gap:5}}>
@@ -2676,7 +2675,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                       {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:SANS}}>{ev.title}</span>}
                       {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{ev.venue}</span>}
                     </div>
-                    {isSelected && <EventDetail ev={ev} programs={savedPrograms} allPool={allPool}/>}
+                    {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
                   </div>
                 </div>
               );
@@ -2707,7 +2706,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
               </div>
               {isSelected && (
                 <div style={{padding:"0 14px 12px"}}>
-                  <EventDetail ev={ev} programs={savedPrograms} allPool={allPool}/>
+                  <EventDetail ev={ev} allPool={allPool}/>
                 </div>
               )}
             </div>
@@ -2845,18 +2844,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
                     <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="14:00" style={inpE}/></div>
                   </div>
-                  {false && (
-                  <div style={{marginBottom:12}}>
-                    <label style={{display:"block",fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:4}}>プログラム（任意）</label>
-                    <select value={newEvent.programId||""} onChange={e=>setNewEvent({...newEvent,programId:e.target.value})}
-                      style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"8px 10px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
-                      <option value="">― プログラムを選ぶ ―</option>
-                      {(savedPrograms||[]).map(pg=>(
-                        <option key={pg.id} value={pg.id}>{pg.name||"無題"}（{(pg.pieceIds||[]).filter(id=>(allPool||[]).find(x=>String(x.id)===String(id))).length}曲）</option>
-                      ))}
-                    </select>
-                  </div>
-                  )}
                   <div>
                     <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:SANS}}>備考</div>
                     <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
@@ -2996,503 +2983,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, toggle, onDragEnd, prog, pro
 
 // ── HomePage (top-level) ────────────────────────
 
-const HomePage = (props) => {
-  const {prog, updateProg, programs, activeProgramId, setActiveProgramId} = props;
-  const {documents, setDocuments, saveDocuments} = props;
-  const {docSaveMsg, setDocSaveMsg} = props;
-  const {editingProgramId, setEditingProgramId, editingName, setEditingName} = props;
-  const {setPrograms, addProgram, deleteProgram} = props;
-  const {programPieces, totalDuration, remaining} = props;
-  const {toggle, toggleFav, toggleCandidate, dragId, dragOver, onDragEnd} = props;
-  const {poolMode, setPoolMode} = props;
-  const {composerFilter, setComposerFilter, titleFilter, setTitleFilter} = props;
-  const {eraFilter, setEraFilter, yearMin, setYearMin, yearMax, setYearMax} = props;
-  const {durMin, setDurMin, durMax, setDurMax} = props;
-  const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
-  const {freqMin, setFreqMin, freqMax, setFreqMax} = props;
-  const {kwFilter, setKwFilter, showFavOnly, setShowFavOnly} = props;
-  const {localSortBy, setLocalSortBy, localSortAsc, setLocalSortAsc} = props;
-  const {learningIds, setLearningIds, pieces, setPieces} = props;
-  const {canAdd, aiPieces, setAiPieces, aiLoading, askAI, addPiecesFromProgram} = props;
-  const {allPool, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, sel} = props;
-  const {savePrograms, programsSaveMsg, isDirty} = props;
-  const [progDocIds, setProgDocIds] = useState([]);
-  const [showProgDocPanel, setShowProgDocPanel] = useState(false);
-  const [progExpandId, setProgExpandId] = useState(null); // v171fix: プログラム左カードの展開（1曲だけ）HomePage内で定義
-  // ── Local state for detail filter ──
-  // filter states moved to App
-
-  // ── Filtered pool ──
-  const filterPieces = (pool) => pool
-    .filter(p => !composerFilter || p.composer.includes(composerFilter))
-    .filter(p => !titleFilter    || p.title.includes(titleFilter))
-    .filter(p => !eraFilter      || p.era===eraFilter)
-    .filter(p => !yearMin        || (p.year||0) >= +yearMin)
-    .filter(p => !yearMax        || (p.year||0) <= +yearMax)
-    .filter(p => !durMin         || p.duration >= +durMin)
-    .filter(p => !durMax         || p.duration <= +durMax)
-    .filter(p => (!diffMin || p.difficulty >= diffMin) && (!diffMax || p.difficulty <= diffMax))
-    .filter(p => (!freqMin || (p.frequency||0) >= freqMin) && (!freqMax || (p.frequency||0) <= freqMax))
-    .filter(p => !kwFilter       || (p.keywords||"").includes(kwFilter))
-    .filter(p => !showFavOnly    || p.candidate);
-
-  const sortPool = (pool) => {
-    if (!localSortBy) return pool;
-    return [...pool].sort((a,b)=>{
-      let d=0;
-      if      (localSortBy==="year")       d=(a.year||0)-(b.year||0);
-      else if (localSortBy==="duration")   d=a.duration-b.duration;
-      else if (localSortBy==="difficulty") d=a.difficulty-b.difficulty;
-      else if (localSortBy==="frequency")  d=(a.frequency||0)-(b.frequency||0);
-      else if (localSortBy==="rarity")     d=(a.rarity||0)-(b.rarity||0);
-      else if (localSortBy==="era")        d=ERA_ORDER.indexOf(a.era)-ERA_ORDER.indexOf(b.era);
-      return localSortAsc?d:-d;
-    });
-  };
-
-  const myPool  = sortPool(filterPieces(pieces));
-  const aiPool  = sortPool(filterPieces(
-    aiPieces.filter(a=>!pieces.find(p=>p.id===a.id))
-            .filter(a=>!pieces.some(p=>p.title===a.title && p.composer===a.composer))
-  ));
-  const showMy  = poolMode==="repertoire";
-  const showAI  = poolMode==="ai";
-
-  const inp2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"4px 7px",fontFamily:SANS,fontSize:11,borderRadius:4,boxSizing:"border-box",...ex});
-  const sel2 = (ex={}) => ({background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"4px 6px",fontFamily:SANS,fontSize:11,borderRadius:4,...ex});
-
-  // ── Program Piece Card (compact) ──
-  const ProgPieceCard = ({p, isAI=false}) => {
-    const era = ERAS[p.era]||ERAS.modern;
-    const inProg = prog.pieceIds.includes(p.id);
-    return (
-      <div style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
-        background:inProg?"#F5F0E6":"white",
-        border:"1px solid "+(inProg?era.color+"66":"#1E2A45"),
-        borderLeft:"3px solid "+era.color,
-        borderRadius:5,opacity:inProg?0.65:1,transition:"opacity 0.15s"}}>
-        {/* ⑤ ✧無色 → クリックで✦ゴールド（MY only） */}
-        <span
-          onClick={e=>{ if(!isAI){ e.stopPropagation(); toggleCandidate(p.id); }}}
-          title={isAI?"AI提案":(p.candidate?"お気に入り解除":"お気に入りに追加")}
-          style={{fontSize:12,color:isAI?"#B0B0B8":p.candidate?"#C8963C":"#C8C0B0",
-            flexShrink:0,fontWeight:"bold",cursor:isAI?"default":"pointer",
-            transition:"color 0.15s"}}>
-          {isAI?"✧":p.candidate?"✦":"✧"}
-        </span>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-
-            {p.title}
-          </div>
-          <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
-        </div>
-        {isAI
-          ? <button onClick={async()=>{
-                if (pieces.some(x => x.title===p.title && x.composer===p.composer)) {
-                  if(setAiPieces) setAiPieces(prev=>prev.filter(x=>x.id!==p.id));
-                  return;
-                }
-                if(addPiecesFromProgram){
-                  await addPiecesFromProgram([p], {silent:true});
-                  if(setAiPieces) setAiPieces(prev=>prev.filter(x=>x.id!==p.id));
-                }
-              }}
-              title="Learningに登録（銀にして棚へ）"
-              style={{background:"#0F1A33",border:"1px solid #C8A860",color:"#E8D090",
-                padding:"4px 8px",borderRadius:4,cursor:"pointer",fontSize:10,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
-              ＋Learning
-            </button>
-          : inProg
-          ? <button onClick={()=>toggle(p.id)}
-              style={{background:"#FFF0EE",border:"1px solid #E8C0B0",color:"#A04030",width:20,height:20,borderRadius:"50%",cursor:"pointer",fontSize:11,flexShrink:0}}>×</button>
-          : <button onClick={()=>toggle(p.id)} disabled={!canAdd(p)}
-              style={{background:canAdd(p)?"#0F1A33":"#1E2A45",border:"none",color:canAdd(p)?"#E8D090":"#4A5A7A",width:20,height:20,borderRadius:"50%",cursor:canAdd(p)?"pointer":"not-allowed",fontSize:15,lineHeight:"20px",textAlign:"center",flexShrink:0}}>+</button>
-        }
-      </div>
-    );
-  };
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
-
-      {/* 2-column main area */}
-      <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-
-        {/* ── LEFT: 設定 + タイムライン ── */}
-        <div style={{width:"50%",minWidth:260,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-          {/* プログラム選択（左カラム先頭・はみ出さない） */}
-          <div style={{background:"transparent",borderBottom:"1px solid #1E2A45",padding:"8px 12px",display:"flex",alignItems:"center",gap:6,flexShrink:0,flexWrap:"wrap"}}>
-            {editingProgramId===activeProgramId
-              ? <input value={editingName} onChange={e=>setEditingName(e.target.value)}
-                  onBlur={()=>{setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}
-                  onKeyDown={e=>{if(e.key==="Enter"){setPrograms(ps=>ps.map(x=>x.id===activeProgramId?{...x,name:editingName}:x));setEditingProgramId(null);}}}
-                  autoFocus style={{background:"white",border:"1px solid #C8A860",color:"#15233F",padding:"5px 8px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120}} />
-              : <select value={activeProgramId} onChange={e=>{
-                  if (editingProgramId !== null) { setPrograms(ps=>ps.map(x=>x.id===editingProgramId?{...x,name:editingName}:x)); setEditingProgramId(null); }
-                  setActiveProgramId(Number(e.target.value));
-                }}
-                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 10px",fontSize:13,fontFamily:SANS,borderRadius:4,flex:1,minWidth:120,cursor:"pointer"}}>
-                  {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-            }
-            {editingProgramId!==activeProgramId &&
-              <button onClick={()=>{setEditingProgramId(activeProgramId);setEditingName(prog.name);}}
-                title="名前を変更"
-                style={{background:"white",border:"1px solid #C8CEDB",color:"#6B7A90",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>✏️</button>}
-            {programs.length>1 &&
-              <button onClick={()=>deleteProgram(activeProgramId)}
-                title="このプログラムを削除"
-                style={{background:"white",border:"1px solid #D8A0A8",color:"#B05060",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 9px",borderRadius:4,flexShrink:0}}>×</button>}
-            <button onClick={addProgram} style={{background:"none",border:"1px dashed #B0A890",color:"#7A7058",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:"5px 12px",borderRadius:4,whiteSpace:"nowrap",flexShrink:0}}>＋ 新規</button>
-          </div>
-
-          {/* 左上: プログラム設定 */}
-          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-            <div style={{fontSize:9,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>プログラム設定</div>
-            <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-              <div style={{display:"flex",alignItems:"center",gap:4}}>
-                <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>合計</span>
-                <input type="number" min={1} value={prog.maxDuration} onChange={e=>updateProg({maxDuration:Math.max(1,+e.target.value)})}
-                  style={{width:44,background:"#15233F",border:"1px solid #2A3F6A",color:"#EDE6D6",fontSize:12,fontFamily:FONT,textAlign:"center",padding:"3px 4px",borderRadius:4}} />
-                <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>分</span>
-              </div>
-              <div style={{width:1,height:16,background:"#1E2A45"}}/>
-              <div style={{display:"flex",alignItems:"center",gap:4}}>
-                <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>曲数</span>
-                <select value={prog.maxPieces===999?"unlimited":String(prog.maxPieces)} onChange={e=>updateProg({maxPieces:e.target.value==="unlimited"?999:Math.max(0,+e.target.value)})}
-                  style={{background:"#15233F",border:"1px solid #2A3F6A",color:"#EDE6D6",fontSize:11,fontFamily:SANS,padding:"3px 5px",borderRadius:4}}>
-                  <option value="unlimited">制限なし</option>
-                  {[...Array(21)].map((_,i)=><option key={i} value={i}>{i}</option>)}
-                </select>
-              </div>
-              <div style={{width:1,height:16,background:"#1E2A45"}}/>
-              <button style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"3px 10px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4}}>
-                ＋ 曲間を追加
-              </button>
-            </div>
-          </div>
-
-          {/* 左下: タイムライン */}
-          <div style={{flex:1,overflowY:"auto",padding:"10px 12px"}}>
-            <div style={{fontSize:12,letterSpacing:2,color:"#EDE6D6",fontFamily:SANS,fontWeight:700,marginBottom:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span>Program</span>
-              <button onClick={()=>{
-                const isOver = remaining < 0;
-                let msg = "プログラムを確定しますか？";
-                if(isOver){const overSecs=Math.round(Math.abs(remaining)*60);const overMin=Math.floor(overSecs/60);const overS=overSecs%60;msg += String.fromCharCode(10)+"⚠️ 時間が"+(overMin>0?overMin+"分":"")+(overS>0?overS+"秒":"")+"超過しています";}
-                if(window.confirm(msg) && savePrograms) savePrograms();
-              }}
-                style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"4px 12px",
-                  cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:4,fontWeight:600}}>
-                確定
-              </button>
-              <span style={{fontSize:12,color:remaining<0?"#C0405A":remaining<=5?"#C8A030":"#2A7A3A",fontWeight:"bold",letterSpacing:0}}>
-                {(()=>{const m=Math.floor(totalDuration);const s=Math.round((totalDuration-m)*60);return m+"分"+(s>0?s+"秒":"");})()}  / {prog.maxDuration}分
-                <span style={{fontSize:10,fontWeight:"normal",color:remaining<0?"#C0405A":"#94A3BE",fontFamily:SANS}}>
-                  {remaining>0?(()=>{const s=Math.round(remaining*60);const m=Math.floor(s/60);const sec=s%60;return " 残り"+(m>0?m+"分":"")+(sec>0?sec+"秒":"");})():remaining===0?" ちょうど":(()=>{const s=Math.round(Math.abs(remaining)*60);const m=Math.floor(s/60);const sec=s%60;return " "+(m>0?m+"分":"")+(sec>0?sec+"秒":"0秒")+"超過";})()}
-                </span>
-              </span>
-            </div>
-            {/* Progress bar */}
-            <div style={{height:4,background:"#1E2A45",borderRadius:2,overflow:"hidden",marginBottom:10}}>
-              <div style={{height:"100%",width:Math.min((totalDuration/prog.maxDuration)*100,100)+"%",
-                background:remaining<0?"#C04030":remaining<=5?"#C09030":"#3A8A4A",borderRadius:2,transition:"width 0.4s"}}/>
-            </div>
-            {/* Stacked bar */}
-            {programPieces.length>0 && (
-              <div style={{display:"flex",gap:1,height:20,borderRadius:3,overflow:"hidden",marginBottom:10,border:"1px solid #1E2A45"}}>
-                {programPieces.map(p=>{ const era=ERAS[p.era]||ERAS.modern; return (
-                  <div key={p.id} style={{width:((p.duration/prog.maxDuration)*100)+"%",background:era.color,minWidth:2,overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7,color:"rgba(255,255,255,0.8)"}}>{p.duration}m</div>
-                ); })}
-                {remaining>0&&<div style={{flex:1,background:"#1E2A45"}}/>}
-              </div>
-            )}
-            {/* Piece list with interval tabs */}
-            {programPieces.length===0
-              ? <div style={{textAlign:"center",color:"#4A5A7A",padding:"30px 12px",border:"2px dashed #1E2A45",borderRadius:8,fontSize:12,lineHeight:2,fontFamily:SANS}}>右の一覧から曲を追加</div>
-              : programPieces.map((p,i)=>{ const era=ERAS[p.era]||ERAS.modern;
-                // ①② 曲間タブ（2曲目以降の前に表示）
-                const intervalKey = "interval-"+i;
-                const hasInterval = i > 0;
-                const intervalSecs = (prog.intervals||{})[intervalKey]||0;
-                return (
-                  <React.Fragment key={p.id}>
-                    {hasInterval && (
-                      <div style={{display:"flex",alignItems:"center",gap:6,padding:"3px 8px",marginBottom:3,
-                        background:"#0F1A33",border:"1px dashed #1E2A45",borderRadius:4,fontSize:10,color:"#94A3BE",fontFamily:SANS}}>
-                        <span style={{color:"#2A3F6A",fontSize:10}}>⏱</span>
-                        <span style={{flex:1}}>曲間</span>
-                        <input type="number" min={0} max={300}
-                          value={intervalSecs}
-                          onChange={e=>updateProg({intervals:{...(prog.intervals||{}),[intervalKey]:Math.max(0,+e.target.value)}})}
-                          style={{width:36,background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",fontSize:10,textAlign:"center",padding:"1px 3px",borderRadius:3}}
-                        />
-                        <span style={{color:"#94A3BE"}}>秒</span>
-                        <button onClick={()=>{const iv={...(prog.intervals||{})};delete iv[intervalKey];updateProg({intervals:iv});}}
-                          style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:11,padding:"0 1px"}}>×</button>
-                      </div>
-                    )}
-                    <div draggable onDragStart={()=>dragId.current=p.id} onDragEnter={()=>dragOver.current=p.id} onDragEnd={onDragEnd} onDragOver={e=>e.preventDefault()}
-                      style={{display:"flex",alignItems:"flex-start",gap:6,padding:"7px 8px",background:"#15233F",
-                        border:"1px solid "+era.color+"33",borderLeft:"3px solid "+era.color,
-                        borderRadius:5,marginBottom:3,cursor:"grab"}}>
-                      <span style={{color:"#2A3F6A",fontSize:11,marginTop:3}}>⠿</span>
-                      <div style={{width:18,height:18,borderRadius:"50%",background:era.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:"#EDE6D6",flexShrink:0,marginTop:1}}>{i+1}</div>
-                      <div style={{flex:1,minWidth:0,cursor:"pointer"}}
-                        onClick={()=>setProgExpandId(progExpandId===p.id?null:p.id)}>
-                        <div style={{display:"flex",alignItems:"baseline",gap:6}}>
-                          <span style={{fontSize:12,color:"#EDE6D6",fontWeight:600,flex:1,minWidth:0,
-                            whiteSpace: progExpandId===p.id ? "normal" : "nowrap",
-                            overflow:"hidden",textOverflow:"ellipsis",lineHeight:1.35}}>{p.title}</span>
-                          <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,flexShrink:0}}>{fmtDuration(p.duration,p.durationSecs)}</span>
-                        </div>
-                        {progExpandId===p.id && (
-                          <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS,display:"flex",gap:8,flexWrap:"wrap",marginTop:4}}>
-                            {p.composer && <span>{p.composer}</span>}
-                            {p.year && <span>{p.year}</span>}
-                            {p.key && <span>{p.key}</span>}
-                          </div>
-                        )}
-                      </div>
-                      <button onClick={()=>toggle(p.id)} style={{background:"none",border:"none",color:"#C8A0A0",cursor:"pointer",fontSize:13,padding:"0 2px",flexShrink:0,marginTop:1}}>×</button>
-                    </div>
-                  </React.Fragment>
-                ); })
-            }
-            {/* 保存ボタン（v149: 編集の流れの最後に、はっきりした保存ボタン）*/}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:16,paddingTop:12,borderTop:"1px solid #1E2A45",flexWrap:"wrap"}}>
-              <button onClick={()=>{
-                  if (programs.length===0) { window.alert("該当するデータがありません"); return; }
-                  setShowProgDocPanel(!showProgDocPanel);
-                }}
-                style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",
-                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS}}>
-                📦 ドキュメント作成
-              </button>
-              {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{docSaveMsg}</span>}
-              <button onClick={savePrograms}
-                style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#C8A860",padding:"9px 30px",
-                  borderRadius:6,cursor:"pointer",fontSize:13,fontFamily:SANS,fontWeight:600}}>
-                このプログラムを保存
-              </button>
-              {programsSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{programsSaveMsg}</span>}
-              {!programsSaveMsg && isDirty && <span style={{fontSize:11,color:"#B85C72",fontFamily:SANS}}>● 未保存の変更があります</span>}
-            </div>
-            {/* v149: 構造で防ぐ — 静かに一言だけ教える */}
-            <div style={{textAlign:"center",fontSize:11,color:"#7A7058",fontFamily:SANS,marginTop:6}}>
-              ※保存したプログラムだけ、イベントに紐づけることができます
-            </div>
-            {showProgDocPanel && (
-              <div style={{marginTop:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",textAlign:"left"}}>
-                <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>出力するプログラムを選んでください（複数可）</div>
-                <div style={{display:"flex",flexDirection:"column",gap:5}}>
-                  {programs.map(pg=>{
-                    const checked=progDocIds.includes(pg.id);
-                    const cnt=(pg.pieceIds||[]).filter(id=>(allPool||[]).find(x=>String(x.id)===String(id))).length;
-                    return (
-                      <label key={pg.id} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 10px",
-                        background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
-                        border:checked?"1.5px solid #C8A860":"1px solid #1E2A45",
-                        fontSize:12,fontFamily:SANS,color:checked?"#15233F":"#C8CEDB"}}>
-                        <input type="checkbox" checked={checked}
-                          onChange={e=>setProgDocIds(prev=>e.target.checked?[...prev,pg.id]:prev.filter(x=>x!==pg.id))}
-                          style={{accentColor:"#C8A860"}}/>
-                        <span style={{flex:1}}>{pg.name||"無題"}</span>
-                        <span style={{fontSize:10,color:"#94A3BE"}}>{cnt}曲</span>
-                      </label>
-                    );
-                  })}
-                </div>
-                <button onClick={()=>{
-                    const targets = programs.filter(pg=>progDocIds.includes(pg.id));
-                    if (targets.length===0) { window.alert("該当するデータがありません"); return; }
-                    const blocks = targets.map(pg=>{
-                      const found = (pg.pieceIds||[]).map(id=>allPool.find(x=>x.id===id)).filter(Boolean);
-                      const body = found.map((px,i)=>(i+1)+". "+px.composer+" / "+px.title).join(String.fromCharCode(10));
-                      return "【"+(pg.name||"プログラム")+"】"+String.fromCharCode(10)+body;
-                    });
-                    const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
-                    const defaultName = targets.length>1 ? "プログラム比較（"+targets.length+"件）" : "プログラム "+(targets[0].name||"");
-                    const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
-                    if (inputName===null) return;
-                    const finalName = inputName.trim() || defaultName;
-                    const doc = { id: Date.now(), name: finalName, text: text };
-                    const next = [doc, ...documents];
-                    setDocuments(next);
-                    saveDocuments(next);
-                    setShowProgDocPanel(false);
-                    setProgDocIds([]);
-                    setDocSaveMsg("ドキュメントを作成しました ✓");
-                    setTimeout(() => setDocSaveMsg(""), 3000);
-                  }}
-                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
-                  ✓ チェックしたプログラムで、ドキュメント作成
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── RIGHT: 曲目詳細設定 + 一覧 ── */}
-        <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-          {/* 右上: 詳細フィルター */}
-          <div style={{padding:"10px 14px",borderBottom:"1px solid #1E2A45",background:"transparent",flexShrink:0}}>
-            <div style={{fontSize:12,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,fontWeight:600}}>Search Piece</div>
-            {/* ⑦ Search Piece - labeled fields */}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:8}}>
-              <div>
-                <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>作曲家</div>
-                <input value={composerFilter} onChange={e=>setComposerFilter(e.target.value)}
-                  placeholder="例: ショパン" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-              </div>
-              <div>
-                <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>曲名</div>
-                <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)}
-                  placeholder="例: ノクターン" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-              </div>
-              <div>
-                <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>時代</div>
-                <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>
-                  <option value="">ー</option>
-                  {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
-                </select>
-              </div>
-              <div>
-                <div style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,marginBottom:2}}>キーワード</div>
-                <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)}
-                  placeholder="例: 発表会向け" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
-              </div>
-            </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>作曲年</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                  <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                  <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>演奏時間（分）</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                  <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                  <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1,boxSizing:"border-box"}} />
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>難易度</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <select value={diffMin} onChange={e=>setDiffMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
-                    <option value={0}>ー</option>
-                    {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                  </select>
-                  <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                  <select value={diffMax} onChange={e=>setDiffMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
-                    <option value={0}>ー</option>
-                    {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS}}>演奏頻度</span>
-                <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                  <select value={freqMin} onChange={e=>setFreqMin(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
-                    <option value={0}>ー</option>
-                    {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                  </select>
-                  <span style={{fontSize:10,color:"#94A3BE"}}>〜</span>
-                  <select value={freqMax} onChange={e=>setFreqMax(+e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,flex:1}}>
-                    <option value={0}>ー</option>
-                    {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 右下: 曲目一覧 */}
-          <div style={{flex:1,overflowY:"auto",padding:"14px 12px 8px"}}>
-            {/* ⑥ ライブラリー/AI切替 ＋ ⑪並べ替え（候補リストの上にまとめる） */}
-            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:10,justifyContent:"space-between",flexWrap:"wrap"}}>
-              <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
-                <button onClick={()=>setPoolMode("repertoire")}
-                  style={{padding:"5px 14px",background:poolMode==="repertoire"?"#0F1A33":"transparent",
-                    border:"1px solid "+(poolMode==="repertoire"?"#C8A860":"#2A3F6A"),
-                    color:poolMode==="repertoire"?"#C8A860":"#94A3BE",
-                    cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:"4px 0 0 4px",borderRight:"none",fontWeight:600}}>
-                  ライブラリー
-                </button>
-                <button onClick={()=>{ setAiPieces([]); setPoolMode("ai"); askAI(); }} disabled={aiLoading}
-                  style={{padding:"5px 14px",background:poolMode==="ai"?"#0F1A33":"transparent",
-                    border:"1px solid "+(poolMode==="ai"?"#C8A860":"#2A3F6A"),
-                    color:poolMode==="ai"?"#C8A860":"#94A3BE",
-                    cursor:aiLoading?"wait":"pointer",fontSize:11,fontFamily:SANS,borderRadius:"0 4px 4px 0",fontWeight:600}}>
-                  {aiLoading?"…":"AI"}
-                </button>
-              </div>
-              <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
-                <select value={localSortBy} onChange={e=>setLocalSortBy(e.target.value)}
-                  style={{background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"3px 6px",fontFamily:SANS,fontSize:10,borderRadius:"4px 0 0 4px",borderRight:"none"}}>
-                  <option value="" disabled>並べ替え</option>
-                  <option value="era">時代</option>
-                  <option value="year">作曲年</option>
-                  <option value="duration">演奏時間</option>
-                  <option value="difficulty">難易度</option>
-                  <option value="frequency">演奏頻度</option>
-                </select>
-                <button onClick={()=>setLocalSortAsc(v=>!v)}
-                  style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"0 7px",
-                    cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:"0 4px 4px 0",
-                    display:"flex",alignItems:"center"}}>
-                  {localSortAsc?"▲":"▼"}
-                </button>
-              </div>
-            </div>
-
-            {/* 大見出し：今どちらを見ているか */}
-            <div style={{fontSize:14,fontWeight:700,color:poolMode==="ai"?"#8A8AAA":"#C8963C",fontFamily:SANS,marginBottom:10,paddingBottom:6,borderBottom:"1px solid #1E2A45"}}>
-              {poolMode==="ai"
-                ? "AIから"
-                : <span>ライブラリーから <span style={{fontSize:10,fontWeight:400,color:"#94A3BE"}}>金=Repertoire / 銀=Learning</span></span>}
-            </div>
-
-            {/* MY 一覧 */}
-            {showMy && (
-              <div style={{marginBottom:showAI&&aiPool.length>0?16:0}}>
-                <div style={{fontSize:9,letterSpacing:2,color:"#C8963C",marginBottom:5,fontFamily:SANS}}>✦ MY LIBRARY ({myPool.length}曲) <span style={{color:"#94A3BE",letterSpacing:0}}>金=Repertoire / 銀=Learning</span></div>
-                {myPool.length===0
-                  ? <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>該当する曲がありません</div>
-                  : myPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={false}/>)
-                }
-              </div>
-            )}
-
-            {/* AI 一覧 */}
-            {showAI && (
-              <div>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:5}}>
-                  <span style={{fontSize:9,letterSpacing:2,color:"#8A8AAA",fontFamily:SANS}}>✧ AI SUGGESTIONS ({aiPool.length}件)</span>
-                  {aiPool.length>0 && <button onClick={()=>setAiPieces([])}
-                    style={{background:"none",border:"1px solid #2A3F6A",color:"#8A8AAA",padding:"2px 8px",cursor:"pointer",fontSize:9,fontFamily:SANS,borderRadius:3}}>クリア</button>}
-                </div>
-                {aiPool.length===0&&!aiLoading && (
-                  <div style={{textAlign:"center",color:"#4A5A7A",padding:"16px",fontSize:11,fontFamily:SANS}}>
-                    「AIから探す」で曲を検索できます。気に入った曲は＋Learningで棚に登録されます
-                  </div>
-                )}
-                {aiPool.map(p=><ProgPieceCard key={p.id} p={p} isAI={true}/>)}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 
 
@@ -3698,11 +3188,6 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [piecesLoading, setPiecesLoading]     = useState(true);
   const [composers, setComposers]             = useState([]); // v263: 293人マスタ（検索用）
   const [aiPieces, setAiPieces]               = useState([]);
-  const [aiPiecesP, setAiPiecesP]             = useState([]); // Program専用のAI提案結果（Learningと分離）
-  const [programs, setPrograms]               = useState([{ ...EMPTY_PROGRAM(1), name:"プログラム 1" }]);
-  const [activeProgramId, setActiveProgramId] = useState(1);
-  const [editingProgramId, setEditingProgramId] = useState(null);
-  const [editingName, setEditingName]         = useState("");
   const [expandedId, setExpandedId]           = useState(null);
   const [sortBy, setSortBy]                   = useState("");
   const [sortAsc, setSortAsc]                 = useState(true);
@@ -3775,17 +3260,13 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     contact:{email:"", website:"", tel:"", sns:""},
   });
   const [profileSaveMsg, setProfileSaveMsg]    = useState("");
-  const [programsSaveMsg, setProgramsSaveMsg]  = useState("");
-  const [savedPrograms, setSavedPrograms]      = useState(null);   // 最後に保存したprogramsの内容（未保存判定・イベント紐付け用）
   const [eventsSaveMsg, setEventsSaveMsg]      = useState("");
   const [docSaveMsg, setDocSaveMsg]            = useState(""); // 📦 ドキュメント作成の共通メッセージ
   const sugTimer  = useRef(null);
   const nextId    = useRef(100);
   const dragId    = useRef(null);
   const dragOver  = useRef(null);
-  const reqIdAskAI  = useRef(0); // v152: askAI レース対策（世代管理）
   const reqIdAskAIL = useRef(0); // v152: askAILearning レース対策（世代管理）
-  const reqIdAskAIP = useRef(0); // v153: Programページ条件検索AI レース対策
 
   // ── Supabase: プロフィール読み込み ──
   const profileLoaded = useRef(false);
@@ -3832,16 +3313,6 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     profileSaveTimer.current = setTimeout(() => { saveProfile(); }, 800);
     return () => { if (profileSaveTimer.current) clearTimeout(profileSaveTimer.current); };
   }, [profile]);
-
-  const savePrograms = async () => {
-    const { error } = await supabase.from('programs')
-      .upsert({ user_id: user.id, data: programs }, { onConflict: 'user_id' });
-    if (!error) {
-      setSavedPrograms(JSON.parse(JSON.stringify(programs))); // 保存済みの内容を記録（未保存判定の基準）
-      setProgramsSaveMsg("保存しました ✓");
-      setTimeout(() => setProgramsSaveMsg(""), 3000);
-    }
-  };
 
   const saveEvents = async (evs) => {
     const dataToSave = Array.isArray(evs) ? evs : events;
@@ -3925,25 +3396,6 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     loadComposers();
   }, []);
 
-  // ── Supabase: programs読み込み ──
-  useEffect(() => {
-    const loadPrograms = async () => {
-      const { data } = await supabase
-        .from('programs')
-        .select('data')
-        .eq('user_id', user.id)
-        .single();
-      if (data?.data) {
-        setPrograms(data.data);
-        setSavedPrograms(JSON.parse(JSON.stringify(data.data))); // 読み込んだ内容を保存済みの基準にする
-        // ⑦ 二重表示・id衝突の防止：新規採番が既存idと衝突しないようにする
-        const maxId = Math.max(0, ...data.data.map(p=>Number(p.id)||0));
-        if (nextId.current <= maxId) nextId.current = maxId + 1;
-      }
-    };
-    loadPrograms();
-  }, [user.id]);
-
   // ── Supabase: events読み込み ──
   useEffect(() => {
     const loadEvents = async () => {
@@ -3969,36 +3421,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     };
     loadDocuments();
   }, [user.id]);
-  const prog           = programs.find(p=>p.id===activeProgramId) || programs[0];
-  const allPool        = [...pieces, ...aiPiecesP.filter(a=>!pieces.find(p=>p.id===a.id))];
-  const programPieces  = prog.pieceIds.map(id=>allPool.find(p=>p.id===id)).filter(Boolean);
-  const totalIntervalSecs = programPieces.length>1
-    ? programPieces.slice(1).reduce((sum,_,i)=>{
-        const key="interval-"+(i+1);
-        const iv=(prog.intervals||{})[key];
-        return sum+(iv!=null?iv:0);
-      },0)
-    : 0;
-  const totalDuration  = programPieces.reduce((s,p)=>s+p.duration+(p.durationSecs||0)/60, 0) + totalIntervalSecs/60;
-  const remaining      = prog.maxDuration - totalDuration;
+  // v287(③-3): aiPiecesP（Program専用のAI提案）を廃止したため、allPool は pieces のみ。
+  const allPool        = [...pieces];
 
-  const updateProg = (u) => setPrograms(ps=>ps.map(p=>p.id===prog.id?{...p,...u}:p));
 
   // ── 未保存判定（v149: 編集中の目印として使用。移動時モーダルは廃止）──
-  // savedProgramsがnull（初回ロード前）の時は未保存扱いにしない
-  const isDirty = savedPrograms !== null && JSON.stringify(programs) !== JSON.stringify(savedPrograms);
-
-  const canAdd = (piece) =>
-    // ⑤ 時間オーバーでも追加可能（赤アラートのみ）
-    (prog.maxPieces>=999 || prog.pieceIds.length < prog.maxPieces) &&
-    !prog.pieceIds.includes(piece.id);
-
-  const toggle = (id) => {
-    const piece = allPool.find(p=>p.id===id);
-    if (!piece) return;
-    if (prog.pieceIds.includes(id)) { updateProg({pieceIds:prog.pieceIds.filter(x=>x!==id)}); return; }
-    if (canAdd(piece)) updateProg({pieceIds:[...prog.pieceIds,id]});
-  };
 
   // ── カード内インライン編集の保存 ──
   const onUpdatePiece = async (updated) => {
@@ -4045,95 +3472,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     }
   };
 
-  const onDragEnd = () => {
-    if (dragId.current==null||dragOver.current==null||dragId.current===dragOver.current) return;
-    const arr=[...prog.pieceIds];
-    const from=arr.indexOf(dragId.current), to=arr.indexOf(dragOver.current);
-    arr.splice(from,1); arr.splice(to,0,dragId.current);
-    updateProg({pieceIds:arr});
-    dragId.current=null; dragOver.current=null;
-  };
 
-  const addProgram    = () => {
-    // 名前編集中(未確定)なら、新規に切り替える前に編集内容を反映（取りこぼし防止）
-    if (editingProgramId !== null) {
-      setPrograms(ps=>ps.map(x=>x.id===editingProgramId?{...x,name:editingName}:x));
-      setEditingProgramId(null);
-    }
-    const id=++nextId.current;
-    setPrograms(ps=>[...ps,{...EMPTY_PROGRAM(id),name:`プログラム ${ps.length+1}`}]);
-    setActiveProgramId(id);
-  };
-  const deleteProgram = (id) => { if(programs.length<=1)return; setPrograms(ps=>ps.filter(p=>p.id!==id)); if(activeProgramId===id) setActiveProgramId(programs.find(p=>p.id!==id)?.id); };
 
-  const askAI = async () => {
-    const myId = ++reqIdAskAI.current; // v152: この検索の世代番号
-    setAiLoading(true);
-    setAiPiecesP([]); // v152: 新検索は積み重ねず置き換え（古い候補の混入を防ぐ）
-    // v151: 呼び出し元ボタンで poolMode="ai" を設定済み。
-    // 旧3状態design（"both"/"none"）の名残でここで poolMode を上書きすると、
-    // どちらのリストも描画されない "both" 状態になり得たため削除。
-    const prompt = `クラシックピアノのプログラム編成の専門家として、以下の条件で曲を4曲提案してください。
-【現在のプログラム: ${prog.name}】
-${programPieces.length===0?"（空）":programPieces.map(p=>`- ${p.title}（${p.composer}、${p.year}年）${p.key} ${p.duration}分`).join(String.fromCharCode(10))}
-【条件】
-- 残り時間: 約${remaining}分以内
-- 残り曲数: ${prog.maxPieces>=999?"制限なし":prog.maxPieces-prog.pieceIds.length+"曲以内"}
-${constraints.requireEras.length>0?`- 必須の時代: ${constraints.requireEras.map(e=>ERAS[e]?.label).join("、")}`:""}
-reasonは15字以内で簡潔に。JSONのみ返してください:
-{"suggestions":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。仏語等の原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}`;
-    try {
-      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
-      const data = await res.json();
-      if (myId !== reqIdAskAI.current) return; // v152: 自分が最新でなければ捨てる
-      const text = data.content.map(b=>b.text||"").join("");
-      let parsed = {};
-      try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
-      catch(parseErr){ console.error("askAI parse失敗:",parseErr); parsed = {}; }
-      const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
-      setAiPiecesP(newAI); // v152: 置き換え（足し込まない）
-    } catch(e){ if(myId===reqIdAskAI.current) console.error(e); }
-    if (myId===reqIdAskAI.current) setAiLoading(false);
-  };
-
-  // v153: Programページ「AIから探す」専用。入力した条件（作曲家・曲名など）で曲を探し、
-  // Programページが表示する箱(aiPiecesP)に入れる。プログラム編成提案(askAI)とは別物。
-  const askAIProgramSearch = async () => {
-    const myId = ++reqIdAskAIP.current;
-    setAiLoading(true);
-    setAiPiecesP([]);
-    const cond = [];
-    if (composerFilterP && composerFilterP.trim()) cond.push("作曲家: "+composerFilterP.trim());
-    if (titleFilterP && titleFilterP.trim())       cond.push("曲名・キーワード: "+titleFilterP.trim());
-    if (kwFilter && kwFilter.trim())               cond.push("キーワード: "+kwFilter.trim());
-    if (eraFilter)                                 cond.push("時代: "+(ERAS[eraFilter] ? ERAS[eraFilter].label : eraFilter));
-    if (yearMin || yearMax)                        cond.push("作曲年: "+(yearMin||"指定なし")+"〜"+(yearMax||"指定なし"));
-    if (durMin || durMax)                          cond.push("演奏時間: "+(durMin||"0")+"分〜"+(durMax||"指定なし")+"分");
-    const dLowP = Number(diffMin)>=1 ? Number(diffMin) : 1; // 0(—)は指定なし→下限1
-    const dHighP = Number(diffMax)>=1 ? Number(diffMax) : 5; // 0(—)は指定なし→上限5
-    if (dLowP>1 || dHighP<5) cond.push("難易度(1易〜5難): "+dLowP+"〜"+dHighP);
-    const fLowP = Number(freqMin)>=1 ? Number(freqMin) : 1;
-    const fHighP = Number(freqMax)>=1 ? Number(freqMax) : 5;
-    if (fLowP>1 || fHighP<5) cond.push("演奏頻度(1低〜5高): "+fLowP+"〜"+fHighP);
-    const condText = cond.length>0 ? cond.join(String.fromCharCode(10)) : "クラシックピアノの曲を幅広く";
-    const prompt = "クラシックピアノに詳しい司書として、以下の条件に合うピアノ曲を10曲前後提案してください。"
-      + String.fromCharCode(10) + "【検索条件】" + String.fromCharCode(10) + condText
-      + String.fromCharCode(10) + "条件に合う実在するピアノ曲だけを挙げてください。代表的な名曲だけでなく、あまり知られていない曲も含めて幅広く挙げてください。"
-      + String.fromCharCode(10) + "reasonは15字以内で簡潔に。JSONのみ返してください:"
-      + String.fromCharCode(10) + '{"suggestions":[{"title":"曲名は英語表記(例:Nocturne Op.9 No.2)。仏語等の原題はそのまま尊重","composer":"F.姓形式(例F.Chopin。名の頭文字+ドット+姓、スペース無)","year":作曲年数値,"country":"出身国","key":"調性","duration":分数数値,"form":"形式","difficulty":1-5数値,"era":"baroque/classical/romantic/modern/contemporary","reason":"15字以内"}]}';
-    try {
-      const res  = await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
-      const data = await res.json();
-      if (myId !== reqIdAskAIP.current) return;
-      const text = data.content.map(b=>b.text||"").join("");
-      let parsed = {};
-      try { parsed = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}")+1)); }
-      catch(parseErr){ console.error("askAIProgramSearch parse失敗:",parseErr); parsed = {}; }
-      const newAI = (parsed.suggestions||[]).map((s,i)=>({...s,id:Date.now()+i,readiness:0,mine:false}));
-      setAiPiecesP(newAI);
-    } catch(e){ if(myId===reqIdAskAIP.current) console.error(e); }
-    if (myId===reqIdAskAIP.current) setAiLoading(false);
-  };
 
   // ★ Learning用：プログラム文脈を使わない、シンプルな曲検索AI
   const askAILearning = async () => {
@@ -4410,27 +3750,6 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
 
   // ── Filter bar ───────────────────────────────────────────────────────────────
 
-  // ── PieceCardRow → PieceCardUnifiedのラッパー ───────────────────────────────
-  const PieceCardRow = ({p, showControls=true, onUpdatePiece}) => {
-    const inProg = prog.pieceIds.includes(p.id);
-    const isExpanded = expandedId===p.id;
-    return (
-      <PieceCardUnified
-        p={p}
-        expanded={isExpanded}
-        onToggleExpand={()=>setExpandedId(isExpanded?null:p.id)}
-        inProgram={inProg}
-        canAdd={canAdd(p)}
-        onAdd={()=>toggle(p.id)}
-        onRemove={()=>toggle(p.id)}
-        onToggleFav={()=>toggleFav(p.id)}
-        onToggleCandidate={()=>toggleCandidate(p.id)}
-        showControls={showControls}
-        onUpdatePiece={onUpdatePiece}
-        learningIds={learningIds}
-      />
-    );
-  };
 
 
 
@@ -4473,7 +3792,6 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
           kwFilter={kwFilter} setKwFilter={setKwFilter}
           aiPieces={aiPieces} setAiPieces={setAiPieces} aiLoading={aiLoadingL} askAILearning={askAILearning}
-          toggle={toggle} canAdd={canAdd} prog={prog}
           learningIds={learningIds} setLearningIds={setLearningIds}
           expandedId={expandedId} setExpandedId={setExpandedId}
           toggleCandidate={toggleCandidate}
@@ -4481,41 +3799,10 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           dashData={getDashData()} dashTotal={getDashData().reduce((s,d)=>s+d.count,0)||pieces.filter(p=>!p.learning).length}
           dashAxis={dashAxis} setDashAxis={setDashAxis}
           dashChart={dashChart} setDashChart={setDashChart}
-          events={events} programs={programs}
+          events={events}
         />}
         {page==="print"  && <PrintPage handleLogout={handleLogout} allPool={allPool} pieces={pieces} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
-        {page==="home" && <HomePage
-          prog={prog} updateProg={updateProg}
-          documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
-          programs={programs} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId}
-          editingProgramId={editingProgramId} setEditingProgramId={setEditingProgramId}
-          editingName={editingName} setEditingName={setEditingName}
-          setPrograms={setPrograms} addProgram={addProgram} deleteProgram={deleteProgram}
-          programPieces={programPieces} totalDuration={totalDuration} remaining={remaining}
-          toggle={toggle} toggleFav={toggleFav} toggleCandidate={toggleCandidate}
-          dragId={dragId} dragOver={dragOver} onDragEnd={onDragEnd}
-          poolMode={poolMode} setPoolMode={setPoolMode}
-          composerFilter={composerFilterP} setComposerFilter={setComposerFilterP}
-          titleFilter={titleFilterP} setTitleFilter={setTitleFilterP}
-          eraFilter={eraFilter} setEraFilter={setEraFilter}
-          yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
-          durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
-          diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
-          freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
-          kwFilter={kwFilter} setKwFilter={setKwFilter}
-          showFavOnly={showFavOnly} setShowFavOnly={setShowFavOnly}
-          localSortBy={localSortBy} setLocalSortBy={setLocalSortBy}
-          localSortAsc={localSortAsc} setLocalSortAsc={setLocalSortAsc}
-          learningIds={learningIds} setLearningIds={setLearningIds}
-          pieces={pieces} setPieces={setPieces}
-          canAdd={canAdd} aiPieces={aiPiecesP} setAiPieces={setAiPiecesP} aiLoading={aiLoading} askAI={askAIProgramSearch}
-          addPiecesFromProgram={addPiecesFromProgram}
-          allPool={allPool} sortBy={sortBy} setSortBy={setSortBy}
-          sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark}
-          sel={sel}
-          savePrograms={savePrograms} programsSaveMsg={programsSaveMsg} isDirty={isDirty}
-        />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} toggle={toggle} onDragEnd={onDragEnd} prog={prog} programs={programs} savedPrograms={savedPrograms} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
       </div>
       </div>
     </div>
