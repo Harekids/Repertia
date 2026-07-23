@@ -2554,8 +2554,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           <div style={{marginTop:6}}>
             <div style={{color:"#94A3BE",marginBottom:3}}>演奏した曲（記録）：</div>
             {ev.historyItems.map((s,i)=>(
-              <div key={s.id||i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
-                {(i+1)+". "+s.composer+" / "+s.title}
+              <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
+                {(i+1)+". "}{s.performer&&<span style={{color:"#94A3BE"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
               </div>
             ))}
           </div>
@@ -3656,19 +3656,21 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const registerEventToHistory = async (ev) => {
     if (!ev || ev.in_history) return;
     // b) 紐づく曲を特定。v286(③-2)以降は新導線（items[].pieceId）のみ。
-    const songIds = [];
-    const itemIds = Array.isArray(ev.items) ? ev.items.map(it=>it&&it.pieceId).filter(Boolean) : [];
-    for (const sid of itemIds) {
-      if (!songIds.some(x=>String(x)===String(sid))) songIds.push(sid);
-    }
     // ★スナップショット：曲の情報をコピーして固定（参照でなく実体を保存）
-    const snapshot = songIds.map(sid => {
-      const p = pieces.find(x=>String(x.id)===String(sid));
-      return p ? {
+    // v288: items 単位で作る。performer は pieces でなく items 側が持つ情報なので、
+    //   曲を引くのと同時にここで拾う。同じ曲を複数人が弾いた場合も別行として残る
+    //   （発表会・ジョイントコンサートで「誰が何を弾いたか」が記録の本体）。
+    //   従来は pieceId を重複排除してから引いていたため、2人目以降が消えていた。
+    const snapshot = (Array.isArray(ev.items) ? ev.items : []).map(it => {
+      if (!it || !it.pieceId) return null;
+      const p = pieces.find(x=>String(x.id)===String(it.pieceId));
+      if (!p) return null;
+      return {
         id: p.id, title: p.title, composer: p.composer,
         year: p.year, key: p.key, duration: p.duration,
         difficulty: p.difficulty, era: p.era, form: p.form,
-      } : null;
+        performer: it.performer || "",
+      };
     }).filter(Boolean);
     // a) イベントを in_history=true に＋スナップショットを保存
     const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true, historyItems: snapshot} : e);
