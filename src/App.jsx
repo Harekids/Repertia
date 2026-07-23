@@ -1211,8 +1211,7 @@ const NOTATION_STYLES = {
 };
 
 const PrintPage = (props) => {
-  const {prog, allPool, programs, pieces} = props;
-  const {activeProgramId, setActiveProgramId} = props;
+  const {allPool, pieces} = props;
   const {profile, setProfile, events} = props;
   // v156: パスワード変更
   const [pwOpen, setPwOpen] = useState(false);
@@ -1272,7 +1271,7 @@ const PrintPage = (props) => {
   // ── Output state ──
   const [outFormat, setOutFormat]   = React.useState("single");  // "single"|"bio"
   const [outItems,  setOutItems]    = React.useState({
-    profile:false, repertoire:false, program:false,
+    profile:false, repertoire:false,
     contests:false, performances:false, upcoming:false
   });
   const [outRepIds, setOutRepIds]   = React.useState([]);
@@ -1354,10 +1353,7 @@ const PrintPage = (props) => {
       const rep = pieces.slice(0,20).map(p=>p.composer+" / "+p.title).join(outLang==="ja"?"、":", ");
       parts.push(outLang==="ja"?"【レパートリー】"+rep:"[Repertoire] "+rep);
     }
-    if (outItems.program) {
-      const pgm = prog.pieceIds.map((id,i)=>{const p=allPool.find(x=>x.id===id);return p?(i+1)+". "+p.composer+" / "+p.title:"";}).filter(Boolean).join(String.fromCharCode(10));
-      parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)+pgm:"[Program]"+String.fromCharCode(10)+pgm);
-    }
+    // v285(③-1): プログラム出力を廃止（Atelierは別アプリへ分離）。
 
     setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
     setOutStep(4);
@@ -1612,7 +1608,6 @@ const PrintPage = (props) => {
                 {[
                   ["profile","プロフィール"],
                   ["repertoire","レパートリー"],
-                  ["program","プログラム"],
                   ["contests","コンクール歴"],
                   ["performances","演奏活動"],
                   ["upcoming","現在の活動"],
@@ -1689,7 +1684,6 @@ const PrintPage = (props) => {
                     if(outItems.contests&&contestEvents.length>0){const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【コンクール歴】"+String.fromCharCode(10)+ct:"[Competitions]"+String.fromCharCode(10)+ct);}
                     if(outItems.performances&&concertEvents.length>0){const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【演奏活動】"+String.fromCharCode(10)+pf:"[Performances]"+String.fromCharCode(10)+pf);}
                     if(outItems.upcoming&&futureEvents.length>0){const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【今後の予定】"+String.fromCharCode(10)+up:"[Upcoming]"+String.fromCharCode(10)+up);}
-                    if(outItems.program){const found=prog.pieceIds.map(id=>allPool.find(x=>x.id===id)).filter(Boolean);const pgm=found.map((px,i)=>(i+1)+". "+px.composer+" / "+px.title).join(String.fromCharCode(10));parts.push(outLang==="ja"?"【プログラム】"+String.fromCharCode(10)+pgm:"[Program]"+String.fromCharCode(10)+pgm);}
                     setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
                   }}
                   style={{marginLeft:"auto",background:"#C8A860",border:"none",color:"#0F1A33",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,fontWeight:"bold"}}>
@@ -4509,7 +4503,7 @@ reasonは15字以内で簡潔に。JSONのみ返してください:
           dashChart={dashChart} setDashChart={setDashChart}
           events={events} programs={programs}
         />}
-        {page==="print"  && <PrintPage handleLogout={handleLogout} prog={prog} allPool={allPool} programs={programs} pieces={pieces} activeProgramId={activeProgramId} setActiveProgramId={setActiveProgramId} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
+        {page==="print"  && <PrintPage handleLogout={handleLogout} allPool={allPool} pieces={pieces} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
         {page==="home" && <HomePage
           prog={prog} updateProg={updateProg}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
