@@ -2530,7 +2530,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           </div>
         )}
         {ev.contact && <div><span style={{color:"#94A3BE"}}>問い合わせ：</span>{ev.contact}</div>}
-        {ev.items&&ev.items.length>0 && (
+        {/* v289: History と Upcoming で表示を排他にする（二重表示の整理）。
+              Upcoming = items（これから弾く予定）／History = historyItems（弾いた記録）のみ。
+              History で items を出さないのは、見せるべきが「そのとき何を弾いたか」であって
+              現在のライブラリの状態ではないため。 */}
+        {!ev.in_history && ev.items&&ev.items.length>0 && (
           <div>
             <div style={{color:"#94A3BE",marginBottom:3}}>曲目：</div>
             {ev.items.map((it,idx)=>{
@@ -2550,14 +2554,23 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             })}
           </div>
         )}
-        {ev.in_history && Array.isArray(ev.historyItems) && ev.historyItems.length>0 && (
+        {ev.in_history && (
           <div style={{marginTop:6}}>
             <div style={{color:"#94A3BE",marginBottom:3}}>演奏した曲（記録）：</div>
-            {ev.historyItems.map((s,i)=>(
-              <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
-                {(i+1)+". "}{s.performer&&<span style={{color:"#94A3BE"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
-              </div>
-            ))}
+            {Array.isArray(ev.historyItems) && ev.historyItems.length>0
+              ? ev.historyItems.map((s,i)=>(
+                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
+                    {(i+1)+". "}{s.performer&&<span style={{color:"#94A3BE"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
+                  </div>
+                ))
+              : (
+                  /* v289: items にフォールバックしない。
+                     「歴史は消えてはいけない」の裏側は「無い歴史を作ってはいけない」。
+                     記録が無いことを、記録が有るように見せない。 */
+                  <div style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#94A3BE",fontStyle:"italic"}}>
+                    （記録なし）
+                  </div>
+                )}
           </div>
         )}
         {/* v286(③-2): programId経由のプログラム内容表示を廃止（Atelierは別アプリへ分離）。 */}
