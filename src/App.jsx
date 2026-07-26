@@ -264,8 +264,17 @@ function LinkIcon({ type }) {
   return null;
 }
 
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[] }) => {
   const era = ERAS[p.era] || ERAS.modern;
+  // v290: 左カラム（作曲家層）。pieces.composer を display として composers を引く。
+  //   引けたら fullName / era / years / wiki_en / imslp を左カラムに出す。
+  //   引けない（手入力composer＝行が無い）なら display だけ出し、他は出さない（エラーにしない）。
+  const composerRow = (Array.isArray(composers) ? composers : []).find(c => c && c.display === p.composer) || null;
+  // era の頭文字（B/Cl/R/M/C）。作曲家層の era は composers 由来。無ければ pieces 側 p.era にフォールバック。
+  const ERA_INITIAL = { baroque:"B", classical:"Cl", romantic:"R", modern:"M", contemporary:"C" };
+  const composerEraKey = (composerRow && composerRow.era) ? composerRow.era : (p.era || "");
+  const composerEraInitial = ERA_INITIAL[composerEraKey] || "";
+  const composerEraLabel = (ERAS[composerEraKey] && ERAS[composerEraKey].label) || "";
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
@@ -389,8 +398,39 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
               <div style={{display:"flex",alignItems:"stretch",gap:0}}>
-                {/* 左カラム: 縦線のみ（編集ボタンは⋯メニューへ移動・境界線一本化のため） */}
-                <div style={{width:"11em",flexShrink:0}}>
+                {/* 左カラム: 作曲家層（v290）。3行構成。composersを引けた時だけ2・3行目を出す。 */}
+                <div style={{width:"11em",flexShrink:0,paddingTop:8,paddingRight:8,boxSizing:"border-box"}}>
+                  {/* 1行目: display（ホバーでfullName） */}
+                  <div title={composerRow && composerRow.fullName ? composerRow.fullName : undefined}
+                    style={{fontSize:13,color:isAI?"#5A564A":"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:composerRow&&composerRow.fullName?"help":"default"}}>
+                    {p.composer}
+                  </div>
+                  {/* 2行目: 時代の頭文字（ホバーで時代名）＋ 生没年。色は付けない。composersを引けた時だけ。 */}
+                  {composerRow && (composerEraInitial || composerRow.years) && (
+                    <div style={{fontSize:11,color:isAI?"#7A7460":"#94A3BE",fontFamily:SANS,marginTop:3,display:"flex",alignItems:"baseline",gap:6}}>
+                      {composerEraInitial && (
+                        <span title={composerEraLabel||undefined} style={{cursor:composerEraLabel?"help":"default"}}>{composerEraInitial}</span>
+                      )}
+                      {composerRow.years && <span>{composerRow.years}</span>}
+                    </div>
+                  )}
+                  {/* 3行目: W / I リンク（ホバーで名称）。空欄の列は出さない（空欄も情報）。
+                       v290: Wは wiki_ja 優先→無ければ wiki_en。両方無ければWを出さない。
+                       表示は区別せず「W」。押せば読める方（日本語優先）が開く。 */}
+                  {composerRow && (composerRow.wiki_ja || composerRow.wiki_en || composerRow.imslp) && (
+                    <div style={{marginTop:5,display:"flex",gap:4}}>
+                      {(composerRow.wiki_ja || composerRow.wiki_en) && (
+                        <a href={composerRow.wiki_ja || composerRow.wiki_en} target="_blank" rel="noreferrer" title="Wikipedia"
+                          onClick={e=>e.stopPropagation()}
+                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}>W</a>
+                      )}
+                      {composerRow.imslp && (
+                        <a href={composerRow.imslp} target="_blank" rel="noreferrer" title="IMSLP"
+                          onClick={e=>e.stopPropagation()}
+                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}>I</a>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {/* 右カラム: 曲の全情報（同じ左端から） */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:3}}>
@@ -2266,6 +2306,7 @@ const ManagePage = (props) => {
                     showControls={true}
                     onUpdatePiece={onUpdatePiece}
                     learningIds={learningIds}
+                    composers={composers}
                     eventsForPiece={findEventsForPiece(p.id)}
                     onDeletePiece={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));setLearningIds(prev=>prev.filter(x=>x!==p.id));setExpandedId(null);await supabase.from('pieces').delete().eq('id',p.id);}}
                   />
@@ -2378,6 +2419,7 @@ const ManagePage = (props) => {
                 showControls={true}
                 onUpdatePiece={onUpdatePiece}
                 learningIds={learningIds}
+                composers={composers}
                 eventsForPiece={findEventsForPiece(p.id)}
                 onDeletePiece={async()=>{setPieces(ps=>ps.filter(x=>x.id!==p.id));setExpandedId(null);await supabase.from('pieces').delete().eq('id',p.id);}}
               />
@@ -3388,10 +3430,19 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   // 共有マスタ（user紐付けなし）。検索用に display / reading / fullName を読む
   useEffect(() => {
     const loadComposers = async () => {
-      const { data, error } = await supabase
+      // v290: wiki_en / imslp を追加取得。列がまだDBに無い環境でも落ちないよう、
+      //   エラー時は従来7列にフォールバックする（列が入った時点で自動的にリンクが出る）。
+      let { data, error } = await supabase
         .from('composers')
-        .select('display, "fullName", reading, years, country_ja, country_en, era')
+        .select('display, "fullName", reading, years, country_ja, country_en, era, wiki_ja, wiki_en, imslp')
         .order('display', { ascending: true });
+      if (error) {
+        const fb = await supabase
+          .from('composers')
+          .select('display, "fullName", reading, years, country_ja, country_en, era')
+          .order('display', { ascending: true });
+        data = fb.data; error = fb.error;
+      }
       if (!error && data) {
         setComposers(data.map(c => ({
           display:    c.display    || '',
@@ -3401,6 +3452,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           country_ja: c.country_ja || '',
           country_en: c.country_en || '',
           era:        c.era        || '',
+          wiki_ja:    c.wiki_ja    || '',
+          wiki_en:    c.wiki_en    || '',
+          imslp:      c.imslp      || '',
         })));
       } else if (error) {
         console.error('composers load失敗:', error);
