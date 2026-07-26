@@ -267,14 +267,18 @@ function LinkIcon({ type }) {
 const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[] }) => {
   const era = ERAS[p.era] || ERAS.modern;
   // v290: 左カラム（作曲家層）。pieces.composer を display として composers を引く。
-  //   引けたら fullName / era / years / wiki_en / imslp を左カラムに出す。
+  //   引けたら fullName / era / years / wiki_ja / wiki_en / imslp を左カラムに出す。
   //   引けない（手入力composer＝行が無い）なら display だけ出し、他は出さない（エラーにしない）。
   const composerRow = (Array.isArray(composers) ? composers : []).find(c => c && c.display === p.composer) || null;
-  // era の頭文字（B/Cl/R/M/C）。作曲家層の era は composers 由来。無ければ pieces 側 p.era にフォールバック。
+  // v291: composers.era は頭文字（B/Cl/R/M/C）で格納されている。変換せずそのまま表示する。
+  //   ホバー用の時代名だけ、頭文字→ラベルの対応表で引く。
+  //   pieces 側 p.era はフルワード（romantic 等）なので、フォールバック時だけ ERA_INITIAL で頭文字化する。
   const ERA_INITIAL = { baroque:"B", classical:"Cl", romantic:"R", modern:"M", contemporary:"C" };
-  const composerEraKey = (composerRow && composerRow.era) ? composerRow.era : (p.era || "");
-  const composerEraInitial = ERA_INITIAL[composerEraKey] || "";
-  const composerEraLabel = (ERAS[composerEraKey] && ERAS[composerEraKey].label) || "";
+  const ERA_LABEL_BY_INITIAL = { B:"バロック", Cl:"古典派", R:"ロマン派", M:"近現代", C:"現代" };
+  const composerEraInitial = (composerRow && composerRow.era)
+    ? composerRow.era
+    : (ERA_INITIAL[p.era] || "");
+  const composerEraLabel = ERA_LABEL_BY_INITIAL[composerEraInitial] || "";
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
@@ -366,7 +370,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         onClick={onToggleExpand}>
         <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
-          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
+          <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:(expanded && composerRow && composerRow.fullName)?"help":"pointer"}}>{p.composer}</span>
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
           {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
           {/* v205: ⭐️・Pop.は育成中のためカード表示を一時非表示（star/popデータとHistory加算ロジックは温存・イベント紐付けから復元可能） */}
@@ -399,12 +403,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
               <div style={{display:"flex",alignItems:"stretch",gap:0}}>
                 {/* 左カラム: 作曲家層（v290）。3行構成。composersを引けた時だけ2・3行目を出す。 */}
+                {/* v291: 1行目の名前は最上段の作曲家名がその役割を果たすため、ここでは出さない（重複解消）。
+                     この左カラムは最上段の名前の真下に来るので、視覚的に「名前／時代年／リンク」の3行に見える。
+                     fullNameのホバーは最上段の作曲家名に付けた。 */}
                 <div style={{width:"11em",flexShrink:0,paddingTop:8,paddingRight:8,boxSizing:"border-box"}}>
-                  {/* 1行目: display（ホバーでfullName） */}
-                  <div title={composerRow && composerRow.fullName ? composerRow.fullName : undefined}
-                    style={{fontSize:13,color:isAI?"#5A564A":"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:composerRow&&composerRow.fullName?"help":"default"}}>
-                    {p.composer}
-                  </div>
                   {/* 2行目: 時代の頭文字（ホバーで時代名）＋ 生没年。色は付けない。composersを引けた時だけ。 */}
                   {composerRow && (composerEraInitial || composerRow.years) && (
                     <div style={{fontSize:11,color:isAI?"#7A7460":"#94A3BE",fontFamily:SANS,marginTop:3,display:"flex",alignItems:"baseline",gap:6}}>
