@@ -264,7 +264,7 @@ function LinkIcon({ type }) {
   return null;
 }
 
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[] }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[], onToggleMarkNote, onToggleMarkRest }) => {
   const era = ERAS[p.era] || ERAS.modern;
   // v290: 左カラム（作曲家層）。pieces.composer を display として composers を引く。
   //   引けたら fullName / era / years / wiki_ja / wiki_en / imslp を左カラムに出す。
@@ -372,7 +372,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
           <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{p.composer}</span>
           <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
-          {p.key && <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginLeft:2}}>{p.key}</span>}
+          {/* v293: 調性は閉じたカードから外す（開いたとき右カラム2行目に出す）。「in G minor」との二重表示も解消。 */}
           {/* v205: ⭐️・Pop.は育成中のためカード表示を一時非表示（star/popデータとHistory加算ロジックは温存・イベント紐付けから復元可能） */}
           {/* {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>} */}
           {/* {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>} */}
@@ -380,7 +380,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
         <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
-        <span style={{flexShrink:0,fontSize:13,lineHeight:1,width:16,height:16,display:"inline-flex",alignItems:"center",justifyContent:"center",color:"#C0405A",marginRight:4,visibility:p.fav?"visible":"hidden"}} title="お気に入り">♪</span>
+        {/* v293: 旧♥お気に入り(単一♪)は廃止。♪𝄽は展開時の右カラム1行目へ。 */}
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {/* ★candidate・♥favは⋯メニューへ移行のため普段表示から削除（candidate機能はコード温存）*/}
@@ -434,27 +434,35 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     </div>
                   )}
                 </div>
-                {/* 右カラム: 曲の全情報（同じ左端から） */}
+                {/* 右カラム: 曲層（v293）。左カラムと対になる3行構造。 */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:3}}>
-                  {/* ③時代情報行＋リンクを同じ行に */}
+                  {/* 1行目: 曲名 ・ 演奏時間 ・ ♪ 𝄽（自由マーク・独立トグル） */}
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                    <span style={{flex:1,minWidth:0,fontSize:13,color:isAI?"#5A564A":"#E0C888",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</span>
+                    <span style={{flexShrink:0,fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+                    {/* ♪𝄽: 意味を固定しない自由マーク。押すと状態が保存される（DB書き込みのためasync） */}
+                    {!isAI && (
+                      <div style={{flexShrink:0,display:"flex",gap:4,alignItems:"center"}}>
+                        <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
+                          title="マーク（♪）"
+                          style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,color:p.markNote?"#C8A860":"#4A5A7A"}}>♪</button>
+                        <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
+                          title="マーク（𝄽）"
+                          style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,color:p.markRest?"#C8A860":"#4A5A7A"}}>𝄽</button>
+                      </div>
+                    )}
+                  </div>
+                  {/* 2行目: 調性 ・ 作曲年 ・（Lv.非表示）・（Pop.非表示）・ リンク（YouTube等・曲に紐づく） */}
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS,marginBottom:6}}>
-                    <span>{era.label}</span>
-                    <span style={{color:"#7A8FB5"}}>·</span>
+                    {p.key && p.key!=="ー" && <span>{p.key}</span>}
+                    {p.key && p.key!=="ー" && <span style={{color:"#7A8FB5"}}>·</span>}
                     <span>{yearStr}</span>
-                    {/* v269: Lv.・Pop.はコミュニティデータで決まるもの。ユーザー不在の今、AI自動入力値には根拠がないためカード表示を一時非表示（difficulty/popデータとsortByロジックは温存） */}
-                    {/* <span style={{color:"#7A8FB5"}}>·</span> */}
-                    {/* <span>{p.difficulty ? "Lv."+p.difficulty : <span style={{color:"#7A8FB5"}}>Lv. 育成中</span>}</span> */}
-                    {/* <span style={{color:"#7A8FB5"}}>·</span> */}
-                    {/* <span style={{color:"#7A8FB5"}}>Pop. 育成中</span> */}
-                    {/* ③リンクをPop.の後に1em空けて続ける */}
+                    {/* v269/v293: Lv.・Pop.は育成中。枠だけ確保し表示は伏せる（機能実装時にここへ差し込む）。 */}
+                    {/* <span style={{color:"#7A8FB5"}}>·</span><span>Lv. 育成中</span> */}
+                    {/* <span style={{color:"#7A8FB5"}}>·</span><span>Pop. 育成中</span> */}
+                    {/* リンク: YouTube等は曲層（右カラム）。Wikipedia/IMSLPは作曲家層（左カラム）に振り分け済み。 */}
                     <span style={{marginLeft:"1em",display:"inline-flex",gap:4}}>
-                      {/* v275: W（Wikipedia）・I（IMSLP）はAIが組み立てたURLで実在確認をしていないため一時非表示。
-                          正解が1つあるものをAIに推測させるのが誤り（例: Claude Debussy → 正しくは「クロード・ドビュッシー」）。
-                          将来 composers テーブルに確認済みURL2列を持たせる設計へ移行する。
-                          ▶（YouTube）は特定の演奏を指さない検索URLなので残す。 */}
                       {[
-                        // ["https://ja.wikipedia.org/wiki/"+encodeURIComponent(p.composer),"W","Wikipedia"],
-                        // ["https://imslp.org/wiki/Special:Search/"+encodeURIComponent(p.title),"I","International Music Score Library Project"],
                         ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
                       ].map(([href,mark,ttl])=>(
                         <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
@@ -473,11 +481,12 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       ))}
                     </span>
                   </div>
-                  {/* メモ(ある時だけ) */}
-                  {(p.memo||p.reason) && (
+                  {/* 3行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
+                  {(p.keywords || p.memo || p.reason) && (
                     <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
+                      {p.keywords && <div style={{marginBottom:(p.memo||p.reason)?4:0}}>{p.keywords}</div>}
                       {p.memo && <div>{p.memo}</div>}
-                      {p.reason && <div style={{fontStyle:"normal",marginTop:p.memo?4:0,color:isAI?"#5A564A":"#94A3BE"}}>💡 {p.reason}</div>}
+                      {p.reason && <div style={{fontStyle:"normal",marginTop:(p.memo||p.keywords)?4:0,color:isAI?"#5A564A":"#94A3BE"}}>💡 {p.reason}</div>}
                     </div>
                   )}
                 </div>
@@ -2047,6 +2056,7 @@ const ManagePage = (props) => {
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
+  const {toggleMarkNote, toggleMarkRest} = props; // v293: ♪𝄽
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
   const {dashData, dashTotal} = props;
@@ -2304,6 +2314,8 @@ const ManagePage = (props) => {
                     onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
                     inProgram={undefined}
                     onToggleFav={()=>toggleFav(p.id)}
+                    onToggleMarkNote={()=>toggleMarkNote(p.id)}
+                    onToggleMarkRest={()=>toggleMarkRest(p.id)}
                     onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                     showControls={true}
                     onUpdatePiece={onUpdatePiece}
@@ -2417,6 +2429,8 @@ const ManagePage = (props) => {
                 onToggleExpand={()=>setExpandedId(expandedId===p.id?null:p.id)}
                 inProgram={undefined}
                 onToggleFav={()=>toggleFav(p.id)}
+                onToggleMarkNote={()=>toggleMarkNote(p.id)}
+                onToggleMarkRest={()=>toggleMarkRest(p.id)}
                 onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                 showControls={true}
                 onUpdatePiece={onUpdatePiece}
@@ -3418,6 +3432,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           star: p.is_star || false,
           pop: p.pop || 0,
           links: p.links || [],
+          keywords: p.keywords || '',
+          markNote: p.mark_note || false,
+          markRest: p.mark_rest || false,
           mine: true,
         })));
         const learnIds = data.filter(p => p.is_learning).map(p => p.id);
@@ -3520,6 +3537,24 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     const newFav = !piece.fav;
     setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:newFav}:p));
     await supabase.from('pieces').update({is_fav: newFav}).eq('id', id);
+  };
+  // v293: ♪(mark_note) / 𝄽(mark_rest) の独立トグル。意味は固定しない自由マーク。
+  //   列がまだ無い環境でも落ちないよう、DB更新のエラーは握りつぶす（画面表示は先に更新済み）。
+  const toggleMarkNote = async (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (!piece) return;
+    const next = !piece.markNote;
+    setPieces(ps=>ps.map(p=>p.id===id?{...p,markNote:next}:p));
+    const { error } = await supabase.from('pieces').update({mark_note: next}).eq('id', id);
+    if (error) console.error('mark_note update失敗（列未追加の可能性）:', error);
+  };
+  const toggleMarkRest = async (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (!piece) return;
+    const next = !piece.markRest;
+    setPieces(ps=>ps.map(p=>p.id===id?{...p,markRest:next}:p));
+    const { error } = await supabase.from('pieces').update({mark_rest: next}).eq('id', id);
+    if (error) console.error('mark_rest update失敗（列未追加の可能性）:', error);
   };
   const toggleCandidate = async (id) => {
     const piece = pieces.find(p=>p.id===id);
@@ -3845,7 +3880,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
-          onAddPiece={onAddPiece} toggleFav={toggleFav} filterMark={filterMark} setFilterMark={setFilterMark}
+          onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} filterMark={filterMark} setFilterMark={setFilterMark}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
           searchQ={searchQ} setSearchQ={setSearchQ} sel={sel} fmtDuration={fmtDuration}
           ERAS={ERAS} ERA_ORDER={ERA_ORDER} SANS={SANS} FONT={FONT}
