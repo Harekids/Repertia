@@ -380,7 +380,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         </div>
         {/* ③演奏時間: 1行目と同書式 */}
         <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
-        {/* v293: 旧♥お気に入り(単一♪)は廃止。♪𝄽は展開時の右カラム1行目へ。 */}
+        {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
+             意味は固定しない独立2トグル。DB書き込みのため onClick は async。AI候補には出さない。 */}
+        {!isAI && (
+          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",marginRight:4}}>
+            <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
+              title="マーク（♪）"
+              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,color:p.markNote?"#C8A860":"#4A5A7A"}}>♪</button>
+            <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
+              title="マーク（休符）"
+              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"Georgia,serif",color:p.markRest?"#C8A860":"#4A5A7A"}}>&#119093;</button>
+          </div>
+        )}
         {showControls && (
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             {/* ★candidate・♥favは⋯メニューへ移行のため普段表示から削除（candidate機能はコード温存）*/}
@@ -434,25 +445,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     </div>
                   )}
                 </div>
-                {/* 右カラム: 曲層（v293）。左カラムと対になる3行構造。 */}
+                {/* 右カラム: 曲層（v294）。曲名・演奏時間・♪𝄽は見出し行が担当するため、右カラムは2行。 */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:3}}>
-                  {/* 1行目: 曲名 ・ 演奏時間 ・ ♪ 𝄽（自由マーク・独立トグル） */}
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                    <span style={{flex:1,minWidth:0,fontSize:13,color:isAI?"#5A564A":"#E0C888",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</span>
-                    <span style={{flexShrink:0,fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS}}>{fmtDuration(p.duration, p.durationSecs)}</span>
-                    {/* ♪𝄽: 意味を固定しない自由マーク。押すと状態が保存される（DB書き込みのためasync） */}
-                    {!isAI && (
-                      <div style={{flexShrink:0,display:"flex",gap:4,alignItems:"center"}}>
-                        <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
-                          title="マーク（♪）"
-                          style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,color:p.markNote?"#C8A860":"#4A5A7A"}}>♪</button>
-                        <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
-                          title="マーク（𝄽）"
-                          style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,color:p.markRest?"#C8A860":"#4A5A7A"}}>𝄽</button>
-                      </div>
-                    )}
-                  </div>
-                  {/* 2行目: 調性 ・ 作曲年 ・（Lv.非表示）・（Pop.非表示）・ リンク（YouTube等・曲に紐づく） */}
+                  {/* 1行目: 調性 ・ 作曲年 ・（Lv.非表示）・（Pop.非表示）・ リンク（YouTube等・曲に紐づく） */}
                   <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS,marginBottom:6}}>
                     {p.key && p.key!=="ー" && <span>{p.key}</span>}
                     {p.key && p.key!=="ー" && <span style={{color:"#7A8FB5"}}>·</span>}
@@ -481,7 +476,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       ))}
                     </span>
                   </div>
-                  {/* 3行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
+                  {/* 2行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
                   {(p.keywords || p.memo || p.reason) && (
                     <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
                       {p.keywords && <div style={{marginBottom:(p.memo||p.reason)?4:0}}>{p.keywords}</div>}
