@@ -2185,15 +2185,19 @@ const ManagePage = (props) => {
   };
   // 逆引き：この曲(pieceId)が使われたイベントを返す
   // 過去=historyItems(スナップショット)のid照合／未来=items[].pieceId照合
+  // v302: 演奏履歴の逆引きは「承認済み（in_history:true）かつ historyItems に含まれる曲」だけを見る。
+  //   案A改（企画確定）：承認して初めて演奏履歴に載る。未承認イベント（History タブにいるが
+  //   「History に登録」未押下・in_history:false・items のみ）の曲は演奏履歴に出さない。
+  //   金庫「無い歴史を作ってはいけない」（v289）に一貫＝承認前は「まだ弾いた記録ではない」。
+  //   従来は ev.items も見ていたため未承認の予定が演奏履歴に混入していた（★過負荷＝
+  //   1つの逆引きが「演奏履歴」と「使用中警告」の2目的を抱えて干渉）。用途を演奏履歴に限定して解消。
+  //   ※「予定含めた使用中警告」は現状これを使う箇所が無いため別関数は作らない（必要時に追加）。
   const findEventsForPiece = (pieceId) => {
     const pid = String(pieceId);
     return (events||[]).filter(ev => {
-      if (Array.isArray(ev.historyItems) && ev.historyItems.some(s => String(s.id)===pid)) return true;
-      // v282: 新導線でつけた単品（items[].pieceId）も逆引きの照合対象にする。
-      // これで曲削除時の「このイベントで使用中」警告と、曲からの演奏履歴逆引きが単品でも効く。
-      if (Array.isArray(ev.items) && ev.items.some(it => it && String(it.pieceId)===pid)) return true;
+      if (!ev.in_history) return false; // 未承認は演奏履歴に出さない
+      return Array.isArray(ev.historyItems) && ev.historyItems.some(s => String(s.id)===pid);
       // v286(③-2): programId経由の逆引きを廃止（Atelierは別アプリへ分離）。
-      return false;
     }).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   };
   return (
