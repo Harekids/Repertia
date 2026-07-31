@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "./supabase";
 
 // ── カラーテーマ (紺×ゴールド) ─────────────────────────────────────────────
@@ -270,10 +271,18 @@ function LinkIcon({ type }) {
 //   line1 = 「作曲家：曲名」／ line2 = 本文（「〜から〜に移動しますか？」等）。
 //   confirmLabel = 実行ボタンの文言／ confirmColor = 実行ボタンの色（削除=赤・移動=青）。
 const ConfirmModal = ({ SANS, line1, line2, confirmLabel, confirmColor, onConfirm, onCancel }) => {
-  return (
+  // v299: 祖先カードに transform:scale が掛かっており、その内側だと position:fixed が
+  //   カード基準になってスクロール追従・メニューバー下に潜る。→ body直下にPortalで出す。
+  //   さらに開いている間は背景スクロールを止める（後ろのリストが動かない）。
+  React.useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+  const modal = (
     <div onClick={onCancel}
       style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(6,12,24,0.6)",
-        zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+        zIndex:2147483000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
       <div onClick={e=>e.stopPropagation()}
         style={{background:"#16243F",border:"1px solid #2A3A5A",borderRadius:10,
           boxShadow:"0 8px 28px rgba(0,0,0,0.4)",maxWidth:360,width:"100%",padding:"20px 22px 16px",boxSizing:"border-box"}}>
@@ -288,6 +297,10 @@ const ConfirmModal = ({ SANS, line1, line2, confirmLabel, confirmColor, onConfir
       </div>
     </div>
   );
+  // Portal先はbody。SSRなど無い通常ブラウザ環境なのでdocument.bodyで安全。
+  return (typeof document !== "undefined" && document.body)
+    ? createPortal(modal, document.body)
+    : modal;
 };
 
 const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[], onToggleMarkNote, onToggleMarkRest, onPromote, onDemote }) => {
