@@ -2275,9 +2275,15 @@ const ManagePage = (props) => {
                       // v278: 登録時にcomposerを空にするため、重複判定も空基準に揃える（曲名で照合）
                       if(pieces.some(x => x.title===p.title && x.learning)) return;
                       setAddedAiIds(prev=>[...prev,p.id]);
-                      // v278: AI検索結果の composer は登録しない（照合キーをAIに作らせない）。
-                      // 作曲家欄は空で登録され、ユーザーが手で埋めるかcomposersテーブルから選ぶ。
-                      await addPiecesFromProgram([{...p, composer:""}], {silent:true});
+                      // v296: AI検索結果を Learning に追加する経路にも composers 照合を通す（症状②の修正）。
+                      //   Add Piece 側の selectSuggestion と同じ方針（案A）：
+                      //   AIが返した composer 文字列は「検索キー」としてのみ使い、値としては捨てる。
+                      //   rankComposers で composers を引き、一意（1件）に決まったときだけ display を入れる。
+                      //   複数ヒット・0件は空欄のまま（「推測しない・検索1位を無条件採用しない・空欄も情報」）。
+                      const key = (p.composer || "").toLowerCase().trim();
+                      const hits = key ? rankComposers(composers, key, 8) : [];
+                      const decided = hits.length === 1 ? hits[0].display : "";
+                      await addPiecesFromProgram([{...p, composer: decided}], {silent:true});
                     }}
                     disabled={added}
                     style={{background:added?"#1E2A45":"#0F1A33",border:"none",color:added?"#7A8AAA":"#E8D090",
