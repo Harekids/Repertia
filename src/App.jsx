@@ -270,7 +270,7 @@ function LinkIcon({ type }) {
 //   2択で選ぶUI（キャンセル/実行）。✕は付けない（キャンセルボタンがその役割）。
 //   line1 = 「作曲家：曲名」／ line2 = 本文（「〜から〜に移動しますか？」等）。
 //   confirmLabel = 実行ボタンの文言／ confirmColor = 実行ボタンの色（削除=赤・移動=青）。
-const ConfirmModal = ({ SANS, line1, line2, confirmLabel, confirmColor, onConfirm, onCancel }) => {
+const ConfirmModal = ({ SANS, line1, line2, note, confirmLabel, confirmColor, onConfirm, onCancel }) => {
   // v299: 祖先カードに transform:scale が掛かっており、その内側だと position:fixed が
   //   カード基準になってスクロール追従・メニューバー下に潜る。→ body直下にPortalで出す。
   //   さらに開いている間は背景スクロールを止める（後ろのリストが動かない）。
@@ -287,7 +287,8 @@ const ConfirmModal = ({ SANS, line1, line2, confirmLabel, confirmColor, onConfir
         style={{background:"#16243F",border:"1px solid #2A3A5A",borderRadius:10,
           boxShadow:"0 8px 28px rgba(0,0,0,0.4)",maxWidth:360,width:"100%",padding:"20px 22px 16px",boxSizing:"border-box"}}>
         <div style={{color:"#EDE6D6",fontSize:13,fontWeight:600,fontFamily:SANS,marginBottom:6,wordBreak:"break-word"}}>{line1}</div>
-        <div style={{color:"#C8CEDB",fontSize:13,fontFamily:SANS,lineHeight:1.6,marginBottom:18,wordBreak:"break-word"}}>{line2}</div>
+        <div style={{color:"#C8CEDB",fontSize:13,fontFamily:SANS,lineHeight:1.6,marginBottom:note?8:18,wordBreak:"break-word"}}>{line2}</div>
+        {note && <div style={{color:"#8A97AD",fontSize:11,fontFamily:SANS,lineHeight:1.6,marginBottom:18,wordBreak:"break-word"}}>{note}</div>}
         <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
           <button onClick={onCancel}
             style={{background:"none",border:"1px solid #3A4A6A",color:"#A8B4C8",padding:"6px 16px",borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
@@ -707,9 +708,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {confirmKind==='delete' && (
                 <ConfirmModal SANS={SANS}
                   line1={(p.composer? p.composer+"：" : "")+p.title}
-                  line2={(isLearning ? "この曲をラーニングから削除しますか？" : "この曲をレパートリーから削除しますか？")
-                    + ((Array.isArray(eventsForPiece)&&eventsForPiece.length>0)
-                       ? "（Historyの演奏履歴には残ります）" : "")}
+                  line2={isLearning ? "この曲をラーニングから削除しますか？" : "この曲をレパートリーから削除しますか？"}
+                  note={(Array.isArray(eventsForPiece)&&eventsForPiece.length>0)
+                    ? "※イベントで演奏した記録は消えず、Historyに残ります。" : undefined}
                   confirmLabel="削除" confirmColor="#C0405A"
                   onCancel={()=>setConfirmKind(null)}
                   onConfirm={()=>{ setConfirmKind(null); if(onDeletePiece) onDeletePiece(); }} />
