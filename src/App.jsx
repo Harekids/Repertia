@@ -264,6 +264,32 @@ function LinkIcon({ type }) {
   return null;
 }
 
+// v298: Repertia独自の確認モーダル（中央・暗幕＋紺ボックス・既存トーストのトーン）。
+//   ブラウザ標準confirmを置き換える。移動（RP⇄LP）と削除で共用。
+//   2択で選ぶUI（キャンセル/実行）。✕は付けない（キャンセルボタンがその役割）。
+//   line1 = 「作曲家：曲名」／ line2 = 本文（「〜から〜に移動しますか？」等）。
+//   confirmLabel = 実行ボタンの文言／ confirmColor = 実行ボタンの色（削除=赤・移動=青）。
+const ConfirmModal = ({ SANS, line1, line2, confirmLabel, confirmColor, onConfirm, onCancel }) => {
+  return (
+    <div onClick={onCancel}
+      style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(6,12,24,0.6)",
+        zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{background:"#16243F",border:"1px solid #2A3A5A",borderRadius:10,
+          boxShadow:"0 8px 28px rgba(0,0,0,0.4)",maxWidth:360,width:"100%",padding:"20px 22px 16px",boxSizing:"border-box"}}>
+        <div style={{color:"#EDE6D6",fontSize:13,fontWeight:600,fontFamily:SANS,marginBottom:6,wordBreak:"break-word"}}>{line1}</div>
+        <div style={{color:"#C8CEDB",fontSize:13,fontFamily:SANS,lineHeight:1.6,marginBottom:18,wordBreak:"break-word"}}>{line2}</div>
+        <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
+          <button onClick={onCancel}
+            style={{background:"none",border:"1px solid #3A4A6A",color:"#A8B4C8",padding:"6px 16px",borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
+          <button onClick={onConfirm}
+            style={{background:confirmColor,border:"none",color:"#fff",padding:"6px 18px",borderRadius:5,cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:SANS}}>{confirmLabel}</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[], onToggleMarkNote, onToggleMarkRest, onPromote, onDemote }) => {
   const era = ERAS[p.era] || ERAS.modern;
   // v290: 左カラム（作曲家層）。pieces.composer を display として composers を引く。
@@ -297,6 +323,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const [menuOpen, setMenuOpen] = React.useState(false); // v176: ⋯メニュー（PieceCardUnified内）
   const menuRef = useCloseOnOutsideClick(menuOpen, () => setMenuOpen(false)); // v276
   React.useEffect(() => { if (!expanded) setMenuOpen(false); }, [expanded]);
+  // v298: 確認モーダルの状態。null＝閉じ。'move'＝RP⇄LP移動確認 / 'delete'＝削除確認。
+  const [confirmKind, setConfirmKind] = React.useState(null);
 
   React.useEffect(() => {
     if (!expanded) setEditing(false);
@@ -495,16 +523,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
                     <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
                       style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>編集</button>
-                    {/* v297: RP⇄LP 往復。LPなら「Repertoireに上げる」、RPなら「Learningに戻す」。
-                         learningのみ切替・✧には触れない。AI候補には出さない。 */}
-                    {!isAI && isLearning && onPromote && (
-                      <button onClick={async(e)=>{e.stopPropagation();setMenuOpen(false);await onPromote();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>Repertoire に上げる</button>
-                    )}
-                    {!isAI && !isLearning && onDemote && (
-                      <button onClick={async(e)=>{e.stopPropagation();setMenuOpen(false);await onDemote();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>Learning に戻す</button>
-                    )}
+                    {/* v298: 往復ボタンは⋯メニューから編集画面へ移動（意識的な操作にするため）。 */}
                     {onToggleFav && (
                       <button onClick={e=>{e.stopPropagation();setMenuOpen(false);onToggleFav();}}
                         style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
@@ -638,30 +657,50 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 </div>
               )}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16,gap:12}}>
+                {/* 左：破壊的操作（削除・赤）。単独で左端に置き、他と離す。 */}
                 {onDeletePiece ? (
-                  <button onClick={()=>{
-                    const list = Array.isArray(eventsForPiece)?eventsForPiece:[];
-                    const today = new Date().toISOString().slice(0,10);
-                    const hCount = list.filter(ev=>ev.in_history || (ev.date&&ev.date<=today)).length;
-                    const uCount = list.length - hCount;
-                    const NL = String.fromCharCode(10);
-                    let msg;
-                    if (list.length>0) {
-                      msg = "イベント登録状況：History "+hCount+"件 / Upcoming "+uCount+"件"+NL+NL
-                          + "History（過去のイベント）の演奏履歴には残ります。"+NL
-                          + "Upcoming（これからのイベント）のプログラムからは外されます。"+NL+NL
-                          + "本当に削除しますか？";
-                    } else {
-                      msg = "この曲を削除しますか？";
-                    }
-                    if (window.confirm(msg)) { onDeletePiece(); }
-                  }}
-                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>この曲を削除</button>
+                  <button onClick={()=>setConfirmKind('delete')}
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS,flexShrink:0}}>この曲を削除</button>
                 ) : <span/>}
-                <button onClick={saveEdit}
-                  style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
+                {/* 右：非破壊的操作（移動＝青／保存＝金）をまとめ、削除から離す。 */}
+                <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
+                  {/* v298: RP⇄LP 移動ボタン。isLearningで文言を出し分け。押すと確認モーダル。 */}
+                  {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
+                    <button onClick={()=>setConfirmKind('move')}
+                      style={{background:"none",border:"1px solid #4A6FA5",color:"#7FA8D8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
+                      {isLearning ? "Repertoireに移動する" : "Learningに移動する"}
+                    </button>
+                  )}
+                  <button onClick={saveEdit}
+                    style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
+                </div>
               </div>
+              {/* v298: 確認モーダル（移動／削除で共用）。RP/LPはモーダル内だけカタカナ表記。 */}
+              {confirmKind==='move' && (
+                <ConfirmModal SANS={SANS}
+                  line1={(p.composer? p.composer+"：" : "")+p.title}
+                  line2={isLearning
+                    ? "この曲をラーニングからレパートリーに移動しますか？"
+                    : "この曲をレパートリーからラーニングに移動しますか？"}
+                  confirmLabel="移動" confirmColor="#4A6FA5"
+                  onCancel={()=>setConfirmKind(null)}
+                  onConfirm={async()=>{
+                    setConfirmKind(null);
+                    if (isLearning) { if(onPromote) await onPromote(); }
+                    else { if(onDemote) await onDemote(); }
+                  }} />
+              )}
+              {confirmKind==='delete' && (
+                <ConfirmModal SANS={SANS}
+                  line1={(p.composer? p.composer+"：" : "")+p.title}
+                  line2={(isLearning ? "この曲をラーニングから削除しますか？" : "この曲をレパートリーから削除しますか？")
+                    + ((Array.isArray(eventsForPiece)&&eventsForPiece.length>0)
+                       ? "（Historyの演奏履歴には残ります）" : "")}
+                  confirmLabel="削除" confirmColor="#C0405A"
+                  onCancel={()=>setConfirmKind(null)}
+                  onConfirm={()=>{ setConfirmKind(null); if(onDeletePiece) onDeletePiece(); }} />
+              )}
             </div>
           )}
         </div>
@@ -2061,6 +2100,7 @@ const ManagePage = (props) => {
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
   const {editMode, setEditMode, onAddPiece, toggleFav} = props;
+  const {promoteToRepertoire, demoteToLearning} = props; // v298: RP⇄LP 往復ハンドラ（App由来）
   const {toggleMarkNote, toggleMarkRest} = props; // v293: ♪𝄽
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
@@ -3913,7 +3953,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
-          onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} filterMark={filterMark} setFilterMark={setFilterMark}
+          onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} promoteToRepertoire={promoteToRepertoire} demoteToLearning={demoteToLearning} filterMark={filterMark} setFilterMark={setFilterMark}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
           searchQ={searchQ} setSearchQ={setSearchQ} sel={sel} fmtDuration={fmtDuration}
           ERAS={ERAS} ERA_ORDER={ERA_ORDER} SANS={SANS} FONT={FONT}
