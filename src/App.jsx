@@ -264,7 +264,7 @@ function LinkIcon({ type }) {
   return null;
 }
 
-const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[], onToggleMarkNote, onToggleMarkRest }) => {
+const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAdd, onRemove, onToggleFav, onToggleCandidate, isAI=false, showControls=true, onUpdatePiece, learningIds=[], eventsForPiece=[], onDeletePiece, composers=[], onToggleMarkNote, onToggleMarkRest, onPromote, onDemote }) => {
   const era = ERAS[p.era] || ERAS.modern;
   // v290: 左カラム（作曲家層）。pieces.composer を display として composers を引く。
   //   引けたら fullName / era / years / wiki_ja / wiki_en / imslp を左カラムに出す。
@@ -495,6 +495,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
                     <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
                       style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>編集</button>
+                    {/* v297: RP⇄LP 往復。LPなら「Repertoireに上げる」、RPなら「Learningに戻す」。
+                         learningのみ切替・✧には触れない。AI候補には出さない。 */}
+                    {!isAI && isLearning && onPromote && (
+                      <button onClick={async(e)=>{e.stopPropagation();setMenuOpen(false);await onPromote();}}
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>Repertoire に上げる</button>
+                    )}
+                    {!isAI && !isLearning && onDemote && (
+                      <button onClick={async(e)=>{e.stopPropagation();setMenuOpen(false);await onDemote();}}
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>Learning に戻す</button>
+                    )}
                     {onToggleFav && (
                       <button onClick={e=>{e.stopPropagation();setMenuOpen(false);onToggleFav();}}
                         style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
@@ -2317,6 +2327,8 @@ const ManagePage = (props) => {
                     onToggleFav={()=>toggleFav(p.id)}
                     onToggleMarkNote={()=>toggleMarkNote(p.id)}
                     onToggleMarkRest={()=>toggleMarkRest(p.id)}
+                    onPromote={()=>promoteToRepertoire(p.id)}
+                    onDemote={()=>demoteToLearning(p.id)}
                     onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                     showControls={true}
                     onUpdatePiece={onUpdatePiece}
@@ -2432,6 +2444,8 @@ const ManagePage = (props) => {
                 onToggleFav={()=>toggleFav(p.id)}
                 onToggleMarkNote={()=>toggleMarkNote(p.id)}
                 onToggleMarkRest={()=>toggleMarkRest(p.id)}
+                onPromote={()=>promoteToRepertoire(p.id)}
+                onDemote={()=>demoteToLearning(p.id)}
                 onToggleCandidate={()=>toggleCandidate&&toggleCandidate(p.id)}
                 showControls={true}
                 onUpdatePiece={onUpdatePiece}
@@ -3538,6 +3552,24 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     const newFav = !piece.fav;
     setPieces(ps=>ps.map(p=>p.id===id?{...p,fav:newFav}:p));
     await supabase.from('pieces').update({is_fav: newFav}).eq('id', id);
+  };
+  // v297: 手動 RP⇄LP 往復（②）。learning の true/false だけを切り替える。
+  //   ✧(candidate) には一切触れない（企画確定・案1）。移動であって価値判断ではない。
+  //   LP→RP：learning=false にし、learningIds からも外す。
+  const promoteToRepertoire = async (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (!piece) return;
+    setLearningIds(prev => prev.filter(x=>x!==id));
+    setPieces(ps=>ps.map(p=>p.id===id?{...p,learning:false}:p));
+    await supabase.from('pieces').update({is_learning: false}).eq('id', id);
+  };
+  //   RP→LP：learning=true にし、learningIds にも入れる。
+  const demoteToLearning = async (id) => {
+    const piece = pieces.find(p=>p.id===id);
+    if (!piece) return;
+    setLearningIds(prev => prev.includes(id) ? prev : [...prev, id]);
+    setPieces(ps=>ps.map(p=>p.id===id?{...p,learning:true}:p));
+    await supabase.from('pieces').update({is_learning: true}).eq('id', id);
   };
   // v293: ♪(mark_note) / 𝄽(mark_rest) の独立トグル。意味は固定しない自由マーク。
   //   列がまだ無い環境でも落ちないよう、DB更新のエラーは握りつぶす（画面表示は先に更新済み）。
