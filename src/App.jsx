@@ -3867,9 +3867,35 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     const nextEvents = events.map(e => e.id===ev.id ? {...e, in_history:true, historyItems: snapshot} : e);
     setEvents(nextEvents);
     saveEvents(nextEvents);
+    // c) v301: 自動昇格（移動のみ）。紐づいた曲のうち LP を RP に移す（learning=false）。
+    //   ✧(candidate)には触れない。既にRPの曲は触らない。複数はまとめて処理。
+    //   案A：DBは .in() で一括更新。「全部移動するか・何もしないか」にして中途半端を防ぐ
+    //   （金庫「入っている値が信用できること」）。promoteToRepertoire を曲数分ループすると
+    //   setState競合が出るため、ここではインラインでまとめて処理する。
+    const linkedPieceIds = Array.from(new Set(
+      (Array.isArray(ev.items) ? ev.items : [])
+        .map(it => it && it.pieceId).filter(Boolean).map(String)
+    ));
+    const idsToPromote = linkedPieceIds.filter(pid => {
+      const pc = pieces.find(x => String(x.id) === pid);
+      return pc && pc.learning === true; // LPのものだけ。既にRP(learning=false)は対象外
+    });
+    if (idsToPromote.length > 0) {
+      const promoteSet = new Set(idsToPromote);
+      setPieces(ps => ps.map(pc => promoteSet.has(String(pc.id)) ? {...pc, learning:false} : pc));
+      setLearningIds(prev => prev.filter(id => !promoteSet.has(String(id))));
+      // DB一括更新（案A）。失敗しても画面表示は先に更新済み・記録は残る。
+      const { error } = await supabase.from('pieces')
+        .update({is_learning: false})
+        .in('id', idsToPromote);
+      if (error) console.error('v301 自動昇格のDB一括更新に失敗:', error);
+    }
     // v283-B: 銀→金・Pop.+1 の自動発火はしない（企画判断）。
     //   History登録は「弾いた記録の保存」だけ。金にするかは本人の手動判断に委ねる。
     //   「弾いた事実の記録」と「金にする決断」は別のこととして扱う。
+    // v301: ただし「移動（LP→RP）」はする。移動と価値判断は別。
+    //   ここでlearningをfalseにするのは棚の移動であって、銀→金の価値判断ではない。
+    //   この移動処理を「v283で消したはず」と誤認して消さないこと（金庫の記録）。
     // d) トースト通知
     setEventsSaveMsg("History に登録しました ✓");
     setTimeout(() => setEventsSaveMsg(""), 3000);
