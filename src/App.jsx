@@ -431,7 +431,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
               title="マーク（休符）"
-              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
+              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
           </div>
         )}
         {showControls && (
