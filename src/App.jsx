@@ -2886,30 +2886,35 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     </div>
   );
 
+  // v310: 案B統一。サブタブ(History/Upcoming)を固定領域に出し、本体だけスクロール。
+  //   Library/Portfolio と同じ「flexShrink:0の固定サブタブ ＋ flex:1 overflowY:autoの本体」構造。
   return (
-    <div style={{flex:1,overflowY:"auto"}}>
-      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"20px 28px 140px"}}>
+  <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-        {/* Events サブタブ（v234：親ラッパー内なのでmaxWidth/padding不要・本文と頭を揃える） */}
-        <div style={{marginTop:-14,marginBottom:24}}>
-          <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
-            {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
-              <button key={k} onClick={()=>requestEventsTab(k)}
-                style={{
-                  background:eventsTab===k?"#C8A860":"transparent",
-                  border:"none",
-                  color:eventsTab===k?"#1A1206":"#94A3BE",
-                  padding:eventsTab===k?"7px 18px":"7px 14px",
-                  cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
-                  fontWeight:eventsTab===k?700:400,
-                  borderRadius:"6px 6px 0 0",
-                  transition:"all 0.15s"}}>
-                {l}
-              </button>
-            ))}
-          </div>
-          <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
-        </div>
+    {/* Events サブタブ（固定・Libraryのタブバーと同じ配置） */}
+    <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
+      <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
+        {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
+          <button key={k} onClick={()=>requestEventsTab(k)}
+            style={{
+              background:eventsTab===k?"#C8A860":"transparent",
+              border:"none",
+              color:eventsTab===k?"#1A1206":"#94A3BE",
+              padding:eventsTab===k?"7px 18px":"7px 14px",
+              cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
+              fontWeight:eventsTab===k?700:400,
+              borderRadius:"6px 6px 0 0",
+              transition:"all 0.15s"}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
+    </div>
+
+    {/* 本体（スクロール領域） */}
+    <div style={{flex:1,overflowY:"auto"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px 140px"}}>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
@@ -3139,6 +3144,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           </>
         )}
 
+      </div>
       </div>
       {/* v303: タブ移動の破棄確認（案ウ・変更があるときだけ出る）。OKで編集を捨てて移動。 */}
       {pendingTab && (
