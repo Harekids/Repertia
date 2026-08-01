@@ -428,7 +428,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",marginRight:4}}>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
               title="マーク（♪）"
-              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:17,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
+              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-1px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
               title="マーク（休符）"
               style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
