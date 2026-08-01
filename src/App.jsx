@@ -397,15 +397,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         borderRadius: 0,
       }} />
 
-      {/* 作曲家列の貫通縦線（1行目〜展開部を1本で貫く・v177） */}
-      <div style={{
-        position:"absolute",
-        left: 157,
-        top: expanded ? 14 : 10,
-        bottom: expanded ? 14 : 10,
-        width: 1,
-        background: isAI ? "#B5AF9A" : "#7A8FB5",
-      }} />
+      {/* 作曲家列の貫通縦線（1行目〜展開部を1本で貫く・v177）。
+           v309: 編集中(editing)は出さない。編集フォームは縦積みで境界線が入力欄を貫くだけのため。 */}
+      {!editing && (
+        <div style={{
+          position:"absolute",
+          left: 157,
+          top: expanded ? 14 : 10,
+          bottom: expanded ? 14 : 10,
+          width: 1,
+          background: isAI ? "#B5AF9A" : "#7A8FB5",
+        }} />
+      )}
 
       {/* ── 1行目（常に表示） ── */}
       <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
