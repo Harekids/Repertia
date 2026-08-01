@@ -2581,6 +2581,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const [showForm, setShowForm]       = useState(false);
   const [editingId, setEditingId]     = useState(null);
   const [newEvent, setNewEvent]       = useState(EMPTY_EVENT);
+  // v303: 「変更があるときだけ確認」（案ウ）用。編集/追加を開いた時点の内容を基準に保持し、
+  //   タブ移動時に現在値と比較して、変わっていれば破棄確認を出す。
+  const [editBaseline, setEditBaseline] = useState(null);
+  // v303: タブ移動を保留しておく箱。破棄確認でOKされたら、この移動を実行する。
+  const [pendingTab, setPendingTab]   = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [dragItemId, setDragItemId]   = useState(null);
   const [dragOverId, setDragOverId]   = useState(null);
@@ -2595,8 +2600,24 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const future = events.filter(e=>e.date >  today).sort((a,b)=>a.date.localeCompare(b.date));
 
   // ── Form helpers ──
-  const openAdd = () => { setNewEvent(EMPTY_EVENT); setEditingId(null); setShowForm(true); setSelectedEvent(null); };
-  const openEdit = (ev) => { setNewEvent({...ev}); setEditingId(ev.id); setShowForm(true); setSelectedEvent(null); };
+  const openAdd = () => { setNewEvent(EMPTY_EVENT); setEditBaseline(EMPTY_EVENT); setEditingId(null); setShowForm(true); setSelectedEvent(null); };
+  const openEdit = (ev) => { setNewEvent({...ev}); setEditBaseline({...ev}); setEditingId(ev.id); setShowForm(true); setSelectedEvent(null); };
+  // v303: 編集/追加フォームを閉じて状態を捨てる（既存キャンセルと同じ内容を一箇所に）。
+  const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
+  // v303: 開いた時点から内容が変わっているか（案ウの判定）。JSON比較で十分（同一構造の素データ）。
+  const isEditDirty = () => {
+    if (!showForm) return false;
+    try { return JSON.stringify(newEvent) !== JSON.stringify(editBaseline); }
+    catch (e) { return true; } // 比較不能なら安全側（変更ありとみなして確認を出す）
+  };
+  // v303: History⇔Upcoming タブ移動の入口。編集中で変更があれば破棄確認、無ければ黙って閉じて移動。
+  //   これで①(過去記録の意図せぬ書き換え)を根から断つ＝タブをまたぐと編集が生き残らない。
+  const requestEventsTab = (k) => {
+    if (k === eventsTab) return;
+    if (isEditDirty()) { setPendingTab(k); return; } // 確認モーダルを出す
+    closeEditForm();
+    setEventsTab(k);
+  };
 
   const saveEvent = () => {
     if (!newEvent.date) return;
@@ -2610,11 +2631,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     //   新導線ではRP/LPに既に存在する曲だけをID参照で選ぶため、白い曲が発生しない。
     //   ※読み取り側（逆引き2091・History登録4352）は③まで両対応のまま残す。
 
-    setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT);
+    closeEditForm();
   };
 
   const deleteEvent = (id) => {
     if (!window.confirm("このイベントを削除しますか？")) return;
+    // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
+    if (editingId === id) closeEditForm();
     setEvents(prev=>prev.filter(e=>e.id!==id)); setSelectedEvent(null);
   };
 
@@ -2868,7 +2891,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         <div style={{marginTop:-14,marginBottom:24}}>
           <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
             {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
-              <button key={k} onClick={()=>setEventsTab(k)}
+              <button key={k} onClick={()=>requestEventsTab(k)}
                 style={{
                   background:eventsTab===k?"#C8A860":"transparent",
                   border:"none",
@@ -3096,7 +3119,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               <button onClick={saveEvent} style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,letterSpacing:1}}>
                 {editingId ? "更新する" : "追加する"}
               </button>
-              <button onClick={()=>{setShowForm(false);setEditingId(null);setNewEvent(EMPTY_EVENT);}} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
+              <button onClick={()=>{closeEditForm();}} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>キャンセル</button>
             </div>
           </div>
         )}
@@ -3114,6 +3137,15 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         )}
 
       </div>
+      {/* v303: タブ移動の破棄確認（案ウ・変更があるときだけ出る）。OKで編集を捨てて移動。 */}
+      {pendingTab && (
+        <ConfirmModal SANS={SANS}
+          line1={editingId ? "編集中の内容があります" : "追加中の内容があります"}
+          line2="編集中の内容を破棄してタブを移動しますか？"
+          confirmLabel="破棄して移動" confirmColor="#C0405A"
+          onCancel={()=>setPendingTab(null)}
+          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); setEventsTab(k); }} />
+      )}
     </div>
   );
 };
