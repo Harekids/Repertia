@@ -2581,6 +2581,7 @@ const ManagePage = (props) => {
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
 const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+  const isMobile = useIsMobile(640); // v317: EventsPage内のinpEもisMobileを参照するため（v316の真っ白バグ修正）
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const [eventsTab, setEventsTab] = useState("history"); // v222: History先・Upcoming後（確定した歴史が主役）
