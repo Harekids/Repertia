@@ -2,6 +2,21 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "./supabase";
 
+// v313: スマホ幅判定フック（640px以下＝スマホ）。全面インラインstyleに馴染むJS判定（案A）。
+//   今後のスマホ調整でも再利用する土台。リサイズにも追従する。
+const useIsMobile = (breakpoint = 640) => {
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== "undefined" ? window.innerWidth <= breakpoint : false
+  );
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= breakpoint);
+    window.addEventListener("resize", onResize);
+    onResize();
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+};
+
 // ── カラーテーマ (紺×ゴールド) ─────────────────────────────────────────────
 const C = {
   bgDeep:    "#0F1A33",   // ページ背景・濃い紺
@@ -320,6 +335,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
     : (ERA_INITIAL[p.era] || "");
   const composerEraLabel = ERA_LABEL_BY_INITIAL[composerEraInitial] || "";
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
+  const isMobile = useIsMobile(640); // v313: スマホ幅なら閉じたカード1行目を縦レイアウトに
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
   const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
@@ -413,18 +429,30 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
       {/* ── 1行目（常に表示） ── */}
       <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
         onClick={onToggleExpand}>
-        <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-          {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
-          <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{p.composer}</span>
-          <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
-          {/* v293: 調性は閉じたカードから外す（開いたとき右カラム2行目に出す）。「in G minor」との二重表示も解消。 */}
-          {/* v205: ⭐️・Pop.は育成中のためカード表示を一時非表示（star/popデータとHistory加算ロジックは温存・イベント紐付けから復元可能） */}
-          {/* {p.star && <span style={{flexShrink:0,fontSize:11,marginLeft:3}} title="本番で演奏">⭐️</span>} */}
-          {/* {(p.pop||0)>0 && <span style={{flexShrink:0,fontSize:9,color:expanded?"#D8C8A0":"#94A3BE",fontFamily:SANS,marginLeft:2}}>Pop.{p.pop}</span>} */}
-          {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
-        </div>
-        {/* ③演奏時間: 1行目と同書式 */}
-        <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+        {isMobile ? (
+          /* v313: スマホ幅＝縦レイアウト。曲名を上に大きく（折り返して全部見える）／作曲家・時間を下に小さく。
+             調は出さない（案イ・v293維持）。切れずに全体が見える。 */
+          <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:2}}>
+            <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
+              <span style={{flex:1,minWidth:0,fontSize:14,color:mainTxt,fontFamily:SANS,lineHeight:1.35,wordBreak:"break-word"}}>{p.title}</span>
+              {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
+            </div>
+            <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+              {p.composer}{p.composer ? " / " : ""}{fmtDuration(p.duration, p.durationSecs)}
+            </div>
+          </div>
+        ) : (
+          <React.Fragment>
+            <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+              {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
+              <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{p.composer}</span>
+              <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
+              {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
+            </div>
+            {/* ③演奏時間: 1行目と同書式 */}
+            <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+          </React.Fragment>
+        )}
         {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
              意味は固定しない独立2トグル。DB書き込みのため onClick は async。AI候補には出さない。 */}
         {!isAI && (
