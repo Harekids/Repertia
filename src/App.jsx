@@ -414,8 +414,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
       }} />
 
       {/* 作曲家列の貫通縦線（1行目〜展開部を1本で貫く・v177）。
-           v309: 編集中(editing)は出さない。編集フォームは縦積みで境界線が入力欄を貫くだけのため。 */}
-      {!editing && (
+           v309: 編集中(editing)は出さない。編集フォームは縦積みで境界線が入力欄を貫くだけのため。
+           v315: スマホ(isMobile)も出さない。スマホは曲名上・作曲家下の縦積みで、
+                 作曲家列/曲列を分ける縦線が意味を失い、何も区切らない1本になるため。 */}
+      {!editing && !isMobile && (
         <div style={{
           position:"absolute",
           left: 157,
