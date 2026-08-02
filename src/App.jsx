@@ -2707,7 +2707,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     reader.readAsDataURL(file);
   };
 
-  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  // v316: スマホは入力欄を16pxに（iOSはinput<16pxでフォーカス時に自動ズームするため）。PCは12pxのまま。
+  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:isMobile?16:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const selE={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:SANS,fontSize:12,borderRadius:4,width:"100%"};
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:SANS,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
