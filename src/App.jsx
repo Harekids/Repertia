@@ -441,7 +441,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
               <span style={{
                 flex:1,minWidth:0,
-                fontSize:14,fontWeight:600,
+                fontSize:14,fontWeight:500,
                 color:mainTxt,
                 fontFamily:SANS,lineHeight:1.35,
                 ...(expanded
