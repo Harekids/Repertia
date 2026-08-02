@@ -434,7 +434,15 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
              調は出さない（案イ・v293維持）。切れずに全体が見える。 */
           <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:2}}>
             <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
-              <span style={{flex:1,minWidth:0,fontSize:14,color:mainTxt,fontFamily:SANS,lineHeight:1.35,wordBreak:"break-word"}}>{p.title}</span>
+              <span style={{
+                flex:1,minWidth:0,
+                fontSize:14,fontWeight:600,
+                color:isAI?"#5A564A":"#EDE6D6",
+                fontFamily:SANS,lineHeight:1.35,
+                ...(expanded
+                  ? {wordBreak:"break-word"}
+                  : {whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"})
+              }}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
             </div>
             <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
