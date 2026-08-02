@@ -45,7 +45,10 @@ const FontLoader = () => {
   }, []);
   return null;
 };
-const SANS = "'Zen Kaku Gothic New','Noto Sans JP',sans-serif";
+// v319: 本文フォントをOS標準（SF/ヒラギノ系）に統一。＋追加カードと一覧カードの
+//   本文書体差（OS初期 vs Zen Kaku）を解消。見出しFONT（Montserrat＝"らしさ"）は現状維持。
+//   ログイン画面のSANS（別定義）・配色（紺）・太さ（600）は今回対象外。
+const SANS = "-apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', sans-serif";
 const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
