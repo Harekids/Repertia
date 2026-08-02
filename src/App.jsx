@@ -439,7 +439,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <span style={{
                 flex:1,minWidth:0,
                 fontSize:14,fontWeight:600,
-                color:isAI?"#5A564A":"#EDE6D6",
+                color:mainTxt,
                 fontFamily:SANS,lineHeight:1.35,
                 ...(expanded
                   ? {wordBreak:"break-word"}
