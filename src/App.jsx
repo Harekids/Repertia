@@ -443,14 +443,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 flex:1,minWidth:0,
                 fontSize:14,fontWeight:500,
                 color:mainTxt,
-                fontFamily:FONT,lineHeight:1.35,
+                fontFamily:SANS,lineHeight:1.35,
                 ...(expanded
                   ? {wordBreak:"break-word"}
                   : {whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"})
               }}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
             </div>
-            <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+            <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
               {p.composer}{p.composer ? " / " : ""}{fmtDuration(p.duration, p.durationSecs)}
             </div>
           </div>
@@ -458,12 +458,12 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           <React.Fragment>
             <div style={{flex:1,minWidth:0,display:"flex",alignItems:"baseline",gap:5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
               {/* ②作曲家名に最小幅。一般的な名前(〜12文字)が収まる幅で縦線が揃う */}
-              <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:FONT,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{p.composer}</span>
-              <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
+              <span title={expanded && composerRow && composerRow.fullName ? composerRow.fullName : undefined} style={{fontSize:14,color:mainTxt,fontFamily:SANS,width:"11em",flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{p.composer}</span>
+              <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
             </div>
             {/* ③演奏時間: 1行目と同書式 */}
-            <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+            <span style={{fontSize:14,color:mainTxt,fontFamily:SANS,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
           </React.Fragment>
         )}
         {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
@@ -506,7 +506,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{width:"11em",flexShrink:0,paddingTop:8,paddingRight:8,boxSizing:"border-box"}}>
                   {/* 2行目: 時代の頭文字（ホバーで時代名）＋ 生没年。色は付けない。composersを引けた時だけ。 */}
                   {composerRow && (composerEraInitial || composerRow.years) && (
-                    <div style={{fontSize:11,color:isAI?"#7A7460":"#94A3BE",fontFamily:FONT,marginTop:3,display:"flex",alignItems:"baseline",gap:6}}>
+                    <div style={{fontSize:11,color:isAI?"#7A7460":"#94A3BE",fontFamily:SANS,marginTop:3,display:"flex",alignItems:"baseline",gap:6}}>
                       {composerEraInitial && (
                         <span title={composerEraLabel||undefined} style={{cursor:"default"}}>{composerEraInitial}</span>
                       )}
@@ -521,12 +521,12 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       {(composerRow.wiki_ja || composerRow.wiki_en) && (
                         <a href={composerRow.wiki_ja || composerRow.wiki_en} target="_blank" rel="noreferrer" title="Wikipedia"
                           onClick={e=>e.stopPropagation()}
-                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}>W</a>
+                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}>W</a>
                       )}
                       {composerRow.imslp && (
                         <a href={composerRow.imslp} target="_blank" rel="noreferrer" title="IMSLP"
                           onClick={e=>e.stopPropagation()}
-                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}>I</a>
+                          style={{width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}>I</a>
                       )}
                     </div>
                   )}
@@ -534,7 +534,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {/* 右カラム: 曲層（v294）。曲名・演奏時間・♪𝄽は見出し行が担当するため、右カラムは2行。 */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:3}}>
                   {/* 1行目: 調性 ・ 作曲年 ・（Lv.非表示）・（Pop.非表示）・ リンク（YouTube等・曲に紐づく） */}
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:FONT,marginBottom:6}}>
+                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:SANS,marginBottom:6}}>
                     {p.key && p.key!=="ー" && <span>{p.key}</span>}
                     {p.key && p.key!=="ー" && <span style={{color:"#7A8FB5"}}>·</span>}
                     <span>{yearStr}</span>
@@ -549,7 +549,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
                           style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
                             fontSize:11,color:"#94A3BE",textDecoration:"none",
-                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
+                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
                           onClick={e=>e.stopPropagation()}>{mark}</a>
                       ))}
                       {Array.isArray(p.links) && p.links.length>0 && <span style={{width:8,flexShrink:0,display:"inline-block"}} />}
@@ -557,14 +557,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
                           style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
                             fontSize:11,color:"#94A3BE",textDecoration:"none",
-                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
+                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:SANS,flexShrink:0}}
                           onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
                       ))}
                     </span>
                   </div>
                   {/* 2行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
                   {(p.keywords || p.memo || p.reason) && (
-                    <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:FONT}}>
+                    <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:SANS}}>
                       {p.keywords && <div style={{marginBottom:(p.memo||p.reason)?4:0}}>{p.keywords}</div>}
                       {p.memo && <div>{p.memo}</div>}
                       {p.reason && <div style={{fontStyle:"normal",marginTop:(p.memo||p.keywords)?4:0,color:isAI?"#5A564A":"#94A3BE"}}>💡 {p.reason}</div>}
@@ -580,11 +580,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {menuOpen && (
                   <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
                     <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
-                      style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}>編集</button>
+                      style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>編集</button>
                     {/* v298: 往復ボタンは⋯メニューから編集画面へ移動（意識的な操作にするため）。 */}
                     {onToggleFav && (
                       <button onClick={e=>{e.stopPropagation();setMenuOpen(false);onToggleFav();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:SANS,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
                     )}
                   </div>
                 )}
@@ -600,35 +600,35 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
                   <div key={field}>
-                    <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>{label}</div>
+                    <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>{label}</div>
                     <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                   </div>
                 ))}
               </div>
               {/* 2行目: 6列均等グリッド（v272: 時代を追加。並びはAdd Pieceに合わせる） */}
               <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
                   <select value={draft.era||"romantic"} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}}>
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}}>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="例: 1810"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>演奏時間</div>
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏時間</div>
                   <input
                     defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
                     onBlur={e=>{
@@ -644,34 +644,34 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       e.target.value=m+"分"+(s>0?(s+"秒"):"");
                     }}
                     placeholder="例: 5分30秒"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可) */}
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>Lv.</div>
-                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Lv.</div>
+                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>Pop.</div>
-                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
+                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>Pop.</div>
+                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
               </div>
               {/* メモ */}
               <div style={{marginBottom:8}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>メモ</div>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>メモ</div>
                 <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
-                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",minHeight:50,resize:"vertical"}} />
+                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",minHeight:50,resize:"vertical"}} />
               </div>
               {/* キーワード */}
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>キーワード</div>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>キーワード</div>
                 <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
                   placeholder="カンマ区切り"
-                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
               </div>
               {/* 演奏リンク（最大3個） */}
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>演奏リンク（最大3個）</div>
+                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>演奏リンク（最大3個）</div>
                 {(draft.links||[]).map((lk,i)=>(
                   <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
@@ -687,29 +687,29 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       ))}
                     </div>
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,flex:2,minWidth:0,boxSizing:"border-box"}} />
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,flex:2,minWidth:0,boxSizing:"border-box"}} />
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,flex:1,minWidth:0,boxSizing:"border-box"}} />
+                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:12,borderRadius:3,flex:1,minWidth:0,boxSizing:"border-box"}} />
                     <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
                       style={{background:"none",border:"none",color:"#C0405A",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>✕</button>
                   </div>
                 ))}
                 {(draft.links||[]).length < 3 && (
                   <button onClick={()=>{setDraft({...draft,links:[...(draft.links||[]),{type:"video",url:"",title:""}]});}}
-                    style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
+                    style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
                 )}
               </div>
               {Array.isArray(eventsForPiece) && eventsForPiece.length>0 && (
                 <div style={{marginTop:16,paddingTop:12,borderTop:"1px solid #26344F"}}>
-                  <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6,fontFamily:FONT}}>
+                  <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6,fontFamily:SANS}}>
                     <span style={{color:"#C8A860"}}>♪</span> 演奏したイベント
                   </div>
                   <div style={{display:"flex",flexDirection:"column",gap:6}}>
                     {eventsForPiece.map(ev => (
                       <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#0F1A33",borderRadius:4,borderLeft:"2px solid #8B2A50"}}>
-                        <span style={{color:"#C8A860",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:FONT}}>{ev.date}</span>
-                        <span style={{color:"#EDE6D6",fontSize:11,fontFamily:FONT}}>{ev.title||"（無題）"}</span>
-                        {ev.venue && <span style={{color:"#5A6B8C",fontSize:10,fontFamily:FONT}}>{ev.venue}</span>}
+                        <span style={{color:"#C8A860",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:SANS}}>{ev.date}</span>
+                        <span style={{color:"#EDE6D6",fontSize:11,fontFamily:SANS}}>{ev.title||"（無題）"}</span>
+                        {ev.venue && <span style={{color:"#5A6B8C",fontSize:10,fontFamily:SANS}}>{ev.venue}</span>}
                       </div>
                     ))}
                   </div>
@@ -719,19 +719,19 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {/* 左：破壊的操作（削除・赤）。単独で左端に置き、他と離す。 */}
                 {onDeletePiece ? (
                   <button onClick={()=>setConfirmKind('delete')}
-                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:FONT,flexShrink:0}}>この曲を削除</button>
+                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS,flexShrink:0}}>この曲を削除</button>
                 ) : <span/>}
                 {/* 右：非破壊的操作（移動＝青／保存＝金）をまとめ、削除から離す。 */}
                 <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
                   {/* v298: RP⇄LP 移動ボタン。isLearningで文言を出し分け。押すと確認モーダル。 */}
                   {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
                     <button onClick={()=>setConfirmKind('move')}
-                      style={{background:"none",border:"1px solid #4A6FA5",color:"#7FA8D8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:FONT}}>
+                      style={{background:"none",border:"1px solid #4A6FA5",color:"#7FA8D8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:SANS}}>
                       {isLearning ? "Repertoireに移動する" : "Learningに移動する"}
                     </button>
                   )}
                   <button onClick={saveEdit}
-                    style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>保存</button>
+                    style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>保存</button>
                 </div>
               </div>
               {/* v298: 確認モーダル（移動／削除で共用）。RP/LPはモーダル内だけカタカナ表記。 */}
@@ -805,7 +805,7 @@ const EraRuler = ({ pieces }) => {
         const h = g.ids.reduce((s, id) => s + (heights[id] || FALLBACK), 0);
         return (
           <div key={i} style={{ height:h, background:era.bg, border:"1px solid "+era.color+"33", borderRadius:4, display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden", position:"relative", flexShrink:0 }}>
-            <div style={{ writingMode:"vertical-lr", textOrientation:"mixed", fontSize:10, color:era.color, fontWeight:"bold", letterSpacing:2, userSelect:"none", fontFamily:FONT }}>
+            <div style={{ writingMode:"vertical-lr", textOrientation:"mixed", fontSize:10, color:era.color, fontWeight:"bold", letterSpacing:2, userSelect:"none", fontFamily:SANS }}>
               {era.short}
             </div>
             {i < groups.length-1 && <div style={{ position:"absolute", bottom:0, left:0, right:0, height:1, background:era.color, opacity:0.3 }} />}
@@ -1020,7 +1020,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
           autoComplete="off"
           className="rp-search"
           style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",
-            padding:"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,borderRadius:4,
+            padding:"4px 24px 4px 26px",fontFamily:SANS,fontSize:12,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {displayVal && (
@@ -1036,10 +1036,10 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
               <div key={i} tabIndex={-1} onClick={()=>selectItem(item)} onMouseEnter={()=>setCursor(i)}
                 style={{padding:"7px 12px",cursor:"pointer",fontSize:12,color:"#EDE6D6",
                   background:isActive?"#FDF5ED":"white",display:"flex",alignItems:"center",gap:8,
-                  borderBottom:"1px solid #15233F",fontFamily:FONT}}>
+                  borderBottom:"1px solid #15233F",fontFamily:SANS}}>
                 <span style={{fontSize:10,color:"#94A3BE",background:"#15233F",padding:"1px 6px",borderRadius:8}}>作曲家</span>
                 <span style={{fontWeight:500}}>{item.label}</span>
-                {item.reading && <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT}}>{item.reading}</span>}
+                {item.reading && <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{item.reading}</span>}
               </div>
             );
             const p = item.piece; const era = ERAS[p.era]||ERAS.modern;
@@ -1050,7 +1050,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
                 <div style={{width:3,height:30,background:era.color,borderRadius:2,flexShrink:0}} />
                 <div>
                   <div style={{fontSize:12,color:"#EDE6D6"}}>{p.title}</div>
-                  <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT}}>{p.composer}　{p.year}年</div>
+                  <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer}　{p.year}年</div>
                 </div>
               </div>
             );
@@ -1221,24 +1221,24 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       {/* ④ 右上✕ボタン */}
       <button onClick={onCancel} title="キャンセル"
         style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-      <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:FONT,fontWeight:600}}>Add Piece</div>
+      <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Add Piece</div>
 
       {/* 1行目: 作曲家・曲名（v270: 幅比 1:2） */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:12,marginBottom:12}}>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲家</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
-              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":(composerLocked?"#8BAED4":"#C8CEDB"),background:composerDoubt?"white":(composerLocked?"#F0F5FF":"white"),color:"#15233F"}} />
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":(composerLocked?"#8BAED4":"#C8CEDB"),background:composerDoubt?"white":(composerLocked?"#F0F5FF":"white"),color:"#15233F"}} />
             {composerLocked && !composerDoubt && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerDoubt && <span style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#C0392B",fontWeight:500}}>!</span>}
             {pendingComposers.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
-                <div style={{padding:"5px 14px",fontSize:10,color:"#6B7A90",fontFamily:FONT,background:"#F0F4FA",borderBottom:"1px solid #E8ECF2"}}>作曲家を選んでください</div>
+                <div style={{padding:"5px 14px",fontSize:10,color:"#6B7A90",fontFamily:SANS,background:"#F0F4FA",borderBottom:"1px solid #E8ECF2"}}>作曲家を選んでください</div>
                 {pendingComposers.map((item,i)=>(
                   <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectPendingComposer(item.label)}
-                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:FONT,display:"flex",alignItems:"baseline",gap:8}}
+                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS,display:"flex",alignItems:"baseline",gap:8}}
                     onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>
                     <span>{item.label}</span>
@@ -1251,7 +1251,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)"}}>
                 {composerSuggestions.map((item,i)=>(
                   <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectComposer(item.label)}
-                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:FONT,display:"flex",alignItems:"baseline",gap:8}}
+                    style={{padding:"8px 14px",cursor:"pointer",fontSize:13,color:"#15233F",borderBottom:"1px solid #E8ECF2",fontFamily:SANS,display:"flex",alignItems:"baseline",gap:8}}
                     onMouseEnter={e=>e.currentTarget.style.background="#F0F4FA"}
                     onMouseLeave={e=>e.currentTarget.style.background="white"}>
                     <span>{item.label}</span>
@@ -1261,15 +1261,15 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
               </div>
             )}
           </div>
-          {composerDoubt && <div style={{fontSize:10,color:"#C0392B",marginTop:4,fontFamily:FONT,textAlign:"left"}}>作曲家が違う可能性があります</div>}
+          {composerDoubt && <div style={{fontSize:10,color:"#C0392B",marginTop:4,fontFamily:SANS,textAlign:"left"}}>作曲家が違う可能性があります</div>}
         </div>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>曲名</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
-              autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",opacity:piece.composer?1:0.5}} />
-            {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#6B7A90",fontFamily:FONT}}>検索中…</div>}
+              autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",opacity:piece.composer?1:0.5}} />
+            {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#6B7A90",fontFamily:SANS}}>検索中…</div>}
             {suggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)",maxHeight:300,overflowY:"auto"}}>
                 {suggestions.map((s,i)=>{ const era=ERAS[s.era]||ERAS.modern; return (
@@ -1280,7 +1280,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                     <div style={{width:3,height:34,background:era.color,borderRadius:2,flexShrink:0}} />
                     <div>
                       <div style={{fontSize:13,color:"#15233F",marginBottom:2}}>{s.title}</div>
-                      <div style={{fontSize:11,color:"#6B7A90",fontFamily:FONT}}>{s.composer}　{s.year}年　{s.key}　{s.duration}分</div>
+                      <div style={{fontSize:11,color:"#6B7A90",fontFamily:SANS}}>{s.composer}　{s.year}年　{s.key}　{s.duration}分</div>
                     </div>
                   </div>
                 ); })}
@@ -1293,23 +1293,23 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       {/* 2行目: 調性・時代・作曲年・演奏時間（v270: 均等4分割） */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
-          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>調性</div>
+          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
         </div>
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
-          <select value={piece.era||"romantic"} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>時代</div>
+          <select value={piece.era||"romantic"} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
         </div>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>作曲年</div>
           <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
-            style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+            style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:SANS,textAlign:"left"}}>
             演奏時間
             {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
           </div>
@@ -1337,14 +1337,14 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                 e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
               placeholder="例: 5分30秒 / 5:30 / 5"
-              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:!durationEdited&&piece.title?"#C8A030":"#C8CEDB"}}
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:!durationEdited&&piece.title?"#C8A030":"#C8CEDB"}}
             />
           </div>
         </div>
       </div>
 
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
-        <button onClick={handleAdd} style={{background:"transparent",border:"1.5px solid #C8A860",color:"#15233F",padding:"8px 28px",cursor:"pointer",fontSize:13,letterSpacing:2,fontFamily:FONT,borderRadius:4}}>追加する</button>
+        <button onClick={handleAdd} style={{background:"transparent",border:"1.5px solid #C8A860",color:"#15233F",padding:"8px 28px",cursor:"pointer",fontSize:13,letterSpacing:2,fontFamily:SANS,borderRadius:4}}>追加する</button>
       </div>
     </div>
   );
@@ -1459,13 +1459,13 @@ const PrintPage = (props) => {
   };
 
   // ── Helpers ──
-  const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
-  const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:FONT};
+  const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:SANS};
   const secTitle = (t) => (
-    <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:FONT,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div>
+    <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:SANS,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div>
   );
   const addBtn = (label,onClick) => (
-    <button onClick={onClick} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,marginTop:6}}>
+    <button onClick={onClick} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4,marginTop:6}}>
       ＋ {label}
     </button>
   );
@@ -1526,7 +1526,7 @@ const PrintPage = (props) => {
                 border:"none",
                 color:portfolioTab===k?"#1A1206":"#94A3BE",
                 padding:portfolioTab===k?"7px 18px":"7px 14px",
-                cursor:"pointer",fontSize:13,fontFamily:FONT,letterSpacing:1,
+                cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
                 fontWeight:portfolioTab===k?700:400,
                 borderRadius:"6px 6px 0 0",
                 transition:"all 0.15s"}}>
@@ -1547,7 +1547,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:13,marginBottom:40,marginTop:19}}>
               <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>Account</span>
               <button onClick={handleLogout}
-                style={{background:"none",border:"none",color:"#9A8868",cursor:"pointer",fontSize:12,fontFamily:FONT,padding:0,letterSpacing:"0.03em"}}>
+                style={{background:"none",border:"none",color:"#9A8868",cursor:"pointer",fontSize:12,fontFamily:SANS,padding:0,letterSpacing:"0.03em"}}>
                 ログアウト
               </button>
             </div>
@@ -1557,28 +1557,28 @@ const PrintPage = (props) => {
                 ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["パスワード",     <div style={{flex:1}}>
                   {!pwOpen ? (
-                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更する</button>
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>変更する</button>
                   ) : (
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
                       <div style={{position:"relative"}}>
                         <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
-                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:FONT,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
+                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
                       </div>
                       <div style={{position:"relative"}}>
                         <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:52}}/>
                       </div>
                       <div style={{display:"flex",gap:8}}>
-                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
-                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>キャンセル</button>
+                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS,fontWeight:600,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
+                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:SANS}}>キャンセル</button>
                       </div>
-                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{pwErr}</div>}
+                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:SANS}}>{pwErr}</div>}
                     </div>
                   )}
-                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:FONT,marginTop:6}}>{pwMsg}</div>}
+                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:SANS,marginTop:6}}>{pwMsg}</div>}
                 </div>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
                   {input}
                 </div>
               ))}
@@ -1586,8 +1586,8 @@ const PrintPage = (props) => {
 
             {showBioPanel && (
               <div style={{marginTop:10,marginBottom:16,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-                <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:FONT,marginBottom:10}}>出力する項目を選んでください</div>
-                <div style={{display:"flex",gap:16,marginBottom:12,fontSize:12,fontFamily:FONT,color:"#C8CEDB"}}>
+                <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>出力する項目を選んでください</div>
+                <div style={{display:"flex",gap:16,marginBottom:12,fontSize:12,fontFamily:SANS,color:"#C8CEDB"}}>
                   <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.basic} onChange={e=>setBioCheck(c=>({...c,basic:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 基本情報</label>
                   <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.education} onChange={e=>setBioCheck(c=>({...c,education:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 学歴</label>
                   <label style={{cursor:"pointer"}}><input type="checkbox" checked={bioCheck.teacher} onChange={e=>setBioCheck(c=>({...c,teacher:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 師事</label>
@@ -1632,7 +1632,7 @@ const PrintPage = (props) => {
                     setShowBioPanel(false);
                   }
                 }}
-                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,width:"100%",fontWeight:600}}>
+                  style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
                   ✓ チェックした項目で、ドキュメント作成
                 </button>
               </div>
@@ -1659,7 +1659,7 @@ const PrintPage = (props) => {
                     <button onClick={()=>{setShowBioPanel(true);setHamPfOpen(false);}}
                       style={{display:"block",width:"100%",textAlign:"left",background:"none",
                         border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                        fontSize:12,fontFamily:FONT}}>
+                        fontSize:12,fontFamily:SANS}}>
                       📦 ドキュメントを作成
                     </button>
                   </div>
@@ -1677,7 +1677,7 @@ const PrintPage = (props) => {
                   {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
                       {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
-                        <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
+                        <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:SANS}}>{c.ja} / {c.en}</div>
                       ))}
                     </div>
                   )}
@@ -1688,7 +1688,7 @@ const PrintPage = (props) => {
                 ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
                   {input}
                 </div>
               ))}
@@ -1698,7 +1698,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
                   <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
@@ -1718,7 +1718,7 @@ const PrintPage = (props) => {
               </div>
               {(profile.teachers||[]).map((t,idx)=>(
                 <div key={t.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:idx===0?10:0,flexWrap:"wrap"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
                   <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                   <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
@@ -1735,7 +1735,7 @@ const PrintPage = (props) => {
             {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
             {/* v166: 保存トースト（右上にふわっと・数秒で消える） */}
             {profileSaveMsg && (
-              <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A3A5A",color:"#EDE6D6",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:FONT,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
+              <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A3A5A",color:"#EDE6D6",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:SANS,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
                 {profileSaveMsg}
               </div>
             )}
@@ -1755,7 +1755,7 @@ const PrintPage = (props) => {
             {false && (<React.Fragment>
             {/* STEP 1: 出力したい項目を選ぶ */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:10}}>STEP 1　出力したい項目を選んでください（複数選択可）</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>STEP 1　出力したい項目を選んでください（複数選択可）</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
                 {[
                   ["profile","プロフィール"],
@@ -1767,7 +1767,7 @@ const PrintPage = (props) => {
                   <label key={k} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",
                     background:outItems[k]?"#F4F6F9":"#15233F",
                     border:outItems[k]?"1.5px solid #C8A860":"1px solid #1E2A45",
-                    borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:FONT,
+                    borderRadius:5,cursor:"pointer",fontSize:12,fontFamily:SANS,
                     color:outItems[k]?"#15233F":"#94A3BE"}}>
                     <input type="checkbox" checked={outItems[k]||false}
                       onChange={e=>setOutItems(prev=>({...prev,[k]:e.target.checked}))}
@@ -1782,12 +1782,12 @@ const PrintPage = (props) => {
             {outItems.repertoire && (
               <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                  <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT}}>STEP 2　レパートリーの内容を選ぶ</div>
+                  <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS}}>STEP 2　レパートリーの内容を選ぶ</div>
                   <div style={{display:"flex",gap:6}}>
                     <button onClick={()=>setOutRepIds(pieces.map(p=>p.id))}
-                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>すべて選択</button>
+                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて選択</button>
                     <button onClick={()=>setOutRepIds([])}
-                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>すべて解除</button>
+                      style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"3px 8px",cursor:"pointer",fontSize:10,fontFamily:SANS,borderRadius:3}}>すべて解除</button>
                   </div>
                 </div>
                 <div style={{maxHeight:200,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
@@ -1798,7 +1798,7 @@ const PrintPage = (props) => {
                       <label key={p.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 8px",
                         background:checked?"#F4F6F9":"#15233F",borderRadius:4,cursor:"pointer",
                         border:checked?"1.5px solid #C8A860":"1px solid #1E2A45",
-                        fontSize:12,fontFamily:FONT,color:checked?"#15233F":"#94A3BE"}}>
+                        fontSize:12,fontFamily:SANS,color:checked?"#15233F":"#94A3BE"}}>
                         <input type="checkbox" checked={checked}
                           onChange={e=>setOutRepIds(prev=>e.target.checked?[...prev,p.id]:prev.filter(x=>x!==p.id))}
                           style={{accentColor:"#C8A860"}}/>
@@ -1815,13 +1815,13 @@ const PrintPage = (props) => {
 
             {/* STEP 3: 出力言語 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:10,textAlign:"center"}}>STEP 3　出力言語</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:10,textAlign:"center"}}>STEP 3　出力言語</div>
               <div style={{display:"flex",gap:16,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
                 {[["ja","日本語"],["en","English"]].map(([v,l])=>(
                   <label key={v} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 20px",
                     background:outLang===v?"#F4F6F9":"#15233F",
                     border:outLang===v?"1.5px solid #C8A860":"1px solid #1E2A45",
-                    borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:FONT,
+                    borderRadius:6,cursor:"pointer",fontSize:12,fontFamily:SANS,
                     color:outLang===v?"#15233F":"#94A3BE"}}>
                     <input type="radio" value={v} checked={outLang===v} onChange={()=>setOutLang(v)} style={{accentColor:"#C8A860"}}/>
                     {l}
@@ -1838,7 +1838,7 @@ const PrintPage = (props) => {
                     if(outItems.upcoming&&futureEvents.length>0){const up=futureEvents.map(e=>e.date+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【今後の予定】"+String.fromCharCode(10)+up:"[Upcoming]"+String.fromCharCode(10)+up);}
                     setOutText(parts.join(String.fromCharCode(10)+String.fromCharCode(10)));
                   }}
-                  style={{marginLeft:"auto",background:"#C8A860",border:"none",color:"#0F1A33",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,fontWeight:"bold"}}>
+                  style={{marginLeft:"auto",background:"#C8A860",border:"none",color:"#0F1A33",padding:"7px 20px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,fontWeight:"bold"}}>
                   生成する
                 </button>
               </div>
@@ -1848,10 +1848,10 @@ const PrintPage = (props) => {
 
             {/* 🎨 スクラッチ（組み立て） */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
-              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:FONT,marginBottom:12,letterSpacing:1}}>🎨 スクラッチ（組み立て）</div>
-              <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,marginBottom:10}}>ボックスのパーツを並べて、1つの書類に組み立てます</div>
+              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>🎨 スクラッチ（組み立て）</div>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:10}}>ボックスのパーツを並べて、1つの書類に組み立てます</div>
               {scratchItems.length===0 ? (
-                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:FONT,textAlign:"center",padding:"12px 0"}}>
+                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
                   下の「＋ボックスから追加」で、パーツを足してください
                 </div>
               ) : (
@@ -1864,10 +1864,10 @@ const PrintPage = (props) => {
                       onDragOver={e=>e.preventDefault()}
                       style={{display:"flex",alignItems:"center",gap:8,background:scratchOverId===item.id?"#1A2740":"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px",cursor:"grab"}}>
                       <span style={{color:"#6B7A90",fontSize:13,cursor:"grab"}}>⠿</span>
-                      <span style={{fontSize:12,color:"#6B7A90",fontFamily:FONT,minWidth:18}}>{idx+1}</span>
-                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
+                      <span style={{fontSize:12,color:"#6B7A90",fontFamily:SANS,minWidth:18}}>{idx+1}</span>
+                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
                       <button onClick={()=>setScratchItems(scratchItems.filter((_,i)=>i!==idx))}
-                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         外す
                       </button>
                     </div>
@@ -1878,24 +1878,24 @@ const PrintPage = (props) => {
                   if(documents.length===0){ window.alert("先にボックスにドキュメントを保存してください"); return; }
                   setShowAddPanel(!showAddPanel);
                 }}
-                style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,width:"100%"}}>
+                style={{marginTop:10,background:"transparent",border:"1px dashed #C8A860",color:"#C8A860",padding:"6px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%"}}>
                 ＋ ボックスから追加
               </button>
               {showAddPanel && (
                 <div style={{marginTop:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:6,padding:"8px 10px"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,marginBottom:8}}>追加したいパーツをクリック</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:8}}>追加したいパーツをクリック</div>
                   <div style={{display:"flex",flexDirection:"column",gap:5}}>
                     {documents.map(doc=>(
                       <button key={doc.id} onClick={()=>{
                           setScratchItems([...scratchItems, {id:Date.now()+"_"+doc.id, name:doc.name, text:doc.text}]);
                         }}
-                        style={{textAlign:"left",background:"#15233F",border:"1px solid #2A3A5A",color:"#C8CEDB",padding:"7px 10px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4}}>
+                        style={{textAlign:"left",background:"#15233F",border:"1px solid #2A3A5A",color:"#C8CEDB",padding:"7px 10px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                         ＋ {doc.name}
                       </button>
                     ))}
                   </div>
                   <button onClick={()=>setShowAddPanel(false)}
-                    style={{marginTop:8,background:"transparent",border:"none",color:"#6B7A90",padding:"4px 0",cursor:"pointer",fontSize:11,fontFamily:FONT}}>
+                    style={{marginTop:8,background:"transparent",border:"none",color:"#6B7A90",padding:"4px 0",cursor:"pointer",fontSize:11,fontFamily:SANS}}>
                     閉じる
                   </button>
                 </div>
@@ -1906,7 +1906,7 @@ const PrintPage = (props) => {
                     setOutText(combined);
                     window.scrollTo({top:0, behavior:"smooth"});
                   }}
-                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,width:"100%",fontWeight:600}}>
+                  style={{marginTop:10,background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4,width:"100%",fontWeight:600}}>
                   ▲ この順番で、編集画面に送る
                 </button>
               )}
@@ -1914,30 +1914,30 @@ const PrintPage = (props) => {
 
             {/* STEP 4: 編集 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:6,textAlign:"center"}}>編集</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:6,textAlign:"center"}}>編集</div>
               <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
-                <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{outText.length} 文字</span>
+                <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{outText.length} 文字</span>
               </div>
               <textarea value={outText} onChange={e=>setOutText(e.target.value)}
                 style={{width:"100%",minHeight:200,background:"#F4F6F9",border:"1px solid #C8CEDB",
-                  color:"#15233F",padding:"10px",fontFamily:FONT,fontSize:13,borderRadius:4,
+                  color:"#15233F",padding:"10px",fontFamily:SANS,fontSize:13,borderRadius:4,
                   lineHeight:1.8,resize:"vertical",boxSizing:"border-box"}}/>
             </div>
 
             {/* STEP 5: 出力 */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:12,textAlign:"center"}}>出力</div>
+              <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:SANS,marginBottom:12,textAlign:"center"}}>出力</div>
               <div style={{display:"flex",gap:12,flexWrap:"wrap",justifyContent:"center"}}>
                 <button onClick={()=>{const w=window.open("","_blank");const html=outText.split(String.fromCharCode(10)).join("<br>");w.document.write("<html><body style='font-family:serif;padding:40px;line-height:1.9;color:#0F1A33'>"+html+"</body></html>");w.document.close();w.print();}}
-                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4}}>
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   🖨 PDF / 印刷
                 </button>
                 <button onClick={()=>{const blob=new Blob(["<html><body style='font-family:serif;font-size:12pt;line-height:1.8;'>"+outText.split(String.fromCharCode(10)).join("<br>")+"</body></html>"],{type:"application/msword"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="repertia_output.doc";a.click();}}
-                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4}}>
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📄 Word でダウンロード
                 </button>
                 <button onClick={()=>navigator.clipboard.writeText(outText).catch(()=>{})}
-                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4}}>
+                  style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📋 コピー
                 </button>
                 <button onClick={()=>{
@@ -1949,30 +1949,30 @@ const PrintPage = (props) => {
                     setDocSaveMsg("ボックスに保存しました ✓");
                     setTimeout(() => setDocSaveMsg(""), 3000);
                   }}
-                  style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#E8ECF4",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4}}>
+                  style={{background:"#1E2A45",border:"1px solid #C8A860",color:"#E8ECF4",padding:"10px 24px",cursor:"pointer",fontSize:12,fontFamily:SANS,borderRadius:4}}>
                   📦 ボックスに保存
                 </button>
-                {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT,marginLeft:8,alignSelf:"center"}}>{docSaveMsg}</span>}
+                {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,marginLeft:8,alignSelf:"center"}}>{docSaveMsg}</span>}
               </div>
-              <div style={{textAlign:"center",marginTop:10,fontSize:11,color:"#94A3BE",fontFamily:FONT}}>
+              <div style={{textAlign:"center",marginTop:10,fontSize:11,color:"#94A3BE",fontFamily:SANS}}>
                 Googleドキュメント等に貼り付けて編集できます
               </div>
             </div>
 
             {/* 📦 ドキュメントボックス */}
             <div style={{background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px",marginTop:12}}>
-              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:FONT,marginBottom:12,letterSpacing:1}}>📦 ドキュメントボックス</div>
+              <div style={{fontSize:13,color:"#E8ECF4",fontFamily:SANS,marginBottom:12,letterSpacing:1}}>📦 ドキュメントボックス</div>
               {documents.length===0 ? (
-                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:FONT,textAlign:"center",padding:"12px 0"}}>
+                <div style={{fontSize:12,color:"#5A6B8C",fontFamily:SANS,textAlign:"center",padding:"12px 0"}}>
                   保存した書類がここに溜まります
                 </div>
               ) : (
                 <div style={{display:"flex",flexDirection:"column",gap:6}}>
                   {documents.map(doc=>(
                     <div key={doc.id} style={{display:"flex",alignItems:"center",gap:8,background:"#0F1A33",border:"1px solid #1E2A45",borderRadius:4,padding:"8px 10px"}}>
-                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{doc.name}</span>
+                      <span style={{flex:1,fontSize:12,color:"#C8CEDB",fontFamily:SANS,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{doc.name}</span>
                       <button onClick={()=>setOutText(doc.text)}
-                        style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>
+                        style={{background:"transparent",border:"1px solid #C8A860",color:"#C8A860",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         読込
                       </button>
                       <button onClick={()=>{
@@ -1983,11 +1983,11 @@ const PrintPage = (props) => {
                             saveDocuments(next);
                           }
                         }}
-                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         名前変更
                       </button>
                       <button onClick={()=>{const next=documents.filter(d=>d.id!==doc.id); setDocuments(next); saveDocuments(next);}}
-                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>
+                        style={{background:"transparent",border:"1px solid #3A4660",color:"#94A3BE",padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:SANS,borderRadius:4}}>
                         削除
                       </button>
                     </div>
@@ -2016,7 +2016,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} />
         <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 7px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
+            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 7px",fontFamily:SANS,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
             <option value="" disabled>並べ替え</option>
             <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
@@ -2027,7 +2027,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
             style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 8px",
-              cursor:"pointer",fontSize:11,fontFamily:FONT,lineHeight:1.2,borderRadius:"0 4px 4px 0",
+              cursor:"pointer",fontSize:11,fontFamily:SANS,lineHeight:1.2,borderRadius:"0 4px 4px 0",
               display:"flex",alignItems:"center",boxSizing:"border-box"}}>
             {sortAsc?"▲":"▼"}
           </button>
@@ -2055,7 +2055,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
                 <button onClick={()=>{onAdd();setHamOpen(false);}}
                   style={{display:"block",width:"100%",textAlign:"left",background:"none",
                     border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                    fontSize:12,fontFamily:FONT}}>
+                    fontSize:12,fontFamily:SANS}}>
                   ＋ 曲を追加
                 </button>
               )}
@@ -2063,7 +2063,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
                 <button onClick={()=>{onDoc();setHamOpen(false);}}
                   style={{display:"block",width:"100%",textAlign:"left",background:"none",
                     border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
-                    fontSize:12,fontFamily:FONT}}>
+                    fontSize:12,fontFamily:SANS}}>
                   📦 ドキュメントを作成
                 </button>
               )}
@@ -2109,7 +2109,7 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
         {counts.map(d=>(
           <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
             <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
-            <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{d.label} {d.count}</span>
+            <span style={{fontSize:11,color:"#94A3BE",fontFamily:SANS}}>{d.label} {d.count}</span>
           </div>
         ))}
       </div>
@@ -2142,9 +2142,9 @@ const BarChart = ({dashData}) => {
     <div style={{display:"flex",alignItems:"flex-end",gap:6,height:100,flex:1}}>
       {dashData.map((d,i)=>(
         <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",flex:1,gap:3}}>
-          <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT}}>{d.count}</span>
+          <span style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{d.count}</span>
           <div style={{width:"100%",background:d.color,borderRadius:"3px 3px 0 0",height:Math.max(6,(d.count/maxCount)*80)+"px"}}/>
-          <span style={{fontSize:9,color:"#94A3BE",fontFamily:FONT,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
+          <span style={{fontSize:9,color:"#94A3BE",fontFamily:SANS,textAlign:"center",lineHeight:1.2}}>{d.label}</span>
         </div>
       ))}
     </div>
@@ -2257,7 +2257,7 @@ const ManagePage = (props) => {
               border:"none",
               color:libraryTab===k?"#1A1206":"#94A3BE",
               padding:libraryTab===k?"7px 18px":"7px 14px",
-              cursor:"pointer",fontSize:13,fontFamily:FONT,letterSpacing:1,
+              cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
               fontWeight:libraryTab===k?700:400,
               borderRadius:"6px 6px 0 0",
               transition:"all 0.15s"}}>
@@ -2379,7 +2379,7 @@ const ManagePage = (props) => {
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
                   background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                    <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,fontFamily:SANS,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
                     <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
                   <button onClick={async()=>{
@@ -2944,7 +2944,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               border:"none",
               color:eventsTab===k?"#1A1206":"#94A3BE",
               padding:eventsTab===k?"7px 18px":"7px 14px",
-              cursor:"pointer",fontSize:13,fontFamily:FONT,letterSpacing:1,
+              cursor:"pointer",fontSize:13,fontFamily:SANS,letterSpacing:1,
               fontWeight:eventsTab===k?700:400,
               borderRadius:"6px 6px 0 0",
               transition:"all 0.15s"}}>
@@ -4043,7 +4043,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
               color: page===p ? "#C8A860" : "#9A8868",
               padding:"6px 20px",cursor:"pointer",
               fontSize:16,letterSpacing:1,
-              fontFamily:FONT,
+              fontFamily:SANS,
               fontWeight: page===p ? 600 : 400,
               borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
               paddingBottom:4,
