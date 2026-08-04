@@ -2906,7 +2906,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               return groups.map(g => (
                 <div key={g.year} style={{display:"flex",alignItems:"flex-start",marginBottom:18}}>
                   {/* 年ラベル：左・上そろえで固定 */}
-                  <div style={{width:52,flexShrink:0,paddingTop:9,fontSize:13,fontWeight:600,color:"#94A3BE",fontFamily:FONT}}>
+                  <div style={{width:52,flexShrink:0,paddingTop:8,paddingLeft:15,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}}>
                     {g.year}
                   </div>
                   {/* その年のイベント群 */}
