@@ -2872,6 +2872,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   );
 
   // ── Timeline section ──
+  // v325B(案B): カード面＝紺の下地にジュエル色を半透明で重ねたトーン（派手さを抑え、文字を読みやすく）。
+  //   ジュエル色HEXをrgbaにして、紺(#18283F)の上に alpha で乗せる。alphaは実機で調整。
+  const jewelFill = (hex) => {
+    const a = 0.45; // ジュエル色の濃さ（0=紺だけ〜1=ジュエル色そのまま）。実機で調整
+    const h = (hex||"#5A5A6E").replace("#","");
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    // 紺下地の上にrgba半透明を重ねた合成色を返す（下地#18283F=24,40,63）
+    const base=[24,40,63];
+    const mix=(c,i)=>Math.round(base[i]*(1-a)+c*a);
+    return "rgb("+mix(r,0)+","+mix(g,1)+","+mix(b,2)+")";
+  };
+
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     return (
       <div style={{paddingTop:40,marginBottom:24}}>
@@ -2917,7 +2929,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                       const md=(ev.date||"").slice(5); // MM-DD
                       return (
                         <div key={ev.id} onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                          style={{background:et.color,
+                          style={{background:jewelFill(et.color),
                             borderRadius:5,padding:"9px 12px",marginBottom:8,cursor:"pointer",
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transform:isSelected?"scale(1.015)":"scale(1)",
