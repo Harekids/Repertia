@@ -2750,7 +2750,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const EventDetail = ({ev, compact=false, allPool}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
-      <div style={{borderTop:"1px solid #15233F",paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}>
+      <div style={{paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}>
         {ev.organizer && <div><span style={{color:"#94A3BE"}}>主催：</span>{ev.organizer}</div>}
         {(ev.openTime||ev.startTime) && (
           <div><span style={{color:"#94A3BE"}}>時間：</span>
@@ -2948,11 +2948,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"nowrap",minWidth:0}}>
-                            {ev.date<=today && !ev.in_history && <RedDot/>}
+                          <div style={{display:"flex",alignItems:"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
                             <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0}}>{fmtJPDate(ev.date)}</span>
-                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,flexShrink:0}}>{ev.title}</span>}
-                            {ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>{ev.venue}</span>}
+                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?11:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:isMobile?1:"0 1 auto"}}>{ev.title}</span>}
+                            {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>{ev.venue}</span>}
+                            <span style={{flex:1,minWidth:8}}/>
+                            {ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
                           {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
                         </div>
