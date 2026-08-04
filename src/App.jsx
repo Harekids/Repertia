@@ -2875,7 +2875,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v325B(案B): カード面＝紺の下地にジュエル色を半透明で重ねたトーン（派手さを抑え、文字を読みやすく）。
   //   ジュエル色HEXをrgbaにして、紺(#18283F)の上に alpha で乗せる。alphaは実機で調整。
   const jewelFill = (hex) => {
-    const a = 0.45; // ジュエル色の濃さ（0=紺だけ〜1=ジュエル色そのまま）。実機で調整
+    const a = 0.55; // ジュエル色の濃さ（0=紺だけ〜1=ジュエル色そのまま）。実機で調整
     const h = (hex||"#5A5A6E").replace("#","");
     const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
     // 紺下地の上にrgba半透明を重ねた合成色を返す（下地#18283F=24,40,63）
