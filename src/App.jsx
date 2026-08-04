@@ -2588,12 +2588,42 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const [eventsTab, setEventsTab] = useState("history"); // v222: History先・Upcoming後（確定した歴史が主役）
-  const EVENT_TYPES = {
-    recital: {label:"発表会",    color:"#C8963C"},
-    contest: {label:"コンクール", color:"#5B7FA6"},
-    concert: {label:"コンサート", color:"#B85C72"},
-    other:   {label:"その他",    color:"#8A8A8A"},
+  // v324: 色（表示）とデータ（種別）を分離。
+  //   JEWEL_PALETTE = Repertiaが用意する色の選択肢（ユーザーが各種別に割り当てる／フェーズ2でUI化）。
+  //   ※実機で最終調整する暫定値。差し替えはここ一箇所で済む。
+  const JEWEL_PALETTE = {
+    ruby:     "#A02D5C", // ルビー
+    emerald:  "#1E7A5E", // エメラルド
+    amethyst: "#4A3B8C", // アメジスト
+    topaz:    "#B8860B", // トパーズ／ゴールド
+    sapphire: "#1F5F8B", // サファイア
+    garnet:   "#9C4722", // ガーネット／琥珀
+    smoke:    "#5A5A6E", // スモークグレー
   };
+  //   EVENT_TYPE_DEFAULT_COLOR = 現状の各種別に割り当てるデフォルト色（パレットのキーで指定）。
+  //   種別リストは未確定（フェーズ2で拡充）。当面は現状4種別にデフォルトを割り当てて動かす。
+  //   ユーザー割り当ては未実装（フェーズ2）。今はこのデフォルトが常に使われる。
+  const EVENT_TYPE_DEFAULT_COLOR = {
+    recital: "topaz",    // 発表会
+    contest: "sapphire", // コンクール
+    concert: "ruby",     // コンサート
+    other:   "smoke",    // その他
+  };
+  //   種別データ（label＝表示名。抽出・フィルタはこのキーで動く）。色は持たない＝データと表示の分離。
+  const EVENT_TYPE_LABELS = {
+    recital: "発表会",
+    contest: "コンクール",
+    concert: "コンサート",
+    other:   "その他",
+  };
+  //   互換ヘルパ：既存コードは EVENT_TYPES[type].color / .label を参照している。
+  //   分離した3定義から、従来と同じ {label, color} を組み立てて返す（既存表示を壊さない）。
+  const EVENT_TYPES = Object.fromEntries(
+    Object.keys(EVENT_TYPE_LABELS).map(k => [k, {
+      label: EVENT_TYPE_LABELS[k],
+      color: JEWEL_PALETTE[EVENT_TYPE_DEFAULT_COLOR[k]] || JEWEL_PALETTE.smoke,
+    }])
+  );
   // ① 凡例データ
   const LEGEND = [
     {color:"#C8963C", label:"発表会"},
