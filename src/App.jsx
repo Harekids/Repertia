@@ -2917,9 +2917,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                       const md=(ev.date||"").slice(5); // MM-DD
                       return (
                         <div key={ev.id} onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                          style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"3px solid "+et.color,
-                            borderRadius:6,padding:"9px 12px",marginBottom:8,cursor:"pointer",
+                          style={{background:et.color,
+                            borderRadius:5,padding:"9px 12px",marginBottom:8,cursor:"pointer",
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
+                            transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
                           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                             <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginRight:20}}>{md}</span>
