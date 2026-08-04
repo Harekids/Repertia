@@ -2922,9 +2922,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transition:"all 0.2s"}}>
                           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                            <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT,fontWeight:600}}>{md}</span>
+                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginRight:20}}>{md}</span>
                             {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
-                            {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT}}>{ev.title}</span>}
+                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT}}>{ev.title}</span>}
                             {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
                           </div>
                           {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
