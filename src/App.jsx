@@ -2806,9 +2806,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         {/* v286(③-2): programId経由のプログラム内容表示を廃止（Atelierは別アプリへ分離）。 */}
         {ev.date <= today && !ev.in_history && (
           <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
-            style={{marginTop:8,background:"#7A1F2B",border:"1px solid #C0556A",color:"#F4D4DA",
-              padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:5,width:"100%",fontWeight:600}}>
-            🔴 このイベントを History に登録する
+            style={{marginTop:8,background:"#5E1F28",border:"1px solid #8A4048",color:"#E7C4CA",
+              padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,
+              display:"inline-flex",alignItems:"center",gap:6,alignSelf:"flex-start"}}>
+            <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:"#C0405A",flexShrink:0}}/>
+            History に登録する
           </button>
         )}
         {ev.notes && <div><span style={{color:"#94A3BE"}}>メモ：</span>{ev.notes}</div>}
@@ -2874,6 +2876,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // ── Timeline section ──
   // v325B(案B): カード面＝紺の下地にジュエル色を半透明で重ねたトーン（派手さを抑え、文字を読みやすく）。
   //   ジュエル色HEXをrgbaにして、紺(#18283F)の上に alpha で乗せる。alphaは実機で調整。
+  // v333 ③: ISO日付(YYYY-MM-DD)を「◯月◯日」に整形（表示層のみ・データはISO一本）。
+  const fmtJPDate = (iso) => {
+    if (!iso || iso.length < 10) return iso || "";
+    const m = parseInt(iso.slice(5,7),10), d = parseInt(iso.slice(8,10),10);
+    if (!m || !d) return iso;
+    return m + "月" + d + "日";
+  };
+  // v333 ①: History未登録フラグの赤丸。絵文字🔴の光沢をやめ、フラット単色の丸に。
+  const RedDot = () => (
+    <span title="History未登録" style={{display:"inline-block",width:9,height:9,borderRadius:"50%",
+      background:"#C0405A",flexShrink:0,verticalAlign:"middle"}}/>
+  );
   const jewelFill = (hex) => {
     const a = 0.60; // ジュエル色の濃さ（0=紺だけ〜1=ジュエル色そのまま）。実機で調整
     const h = (hex||"#5A5A6E").replace("#","");
@@ -2934,11 +2948,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginRight:20}}>{md}</span>
-                            {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
-                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT}}>{ev.title}</span>}
-                            {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
+                          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"nowrap",minWidth:0}}>
+                            {ev.date<=today && !ev.in_history && <RedDot/>}
+                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0}}>{fmtJPDate(ev.date)}</span>
+                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,flexShrink:0}}>{ev.title}</span>}
+                            {ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0}}>{ev.venue}</span>}
                           </div>
                           {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
                         </div>
@@ -2968,7 +2982,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                 <span style={{fontSize:12,color:"#94A3BE",fontFamily:FONT,flexShrink:0}}>{ev.date}</span>
-                {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
+                {ev.date<=today && !ev.in_history && <RedDot/>}
                 <span style={{fontSize:13,color:"#EDE6D6",fontFamily:FONT,flex:1,fontWeight:500}}>{ev.title||"（無題）"}</span>
                 {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
               </div>
