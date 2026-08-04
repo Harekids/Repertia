@@ -2890,39 +2890,51 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             該当するイベントがありません
           </div>
         ) : (
-          <div style={{position:"relative",paddingLeft:36}}>
-            <div style={{position:"absolute",left:12,top:0,bottom:0,width:2,background:"#1E2A45"}}/>
-            {evs.map(ev=>{
-              const et=EVENT_TYPES[ev.type]||EVENT_TYPES.other;
-              const isSelected=selectedEvent===ev.id;
-              return (
-                <div key={ev.id} style={{position:"relative",marginBottom:14}}>
-                  {/* Teardrop marker */}
-                  <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                    style={{position:"absolute",left:-28,top:2,width:18,height:18,cursor:"pointer",
-                      display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <div style={{width:16,height:16,borderRadius:"50% 50% 50% 0",
-                      transform:"rotate(-45deg)",background:et.color,
-                      border:"2px solid white",boxShadow:"0 2px 5px rgba(0,0,0,0.18)"}}/>
+          /* v326: 年レイアウト（案C）。年でグループ化し、年ラベルをその年の最初のイベントの左・上そろえで固定。
+             縦線・涙型マーカーは撤去（グルーピングは年ラベル＋インデントで成立）。
+             カード面の塗り・形状はv325で仕上げる（今回はレイアウト骨格のみ）。 */
+          <div>
+            {(() => {
+              // 年ごとにまとめる（evsは既に日付ソート済みの前提を保つ）
+              const groups = [];
+              let cur = null;
+              evs.forEach(ev => {
+                const y = (ev.date||"").slice(0,4) || "----";
+                if (!cur || cur.year !== y) { cur = {year:y, items:[]}; groups.push(cur); }
+                cur.items.push(ev);
+              });
+              return groups.map(g => (
+                <div key={g.year} style={{display:"flex",alignItems:"flex-start",marginBottom:18}}>
+                  {/* 年ラベル：左・上そろえで固定 */}
+                  <div style={{width:52,flexShrink:0,paddingTop:9,fontSize:13,fontWeight:600,color:"#94A3BE",fontFamily:FONT}}>
+                    {g.year}
                   </div>
-                  {/* Card */}
-                  <div onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                    style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"3px solid "+et.color,
-                      borderRadius:6,padding:"9px 12px",cursor:"pointer",
-                      boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
-                      transition:"all 0.2s"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                      
-                      <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT,fontWeight:600}}>{ev.date}</span>
-                      {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
-                      {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT}}>{ev.title}</span>}
-                      {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
-                    </div>
-                    {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
+                  {/* その年のイベント群 */}
+                  <div style={{flex:1,minWidth:0}}>
+                    {g.items.map(ev=>{
+                      const et=EVENT_TYPES[ev.type]||EVENT_TYPES.other;
+                      const isSelected=selectedEvent===ev.id;
+                      const md=(ev.date||"").slice(5); // MM-DD
+                      return (
+                        <div key={ev.id} onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
+                          style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"3px solid "+et.color,
+                            borderRadius:6,padding:"9px 12px",marginBottom:8,cursor:"pointer",
+                            boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
+                            transition:"all 0.2s"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                            <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT,fontWeight:600}}>{md}</span>
+                            {ev.date<=today && !ev.in_history && <span style={{fontSize:10,flexShrink:0}} title="History未登録">🔴</span>}
+                            {ev.title && <span style={{fontSize:12,color:"#EDE6D6",fontFamily:FONT}}>{ev.title}</span>}
+                            {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
+                          </div>
+                          {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
+              ));
+            })()}
           </div>
         )}
       </div>
