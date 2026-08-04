@@ -2950,9 +2950,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             transition:"all 0.2s"}}>
                           <div style={{display:"flex",alignItems:"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
                             <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"5em"}}>{fmtJPDate(ev.date)}</span>
-                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?11:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"1 1 auto"}}>{ev.title}</span>}
+                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?11:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>}
                             {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,maxWidth:"40%"}}>{ev.venue}</span>}
-                            {ev.date<=today && !ev.in_history && <span style={{marginLeft:12,flexShrink:0,display:"inline-flex"}}><RedDot/></span>}
+                            <span style={{flex:"1 1 auto",minWidth:8}}/>
+                            {ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
                           {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
                         </div>
