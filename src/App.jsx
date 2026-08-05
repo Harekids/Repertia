@@ -2662,6 +2662,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v303: タブ移動を保留しておく箱。破棄確認でOKされたら、この移動を実行する。
   const [pendingTab, setPendingTab]   = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  // v338 ⑩-2: 削除確認モーダルの状態。null＝閉じ。イベントのidを入れると確認モーダルが開く。
+  //   標準confirmを廃止し、ピースカードと同じ自前ConfirmModalにそろえる。
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [dragItemId, setDragItemId]   = useState(null);
   const [dragOverId, setDragOverId]   = useState(null);
   const posterRef  = useRef(null);
@@ -2709,11 +2712,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     closeEditForm();
   };
 
-  const deleteEvent = (id) => {
-    if (!window.confirm("このイベントを削除しますか？")) return;
+  // v338 ⑩-2: 実際の削除処理。確認モーダルでOKされてから呼ばれる（自前で確認はしない）。
+  //   DBに触るため async。次の配列を作ってから setEvents と saveEvents の両方に渡す
+  //   （従来は setEvents だけでDB保存が漏れていた＝削除がDBに反映されなかった。ここで直す）。
+  const deleteEvent = async (id) => {
     // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
     if (editingId === id) closeEditForm();
-    setEvents(prev=>prev.filter(e=>e.id!==id)); setSelectedEvent(null);
+    const nextEvents = events.filter(e=>e.id!==id);
+    setEvents(nextEvents);
+    setSelectedEvent(null);
+    await saveEvents(nextEvents);
   };
 
   // v282: RP/LPの曲をID参照で追加する。文字列（composer/pieceTitle）は持たせない。
@@ -2816,10 +2824,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         {ev.notes && <div><span style={{color:"#94A3BE"}}>メモ：</span>{ev.notes}</div>}
         {ev.videoUrl && <div><span style={{color:"#94A3BE"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
         {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #1E2A45",alignSelf:"flex-start",marginTop:4}}/>}
+        {/* v338 ⑩-1/⑩-4: 展開時は「編集」ボタンだけ（削除は編集フォームの中へ移した）。
+             サクッと消せないように＝歴史は消えてはいけない。 */}
         {!compact && (
           <div style={{display:"flex",gap:8,marginTop:4,justifyContent:"flex-end"}}>
             <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>✎ 編集</button>
-            <button onClick={e=>{e.stopPropagation();deleteEvent(ev.id);}} style={{background:"none",border:"1px solid #E8C0C0",color:"#C09090",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>削除</button>
           </div>
         )}
       </div>
@@ -3236,12 +3245,22 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </button>
             </div>
 
-            {/* ⑦ 追加・キャンセルボタン前後の行間を広げる */}
-            <div style={{display:"flex",gap:14,justifyContent:"center",marginTop:20,paddingTop:16,borderTop:"1px solid #15233F"}}>
-              <button onClick={saveEvent} style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,letterSpacing:1}}>
-                {editingId ? "更新する" : "追加する"}
-              </button>
-              <button onClick={()=>{closeEditForm();}} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>キャンセル</button>
+            {/* ⑦ ボタン行。v338 ⑩-1: ピースカードと同じ配置に。
+                 左＝破壊的操作（削除・赤）を単独で置き、他と離す。右＝非破壊（更新・キャンセル）。
+                 削除は既存イベントの編集中（editingId あり）だけ出す。新規追加中は出さない。 */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #15233F"}}>
+              {/* 左：削除（既存編集時のみ） */}
+              {editingId ? (
+                <button onClick={()=>setDeleteConfirmId(editingId)}
+                  style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,flexShrink:0}}>このイベントを削除</button>
+              ) : <span/>}
+              {/* 右：更新／追加・キャンセル */}
+              <div style={{display:"flex",gap:14,alignItems:"center",flexShrink:0}}>
+                <button onClick={saveEvent} style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,letterSpacing:1}}>
+                  {editingId ? "更新する" : "追加する"}
+                </button>
+                <button onClick={()=>{closeEditForm();}} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>キャンセル</button>
+              </div>
             </div>
           </div>
         )}
@@ -3269,6 +3288,24 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           onCancel={()=>setPendingTab(null)}
           onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); setEventsTab(k); }} />
       )}
+      {/* v338 ⑩-2: イベント削除の確認モーダル（ピースカードと同じ自前ConfirmModalに統一）。
+           標準confirmを廃止。deleteConfirmId にidが入っている間だけ開く。
+           削除onConfirmはDBに触るため async。 */}
+      {deleteConfirmId !== null && (() => {
+        const target = events.find(e => e.id === deleteConfirmId);
+        if (!target) return null;
+        const et = EVENT_TYPES[target.type] || EVENT_TYPES.other;
+        const line1 = (fmtJPDate(target.date) || target.date || "") + "　" + (target.title || "（無題）");
+        return (
+          <ConfirmModal SANS={SANS}
+            line1={line1}
+            line2="このイベントを削除しますか？"
+            note={target.in_history ? "※このイベントは History に登録済みです。演奏した記録も一緒に消えます。" : undefined}
+            confirmLabel="削除" confirmColor="#C0405A"
+            onCancel={()=>setDeleteConfirmId(null)}
+            onConfirm={async()=>{ const id=deleteConfirmId; setDeleteConfirmId(null); await deleteEvent(id); }} />
+        );
+      })()}
     </div>
   );
 };
