@@ -2035,8 +2035,9 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
         {/* v340: ♪(markNote)・𝄽(markRest)の絞り込みトグル。カードのマークと同じ RepertiaMusic フォント・金/グレー。
              各々独立トグル。両方オンはOR（poolFiltered側で処理）、両方オフは全曲。
              ❤️お気に入り絞り込みボタンは廃止（favフラグ・データ自体は温存）。
-             間隔もカードに合わせる：gap:2の入れ物＋各ボタン padding:0 3px（余白を詰める）。 */}
-        <div style={{display:"flex",gap:2,alignItems:"center"}}>
+             間隔もカードに合わせる：gap:2の入れ物＋各ボタン padding:0 3px。
+             実機微調整：まとまりを左に3px広げ（marginLeft:3）、𝄽の右余白は詰める（右padding:0）。 */}
+        <div style={{display:"flex",gap:2,alignItems:"center",marginLeft:3}}>
           <button onClick={()=>setFilterNote(v=>!v)}
             title="♪マークの曲だけ"
             style={{background:"none",border:"none",cursor:"pointer",padding:"0 3px",
@@ -2044,7 +2045,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               position:"relative",top:"-2px",color:filterNote?"#C8A860":"#8A94A8"}}>{"\u266A"}</button>
           <button onClick={()=>setFilterRest(v=>!v)}
             title="𝄽マークの曲だけ"
-            style={{background:"none",border:"none",cursor:"pointer",padding:"0 3px",
+            style={{background:"none",border:"none",cursor:"pointer",padding:"0 0 0 3px",
               fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
               position:"relative",top:"2px",color:filterRest?"#C8A860":"#8A94A8"}}>{"\u{1D13D}"}</button>
         </div>
