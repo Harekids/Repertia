@@ -2088,6 +2088,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
 
 // ── PieChart (top-level) ────────────────────────────────────────────────────
 const EraBar = ({pieces, learning=false, filterBar=null}) => {
+  const isMobile = useIsMobile(640); // v341: スマホのみヘッダー再配置（PCは現状維持）
   const pool = learning ? pieces.filter(p=>p.learning) : pieces.filter(p=>!p.learning);
   const total = pool.length;
   if (total===0) return null;
@@ -2105,24 +2106,48 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
   });
   if (stops.length>0) stops[stops.length-1] = counts[counts.length-1].color+" 100%";
   const grad = "linear-gradient(to right, "+stops.join(", ")+")";
+  // 部品：タイトル＋件数 / 凡例（時代内訳）。PC/スマホで置き場所だけ変える。
+  const titleBlock = (
+    <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+      <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"Learning":"Repertoire"}</span>
+      <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{total}</span>
+    </div>
+  );
+  const legendBlock = (
+    <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",justifyContent:"flex-end"}}>
+      {counts.map(d=>(
+        <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
+          <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
+          <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{d.label} {d.count}</span>
+        </div>
+      ))}
+    </div>
+  );
+  // v341: スマホ＝「上に情報(タイトル＋内訳＋バー)／下に操作」。
+  //   1行目: 左タイトル・右内訳（両端振り分け）／ 直下にエラバー ／ その下に操作列を右寄せ。
+  if (isMobile) {
+    return (
+      <div style={{marginBottom:10}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
+          {titleBlock}
+          <div style={{flex:1,minWidth:0,display:"flex",justifyContent:"flex-end"}}>{legendBlock}</div>
+        </div>
+        <div style={{height:10,borderRadius:5,background:grad}}/>
+        {filterBar && (
+          <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>{filterBar}</div>
+        )}
+      </div>
+    );
+  }
+  // PC＝現状維持（1行目: 左タイトル・右操作列／エラバー／下に凡例）。
   return (
     <div style={{marginBottom:10}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
-        <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{learning?"Learning":"Repertoire"}</span>
-          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{total}</span>
-        </div>
+        {titleBlock}
         {filterBar}
       </div>
       <div style={{height:10,borderRadius:5,background:grad}}/>
-      <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",justifyContent:"flex-end",marginTop:6}}>
-        {counts.map(d=>(
-          <div key={d.key} style={{display:"flex",alignItems:"center",gap:4}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:d.color,flexShrink:0}}/>
-            <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{d.label} {d.count}</span>
-          </div>
-        ))}
-      </div>
+      <div style={{marginTop:6}}>{legendBlock}</div>
     </div>
   );
 };
