@@ -3575,6 +3575,7 @@ export default function App() {
 
 function MainApp({ user, handleLogout, pageState, setPage }) {
   const page = pageState;
+  const isMobile = useIsMobile(640); // v345: スマホはメインメニューをサブ下線幅に収める（間隔・padding・字を詰める）
   const [pieces, setPieces]                   = useState([]);
   const [piecesLoading, setPiecesLoading]     = useState(true);
   const [composers, setComposers]             = useState([]); // v263: 293人マスタ（検索用）
@@ -4199,21 +4200,28 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:24,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box"}}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:28,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box"}}>
       {/* Rくん（クリックでホーム＝Library） */}
       <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
-          paddingRight:24,flexShrink:0}}>
+          paddingRight:isMobile?12:24,flexShrink:0}}>
         <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
       </div>
-      {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線） */}
-      <nav style={{display:"flex",alignItems:"center",gap:8}}>
-        {NAV.map(([p,l]) => (
+      {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線）
+          v345: スマホはサブメニュー下線幅に収める。行を右端まで伸ばし(flex:1)、
+                右端メニュー(Portfolio)の右padding=0で、選択下線の右端をサブ下線の右端に一致させる。 */}
+      <nav style={{display:"flex",alignItems:"center",gap:isMobile?0:8,flex:isMobile?1:"none",justifyContent:isMobile?"space-between":"flex-start"}}>
+        {NAV.map(([p,l],i) => {
+          const padH = isMobile ? 0 : 20;
+          return (
           <button key={p} onClick={()=>setPage(p)}
             style={{background:"none",border:"none",
               color: page===p ? "#C8A860" : "#9A8868",
-              padding:"6px 20px",cursor:"pointer",
-              fontSize:16,letterSpacing:1,
+              paddingTop:6,
+              paddingRight: isMobile ? 0 : padH,
+              paddingLeft: isMobile ? 0 : padH,
+              cursor:"pointer",
+              fontSize:isMobile?15:16,letterSpacing:isMobile?0:1,
               fontFamily:FONT,
               fontWeight: page===p ? 600 : 400,
               borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
@@ -4221,7 +4229,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
               transition:"color 0.15s"}}>
             {l}
           </button>
-        ))}
+          );
+        })}
       </nav>
     </header>
   );
