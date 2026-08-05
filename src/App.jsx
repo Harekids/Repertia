@@ -3295,7 +3295,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         const target = events.find(e => e.id === deleteConfirmId);
         if (!target) return null;
         const et = EVENT_TYPES[target.type] || EVENT_TYPES.other;
-        const line1 = (fmtJPDate(target.date) || target.date || "") + "　" + (target.title || "（無題）");
+        // v339 A: 削除モーダルだけ年つき表示（カードのfmtJPDateは年でグループ化するため年なしのまま）。
+        //   ISO日付(YYYY-MM-DD)から「YYYY年M月D日」を組み立てる。長さ不足は元の値をそのまま出す。
+        const iso = target.date || "";
+        const jpDateWithYear = iso.length >= 10
+          ? parseInt(iso.slice(0,4),10) + "年" + parseInt(iso.slice(5,7),10) + "月" + parseInt(iso.slice(8,10),10) + "日"
+          : iso;
+        const line1 = jpDateWithYear + "　" + (target.title || "（無題）");
         return (
           <ConfirmModal SANS={SANS}
             line1={line1}
