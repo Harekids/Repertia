@@ -466,16 +466,17 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
           </React.Fragment>
         )}
-        {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
-             意味は固定しない独立2トグル。DB書き込みのため onClick は async。AI候補には出さない。 */}
-        {!isAI && (
-          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",marginRight:-6}}>
-            <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
-              title="マーク（♪）"
-              style={{background:"none",border:"none",padding:"0 0 0 3px",cursor:"pointer",fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
-            <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
-              title="マーク（休符）"
-              style={{background:"none",border:"none",padding:"0 0 0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
+        {/* v346 ①③: ♪𝄽は選択時のみ金色で表示（未選択は非表示＝一覧のノイズを減らす）。
+             操作はカードタップではなく⋯メニューへ移設(②)したので、ここは表示専用（onClickなし）。
+             片方だけ選択時は右端アンカーに寄せ、カード間で縦一直線に揃う。両方選択時は横並び。 */}
+        {!isAI && (p.markNote || p.markRest) && (
+          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",justifyContent:"flex-end",marginRight:-6}}>
+            {p.markNote && (
+              <span style={{fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:"#C8A860",padding:"0 0 0 3px"}}>{"\u266A"}</span>
+            )}
+            {p.markRest && (
+              <span style={{fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:"#C8A860",padding:"0 0 0 3px"}}>{"\u{1D13D}"}</span>
+            )}
           </div>
         )}
         {showControls && (
@@ -581,10 +582,15 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
                     <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
                       style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}>編集</button>
-                    {/* v298: 往復ボタンは⋯メニューから編集画面へ移動（意識的な操作にするため）。 */}
-                    {onToggleFav && (
-                      <button onClick={e=>{e.stopPropagation();setMenuOpen(false);onToggleFav();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}>{p.fav?"お気に入りから削除":"お気に入りに追加"}</button>
+                    {/* v346 ②: ♪𝄽のON/OFFを⋯メニューへ。文言は状態連動。DB書き込みのためasync。
+                         旧「お気に入り」項目はUIのみ削除（favフラグ・データ・コード分岐は温存＝歴史は消えてはいけない）。 */}
+                    {onToggleMarkNote && (
+                      <button onClick={async e=>{e.stopPropagation();setMenuOpen(false);await onToggleMarkNote();}}
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u266A"}</span>{p.markNote?"を外す":"に追加"}</button>
+                    )}
+                    {onToggleMarkRest && (
+                      <button onClick={async e=>{e.stopPropagation();setMenuOpen(false);await onToggleMarkRest();}}
+                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u{1D13D}"}</span>{p.markRest?"を外す":"に追加"}</button>
                     )}
                   </div>
                 )}
@@ -2010,45 +2016,55 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
+  const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
+  const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
+  const SORT_OPTS = [["composer","作曲家順"],["duration","演奏時間順"],["year","作曲年順"]];
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} flex={isMobile} compact={isMobile} />
-        <div style={{display:"flex",gap:0,alignItems:"stretch",flexShrink:0}}>
-          <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:"#8A94A8",padding:isMobile?"2px 7px":"4px 7px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
-            <option value="" disabled>並べ替え</option>
-            <option value="composer">作曲家</option>
-            <option value="duration">演奏時間</option>
-            <option value="year">作曲年</option>
-            {/* v269: カードに表示しない数字で並べ替えられると、序列という形で数字が見えてしまうため一時非表示（sortByロジックは温存） */}
-            {/* <option value="difficulty">Lv.</option> */}
-            {/* <option value="frequency">Pop.</option> */}
-          </select>
-          <button onClick={()=>setSortAsc(v=>!v)}
-            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#94A3BE":"#15233F",padding:isMobile?"2px 8px":"4px 8px",
-              cursor:"pointer",fontSize:11,fontFamily:FONT,lineHeight:1.2,borderRadius:"0 4px 4px 0",
-              display:"flex",alignItems:"center",boxSizing:"border-box"}}>
-            {sortAsc?"▲":"▼"}
+        {/* v346 ④: 「並べ替え」→「表示」ドロップダウン。並び順(排他)＋絞り込み(♪𝄽独立トグルOR)を2セクションで同居。
+             v346 ⑤: 操作列にあった♪𝄽トグルは撤去（ここ「表示」内に移設）。空いた幅は検索ボックス(flex:1)が吸収。 */}
+        <div style={{position:"relative",flexShrink:0}} ref={viewRef}>
+          <button onClick={()=>setViewOpen(v=>!v)}
+            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#C8CEDB":"#15233F",padding:isMobile?"2px 10px":"4px 10px",
+              cursor:"pointer",fontSize:12,fontFamily:FONT,lineHeight:1.2,borderRadius:4,boxSizing:"border-box",
+              display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+            表示
+            <span style={{fontSize:9,color:isMobile?"#8A94A8":"#8A94A8"}}>▼</span>
           </button>
-        </div>
-        {/* v340: ♪(markNote)・𝄽(markRest)の絞り込みトグル。カードのマークと同じ RepertiaMusic フォント・金/グレー。
-             各々独立トグル。両方オンはOR（poolFiltered側で処理）、両方オフは全曲。
-             ❤️お気に入り絞り込みボタンは廃止（favフラグ・データ自体は温存）。
-             間隔もカードに合わせる：gap:2の入れ物＋各ボタン padding:0 3px。
-             実機微調整：まとまりを左に3px広げ（marginLeft:3）、𝄽の右余白は詰める（右padding:0）。 */}
-        <div style={{display:"flex",gap:2,alignItems:"center",marginLeft:3,flexShrink:0}}>
-          <button onClick={()=>setFilterNote(v=>!v)}
-            title="♪マークの曲だけ"
-            style={{background:"none",border:"none",cursor:"pointer",padding:"0 3px",
-              fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
-              position:"relative",top:"-2px",color:filterNote?"#C8A860":"#8A94A8"}}>{"\u266A"}</button>
-          <button onClick={()=>setFilterRest(v=>!v)}
-            title="𝄽マークの曲だけ"
-            style={{background:"none",border:"none",cursor:"pointer",padding:"0 0 0 3px",
-              fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
-              position:"relative",top:"2px",color:filterRest?"#C8A860":"#8A94A8"}}>{"\u{1D13D}"}</button>
+          {viewOpen && (
+            <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:60,minWidth:180,overflow:"hidden"}}>
+              {/* 並び順（排他・1つ選択） */}
+              <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</div>
+              {SORT_OPTS.map(([val,label])=>(
+                <button key={val} onClick={()=>setSortBy(val)}
+                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:sortBy===val?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                  <span>{label}</span>
+                  {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
+                </button>
+              ))}
+              {/* 昇順/降順 */}
+              <button onClick={()=>setSortAsc(v=>!v)}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                <span>{sortAsc?"昇順":"降順"}</span>
+                <span style={{fontSize:11,color:"#8A94A8"}}>{sortAsc?"▲":"▼"}</span>
+              </button>
+              {/* 絞り込み（独立ON/OFF・♪𝄽） */}
+              <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #2E3E5E"}}>絞り込み</div>
+              <button onClick={()=>setFilterNote(v=>!v)}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterNote?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                <span><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u266A"}</span> のマークだけ</span>
+                {filterNote && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
+              </button>
+              <button onClick={()=>setFilterRest(v=>!v)}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterRest?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                <span><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u{1D13D}"}</span> のマークだけ</span>
+                {filterRest && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
+              </button>
+            </div>
+          )}
         </div>
         <div style={{position:"relative",flexShrink:0,display:"flex",alignItems:"center"}} ref={hamRef}>
           <button onClick={()=>setHamOpen(v=>!v)}
