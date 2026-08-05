@@ -1020,7 +1020,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
           autoComplete="off"
           className="rp-search"
           style={{background:compact?"#1B2942":"#F4F6F9",border:compact?"1px solid #35456380":"1px solid #C8CEDB",color:compact?"#EDE6D6":"#15233F",
-            padding:compact?"2px 24px 2px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,borderRadius:4,
+            padding:compact?"2px 24px 2px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {displayVal && (
@@ -2013,7 +2013,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
-      <div style={{display:"flex",gap:6,alignItems:isMobile?"stretch":"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
+      <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} flex={isMobile} compact={isMobile} />
         <div style={{display:"flex",gap:0,alignItems:"stretch",flexShrink:0}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
