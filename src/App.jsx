@@ -4208,9 +4208,10 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
       </div>
       {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線）
-          v345: スマホはサブメニュー下線幅に収める。行を右端まで伸ばし(flex:1)、
-                右端メニュー(Portfolio)の右padding=0で、選択下線の右端をサブ下線の右端に一致させる。 */}
-      <nav style={{display:"flex",alignItems:"center",gap:isMobile?0:8,flex:isMobile?1:"none",justifyContent:isMobile?"space-between":"flex-start"}}>
+          v345: スマホはサブ下線幅に収める。行を右端まで伸ばし(flex:1)＋右寄せ(flex-end)＋均一gap。
+                右端メニュー(Portfolio)の右padding=0で選択下線の右端をサブ下線の右端に一致。
+                gapが「各メニュー左側の均一スペース」になる。 */}
+      <nav style={{display:"flex",alignItems:"center",gap:isMobile?24:8,flex:isMobile?1:"none",justifyContent:isMobile?"flex-end":"flex-start"}}>
         {NAV.map(([p,l],i) => {
           const padH = isMobile ? 0 : 20;
           return (
@@ -4221,9 +4222,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
               paddingRight: isMobile ? 0 : padH,
               paddingLeft: isMobile ? 0 : padH,
               cursor:"pointer",
-              fontSize:isMobile?15:16,letterSpacing:isMobile?0:1,
+              fontSize:isMobile?16:16,letterSpacing:isMobile?0.3:1,
               fontFamily:FONT,
-              fontWeight: page===p ? 600 : 400,
+              fontWeight: page===p ? 600 : (isMobile?500:400),
               borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
               paddingBottom:4,
               transition:"color 0.15s"}}>
