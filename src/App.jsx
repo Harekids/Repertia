@@ -460,16 +460,17 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",marginLeft:20}}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginLeft:4}}>AI</span>}
             </div>
-            {/* ③演奏時間: 1行目と同書式 */}
-            <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,flexShrink:0,marginRight:6}}>{fmtDuration(p.duration, p.durationSecs)}</span>
+            {/* ③演奏時間: 1行目と同書式。v349: PCは「分」を1文字分右へ（右marginを増やし、♪𝄽スロットを同分狭める→右端は不変） */}
+            <span style={{fontSize:14,color:mainTxt,fontFamily:FONT,flexShrink:0,marginRight:isMobile?6:18}}>{fmtDuration(p.duration, p.durationSecs)}</span>
           </React.Fragment>
         )}
         {/* v346 ①③: ♪𝄽は選択時のみ金色で表示（未選択は非表示＝一覧のノイズを減らす）。
              片方だけ選択時は右端アンカーに寄せ、カード間で縦一直線に揃う。両方選択時は横並び。
              v348: PCは♪𝄽スロットを固定幅で常に確保（マーク有無で「分」の位置がずれないよう縦揃え）。
-                   スマホは従来どおりマークがある時だけ表示（狭いので空きスロットを作らない）。 */}
+                   スマホは従来どおりマークがある時だけ表示（狭いので空きスロットを作らない）。
+             v349: スロット幅を40→28（分を右へ寄せた分）。marginRight:-6の食い込みで2マークも収まる。 */}
         {!isAI && (!isMobile || p.markNote || p.markRest) && (
-          <div style={{flexShrink:0,width:isMobile?"auto":40,display:"flex",gap:2,alignItems:"center",justifyContent:"flex-end",marginRight:-6}}>
+          <div style={{flexShrink:0,width:isMobile?"auto":28,display:"flex",gap:2,alignItems:"center",justifyContent:"flex-end",marginRight:-6}}>
             {p.markNote && (
               <span style={{fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:"#C8A860",padding:"0 0 0 3px"}}>{"\u266A"}</span>
             )}
