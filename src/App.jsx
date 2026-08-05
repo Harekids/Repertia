@@ -469,13 +469,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
              意味は固定しない独立2トグル。DB書き込みのため onClick は async。AI候補には出さない。 */}
         {!isAI && (
-          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",marginRight:4}}>
+          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
               title="マーク（♪）"
-              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
+              style={{background:"none",border:"none",padding:"0 0 0 3px",cursor:"pointer",fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkRest) await onToggleMarkRest();}}
               title="マーク（休符）"
-              style={{background:"none",border:"none",padding:"0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
+              style={{background:"none",border:"none",padding:"0 0 0 3px",cursor:"pointer",fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
           </div>
         )}
         {showControls && (
@@ -951,7 +951,7 @@ const buildSuggestions = (q, pool, composerPool = []) => {
 };
 
 // ② Fixed SearchBox — IME-safe (composition events) + stable English input
-const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
+const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = false, compact = false }) => {
   const [open, setOpen]       = useState(false);
   const [cursor, setCursor]   = useState(-1);
   const [displayVal, setDisplayVal] = useState(searchQ);
@@ -1006,7 +1006,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
   const handleBlur  = (e) => { if (!boxRef.current?.contains(e.relatedTarget)) { setOpen(false); setCursor(-1); } };
 
   return (
-    <div ref={boxRef} style={{position:"relative",width:160}} onBlur={handleBlur}>
+    <div ref={boxRef} style={{position:"relative",width:flex?"auto":160,flex:flex?"1 1 0%":"none",minWidth:0}} onBlur={handleBlur}>
       <div style={{position:"relative",display:"flex",alignItems:"center"}}>
         <span style={{position:"absolute",left:8,fontSize:11,color:"#94A3BE",pointerEvents:"none"}}>🔍</span>
         <input
@@ -1019,8 +1019,8 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [] }) => {
           placeholder="作曲家・曲名で検索"
           autoComplete="off"
           className="rp-search"
-          style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",
-            padding:"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,borderRadius:4,
+          style={{background:compact?"#1B2942":"#F4F6F9",border:compact?"1px solid #35456380":"1px solid #C8CEDB",color:compact?"#EDE6D6":"#15233F",
+            padding:compact?"2px 24px 2px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {displayVal && (
@@ -2010,13 +2010,14 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
+  const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
   return (
-    <div style={{background:"transparent",flexShrink:0}}>
-      <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:"wrap"}}>
-        <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} />
-        <div style={{display:"flex",gap:0,alignItems:"stretch"}}>
+    <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
+      <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
+        <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} flex={isMobile} compact={isMobile} />
+        <div style={{display:"flex",gap:0,alignItems:"stretch",flexShrink:0}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 7px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
+            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:"#8A94A8",padding:isMobile?"2px 7px":"4px 7px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:"4px 0 0 4px",borderRight:"none",boxSizing:"border-box"}}>
             <option value="" disabled>並べ替え</option>
             <option value="composer">作曲家</option>
             <option value="duration">演奏時間</option>
@@ -2026,7 +2027,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             {/* <option value="frequency">Pop.</option> */}
           </select>
           <button onClick={()=>setSortAsc(v=>!v)}
-            style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 8px",
+            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#94A3BE":"#15233F",padding:isMobile?"2px 8px":"4px 8px",
               cursor:"pointer",fontSize:11,fontFamily:FONT,lineHeight:1.2,borderRadius:"0 4px 4px 0",
               display:"flex",alignItems:"center",boxSizing:"border-box"}}>
             {sortAsc?"▲":"▼"}
@@ -2037,7 +2038,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
              ❤️お気に入り絞り込みボタンは廃止（favフラグ・データ自体は温存）。
              間隔もカードに合わせる：gap:2の入れ物＋各ボタン padding:0 3px。
              実機微調整：まとまりを左に3px広げ（marginLeft:3）、𝄽の右余白は詰める（右padding:0）。 */}
-        <div style={{display:"flex",gap:2,alignItems:"center",marginLeft:3}}>
+        <div style={{display:"flex",gap:2,alignItems:"center",marginLeft:3,flexShrink:0}}>
           <button onClick={()=>setFilterNote(v=>!v)}
             title="♪マークの曲だけ"
             style={{background:"none",border:"none",cursor:"pointer",padding:"0 3px",
@@ -2146,7 +2147,7 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
         </div>
         <div style={{height:10,borderRadius:5,background:grad}}/>
         {filterBar && (
-          <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>{filterBar}</div>
+          <div style={{marginTop:10}}>{filterBar}</div>
         )}
       </div>
     );
