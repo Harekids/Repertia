@@ -53,11 +53,11 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
-  baroque:      { label:"バロック",  short:"バロック",  color:"#9B3045", bg:"#FDF5ED", year:[1600,1750] },
-  classical:    { label:"古典派",   short:"古典派",   color:"#BA6F12", bg:"#EDF5FB", year:[1750,1820] },
-  romantic:     { label:"ロマン派", short:"ロマン派", color:"#8C327A", bg:"#FBEdf5", year:[1820,1900] },
-  modern:       { label:"近現代",   short:"近現代",   color:"#3A3A9A", bg:"#EDF8EF", year:[1900,2000] },
-  contemporary: { label:"現代",     short:"現代",     color:"#6A6A7A", bg:"#F3EDF8", year:[2000,2030] },
+  baroque:      { label:"バロック",  short:"バロック",  abbr:"Ba", color:"#9B3045", bg:"#FDF5ED", year:[1600,1750] },
+  classical:    { label:"古典派",   short:"古典派",   abbr:"Cl", color:"#BA6F12", bg:"#EDF5FB", year:[1750,1820] },
+  romantic:     { label:"ロマン派", short:"ロマン派", abbr:"Ro", color:"#8C327A", bg:"#FBEdf5", year:[1820,1900] },
+  modern:       { label:"近現代",   short:"近現代",   abbr:"Mo", color:"#3A3A9A", bg:"#EDF8EF", year:[1900,2000] },
+  contemporary: { label:"現代",     short:"現代",     abbr:"Co", color:"#6A6A7A", bg:"#F3EDF8", year:[2000,2030] },
 };
 const ERA_ORDER = ["baroque","classical","romantic","modern","contemporary"];
 
@@ -2123,14 +2123,26 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
       ))}
     </div>
   );
+  // v341: スマホ用の内訳＝英字略号(abbr)＋色分け・色丸なし。
+  //   時代名は元色・少し太め(weight600)／数字は凡例と同じグレー・細め。1行に収まる。
+  const legendMobile = (
+    <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"baseline",justifyContent:"flex-end"}}>
+      {counts.map(d=>(
+        <span key={d.key} style={{fontSize:11,fontFamily:FONT}}>
+          <span style={{color:d.color,fontWeight:600}}>{d.abbr}</span>
+          <span style={{color:"#94A3BE",fontWeight:400}}> {d.count}</span>
+        </span>
+      ))}
+    </div>
+  );
   // v341: スマホ＝「上に情報(タイトル＋内訳＋バー)／下に操作」。
   //   1行目: 左タイトル・右内訳（両端振り分け）／ 直下にエラバー ／ その下に操作列を右寄せ。
   if (isMobile) {
     return (
       <div style={{marginBottom:10}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:10}}>
+        <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:12,marginBottom:10}}>
           {titleBlock}
-          <div style={{flex:1,minWidth:0,display:"flex",justifyContent:"flex-end"}}>{legendBlock}</div>
+          <div style={{flex:1,minWidth:0,display:"flex",justifyContent:"flex-end"}}>{legendMobile}</div>
         </div>
         <div style={{height:10,borderRadius:5,background:grad}}/>
         {filterBar && (
