@@ -2931,8 +2931,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               });
               return groups.map(g => (
                 <div key={g.year} style={{display:"flex",alignItems:"flex-start",marginBottom:18}}>
-                  {/* 年ラベル：左・上そろえで固定 */}
-                  <div style={{width:52,flexShrink:0,marginLeft:16,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}}>
+                  {/* v337: 年ラベルの頭＝えんじ境界線の左端（画面左マージン）に揃える。marginLeft撤去。
+                       年とカードの間＝1文字分（marginRight）。 */}
+                  <div style={{flexShrink:0,marginRight:10,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}}>
                     {g.year}
                   </div>
                   {/* その年のイベント群 */}
