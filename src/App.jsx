@@ -465,10 +465,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           </React.Fragment>
         )}
         {/* v346 ①③: ♪𝄽は選択時のみ金色で表示（未選択は非表示＝一覧のノイズを減らす）。
-             操作はカードタップではなく⋯メニューへ移設(②)したので、ここは表示専用（onClickなし）。
-             片方だけ選択時は右端アンカーに寄せ、カード間で縦一直線に揃う。両方選択時は横並び。 */}
-        {!isAI && (p.markNote || p.markRest) && (
-          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",justifyContent:"flex-end",marginRight:-6}}>
+             片方だけ選択時は右端アンカーに寄せ、カード間で縦一直線に揃う。両方選択時は横並び。
+             v348: PCは♪𝄽スロットを固定幅で常に確保（マーク有無で「分」の位置がずれないよう縦揃え）。
+                   スマホは従来どおりマークがある時だけ表示（狭いので空きスロットを作らない）。 */}
+        {!isAI && (!isMobile || p.markNote || p.markRest) && (
+          <div style={{flexShrink:0,width:isMobile?"auto":40,display:"flex",gap:2,alignItems:"center",justifyContent:"flex-end",marginRight:-6}}>
             {p.markNote && (
               <span style={{fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:"#C8A860",padding:"0 0 0 3px"}}>{"\u266A"}</span>
             )}
@@ -572,8 +573,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
               </div>
               {/* v347 ②④: 展開エリアに♪𝄽トグル（グレー=未選択/金=選択・タップで付け外し・async）を直置き。
-                   編集ボタンも直置き（展開→編集の二重階段を解消）。⋯メニューは廃止。 */}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45"}}>
+                   編集ボタンも直置き（展開→編集の二重階段を解消）。⋯メニューは廃止。
+                   v348: PCは♪𝄽を右カラムの左下に揃える（左カラム幅11em分インデント）。スマホは全幅のまま。 */}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45",paddingLeft:isMobile?0:"11em"}}>
                 {/* 左：♪𝄽 ON/OFF */}
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {onToggleMarkNote && (
@@ -2015,7 +2017,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
   const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
-  const SORT_OPTS = [["composer","作曲家順（アルファベット）"],["duration","演奏時間"],["year","作曲年"]];
+  const SORT_OPTS = [["composer","作曲家"],["duration","演奏時間"],["year","作曲年"]];
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
@@ -2032,18 +2034,9 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
           </button>
           {viewOpen && (
             <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:60,minWidth:180,overflow:"hidden"}}>
-              {/* 並び順（排他・1つ選択） */}
-              <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</div>
-              {SORT_OPTS.map(([val,label])=>(
-                <button key={val} onClick={()=>setSortBy(val)}
-                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:sortBy===val?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
-                  <span>{label}</span>
-                  {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
-                </button>
-              ))}
-              {/* 昇順/降順：▲▼を両方見せ、選択中を金に（既存▲▼と整合） */}
-              <div style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",padding:"8px 14px"}}>
-                <span style={{fontSize:12,fontFamily:FONT,color:"#C8CEDB"}}>順序</span>
+              {/* 並び順（排他・1つ選択）。▲▼を見出しの隣に置く（選択中を金） */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 14px 4px"}}>
+                <span style={{fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</span>
                 <span style={{display:"flex",gap:10}}>
                   <span onClick={()=>setSortAsc(true)} title="昇順"
                     style={{fontSize:12,cursor:"pointer",color:sortAsc?"#C8A860":"#8A94A8"}}>▲</span>
@@ -2051,6 +2044,13 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
                     style={{fontSize:12,cursor:"pointer",color:!sortAsc?"#C8A860":"#8A94A8"}}>▼</span>
                 </span>
               </div>
+              {SORT_OPTS.map(([val,label])=>(
+                <button key={val} onClick={()=>setSortBy(val)}
+                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:sortBy===val?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                  <span>{label}</span>
+                  {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
+                </button>
+              ))}
               {/* 絞り込み（独立ON/OFF・♪𝄽・記号のみ） */}
               <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #2E3E5E"}}>絞り込み</div>
               <button onClick={()=>setFilterNote(v=>!v)}
