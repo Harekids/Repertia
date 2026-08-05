@@ -391,6 +391,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   const yearStr = (p.yearText==="不明"||(p.year||0)===0) ? "作曲年不明" : (p.yearText||p.year)+"年";
 
+  // v350 ②③: スマホ閉じカード2行目＝作曲家 / 作曲 YYYY(-YYYY) / 調号 / 演奏時間。
+  //   「作曲」前置で生没年との誤読を防ぐ（③）。範囲はそのまま・「年」は付けない。空の項目は出さない（/ が増えすぎないよう）。
+  const composeYearStr = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
+  const keyStr = (p.key && p.key!=="ー") ? p.key : "";
+  const durStr = fmtDuration(p.duration, p.durationSecs);
+  const line2Parts = [p.composer, composeYearStr, keyStr, durStr].filter(x=>x && String(x).trim()!=="");
+
   return (
     <div style={{
       background: expanded ? (isAI ? memoBg : "#18283F") : isAI ? memoBg : inProgram ? "#15233F" : "transparent",
@@ -449,7 +456,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
             </div>
             <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
-              {p.composer}{p.composer ? " / " : ""}{fmtDuration(p.duration, p.durationSecs)}
+              {line2Parts.join(" / ")}
             </div>
           </div>
         ) : (
@@ -2018,7 +2025,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
   const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
-  const SORT_OPTS = [["composer","作曲家"],["duration","演奏時間"],["year","作曲年"]];
+  const SORT_OPTS = [["composer","作曲家"],["year","作曲年"],["duration","演奏時間"]];
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
@@ -2029,12 +2036,12 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
           <button onClick={()=>setViewOpen(v=>!v)}
             style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#C8CEDB":"#15233F",padding:isMobile?"2px 10px":"4px 10px",
               cursor:"pointer",fontSize:12,fontFamily:FONT,lineHeight:1.2,borderRadius:4,boxSizing:"border-box",
-              display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap"}}>
+              display:"flex",alignItems:"center",justifyContent:"center",gap:5,whiteSpace:"nowrap",minWidth:isMobile?84:"auto"}}>
             表示
             <span style={{fontSize:9,color:isMobile?"#8A94A8":"#8A94A8"}}>▼</span>
           </button>
           {viewOpen && (
-            <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:60,minWidth:180,overflow:"hidden"}}>
+            <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:60,minWidth:isMobile?120:180,overflow:"hidden"}}>
               {/* 並び順（排他・1つ選択）。▲▼を見出しの隣に置く（選択中を金） */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 14px 4px"}}>
                 <span style={{fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</span>
