@@ -2006,7 +2006,7 @@ const PrintPage = (props) => {
 // ── HomePage (top-level) ────────────────────────
 
 // ── FilterBar / PieChart / BarChart / ManagePage (top-level) ──────────────
-const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[]}) => {
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, filterNote, setFilterNote, filterRest, setFilterRest, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[]}) => {
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
@@ -2032,13 +2032,21 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             {sortAsc?"▲":"▼"}
           </button>
         </div>
-        <button onClick={()=>setFilterMark(filterMark==="fav"?"all":"fav")}
-          title="お気に入りのみ"
-          style={{background:"none",border:"none",color:filterMark==="fav"?"#C0405A":"#8A94A8",
-            fontSize:17,cursor:"pointer",padding:"3px 5px",lineHeight:1,
-            width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
-          <span style={{fontSize:16,lineHeight:1}}>♪</span>
-        </button>
+        {/* v340: ♪(markNote)・𝄽(markRest)の絞り込みトグル。カードのマークと同じ RepertiaMusic フォント・金/グレー。
+             各々独立トグル。両方オンはOR（poolFiltered側で処理）、両方オフは全曲。
+             ❤️お気に入り絞り込みボタンは廃止（favフラグ・データ自体は温存）。 */}
+        <button onClick={()=>setFilterNote(v=>!v)}
+          title="♪マークの曲だけ"
+          style={{background:"none",border:"none",cursor:"pointer",padding:"3px 5px",
+            width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center",
+            fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
+            position:"relative",top:"-2px",color:filterNote?"#C8A860":"#8A94A8"}}>{"\u266A"}</button>
+        <button onClick={()=>setFilterRest(v=>!v)}
+          title="𝄽マークの曲だけ"
+          style={{background:"none",border:"none",cursor:"pointer",padding:"3px 5px",
+            width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center",
+            fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
+            position:"relative",top:"2px",color:filterRest?"#C8A860":"#8A94A8"}}>{"\u{1D13D}"}</button>
         <div style={{position:"relative",flexShrink:0}} ref={hamRef}>
           <button onClick={()=>setHamOpen(v=>!v)}
             title="メニュー"
@@ -2161,6 +2169,7 @@ const ManagePage = (props) => {
   const {promoteToRepertoire, demoteToLearning} = props; // v298: RP⇄LP 往復ハンドラ（App由来）
   const {toggleMarkNote, toggleMarkRest} = props; // v293: ♪𝄽
   const {filterMark, setFilterMark, sortBy, setSortBy, sortAsc, setSortAsc} = props;
+  const {filterNote, setFilterNote, filterRest, setFilterRest} = props; // v340: ♪𝄽 絞り込みトグル
   const {searchQ, setSearchQ, sel, fmtDuration} = props;
   const {dashData, dashTotal} = props;
   const {dashAxis, setDashAxis, dashChart, setDashChart} = props;
@@ -2277,7 +2286,7 @@ const ManagePage = (props) => {
         <div style={{flex:1,overflowY:"auto"}}>
         <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
@@ -2462,7 +2471,7 @@ const ManagePage = (props) => {
 
       {/* ① EraBar（検索類をタイトル行に相乗り v211） */}
       <EraBar pieces={pieces} learning={false} filterBar={
-        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} composerPool={composers} />
+        <FilterBar pool={pieces} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={poolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowAdd(!showAdd);setEditMode(false);}} onDoc={()=>{if(poolFiltered.length===0){window.alert("該当するデータがありません");return;}setShowRepDocPanel(!showRepDocPanel);}} composerPool={composers} />
       } />
 
       {/* ② ボタン行はFilterBarの三線メニューに移動（v195） */}
@@ -3534,7 +3543,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [sortBy, setSortBy]                   = useState("");
   const [sortAsc, setSortAsc]                 = useState(true);
   const [filterEra, setFilterEra]             = useState("");
-  const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"
+  const [filterMark, setFilterMark]           = useState("all"); // ④ "all"|"fav"|"candidate"（❤️絞り込みは廃止・candidate分岐は温存）
+  // v340: カードの markNote(♪)・markRest(𝄽) フラグで絞り込む独立トグル2つ。
+  //   各々オン/オフでき、両方オン＝ORで表示（♪か𝄽どちらか持つ曲）、両方オフ＝全曲。
+  const [filterNote, setFilterNote]           = useState(false); // ♪(markNote)で絞り込み
+  const [filterRest, setFilterRest]           = useState(false); // 𝄽(markRest)で絞り込み
   const [searchQ, setSearchQ]                 = useState("");
   const [poolMode, setPoolMode]               = useState("repertoire");
   // ── Search/Filter states (shared between Program & Learning) ──
@@ -4108,6 +4121,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     .filter(p => !p.learning)
     .filter(p => !filterEra || p.era===filterEra)
     .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
+    // v340: ♪(markNote)・𝄽(markRest)の独立トグルOR。どちらもオフなら全通過。
+    .filter(p => (!filterNote && !filterRest) ? true : ((filterNote && p.markNote) || (filterRest && p.markRest)))
     .filter(p => searchMatch(p, searchQ))
     .sort((a,b) => {
       let d = 0;
@@ -4124,6 +4139,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     .filter(p => p.learning)
     .filter(p => !filterEra || p.era===filterEra)
     .filter(p => filterMark==="fav" ? p.fav : filterMark==="candidate" ? p.candidate : true)
+    // v340: ♪(markNote)・𝄽(markRest)の独立トグルOR。どちらもオフなら全通過。
+    .filter(p => (!filterNote && !filterRest) ? true : ((filterNote && p.markNote) || (filterRest && p.markRest)))
     .filter(p => searchMatch(p, searchQ))
     .sort((a,b) => {
       let d = 0;
@@ -4195,7 +4212,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
-          onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} promoteToRepertoire={promoteToRepertoire} demoteToLearning={demoteToLearning} filterMark={filterMark} setFilterMark={setFilterMark}
+          onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} promoteToRepertoire={promoteToRepertoire} demoteToLearning={demoteToLearning} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
           searchQ={searchQ} setSearchQ={setSearchQ} sel={sel} fmtDuration={fmtDuration}
           ERAS={ERAS} ERA_ORDER={ERA_ORDER} SANS={SANS} FONT={FONT}
