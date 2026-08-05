@@ -353,9 +353,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
   const [eraEditedDraft, setEraEditedDraft] = React.useState(false); // v273: 編集画面で時代を手で選び直したか（handleAddのeraEditedと同じ作り）
-  const [menuOpen, setMenuOpen] = React.useState(false); // v176: ⋯メニュー（PieceCardUnified内）
-  const menuRef = useCloseOnOutsideClick(menuOpen, () => setMenuOpen(false)); // v276
-  React.useEffect(() => { if (!expanded) setMenuOpen(false); }, [expanded]);
+  // v347: ⋯メニュー廃止（♪𝄽は展開エリアへ・編集は直置き）。関連state/ref/effectも削除。
   // v298: 確認モーダルの状態。null＝閉じ。'move'＝RP⇄LP移動確認 / 'delete'＝削除確認。
   const [confirmKind, setConfirmKind] = React.useState(null);
 
@@ -573,27 +571,25 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   )}
                 </div>
               </div>
-              {/* ⋯メニュー：展開時の右下 */}
-              <div style={{display:"flex",justifyContent:"flex-end",marginTop:6,position:"relative"}} ref={menuRef}>
-                <button onClick={e=>{e.stopPropagation();setMenuOpen(!menuOpen);}}
-                  title="メニュー"
-                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",padding:"0 6px",lineHeight:1}}>⋯</button>
-                {menuOpen && (
-                  <div style={{position:"absolute",right:0,bottom:"100%",marginBottom:4,background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:10,minWidth:160,overflow:"hidden"}}>
-                    <button onClick={e=>{e.stopPropagation();setMenuOpen(false);startEdit(e);}}
-                      style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}>編集</button>
-                    {/* v346 ②: ♪𝄽のON/OFFを⋯メニューへ。文言は状態連動。DB書き込みのためasync。
-                         旧「お気に入り」項目はUIのみ削除（favフラグ・データ・コード分岐は温存＝歴史は消えてはいけない）。 */}
-                    {onToggleMarkNote && (
-                      <button onClick={async e=>{e.stopPropagation();setMenuOpen(false);await onToggleMarkNote();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u266A"}</span>{p.markNote?"を外す":"に追加"}</button>
-                    )}
-                    {onToggleMarkRest && (
-                      <button onClick={async e=>{e.stopPropagation();setMenuOpen(false);await onToggleMarkRest();}}
-                        style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",borderTop:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"9px 14px",cursor:"pointer"}}><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u{1D13D}"}</span>{p.markRest?"を外す":"に追加"}</button>
-                    )}
-                  </div>
-                )}
+              {/* v347 ②④: 展開エリアに♪𝄽トグル（グレー=未選択/金=選択・タップで付け外し・async）を直置き。
+                   編集ボタンも直置き（展開→編集の二重階段を解消）。⋯メニューは廃止。 */}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45"}}>
+                {/* 左：♪𝄽 ON/OFF */}
+                <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                  {onToggleMarkNote && (
+                    <button onClick={async e=>{e.stopPropagation();await onToggleMarkNote();}}
+                      title={p.markNote?"♪を外す":"♪に追加"}
+                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 6px",fontSize:20,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
+                  )}
+                  {onToggleMarkRest && (
+                    <button onClick={async e=>{e.stopPropagation();await onToggleMarkRest();}}
+                      title={p.markRest?"𝄽を外す":"𝄽に追加"}
+                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 6px",fontSize:16,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
+                  )}
+                </div>
+                {/* 右：編集 */}
+                <button onClick={e=>{e.stopPropagation();startEdit(e);}}
+                  style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4}}>編集</button>
               </div>
             </>
           ) : (
@@ -2019,7 +2015,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
   const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
-  const SORT_OPTS = [["composer","作曲家順"],["duration","演奏時間順"],["year","作曲年順"]];
+  const SORT_OPTS = [["composer","作曲家順（アルファベット）"],["duration","演奏時間"],["year","作曲年"]];
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
       <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
@@ -2045,22 +2041,26 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
                   {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
                 </button>
               ))}
-              {/* 昇順/降順 */}
-              <button onClick={()=>setSortAsc(v=>!v)}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
-                <span>{sortAsc?"昇順":"降順"}</span>
-                <span style={{fontSize:11,color:"#8A94A8"}}>{sortAsc?"▲":"▼"}</span>
-              </button>
-              {/* 絞り込み（独立ON/OFF・♪𝄽） */}
+              {/* 昇順/降順：▲▼を両方見せ、選択中を金に（既存▲▼と整合） */}
+              <div style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",padding:"8px 14px"}}>
+                <span style={{fontSize:12,fontFamily:FONT,color:"#C8CEDB"}}>順序</span>
+                <span style={{display:"flex",gap:10}}>
+                  <span onClick={()=>setSortAsc(true)} title="昇順"
+                    style={{fontSize:12,cursor:"pointer",color:sortAsc?"#C8A860":"#8A94A8"}}>▲</span>
+                  <span onClick={()=>setSortAsc(false)} title="降順"
+                    style={{fontSize:12,cursor:"pointer",color:!sortAsc?"#C8A860":"#8A94A8"}}>▼</span>
+                </span>
+              </div>
+              {/* 絞り込み（独立ON/OFF・♪𝄽・記号のみ） */}
               <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #2E3E5E"}}>絞り込み</div>
               <button onClick={()=>setFilterNote(v=>!v)}
                 style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterNote?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
-                <span><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u266A"}</span> のマークだけ</span>
+                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:15}}>{"\u266A"}</span>
                 {filterNote && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
               <button onClick={()=>setFilterRest(v=>!v)}
                 style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterRest?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
-                <span><span style={{fontFamily:"RepertiaMusic, sans-serif"}}>{"\u{1D13D}"}</span> のマークだけ</span>
+                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:13}}>{"\u{1D13D}"}</span>
                 {filterRest && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
             </div>
