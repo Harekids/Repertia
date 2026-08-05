@@ -4200,18 +4200,18 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:28,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box"}}>
-      {/* Rくん（クリックでホーム＝Library） */}
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:28,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box",justifyContent:isMobile?"space-between":"flex-start"}}>
+      {/* Rくん（クリックでホーム＝Library）
+          v345: スマホは Rくん↔Library↔Events↔Portfolio を等間隔に。
+                header を space-between にし、navを display:contents で透過して
+                ボタンをheader直下の兄弟に昇格→4要素が等間隔に並ぶ。右padding無し。 */}
       <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
-          paddingRight:isMobile?12:24,flexShrink:0}}>
+          paddingRight:isMobile?0:24,flexShrink:0}}>
         <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
       </div>
-      {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線）
-          v345: スマホはサブ下線幅に収める。行を右端まで伸ばし(flex:1)＋右寄せ(flex-end)＋均一gap。
-                右端メニュー(Portfolio)の右padding=0で選択下線の右端をサブ下線の右端に一致。
-                gapが「各メニュー左側の均一スペース」になる。 */}
-      <nav style={{display:"flex",alignItems:"center",gap:isMobile?24:8,flex:isMobile?1:"none",justifyContent:isMobile?"flex-end":"flex-start"}}>
+      {/* メニュー（ゴシック・現在地は金＋文字すぐ下に下線） */}
+      <nav style={{display:isMobile?"contents":"flex",alignItems:"center",gap:isMobile?0:8}}>
         {NAV.map(([p,l],i) => {
           const padH = isMobile ? 0 : 20;
           return (
@@ -4222,7 +4222,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
               paddingRight: isMobile ? 0 : padH,
               paddingLeft: isMobile ? 0 : padH,
               cursor:"pointer",
-              fontSize:isMobile?16:16,letterSpacing:isMobile?0.3:1,
+              fontSize:16,letterSpacing:isMobile?0.3:1,
               fontFamily:FONT,
               fontWeight: page===p ? 600 : (isMobile?500:400),
               borderBottom: page===p ? "2px solid #C8A860" : "2px solid transparent",
