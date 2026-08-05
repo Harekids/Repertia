@@ -469,7 +469,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
         {/* v294: ♪𝄽（自由マーク）を見出し行に置く。閉じたカードでも見える・押せる。
              意味は固定しない独立2トグル。DB書き込みのため onClick は async。AI候補には出さない。 */}
         {!isAI && (
-          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center"}}>
+          <div style={{flexShrink:0,display:"flex",gap:2,alignItems:"center",marginRight:-6}}>
             <button onClick={async(e)=>{e.stopPropagation(); if(onToggleMarkNote) await onToggleMarkNote();}}
               title="マーク（♪）"
               style={{background:"none",border:"none",padding:"0 0 0 3px",cursor:"pointer",fontSize:19,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
@@ -2013,7 +2013,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
-      <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
+      <div style={{display:"flex",gap:6,alignItems:isMobile?"stretch":"center",justifyContent:"flex-end",flexWrap:isMobile?"nowrap":"wrap"}}>
         <SearchBox searchQ={searchQ} setSearchQ={setSearchQ} allPool={pool} composerPool={composerPool} flex={isMobile} compact={isMobile} />
         <div style={{display:"flex",gap:0,alignItems:"stretch",flexShrink:0}}>
           <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
@@ -2050,11 +2050,11 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               fontSize:15,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",
               position:"relative",top:"2px",color:filterRest?"#C8A860":"#8A94A8"}}>{"\u{1D13D}"}</button>
         </div>
-        <div style={{position:"relative",flexShrink:0}} ref={hamRef}>
+        <div style={{position:"relative",flexShrink:0,display:"flex",alignItems:"center"}} ref={hamRef}>
           <button onClick={()=>setHamOpen(v=>!v)}
             title="メニュー"
             style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
-              padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
+              padding:isMobile?"3px 0 3px 6px":"3px 5px",lineHeight:1,width:isMobile?"auto":28,height:28,display:"inline-flex",
               alignItems:"center",justifyContent:"center"}}>
             ≡
           </button>
