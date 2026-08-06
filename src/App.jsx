@@ -57,10 +57,18 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 // 色の塗り分けは当面なし＝Add/編集はタイトル・文言で区別する。
 // input/label は fontSize がスマホ/PCで変わるため関数で受ける（FORM.input(isMobile)）。
 const FORM = {
+  // v360: 色ルール＝「入力できる＝#F4F6F9（リンクURLと同色）／入力できない＝#F0F2F5（Lv.と同色）」。
+  //   ※実機で見てから最終決定するため、まずは既存の数字そのままで差を出す。
   input: (isMobile) => ({
     background:"#F4F6F9", border:"1px solid #C8CEDB", color:"#15233F",
     padding:"5px 8px", fontFamily:FONT, fontSize:isMobile?16:12,
     borderRadius:4, width:"100%", boxSizing:"border-box"
+  }),
+  // inputDisabled（入力不可）=グレー。Lv./Pop.（育成中）等の触れない欄に使う。
+  inputDisabled: (isMobile) => ({
+    background:"#F0F2F5", border:"1px solid #C8CEDB", color:"#94A3BE",
+    padding:"5px 8px", fontFamily:FONT, fontSize:isMobile?16:12,
+    borderRadius:4, width:"100%", boxSizing:"border-box", cursor:"default"
   }),
   label: {
     fontFamily:FONT, fontSize:10, color:"#94A3BE", marginBottom:3, textAlign:"left"
@@ -386,6 +394,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   // v354: フォーム共通土台FORMのエイリアス（この編集フォームで参照）。
   const fInput = FORM.input(isMobile);
   const fLabel = FORM.label;
+  const fInputDisabled = FORM.inputDisabled(isMobile); // v359: 入力不可欄（Lv./Pop.）用グレー
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
   const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
@@ -691,14 +700,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     placeholder="例: 5分30秒"
                     style={fInput} />
                 </div>
-                {/* Lv.・Pop.: 育成中(入力不可)。v357: 両者を同一スタイルに統一（fInputベース＋無効欄の色）。 */}
+                {/* Lv.・Pop.: 育成中(入力不可)。v359: 「グレー＝入力できない」ルールでfInputDisabledを参照。 */}
                 <div>
                   <div style={fLabel}>Lv.</div>
-                  <input value="育成中" disabled readOnly style={{...fInput,color:"#94A3BE",cursor:"default"}} />
+                  <input value="育成中" disabled readOnly style={fInputDisabled} />
                 </div>
                 <div>
                   <div style={fLabel}>Pop.</div>
-                  <input value="育成中" disabled readOnly style={{...fInput,color:"#94A3BE",cursor:"default"}} />
+                  <input value="育成中" disabled readOnly style={fInputDisabled} />
                 </div>
               </div>
               {/* v357 順序: 3行目リンク → 4行目キーワード → 5行目メモ */}
@@ -713,7 +722,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         <button key={t} type="button" title={t==="desc"?"information":t}
                           onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
                           style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
-                            background:(lk.type||"video")===t?"#DCE4F0":"white",
+                            background:(lk.type||"video")===t?"#DCE4F0":"#F4F6F9",
                             border:(lk.type||"video")===t?"1px solid #5B7FA6":"1px solid #C8CEDB",
                             color:"#15233F",borderRadius:3,cursor:"pointer",padding:0,flexShrink:0}}>
                           <LinkIcon type={t} />
@@ -721,9 +730,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       ))}
                     </div>
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,flex:2,minWidth:0,boxSizing:"border-box"}} />
+                      style={{...fInput,flex:2,minWidth:0}} />
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,flex:1,minWidth:0,boxSizing:"border-box"}} />
+                      style={{...fInput,flex:1,minWidth:0}} />
                     <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
                       style={{background:"none",border:"none",color:"#C0405A",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>✕</button>
                   </div>
