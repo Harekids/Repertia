@@ -403,25 +403,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const fInputDisabled = FORM.inputDisabled(isMobile); // v359: 入力不可欄（Lv./Pop.）用グレー
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補（検索ピースカード）=クリーム＋五線（探索モードを色＋テクスチャで示す）。Learning=銀 / Repertoire=金。
-  // AI候補（検索ピースカード）=クリーム＋五線（探索モードを色＋テクスチャで示す）。Learning=銀 / Repertoire=金。
-  // v369: 文字色はクリーム地に合わせ濃い茶系（読みやすさ優先）。
-  const txtColor = isAI ? "#4A3F2A" : isLearning ? "#C8CEDB" : "#C8A860";
-  // v369: メモ紙(単線)→クリーム地＋五線譜の地模様。5本の細線を近接で1組、組の間に余白、を繰り返す。
-  //   色で争わずテクスチャで一覧カード(紺)と区別。CSS繰り返しパターンで軽量（画像は使わない）。
-  const memoBg = "#EFE7D2";
-  const staffLine = "#D8CCA8"; // クリームに馴染む淡い線
-  const memoRule = "repeating-linear-gradient(180deg,"
-    + " transparent 0px, transparent 7px,"
-    + " "+staffLine+" 7px, "+staffLine+" 8px,"
-    + " transparent 8px, transparent 15px,"
-    + " "+staffLine+" 15px, "+staffLine+" 16px,"
-    + " transparent 16px, transparent 23px,"
-    + " "+staffLine+" 23px, "+staffLine+" 24px,"
-    + " transparent 24px, transparent 31px,"
-    + " "+staffLine+" 31px, "+staffLine+" 32px,"
-    + " transparent 32px, transparent 39px,"
-    + " "+staffLine+" 39px, "+staffLine+" 40px,"
-    + " transparent 40px, transparent 56px)";
+  // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
+  const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
+  // AI候補だけメモ用紙の地。それ以外は紺(透明)のまま。
+  const memoBg = "#ECE9DF";
+  const memoRule = "repeating-linear-gradient(180deg, transparent, transparent 27px, #E4E0D1 27px, #E4E0D1 28px)";
   const statusBg = isAI ? memoBg : null;
   const statusText = isAI ? txtColor : null; // AIメモ地の上は茶系文字
   // 1行目の文字色：AIは常にメモ茶。金銀は通常時=状態色、展開時=明るいクリーム。
@@ -532,7 +518,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               }}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
             </div>
-            <div style={{fontSize:11,color:isAI?"#7A6E52":"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+            <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
               {line2Parts.join(" / ")}
             </div>
           </div>
@@ -2511,12 +2497,27 @@ const ManagePage = (props) => {
               const era=ERAS[p.era]||ERAS.modern;
               const added=addedAiIds.includes(p.id)
                 || pieces.some(x => x.title===p.title && x.composer===p.composer && x.learning);
+              // v370: 検索ピースカード＝クリーム＋五線（探索モードを色＋テクスチャで示す）。アプリ背景の紺は変えない。
+              const creamBg = "#EFE7D2";
+              const staffLine = "#D8CCA8";
+              const staffPattern = "repeating-linear-gradient(180deg,"
+                + " transparent 0px, transparent 7px,"
+                + " "+staffLine+" 7px, "+staffLine+" 8px,"
+                + " transparent 8px, transparent 15px,"
+                + " "+staffLine+" 15px, "+staffLine+" 16px,"
+                + " transparent 16px, transparent 23px,"
+                + " "+staffLine+" 23px, "+staffLine+" 24px,"
+                + " transparent 24px, transparent 31px,"
+                + " "+staffLine+" 31px, "+staffLine+" 32px,"
+                + " transparent 32px, transparent 39px,"
+                + " "+staffLine+" 39px, "+staffLine+" 40px,"
+                + " transparent 40px, transparent 60px)";
               return (
                 <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
-                  background:"#15233F",border:"1px solid #1E2A45",borderLeft:"3px solid "+era.color,borderRadius:5}}>
+                  background:creamBg,backgroundImage:staffPattern,border:"1px solid #DCD2B4",borderLeft:"3px solid "+era.color,borderRadius:5}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,color:"#EDE6D6",fontWeight:500,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
+                    <div style={{fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                    <div style={{fontSize:10,color:"#7A6E52",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
                   </div>
                   <button onClick={async()=>{
                       if(addedAiIds.includes(p.id)) return;
@@ -2524,17 +2525,13 @@ const ManagePage = (props) => {
                       if(pieces.some(x => x.title===p.title && x.learning)) return;
                       setAddedAiIds(prev=>[...prev,p.id]);
                       // v296: AI検索結果を Learning に追加する経路にも composers 照合を通す（症状②の修正）。
-                      //   Add Piece 側の selectSuggestion と同じ方針（案A）：
-                      //   AIが返した composer 文字列は「検索キー」としてのみ使い、値としては捨てる。
-                      //   rankComposers で composers を引き、一意（1件）に決まったときだけ display を入れる。
-                      //   複数ヒット・0件は空欄のまま（「推測しない・検索1位を無条件採用しない・空欄も情報」）。
                       const key = (p.composer || "").toLowerCase().trim();
                       const hits = key ? rankComposers(composers, key, 8) : [];
                       const decided = hits.length === 1 ? hits[0].display : "";
                       await addPiecesFromProgram([{...p, composer: decided}], {silent:true});
                     }}
                     disabled={added}
-                    style={{background:added?"#1E2A45":"#0F1A33",border:"none",color:added?"#7A8AAA":"#E8D090",
+                    style={{background:added?"#DCD2B4":"#C8A860",border:"none",color:added?"#8A7E62":"#fff",
                       padding:"5px 12px",borderRadius:4,cursor:added?"default":"pointer",
                       fontSize:11,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
                     {added?"✓ 追加済み":"＋ 追加"}
