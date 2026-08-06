@@ -402,11 +402,26 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const fLabel = FORM.label;
   const fInputDisabled = FORM.inputDisabled(isMobile); // v359: 入力不可欄（Lv./Pop.）用グレー
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
-  // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
-  const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
-  // AI候補だけメモ用紙の地。それ以外は紺(透明)のまま。
-  const memoBg = "#ECE9DF";
-  const memoRule = "repeating-linear-gradient(180deg, transparent, transparent 27px, #E4E0D1 27px, #E4E0D1 28px)";
+  // AI候補（検索ピースカード）=クリーム＋五線（探索モードを色＋テクスチャで示す）。Learning=銀 / Repertoire=金。
+  // AI候補（検索ピースカード）=クリーム＋五線（探索モードを色＋テクスチャで示す）。Learning=銀 / Repertoire=金。
+  // v369: 文字色はクリーム地に合わせ濃い茶系（読みやすさ優先）。
+  const txtColor = isAI ? "#4A3F2A" : isLearning ? "#C8CEDB" : "#C8A860";
+  // v369: メモ紙(単線)→クリーム地＋五線譜の地模様。5本の細線を近接で1組、組の間に余白、を繰り返す。
+  //   色で争わずテクスチャで一覧カード(紺)と区別。CSS繰り返しパターンで軽量（画像は使わない）。
+  const memoBg = "#EFE7D2";
+  const staffLine = "#D8CCA8"; // クリームに馴染む淡い線
+  const memoRule = "repeating-linear-gradient(180deg,"
+    + " transparent 0px, transparent 7px,"
+    + " "+staffLine+" 7px, "+staffLine+" 8px,"
+    + " transparent 8px, transparent 15px,"
+    + " "+staffLine+" 15px, "+staffLine+" 16px,"
+    + " transparent 16px, transparent 23px,"
+    + " "+staffLine+" 23px, "+staffLine+" 24px,"
+    + " transparent 24px, transparent 31px,"
+    + " "+staffLine+" 31px, "+staffLine+" 32px,"
+    + " transparent 32px, transparent 39px,"
+    + " "+staffLine+" 39px, "+staffLine+" 40px,"
+    + " transparent 40px, transparent 56px)";
   const statusBg = isAI ? memoBg : null;
   const statusText = isAI ? txtColor : null; // AIメモ地の上は茶系文字
   // 1行目の文字色：AIは常にメモ茶。金銀は通常時=状態色、展開時=明るいクリーム。
@@ -517,7 +532,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               }}>{p.title}</span>
               {isAI && <span style={{flexShrink:0,fontSize:9,background:"#DDD8C8",color:"#7A7460",padding:"1px 5px",borderRadius:6,border:"1px dashed #B5AF9A",marginTop:2}}>AI</span>}
             </div>
-            <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+            <div style={{fontSize:11,color:isAI?"#7A6E52":"#94A3BE",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
               {line2Parts.join(" / ")}
             </div>
           </div>
