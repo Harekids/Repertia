@@ -786,11 +786,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{display:"flex",gap:6,alignItems:"center",minWidth:0}}>
                   {onDeletePiece && (
                     <button onClick={()=>setConfirmKind('delete')}
-                      style={{...FORM.button.base,...FORM.button.danger,padding:"8px 8px",letterSpacing:0,whiteSpace:"nowrap"}}>この曲を削除</button>
+                      style={{...FORM.button.base,...FORM.button.danger,padding:"8px 12px",whiteSpace:"nowrap"}}>削除</button>
                   )}
                   {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
                     <button onClick={()=>setConfirmKind('move')}
-                      style={{...FORM.button.base,...FORM.button.secondary,padding:"8px 8px",letterSpacing:0,whiteSpace:"nowrap"}}>
+                      style={{...FORM.button.base,...FORM.button.secondary,padding:"8px 12px",whiteSpace:"nowrap"}}>
                       {isLearning ? "Repertoireに移動" : "Learningに移動"}
                     </button>
                   )}
@@ -3379,7 +3379,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {editingId ? (
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #D0D6DF"}}>
                 <button onClick={()=>setDeleteConfirmId(editingId)}
-                  style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>このイベントを削除</button>
+                  style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>削除</button>
                 <button onClick={saveEvent} style={{...FORM.button.base,...FORM.button.primary,flexShrink:0}}>更新</button>
               </div>
             ) : (
