@@ -1281,7 +1281,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       {/* ④ 右上✕ボタン */}
       <button onClick={onCancel} title="キャンセル"
         style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-      <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:FONT,fontWeight:600}}>Add Piece</div>
+      <div style={{fontSize:15,letterSpacing:3,color:"#15233F",marginBottom:16,fontFamily:FONT,fontWeight:600}}>Add Piece</div>
 
       {/* 1行目: 作曲家・曲名（v270: 幅比 1:2） */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:12,marginBottom:12}}>
@@ -1290,7 +1290,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
               placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
-              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":(composerLocked?"#8BAED4":"#C8CEDB"),background:composerDoubt?"white":(composerLocked?"#F0F5FF":"white"),color:"#15233F"}} />
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":"#C8CEDB"}} />
             {composerLocked && !composerDoubt && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerDoubt && <span style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#C0392B",fontWeight:500}}>!</span>}
             {pendingComposers.length>0 && (
@@ -1328,7 +1328,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
               placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
-              autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",opacity:piece.composer?1:0.5}} />
+              autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#6B7A90",fontFamily:FONT}}>検索中…</div>}
             {suggestions.length>0 && (
               <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1px solid #C8CEDB",borderRadius:6,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.10)",maxHeight:300,overflowY:"auto"}}>
@@ -1371,7 +1371,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>
             演奏時間
-            {!durationEdited && piece.title && <span style={{fontSize:9,color:"#C8A030",background:"#FFF8E0",padding:"0 4px",borderRadius:3,marginLeft:4}}>※</span>}
+            {!durationEdited && piece.title && <span style={{fontSize:9,color:"#A8B4C8",fontFamily:FONT,marginLeft:4}}>（推定）</span>}
           </div>
           <div style={{position:"relative"}}>
             <input
@@ -1397,7 +1397,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                 e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
               placeholder="例: 5分30秒 / 5:30 / 5"
-              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:!durationEdited&&piece.title?"#C8A030":"#C8CEDB"}}
+              style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}
             />
           </div>
         </div>
@@ -2066,7 +2066,7 @@ const PrintPage = (props) => {
 // ── HomePage (top-level) ────────────────────────
 
 // ── FilterBar / PieChart / BarChart / ManagePage (top-level) ──────────────
-const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, filterNote, setFilterNote, filterRest, setFilterRest, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[]}) => {
+const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSortAsc, filterMark, setFilterMark, filterNote, setFilterNote, filterRest, setFilterRest, poolFiltered, editMode, setEditMode, sel, SANS, onAdd, onDoc, composerPool=[], addLabel}) => {
   const [expanded, setExpanded] = useState(false);
   const [hamOpen, setHamOpen] = useState(false);
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
@@ -2139,7 +2139,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
                   style={{display:"block",width:"100%",textAlign:"left",background:"none",
                     border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",
                     fontSize:12,fontFamily:FONT}}>
-                  ＋ 曲を追加
+                  {addLabel||"＋ 曲を追加"}
                 </button>
               )}
               {onDoc && (
@@ -2398,7 +2398,7 @@ const ManagePage = (props) => {
         <div style={{flex:1,overflowY:"auto"}}>
         <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} />
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} addLabel="＋ 曲を探索" />
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
@@ -2407,7 +2407,7 @@ const ManagePage = (props) => {
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
             style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-          <div style={{fontSize:15,letterSpacing:3,color:"#6B7A90",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Search Piece</div>
+          <div style={{fontSize:15,letterSpacing:3,color:"#15233F",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Search Piece</div>
           {/* v270: 1行目 作曲家・曲名（幅比 1:2） */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:6,marginBottom:8}}>
             <div>
@@ -4324,7 +4324,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   );
   return (
     <div style={{height:"100dvh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
-      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;} input::placeholder,textarea::placeholder{color:#8A94A8;opacity:1;}"}</style>
+      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;} input::placeholder,textarea::placeholder{color:#8A94A8;opacity:1;} input:focus,select:focus,textarea:focus{outline:none;border-color:#C8A860 !important;box-shadow:0 0 0 1px #C8A860;}"}</style>
       <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
