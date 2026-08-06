@@ -73,6 +73,11 @@ const FORM = {
     background:"transparent", border:"1.5px solid #C8A860", color:"#15233F",
     padding:"8px 28px", cursor:"pointer", fontSize:13, letterSpacing:2,
     fontFamily:FONT, borderRadius:4
+  },
+  // v355: フォームカード背景（フォーム全体が乗る面）。AddEvent基調＝明るい面に統一。
+  card: {
+    background:"#EEF1F5", border:"1px solid #D0D6DF", borderRadius:10,
+    padding:18, boxSizing:"border-box"
   }
 };
 
@@ -615,8 +620,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             </>
           ) : (
             /* ── 第3形態: インライン編集フォーム ── */
-            <div style={{padding:"8px 0 4px",position:"relative"}} onClick={e=>e.stopPropagation()}>
-              {/* v354: フォーム共通土台FORMを参照（純白→#F4F6F9・角丸3→4・ラベル色A8B4C8→#94A3BE のズレを解消）。 */}
+            <div style={{...FORM.card,position:"relative",marginTop:8,marginBottom:4}} onClick={e=>e.stopPropagation()}>
+              {/* v354: フォーム共通土台FORMを参照（純白→#F4F6F9・角丸3→4・ラベル色A8B4C8→#94A3BE のズレを解消）。
+                   v355: フォームカード背景をFORM.card（AddEvent基調の明るい面）に統一。 */}
               {/* ④右上✕ */}
               <button onClick={cancelEditFn} title="キャンセル"
                 style={{position:"absolute",top:0,right:0,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
