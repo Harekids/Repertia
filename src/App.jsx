@@ -512,15 +512,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                      この左カラムは最上段の名前の真下に来るので、視覚的に「名前／時代年／リンク」の3行に見える。
                      fullNameのホバーは最上段の作曲家名に付けた。 */}
                 <div style={{width:"11em",flexShrink:0,paddingTop:8,paddingRight:8,boxSizing:"border-box"}}>
-                  {/* 2行目: 時代の頭文字（ホバーで時代名）＋ 生没年。色は付けない。composersを引けた時だけ。 */}
-                  {composerRow && (composerEraInitial || composerRow.years) && (
-                    <div style={{fontSize:11,color:isAI?"#7A7460":"#94A3BE",fontFamily:FONT,marginTop:3,display:"flex",alignItems:"baseline",gap:6}}>
-                      {composerEraInitial && (
-                        <span title={composerEraLabel||undefined} style={{cursor:"default"}}>{composerEraInitial}</span>
-                      )}
-                      {composerRow.years && <span>{composerRow.years}</span>}
-                    </div>
-                  )}
+                  {/* v351 ①: 生没年表示（時代頭文字＋years）を削除。生没年は「人の情報」で曲情報ではない。
+                       作曲家情報は下のWikiリンク(W/I)で辿れるため、カードには載せない。 */}
                   {/* 3行目: W / I リンク（ホバーで名称）。空欄の列は出さない（空欄も情報）。
                        v290: Wは wiki_ja 優先→無ければ wiki_en。両方無ければWを出さない。
                        表示は区別せず「W」。押せば読める方（日本語優先）が開く。 */}
@@ -541,35 +534,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 {/* 右カラム: 曲層（v294）。曲名・演奏時間・♪𝄽は見出し行が担当するため、右カラムは2行。 */}
                 <div style={{flex:1,minWidth:0,paddingTop:8,paddingBottom:2,paddingLeft:3}}>
-                  {/* 1行目: 調性 ・ 作曲年 ・（Lv.非表示）・（Pop.非表示）・ リンク（YouTube等・曲に紐づく） */}
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap",alignItems:"center",fontSize:12,color:isAI?"#5A564A":"#94A3BE",fontFamily:FONT,marginBottom:6}}>
-                    {p.key && p.key!=="ー" && <span>{p.key}</span>}
-                    {p.key && p.key!=="ー" && <span style={{color:"#7A8FB5"}}>·</span>}
-                    <span>{yearStr}</span>
-                    {/* v269/v293: Lv.・Pop.は育成中。枠だけ確保し表示は伏せる（機能実装時にここへ差し込む）。 */}
-                    {/* <span style={{color:"#7A8FB5"}}>·</span><span>Lv. 育成中</span> */}
-                    {/* <span style={{color:"#7A8FB5"}}>·</span><span>Pop. 育成中</span> */}
-                    {/* リンク: YouTube等は曲層（右カラム）。Wikipedia/IMSLPは作曲家層（左カラム）に振り分け済み。 */}
-                    <span style={{marginLeft:"1em",display:"inline-flex",gap:4}}>
-                      {[
-                        ["https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer),"▶","YouTube"],
-                      ].map(([href,mark,ttl])=>(
-                        <a key={ttl} href={href} target="_blank" rel="noreferrer" title={ttl}
-                          style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
-                            fontSize:11,color:"#94A3BE",textDecoration:"none",
-                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
-                          onClick={e=>e.stopPropagation()}>{mark}</a>
-                      ))}
-                      {Array.isArray(p.links) && p.links.length>0 && <span style={{width:8,flexShrink:0,display:"inline-block"}} />}
-                      {Array.isArray(p.links) && p.links.map((lk,i)=>(
-                        <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
-                          style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",
-                            fontSize:11,color:"#94A3BE",textDecoration:"none",
-                            border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
-                          onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
-                      ))}
-                    </span>
-                  </div>
+                  {/* v351 ②: 調号・作曲年の表示を削除（2行目に集約済みでダブりのため）。
+                       リンクは操作行(♪𝄽・編集の行)へ移動。ここはキーワード/メモのみ残す。 */}
                   {/* 2行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
                   {(p.keywords || p.memo || p.reason) && (
                     <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:FONT}}>
@@ -582,10 +548,12 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               </div>
               {/* v347 ②④: 展開エリアに♪𝄽トグル（グレー=未選択/金=選択・タップで付け外し・async）を直置き。
                    編集ボタンも直置き（展開→編集の二重階段を解消）。⋯メニューは廃止。
-                   v348: PCは♪𝄽を右カラムの左下に揃える（左カラム幅11em分インデント）。スマホは全幅のまま。 */}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45",paddingLeft:isMobile?0:"11em"}}>
+                   v348: PCは♪𝄽を右カラムの左下に揃える（左カラム幅11em分インデント）。スマホは全幅のまま。
+                   v351 ③: 操作系を1行に集約＝♪𝄽(左)／リンク(中・設定済みのみ)／編集(右端)。
+                          情報は全て2行目(閉じても見える)へ、操作は展開のこの行へ。 */}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45",paddingLeft:isMobile?0:"11em"}}>
                 {/* 左：♪𝄽 ON/OFF */}
-                <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
                   {onToggleMarkNote && (
                     <button onClick={async e=>{e.stopPropagation();await onToggleMarkNote();}}
                       title={p.markNote?"♪を外す":"♪に追加"}
@@ -597,9 +565,20 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       style={{background:"none",border:"none",cursor:"pointer",padding:"2px 6px",fontSize:16,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
                   )}
                 </div>
+                {/* 中：リンク（記号・設定済みのみ）。YouTube検索は常時／カスタムリンクは有る時だけ。 */}
+                <div style={{flex:1,minWidth:0,display:"flex",gap:4,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
+                  <a href={"https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer)} target="_blank" rel="noreferrer" title="YouTube"
+                    style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
+                    onClick={e=>e.stopPropagation()}>▶</a>
+                  {Array.isArray(p.links) && p.links.map((lk,i)=>(
+                    <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
+                      style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
+                      onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
+                  ))}
+                </div>
                 {/* 右：編集 */}
                 <button onClick={e=>{e.stopPropagation();startEdit(e);}}
-                  style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4}}>編集</button>
+                  style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
               </div>
             </>
           ) : (
