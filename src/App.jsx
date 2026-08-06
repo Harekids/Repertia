@@ -96,6 +96,13 @@ const FORM = {
       padding:"5px 14px", fontSize:11
     }
   },
+  // v364 ④: 独立フォーム（AddPiece/SearchPiece/AddEvent）の見出し共通スタイル。
+  //   色は中間グレー（濃紺#15233Fより薄く#6B7A90より濃い）。開き方で「タイトル有無」が決まる構造：
+  //   独立して開く＝タイトル有り／カード展開して開く（ピース編集・イベント編集）＝タイトル無し。
+  title: {
+    fontSize:15, letterSpacing:3, color:"#48566E", marginBottom:16,
+    fontFamily:FONT, fontWeight:600, textAlign:"left"
+  },
   // v355: フォームカード背景（フォーム全体が乗る面）。AddEvent基調＝明るい面に統一。
   card: {
     background:"#EEF1F5", border:"1px solid #D0D6DF", borderRadius:10,
@@ -1281,7 +1288,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       {/* ④ 右上✕ボタン */}
       <button onClick={onCancel} title="キャンセル"
         style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-      <div style={{fontSize:15,letterSpacing:3,color:"#15233F",marginBottom:16,fontFamily:FONT,fontWeight:600}}>Add Piece</div>
+      <div style={FORM.title}>Add Piece</div>
 
       {/* 1行目: 作曲家・曲名（v270: 幅比 1:2） */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:12,marginBottom:12}}>
@@ -1404,7 +1411,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       </div>
 
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
-        <button onClick={handleAdd} style={{background:"transparent",border:"1.5px solid #C8A860",color:"#15233F",padding:"8px 28px",cursor:"pointer",fontSize:13,letterSpacing:2,fontFamily:FONT,borderRadius:4}}>追加する</button>
+        <button onClick={handleAdd} style={{...FORM.button.base,...FORM.button.primary,padding:"8px 28px",fontSize:13,letterSpacing:2}}>追加</button>
       </div>
     </div>
   );
@@ -2407,7 +2414,7 @@ const ManagePage = (props) => {
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
             style={{position:"absolute",top:10,right:12,background:"none",border:"none",color:"#6B7A90",fontSize:18,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-          <div style={{fontSize:15,letterSpacing:3,color:"#15233F",marginBottom:16,fontFamily:SANS,fontWeight:600}}>Search Piece</div>
+          <div style={FORM.title}>Search Piece</div>
           {/* v270: 1行目 作曲家・曲名（幅比 1:2） */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:6,marginBottom:8}}>
             <div>
@@ -2470,12 +2477,8 @@ const ManagePage = (props) => {
                       <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
             <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAILearning(); }}
               disabled={aiLoading}
-              style={{flex:"0 0 30%",padding:"12px 6px",
-                background:poolMode==="ai"?"#0F1A33":"white",
-                border:"2px solid "+(poolMode==="ai"?"#0F1A33":"#2A3F6A"),
-                color:poolMode==="ai"?"#C8A860":"#94A3BE",
-                cursor:aiLoading?"wait":"pointer",fontSize:12,fontFamily:SANS,borderRadius:6,fontWeight:600}}>
-              {aiLoading?"…":"検索結果を表示"}
+              style={{...FORM.button.base,...FORM.button.primary,flex:"0 0 40%",padding:"12px 6px",fontSize:13,fontWeight:600,letterSpacing:2,cursor:aiLoading?"wait":"pointer"}}>
+              {aiLoading?"…":"探索"}
             </button>
           </div>
         </div>
@@ -2485,7 +2488,7 @@ const ManagePage = (props) => {
         <div style={{padding:"14px 0 8px"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
-              「検索結果を表示」で追加した曲はLearningリストに保存されます
+              「探索」で追加した曲はLearningリストに保存されます
             </div>
           )}
           {aiLoading && (
@@ -3220,10 +3223,15 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
         {/* Add / Edit form */}
         {showForm && (
-          <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:18,marginBottom:20}}>
-            <div style={{fontSize:13,letterSpacing:2,color:"#94A3BE",marginBottom:14,fontFamily:FONT,fontWeight:600}}>
-              {editingId ? "✎ イベントを編集" : "Add Event"}
-            </div>
+          <div style={{...FORM.card,marginBottom:20,position:"relative",paddingTop:editingId?28:18}}>
+            {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
+            <button onClick={()=>{closeEditForm();}} title="キャンセル"
+              style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
+            {/* v364 ③: 開き方でタイトル有無を決める。独立して開くAdd Event＝タイトル有り／
+                 カード展開して開く編集＝タイトル無し（イベント名はカードに既出）。「✎イベントを編集」撤去。 */}
+            {!editingId && (
+              <div style={FORM.title}>Add Event</div>
+            )}
 
             {/* ① 日付・種別・内容・場所 を1行に */}
             <div style={{display:"grid",gridTemplateColumns:"120px auto 1fr 1fr",gap:8,marginBottom:12,alignItems:"end"}}>
@@ -3367,20 +3375,20 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             </div>
 
             {/* ⑦ ボタン行。v338 ⑩-1: ピースカードと同じ配置に。
-                 左＝破壊的操作（削除・赤）を単独で置き、他と離す。右＝非破壊（更新・キャンセル）。
-                 削除は既存イベントの編集中（editingId あり）だけ出す。新規追加中は出さない。 */}
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #15233F"}}>
+                 左＝破壊的操作（削除・赤）を単独で置き、他と離す。右＝保存（金塗り）。
+                 v364 ①②⑤: 保存=FORM.button.primary(金塗り白字)／文言は体言止め(更新/追加)／
+                 キャンセルは撤去し右上✕に一本化／削除=FORM.button.danger。 */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #D0D6DF"}}>
               {/* 左：削除（既存編集時のみ） */}
               {editingId ? (
                 <button onClick={()=>setDeleteConfirmId(editingId)}
-                  style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,flexShrink:0}}>このイベントを削除</button>
+                  style={{...FORM.button.base,...FORM.button.danger,padding:"9px 18px",flexShrink:0}}>このイベントを削除</button>
               ) : <span/>}
-              {/* 右：更新／追加・キャンセル */}
+              {/* 右：更新／追加（金塗り） */}
               <div style={{display:"flex",gap:14,alignItems:"center",flexShrink:0}}>
-                <button onClick={saveEvent} style={{background:"#0F1A33",border:"none",color:"#C8A860",padding:"9px 28px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,letterSpacing:1}}>
-                  {editingId ? "更新する" : "追加する"}
+                <button onClick={saveEvent} style={{...FORM.button.base,...FORM.button.primary,padding:"9px 28px",letterSpacing:1}}>
+                  {editingId ? "更新" : "追加"}
                 </button>
-                <button onClick={()=>{closeEditForm();}} style={{background:"#15233F",border:"1px solid #1E2A45",color:"#94A3BE",padding:"9px 18px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>キャンセル</button>
               </div>
             </div>
           </div>
