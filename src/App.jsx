@@ -1369,9 +1369,9 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
             style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
         </div>
         <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left",whiteSpace:"nowrap"}}>
             演奏時間
-            {!durationEdited && piece.title && <span style={{fontSize:9,color:"#A8B4C8",fontFamily:FONT,marginLeft:4}}>（推定）</span>}
+            {!durationEdited && piece.title && <span style={{fontSize:8,color:"#A8B4C8",fontFamily:FONT,marginLeft:2}}>（推定）</span>}
           </div>
           <div style={{position:"relative"}}>
             <input
