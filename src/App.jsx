@@ -552,8 +552,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                    v351 ③: 操作系を1行に集約＝♪𝄽(左)／リンク(中・設定済みのみ)／編集(右端)。
                    v352: 境界線を撤去・上の行間を詰める。♪↔𝄽=半角/𝄽↔リンク=全角1字/リンク群は左寄せ/編集は右寄せ。 */}
               <div style={{display:"flex",alignItems:"center",marginTop:2,paddingLeft:isMobile?0:"11em"}}>
-                {/* 左：♪𝄽（♪↔𝄽は半角スペース相当） */}
-                <div style={{display:"flex",gap:2,alignItems:"center",flexShrink:0}}>
+                {/* 左：♪𝄽（♪↔𝄽は半角スペース相当）。v353: 編集ボタンの中央線に合わせて少し上げる（光学中央調整）。 */}
+                <div style={{display:"flex",gap:2,alignItems:"center",flexShrink:0,position:"relative",top:"-2px"}}>
                   {onToggleMarkNote && (
                     <button onClick={async e=>{e.stopPropagation();await onToggleMarkNote();}}
                       title={p.markNote?"♪を外す":"♪に追加"}
