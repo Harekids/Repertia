@@ -51,6 +51,31 @@ const FontLoader = () => {
 const SANS = "-apple-system, BlinkMacSystemFont, sans-serif";
 const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 
+// ── Repertiaフォーム共通土台（v354・案A）───────────────────────────────────────
+// 全フォーム（AddEvent/イベント編集/ピース編集/AddPiece/検索カード）の入力欄・ラベル・
+// セクション見出し・ボタンの土台を一箇所に定義。AddEvent画面の現状値を基準（見本）とする。
+// 色の塗り分けは当面なし＝Add/編集はタイトル・文言で区別する。
+// input/label は fontSize がスマホ/PCで変わるため関数で受ける（FORM.input(isMobile)）。
+const FORM = {
+  input: (isMobile) => ({
+    background:"#F4F6F9", border:"1px solid #C8CEDB", color:"#15233F",
+    padding:"5px 8px", fontFamily:FONT, fontSize:isMobile?16:12,
+    borderRadius:4, width:"100%", boxSizing:"border-box"
+  }),
+  label: {
+    fontFamily:FONT, fontSize:10, color:"#94A3BE", marginBottom:3, textAlign:"left"
+  },
+  sectionLabel: {
+    fontSize:10, color:"#94A3BE", letterSpacing:2, fontFamily:FONT,
+    marginBottom:6, marginTop:14, borderBottom:"1px solid #15233F", paddingBottom:3
+  },
+  button: {
+    background:"transparent", border:"1.5px solid #C8A860", color:"#15233F",
+    padding:"8px 28px", cursor:"pointer", fontSize:13, letterSpacing:2,
+    fontFamily:FONT, borderRadius:4
+  }
+};
+
 // ── Data ──────────────────────────────────────────────────────────────────────
 const ERAS = {
   baroque:      { label:"バロック",  short:"バロック",  abbr:"Ba", color:"#9B3045", bg:"#FDF5ED", year:[1600,1750] },
@@ -339,6 +364,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const composerEraLabel = ERA_LABEL_BY_INITIAL[composerEraInitial] || "";
   const isLearning = !isAI && Array.isArray(learningIds) && learningIds.includes(p.id);
   const isMobile = useIsMobile(640); // v313: スマホ幅なら閉じたカード1行目を縦レイアウトに
+  // v354: フォーム共通土台FORMのエイリアス（この編集フォームで参照）。
+  const fInput = FORM.input(isMobile);
+  const fLabel = FORM.label;
   // v155 工程D-1: 反転をやめ、地は紺で統一。状態は「文字色」と「AI=メモ用紙」で出す。
   // AI候補=メモ茶 / Learning=銀 / Repertoire(通常)=金
   const txtColor = isAI ? "#5A564A" : isLearning ? "#C8CEDB" : "#C8A860";
@@ -588,6 +616,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
           ) : (
             /* ── 第3形態: インライン編集フォーム ── */
             <div style={{padding:"8px 0 4px",position:"relative"}} onClick={e=>e.stopPropagation()}>
+              {/* v354: フォーム共通土台FORMを参照（純白→#F4F6F9・角丸3→4・ラベル色A8B4C8→#94A3BE のズレを解消）。 */}
               {/* ④右上✕ */}
               <button onClick={cancelEditFn} title="キャンセル"
                 style={{position:"absolute",top:0,right:0,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
@@ -595,35 +624,35 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
                   <div key={field}>
-                    <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>{label}</div>
+                    <div style={fLabel}>{label}</div>
                     <input value={draft[field]||""} onChange={e=>setDraft({...draft,[field]:e.target.value})}
-                      style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                      style={fInput} />
                   </div>
                 ))}
               </div>
               {/* 2行目: 6列均等グリッド（v272: 時代を追加。並びはAdd Pieceに合わせる） */}
               <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
+                  <div style={fLabel}>調性</div>
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={fInput} />
                 </div>
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
+                  <div style={fLabel}>時代</div>
                   <select value={draft.era||"romantic"} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}}>
+                    style={fInput}>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
+                  <div style={fLabel}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="例: 1810"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={fInput} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>演奏時間</div>
+                  <div style={fLabel}>演奏時間</div>
                   <input
                     defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
                     onBlur={e=>{
@@ -639,34 +668,34 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       e.target.value=m+"分"+(s>0?(s+"秒"):"");
                     }}
                     placeholder="例: 5分30秒"
-                    style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                    style={fInput} />
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可) */}
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>Lv.</div>
+                  <div style={fLabel}>Lv.</div>
                   <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>Pop.</div>
+                  <div style={fLabel}>Pop.</div>
                   <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
                 </div>
               </div>
               {/* メモ */}
               <div style={{marginBottom:8}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>メモ</div>
+                <div style={fLabel}>メモ</div>
                 <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
-                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",minHeight:50,resize:"vertical"}} />
+                  style={{...fInput,minHeight:50,resize:"vertical"}} />
               </div>
               {/* キーワード */}
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>キーワード</div>
+                <div style={fLabel}>キーワード</div>
                 <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
                   placeholder="カンマ区切り"
-                  style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box"}} />
+                  style={fInput} />
               </div>
               {/* 演奏リンク（最大3個） */}
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>演奏リンク（最大3個）</div>
+                <div style={fLabel}>演奏リンク（最大3個）</div>
                 {(draft.links||[]).map((lk,i)=>(
                   <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
