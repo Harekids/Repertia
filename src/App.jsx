@@ -69,10 +69,24 @@ const FORM = {
     fontSize:10, color:"#94A3BE", letterSpacing:2, fontFamily:FONT,
     marginBottom:6, marginTop:14, borderBottom:"1px solid #15233F", paddingBottom:3
   },
+  // v356 ⑥: ボタンは意味で3色（グレー統一は編集ボタンと被るため不可）。全フォームがここを参照。
+  //   primary=主アクション（金）／danger=危険（赤枠）／secondary=副次（青枠・文字も青）。
   button: {
-    background:"transparent", border:"1.5px solid #C8A860", color:"#15233F",
-    padding:"8px 28px", cursor:"pointer", fontSize:13, letterSpacing:2,
-    fontFamily:FONT, borderRadius:4
+    base: {
+      cursor:"pointer", fontFamily:FONT, borderRadius:4, boxSizing:"border-box"
+    },
+    primary: {
+      background:"#C8A860", border:"none", color:"#fff",
+      padding:"5px 18px", fontSize:12
+    },
+    danger: {
+      background:"none", border:"1px solid #C0405A", color:"#C0405A",
+      padding:"5px 14px", fontSize:11
+    },
+    secondary: {
+      background:"none", border:"1px solid #4A6FA5", color:"#4A6FA5",
+      padding:"5px 14px", fontSize:11
+    }
   },
   // v355: フォームカード背景（フォーム全体が乗る面）。AddEvent基調＝明るい面に統一。
   card: {
@@ -636,13 +650,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 ))}
               </div>
-              {/* 2行目: 6列均等グリッド（v272: 時代を追加。並びはAdd Pieceに合わせる） */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8}}>
-                <div>
-                  <div style={fLabel}>調性</div>
-                  <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
-                    style={fInput} />
-                </div>
+              {/* 2行目: 6列均等グリッド。v356 ①: 並びを 時代・作曲年・調性・演奏時間・Lv.・Pop. に（カード2行目の表示順と整合）。
+                   v356 ③: alignItems:start で各セル上端を揃える（Lv.の縦ずれ解消）。 */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8,alignItems:"start"}}>
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
                   <div style={fLabel}>時代</div>
@@ -655,6 +665,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={fLabel}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="例: 1810"
+                    style={fInput} />
+                </div>
+                <div>
+                  <div style={fLabel}>調性</div>
+                  <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={fInput} />
                 </div>
                 <div>
@@ -730,38 +745,41 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 )}
               </div>
               {Array.isArray(eventsForPiece) && eventsForPiece.length>0 && (
-                <div style={{marginTop:16,paddingTop:12,borderTop:"1px solid #26344F"}}>
-                  <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,display:"flex",alignItems:"center",gap:6,fontFamily:FONT}}>
-                    <span style={{color:"#C8A860"}}>♪</span> 演奏したイベント
+                <div style={{marginTop:16,paddingTop:12,borderTop:"1px solid #D0D6DF"}}>
+                  {/* v356 ④: 見出しの♪（markNoteと被る）を外しテキストのみ。 */}
+                  <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,fontFamily:FONT}}>
+                    演奏したイベント
                   </div>
+                  {/* v356 ⑤: 帯を薄く（明るいカード内で主張を抑える）。濃紺→淡いトーン＋濃い文字。 */}
                   <div style={{display:"flex",flexDirection:"column",gap:6}}>
                     {eventsForPiece.map(ev => (
-                      <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#0F1A33",borderRadius:4,borderLeft:"2px solid #8B2A50"}}>
-                        <span style={{color:"#C8A860",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:FONT}}>{ev.date}</span>
-                        <span style={{color:"#EDE6D6",fontSize:11,fontFamily:FONT}}>{ev.title||"（無題）"}</span>
-                        {ev.venue && <span style={{color:"#5A6B8C",fontSize:10,fontFamily:FONT}}>{ev.venue}</span>}
+                      <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#E4E8EF",borderRadius:4,borderLeft:"2px solid #B08497"}}>
+                        <span style={{color:"#8A6D2E",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:FONT}}>{ev.date}</span>
+                        <span style={{color:"#2A3550",fontSize:11,fontFamily:FONT}}>{ev.title||"（無題）"}</span>
+                        {ev.venue && <span style={{color:"#7A869C",fontSize:10,fontFamily:FONT}}>{ev.venue}</span>}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16,gap:12}}>
-                {/* 左：破壊的操作（削除・赤）。単独で左端に置き、他と離す。 */}
+                {/* 左：破壊的操作（削除・赤）。単独で左端に置き、他と離す。FORM.button.danger参照。 */}
                 {onDeletePiece ? (
                   <button onClick={()=>setConfirmKind('delete')}
-                    style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:FONT,flexShrink:0}}>この曲を削除</button>
+                    style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>この曲を削除</button>
                 ) : <span/>}
                 {/* 右：非破壊的操作（移動＝青／保存＝金）をまとめ、削除から離す。 */}
                 <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
-                  {/* v298: RP⇄LP 移動ボタン。isLearningで文言を出し分け。押すと確認モーダル。 */}
+                  {/* v298: RP⇄LP 移動ボタン。isLearningで文言を出し分け。押すと確認モーダル。
+                       v356 ②: 文言「移動する」→「移動」／文字色を枠と同じ青に（FORM.button.secondary）。 */}
                   {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
                     <button onClick={()=>setConfirmKind('move')}
-                      style={{background:"none",border:"1px solid #4A6FA5",color:"#7FA8D8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:11,fontFamily:FONT}}>
-                      {isLearning ? "Repertoireに移動する" : "Learningに移動する"}
+                      style={{...FORM.button.base,...FORM.button.secondary}}>
+                      {isLearning ? "Repertoireに移動" : "Learningに移動"}
                     </button>
                   )}
                   <button onClick={saveEdit}
-                    style={{background:"#C8A860",border:"none",color:"#fff",padding:"5px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>保存</button>
+                    style={{...FORM.button.base,...FORM.button.primary}}>保存</button>
                 </div>
               </div>
               {/* v298: 確認モーダル（移動／削除で共用）。RP/LPはモーダル内だけカタカナ表記。 */}
