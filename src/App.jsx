@@ -77,23 +77,22 @@ const FORM = {
     fontSize:10, color:"#94A3BE", letterSpacing:2, fontFamily:FONT,
     marginBottom:6, marginTop:14, borderBottom:"1px solid #15233F", paddingBottom:3
   },
-  // v356 ⑥: ボタンは意味で3色（グレー統一は編集ボタンと被るため不可）。全フォームがここを参照。
-  //   primary=主アクション（金）／danger=危険（赤枠）／secondary=副次（青枠・文字も青）。
+  // v356 ⑥: ボタンは意味で3色。v365 B/C: 全ボタンを同一高さに（縦padding8・fontSize12・border1pxで箱を揃える）。
+  //   primary=金塗り白字／danger=赤枠／secondary=青枠。横paddingだけ用途で変える（primary広め・副次は狭め）。
   button: {
     base: {
-      cursor:"pointer", fontFamily:FONT, borderRadius:4, boxSizing:"border-box"
+      cursor:"pointer", fontFamily:FONT, borderRadius:4, boxSizing:"border-box",
+      fontSize:12, padding:"8px 16px", letterSpacing:1, lineHeight:1.2,
+      border:"1px solid transparent"
     },
     primary: {
-      background:"#C8A860", border:"none", color:"#fff",
-      padding:"5px 18px", fontSize:12
+      background:"#C8A860", color:"#fff", padding:"8px 28px"
     },
     danger: {
-      background:"none", border:"1px solid #C0405A", color:"#C0405A",
-      padding:"5px 14px", fontSize:11
+      background:"none", border:"1px solid #C0405A", color:"#C0405A", padding:"8px 16px"
     },
     secondary: {
-      background:"none", border:"1px solid #4A6FA5", color:"#4A6FA5",
-      padding:"5px 14px", fontSize:11
+      background:"none", border:"1px solid #4A6FA5", color:"#4A6FA5", padding:"8px 16px"
     }
   },
   // v364 ④: 独立フォーム（AddPiece/SearchPiece/AddEvent）の見出し共通スタイル。
@@ -781,25 +780,22 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 </div>
               )}
+              {/* v365 A: 副次（削除・移動）を左にまとめ、保存を右に独立。 */}
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16,gap:12}}>
-                {/* 左：破壊的操作（削除・赤）。単独で左端に置き、他と離す。FORM.button.danger参照。 */}
-                {onDeletePiece ? (
-                  <button onClick={()=>setConfirmKind('delete')}
-                    style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>この曲を削除</button>
-                ) : <span/>}
-                {/* 右：非破壊的操作（移動＝青／保存＝金）をまとめ、削除から離す。 */}
                 <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
-                  {/* v298: RP⇄LP 移動ボタン。isLearningで文言を出し分け。押すと確認モーダル。
-                       v356 ②: 文言「移動する」→「移動」／文字色を枠と同じ青に（FORM.button.secondary）。 */}
+                  {onDeletePiece && (
+                    <button onClick={()=>setConfirmKind('delete')}
+                      style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>この曲を削除</button>
+                  )}
                   {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
                     <button onClick={()=>setConfirmKind('move')}
-                      style={{...FORM.button.base,...FORM.button.secondary}}>
+                      style={{...FORM.button.base,...FORM.button.secondary,flexShrink:0}}>
                       {isLearning ? "Repertoireに移動" : "Learningに移動"}
                     </button>
                   )}
-                  <button onClick={saveEdit}
-                    style={{...FORM.button.base,...FORM.button.primary}}>保存</button>
                 </div>
+                <button onClick={saveEdit}
+                  style={{...FORM.button.base,...FORM.button.primary,flexShrink:0}}>保存</button>
               </div>
               {/* v298: 確認モーダル（移動／削除で共用）。RP/LPはモーダル内だけカタカナ表記。 */}
               {confirmKind==='move' && (
@@ -1411,7 +1407,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       </div>
 
       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
-        <button onClick={handleAdd} style={{...FORM.button.base,...FORM.button.primary,padding:"8px 28px",fontSize:13,letterSpacing:2}}>追加</button>
+        <button onClick={handleAdd} style={{...FORM.button.base,...FORM.button.primary}}>追加</button>
       </div>
     </div>
   );
@@ -2405,7 +2401,7 @@ const ManagePage = (props) => {
         <div style={{flex:1,overflowY:"auto"}}>
         <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px"}}>
           <EraBar pieces={pieces} learning={true} filterBar={
-            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} addLabel="＋ 曲を探索" />
+            <FilterBar pool={pieces.filter(p=>p.learning)} searchQ={searchQ} setSearchQ={setSearchQ} sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest} poolFiltered={learningPoolFiltered} editMode={editMode} setEditMode={setEditMode} sel={sel} SANS={SANS} onAdd={()=>{setShowLearnSearch(!showLearnSearch);setEditMode(false);}} composerPool={composers} addLabel="曲を検索" />
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
@@ -2474,11 +2470,11 @@ const ManagePage = (props) => {
               </div>
             </div>
           </div>
-                      <div style={{display:"flex",gap:16,marginTop:16,marginBottom:16,justifyContent:"center"}}>
+                      <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
             <button onClick={()=>{ setAiPieces([]); if(poolMode!=="ai") setPoolMode("ai"); askAILearning(); }}
               disabled={aiLoading}
-              style={{...FORM.button.base,...FORM.button.primary,flex:"0 0 40%",padding:"12px 6px",fontSize:13,fontWeight:600,letterSpacing:2,cursor:aiLoading?"wait":"pointer"}}>
-              {aiLoading?"…":"探索"}
+              style={{...FORM.button.base,...FORM.button.primary,cursor:aiLoading?"wait":"pointer"}}>
+              {aiLoading?"…":"検索"}
             </button>
           </div>
         </div>
@@ -2488,7 +2484,7 @@ const ManagePage = (props) => {
         <div style={{padding:"14px 0 8px"}}>
           {poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
-              「探索」で追加した曲はLearningリストに保存されます
+              「検索」で追加した曲はLearningリストに保存されます
             </div>
           )}
           {aiLoading && (
@@ -3377,20 +3373,19 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {/* ⑦ ボタン行。v338 ⑩-1: ピースカードと同じ配置に。
                  左＝破壊的操作（削除・赤）を単独で置き、他と離す。右＝保存（金塗り）。
                  v364 ①②⑤: 保存=FORM.button.primary(金塗り白字)／文言は体言止め(更新/追加)／
-                 キャンセルは撤去し右上✕に一本化／削除=FORM.button.danger。 */}
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #D0D6DF"}}>
-              {/* 左：削除（既存編集時のみ） */}
-              {editingId ? (
+                 キャンセルは撤去し右上✕に一本化／削除=FORM.button.danger。
+                 v365 A/D: 追加(新規)=金ボタン中央・上境界線なし／編集=削除左・更新右・上境界線あり。 */}
+            {editingId ? (
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginTop:20,paddingTop:16,borderTop:"1px solid #D0D6DF"}}>
                 <button onClick={()=>setDeleteConfirmId(editingId)}
-                  style={{...FORM.button.base,...FORM.button.danger,padding:"9px 18px",flexShrink:0}}>このイベントを削除</button>
-              ) : <span/>}
-              {/* 右：更新／追加（金塗り） */}
-              <div style={{display:"flex",gap:14,alignItems:"center",flexShrink:0}}>
-                <button onClick={saveEvent} style={{...FORM.button.base,...FORM.button.primary,padding:"9px 28px",letterSpacing:1}}>
-                  {editingId ? "更新" : "追加"}
-                </button>
+                  style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>このイベントを削除</button>
+                <button onClick={saveEvent} style={{...FORM.button.base,...FORM.button.primary,flexShrink:0}}>更新</button>
               </div>
-            </div>
+            ) : (
+              <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
+                <button onClick={saveEvent} style={{...FORM.button.base,...FORM.button.primary}}>追加</button>
+              </div>
+            )}
           </div>
         )}
 
