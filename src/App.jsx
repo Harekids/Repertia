@@ -550,23 +550,25 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                    編集ボタンも直置き（展開→編集の二重階段を解消）。⋯メニューは廃止。
                    v348: PCは♪𝄽を右カラムの左下に揃える（左カラム幅11em分インデント）。スマホは全幅のまま。
                    v351 ③: 操作系を1行に集約＝♪𝄽(左)／リンク(中・設定済みのみ)／編集(右端)。
-                          情報は全て2行目(閉じても見える)へ、操作は展開のこの行へ。 */}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,marginTop:8,paddingTop:8,borderTop:"1px solid #1E2A45",paddingLeft:isMobile?0:"11em"}}>
-                {/* 左：♪𝄽 ON/OFF */}
-                <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+                   v352: 境界線を撤去・上の行間を詰める。♪↔𝄽=半角/𝄽↔リンク=全角1字/リンク群は左寄せ/編集は右寄せ。 */}
+              <div style={{display:"flex",alignItems:"center",marginTop:2,paddingLeft:isMobile?0:"11em"}}>
+                {/* 左：♪𝄽（♪↔𝄽は半角スペース相当） */}
+                <div style={{display:"flex",gap:2,alignItems:"center",flexShrink:0}}>
                   {onToggleMarkNote && (
                     <button onClick={async e=>{e.stopPropagation();await onToggleMarkNote();}}
                       title={p.markNote?"♪を外す":"♪に追加"}
-                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 6px",fontSize:20,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
+                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 3px",fontSize:20,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"-2px",color:p.markNote?"#C8A860":"#4A5A7A"}}>{"\u266A"}</button>
                   )}
                   {onToggleMarkRest && (
                     <button onClick={async e=>{e.stopPropagation();await onToggleMarkRest();}}
                       title={p.markRest?"𝄽を外す":"𝄽に追加"}
-                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 6px",fontSize:16,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
+                      style={{background:"none",border:"none",cursor:"pointer",padding:"2px 3px",fontSize:16,lineHeight:1,fontFamily:"RepertiaMusic, sans-serif",position:"relative",top:"2px",color:p.markRest?"#C8A860":"#4A5A7A"}}>{"\u{1D13D}"}</button>
                   )}
                 </div>
-                {/* 中：リンク（記号・設定済みのみ）。YouTube検索は常時／カスタムリンクは有る時だけ。 */}
-                <div style={{flex:1,minWidth:0,display:"flex",gap:4,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
+                {/* 𝄽とリンクの間＝全角1文字分 */}
+                <span style={{width:"1em",flexShrink:0,display:"inline-block"}} />
+                {/* 中：リンク（記号・設定済みのみ・左寄せ）。YouTube検索は常時／カスタムリンクは有る時だけ。 */}
+                <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
                   <a href={"https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer)} target="_blank" rel="noreferrer" title="YouTube"
                     style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
                     onClick={e=>e.stopPropagation()}>▶</a>
@@ -576,7 +578,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
                   ))}
                 </div>
-                {/* 右：編集 */}
+                {/* リンクの数で可変：残りを吸って編集を右へ */}
+                <div style={{flex:1,minWidth:"1em"}} />
+                {/* 右：編集（右寄せ） */}
                 <button onClick={e=>{e.stopPropagation();startEdit(e);}}
                   style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
               </div>
