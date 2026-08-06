@@ -691,37 +691,26 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     placeholder="例: 5分30秒"
                     style={fInput} />
                 </div>
-                {/* Lv.・Pop.: 育成中(入力不可) */}
+                {/* Lv.・Pop.: 育成中(入力不可)。v357: 両者を同一スタイルに統一（fInputベース＋無効欄の色）。 */}
                 <div>
                   <div style={fLabel}>Lv.</div>
-                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
+                  <input value="育成中" disabled readOnly style={{...fInput,color:"#94A3BE",cursor:"default"}} />
                 </div>
                 <div>
                   <div style={fLabel}>Pop.</div>
-                  <input value="育成中" disabled readOnly style={{background:"#F0F2F5",border:"1px solid #C8CEDB",color:"#94A3BE",padding:"5px 8px",fontFamily:FONT,fontSize:12,borderRadius:3,width:"100%",boxSizing:"border-box",cursor:"default"}} />
+                  <input value="育成中" disabled readOnly style={{...fInput,color:"#94A3BE",cursor:"default"}} />
                 </div>
               </div>
-              {/* メモ */}
-              <div style={{marginBottom:8}}>
-                <div style={fLabel}>メモ</div>
-                <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
-                  style={{...fInput,minHeight:50,resize:"vertical"}} />
-              </div>
-              {/* キーワード */}
+              {/* v357 順序: 3行目リンク → 4行目キーワード → 5行目メモ */}
+              {/* リンク（最大3個）。v357: 「演奏リンク」→「リンク」 */}
               <div style={{marginBottom:10}}>
-                <div style={fLabel}>キーワード</div>
-                <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
-                  placeholder="カンマ区切り"
-                  style={fInput} />
-              </div>
-              {/* 演奏リンク（最大3個） */}
-              <div style={{marginBottom:10}}>
-                <div style={fLabel}>演奏リンク（最大3個）</div>
+                <div style={fLabel}>リンク（最大3個）</div>
                 {(draft.links||[]).map((lk,i)=>(
                   <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
+                      {/* v357: desc は内部名だと分かりにくいので information に。他はそのまま。 */}
                       {["desc","score","audio","video"].map(t=>(
-                        <button key={t} type="button" title={t}
+                        <button key={t} type="button" title={t==="desc"?"information":t}
                           onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
                           style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
                             background:(lk.type||"video")===t?"#DCE4F0":"white",
@@ -744,19 +733,33 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
                 )}
               </div>
+              {/* キーワード */}
+              <div style={{marginBottom:10}}>
+                <div style={fLabel}>キーワード</div>
+                <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
+                  placeholder="カンマ区切り"
+                  style={fInput} />
+              </div>
+              {/* メモ */}
+              <div style={{marginBottom:8}}>
+                <div style={fLabel}>メモ</div>
+                <textarea value={draft.memo||""} onChange={e=>setDraft({...draft,memo:e.target.value})}
+                  rows={1}
+                  style={{...fInput,resize:"vertical"}} />
+              </div>
               {Array.isArray(eventsForPiece) && eventsForPiece.length>0 && (
                 <div style={{marginTop:16,paddingTop:12,borderTop:"1px solid #D0D6DF"}}>
                   {/* v356 ④: 見出しの♪（markNoteと被る）を外しテキストのみ。 */}
                   <div style={{color:"#7A8AA8",fontSize:10,letterSpacing:1,marginBottom:8,fontFamily:FONT}}>
                     演奏したイベント
                   </div>
-                  {/* v356 ⑤: 帯を薄く（明るいカード内で主張を抑える）。濃紺→淡いトーン＋濃い文字。 */}
+                  {/* v356 ⑤/v357: 帯を薄く・左端アクセントなし・文字は保存ボタンと同じ白。紺は薄めに。 */}
                   <div style={{display:"flex",flexDirection:"column",gap:6}}>
                     {eventsForPiece.map(ev => (
-                      <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#E4E8EF",borderRadius:4,borderLeft:"2px solid #B08497"}}>
-                        <span style={{color:"#8A6D2E",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:FONT}}>{ev.date}</span>
-                        <span style={{color:"#2A3550",fontSize:11,fontFamily:FONT}}>{ev.title||"（無題）"}</span>
-                        {ev.venue && <span style={{color:"#7A869C",fontSize:10,fontFamily:FONT}}>{ev.venue}</span>}
+                      <div key={ev.id} style={{display:"flex",alignItems:"baseline",gap:10,padding:"5px 10px",background:"#3A4A66",borderRadius:4}}>
+                        <span style={{color:"#fff",fontSize:11,fontWeight:600,minWidth:80,flexShrink:0,fontFamily:FONT}}>{ev.date}</span>
+                        <span style={{color:"#fff",fontSize:11,fontFamily:FONT}}>{ev.title||"（無題）"}</span>
+                        {ev.venue && <span style={{color:"#C0C8D6",fontSize:10,fontFamily:FONT}}>{ev.venue}</span>}
                       </div>
                     ))}
                   </div>
