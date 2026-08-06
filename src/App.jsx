@@ -648,7 +648,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                    v355: フォームカード背景をFORM.card（AddEvent基調の明るい面）に統一。 */}
               {/* ④右上✕ */}
               <button onClick={cancelEditFn} title="キャンセル"
-                style={{position:"absolute",top:0,right:0,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
+                style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
               {/* 1行目: 作曲家(1):曲名(2) */}
               <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
