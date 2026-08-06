@@ -780,16 +780,17 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   </div>
                 </div>
               )}
-              {/* v365 A: 副次（削除・移動）を左にまとめ、保存を右に独立。 */}
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16,gap:12}}>
-                <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
+              {/* v365 A: 副次（削除・移動）を左にまとめ、保存を右に独立。
+                   v366: 上に境界線追加（編集画面ルール・⑤と同じ）。副次ボタンの横paddingを詰めて3つを収める。 */}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16,paddingTop:16,borderTop:"1px solid #D0D6DF",gap:8}}>
+                <div style={{display:"flex",gap:8,alignItems:"center",minWidth:0}}>
                   {onDeletePiece && (
                     <button onClick={()=>setConfirmKind('delete')}
-                      style={{...FORM.button.base,...FORM.button.danger,flexShrink:0}}>この曲を削除</button>
+                      style={{...FORM.button.base,...FORM.button.danger,padding:"8px 10px",whiteSpace:"nowrap"}}>この曲を削除</button>
                   )}
                   {!isAI && ((isLearning && onPromote) || (!isLearning && onDemote)) && (
                     <button onClick={()=>setConfirmKind('move')}
-                      style={{...FORM.button.base,...FORM.button.secondary,flexShrink:0}}>
+                      style={{...FORM.button.base,...FORM.button.secondary,padding:"8px 10px",whiteSpace:"nowrap"}}>
                       {isLearning ? "Repertoireに移動" : "Learningに移動"}
                     </button>
                   )}
