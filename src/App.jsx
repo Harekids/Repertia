@@ -3044,6 +3044,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     if (!m || !d) return iso;
     return m + "月" + d + "日";
   };
+  // v377: イベントカード用の短い日付表記（8/7）。イベント名の横幅を稼ぐため。
+  const fmtSlashDate = (iso) => {
+    if (!iso || iso.length < 10) return iso || "";
+    const m = parseInt(iso.slice(5,7),10), d = parseInt(iso.slice(8,10),10);
+    if (!m || !d) return iso;
+    return m + "/" + d;
+  };
   // v333 ①: History未登録フラグの赤丸。絵文字🔴の光沢をやめ、フラット単色の丸に。
   const RedDot = () => (
     <span title="History未登録" style={{display:"inline-block",width:9,height:9,borderRadius:"50%",
@@ -3058,6 +3065,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     const mix=(c,i)=>Math.round(base[i]*(1-a)+c*a);
     return "rgb("+mix(r,0)+","+mix(g,1)+","+mix(b,2)+")";
   };
+  // v377: イベントカードのデフォルト色＝薄青（サファイアを60%で重ねた合成色 rgb(28,73,109)）。
+  //   種別と色の紐付けは廃止（種別＝抽出/集計データ・色とは無関係）。
+  //   将来ユーザーが各イベントに色を選べるようにする（ev.color）。選ぶまでは全カードこのデフォルト。
+  const EVENT_CARD_DEFAULT_COLOR = "rgb(28,73,109)";
+  const eventCardBg = (ev) => ev && ev.color ? ev.color : EVENT_CARD_DEFAULT_COLOR;
 
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     return (
@@ -3105,14 +3117,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                       const md=(ev.date||"").slice(5); // MM-DD
                       return (
                         <div key={ev.id} onClick={()=>setSelectedEvent(isSelected?null:ev.id)}
-                          style={{background:jewelFill(et.color),
+                          style={{background:eventCardBg(ev),
                             borderRadius:5,padding:"9px 12px",marginBottom:8,cursor:"pointer",
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
                           <div style={{display:"flex",alignItems:"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
-                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"5em"}}>{fmtJPDate(ev.date)}</span>
-                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?11:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>}
+                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"3.2em"}}>{fmtSlashDate(ev.date)}</span>
+                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?6:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>}
                             {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,maxWidth:"40%"}}>{ev.venue}</span>}
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
                             {ev.date<=today && !ev.in_history && <RedDot/>}
