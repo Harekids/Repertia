@@ -2504,7 +2504,8 @@ const ManagePage = (props) => {
               const ruleColor = "#E6DEC9"; // うっすら罫線
               const ruleH = 18; // v372: 1行の高さ（罫線間隔）を26→18に細く
               const padY = 6; // v372: 罫線ブロックの上下に細いスペース（各6px）
-              const indent = isMobile ? 0 : "2em"; // v372: PCのみ頭出しを2文字右／スマホは0
+              const indentTitle = isMobile ? 0 : "1.9em"; // v373: 曲名は太字で字面がやや右に出るため0.1em詰めて作曲家と視覚的に揃える
+              const indentLine2 = isMobile ? 0 : "2em"; // v373: 作曲家行は基準どおり
               // 2行目表記をスマホピースカードに合わせる（作曲家 / 作曲 年 / 調号 / 演奏時間）
               const cComposeYear = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
               const cKey = (p.key && p.key!=="ー") ? p.key : "";
@@ -2515,9 +2516,9 @@ const ManagePage = (props) => {
                   background:creamBg,border:"1px solid #E6DEC9",borderLeft:"3px solid "+era.color,borderRadius:5}}>
                   <div style={{flex:1,minWidth:0,paddingTop:padY,paddingBottom:padY}}>
                     {/* 1行目＝曲名（罫線の上に乗る） */}
-                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indent,borderBottom:"1px solid "+ruleColor,fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indentTitle,borderBottom:"1px solid "+ruleColor,fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
                     {/* 2行目＝作曲家 / 作曲 年 / 調号 / 演奏時間（スマホピースカードと同表記） */}
-                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indent,borderBottom:"1px solid "+ruleColor,fontSize:10,color:"#7A6E52",fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cLine2}</div>
+                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indentLine2,borderBottom:"1px solid "+ruleColor,fontSize:10,color:"#7A6E52",fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cLine2}</div>
                   </div>
                   <div style={{display:"flex",alignItems:"center",flexShrink:0}}>
                   <button onClick={async()=>{
@@ -2534,7 +2535,7 @@ const ManagePage = (props) => {
                     disabled={added}
                     style={{background:added?"#E0D8C4":"#C8A860",border:"none",color:added?"#8A7E62":"#fff",
                       padding:"5px 12px",borderRadius:4,cursor:added?"default":"pointer",
-                      fontSize:11,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
+                      fontSize:11,fontFamily:FONT,letterSpacing:1,flexShrink:0,whiteSpace:"nowrap"}}>
                     {added?"✓ 追加済み":"追加"}
                   </button>
                   </div>
