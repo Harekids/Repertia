@@ -2504,7 +2504,7 @@ const ManagePage = (props) => {
               const ruleColor = "#E6DEC9"; // うっすら罫線
               const ruleH = 18; // v372: 1行の高さ（罫線間隔）を26→18に細く
               const padY = 6; // v372: 罫線ブロックの上下に細いスペース（各6px）
-              const indentTitle = isMobile ? 0 : "1.9em"; // v373: 曲名は太字で字面がやや右に出るため0.1em詰めて作曲家と視覚的に揃える
+              const indentTitle = isMobile ? 0 : "1.4em"; // v374: 曲名をさらに0.5文字左へ（1.9→1.4em）
               const indentLine2 = isMobile ? 0 : "2em"; // v373: 作曲家行は基準どおり
               // 2行目表記をスマホピースカードに合わせる（作曲家 / 作曲 年 / 調号 / 演奏時間）
               const cComposeYear = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
