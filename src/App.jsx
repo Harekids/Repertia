@@ -2515,10 +2515,10 @@ const ManagePage = (props) => {
                 <div key={p.id} style={{display:"flex",alignItems:"stretch",gap:6,padding:"0 10px",marginBottom:4,
                   background:creamBg,border:"1px solid #E6DEC9",borderLeft:"3px solid "+era.color,borderRadius:5}}>
                   <div style={{flex:1,minWidth:0,paddingTop:padY,paddingBottom:padY}}>
-                    {/* 1行目＝曲名（罫線の上に乗る） */}
-                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indentTitle,borderBottom:"1px solid "+ruleColor,fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    {/* 2行目＝作曲家 / 作曲 年 / 調号 / 演奏時間（スマホピースカードと同表記） */}
-                    <div style={{height:ruleH,display:"flex",alignItems:"center",paddingLeft:indentLine2,borderBottom:"1px solid "+ruleColor,fontSize:10,color:"#7A6E52",fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cLine2}</div>
+                    {/* 1行目＝曲名：最大2行まで折り返して全表示（版違いは末尾で区別されるため）。高さ可変。 */}
+                    <div style={{minHeight:ruleH,paddingLeft:indentTitle,borderBottom:"1px solid "+ruleColor,paddingTop:1,paddingBottom:2,marginBottom:2,fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,lineHeight:"16px",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>{p.title}</div>
+                    {/* 作曲家行＝作曲家 / 作曲 年 / 調号 / 演奏時間。曲名の行数に追従して下に続く。 */}
+                    <div style={{minHeight:ruleH,display:"flex",alignItems:"center",paddingLeft:indentLine2,borderBottom:"1px solid "+ruleColor,fontSize:10,color:"#7A6E52",fontFamily:FONT,lineHeight:"16px",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cLine2}</div>
                   </div>
                   <div style={{display:"flex",alignItems:"center",flexShrink:0}}>
                   <button onClick={async()=>{
