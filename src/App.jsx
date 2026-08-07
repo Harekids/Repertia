@@ -2497,28 +2497,28 @@ const ManagePage = (props) => {
               const era=ERAS[p.era]||ERAS.modern;
               const added=addedAiIds.includes(p.id)
                 || pieces.some(x => x.title===p.title && x.composer===p.composer && x.learning);
-              // v370: 検索ピースカード＝クリーム＋五線（探索モードを色＋テクスチャで示す）。アプリ背景の紺は変えない。
-              const creamBg = "#EFE7D2";
-              const staffLine = "#D8CCA8";
-              const staffPattern = "repeating-linear-gradient(180deg,"
-                + " transparent 0px, transparent 7px,"
-                + " "+staffLine+" 7px, "+staffLine+" 8px,"
-                + " transparent 8px, transparent 15px,"
-                + " "+staffLine+" 15px, "+staffLine+" 16px,"
-                + " transparent 16px, transparent 23px,"
-                + " "+staffLine+" 23px, "+staffLine+" 24px,"
-                + " transparent 24px, transparent 31px,"
-                + " "+staffLine+" 31px, "+staffLine+" 32px,"
-                + " transparent 32px, transparent 39px,"
-                + " "+staffLine+" 39px, "+staffLine+" 40px,"
-                + " transparent 40px, transparent 60px)";
+              // v371: 検索ピースカード＝クリーム(薄め・白め)＋メモ帳罫線。各行の下にうっすら罫線を引き、
+              //   2行目の下にもう1行分の余白＋罫線で計3本。文字が罫線に乗る「ノートに書いた」質感。
+              const creamBg = "#F7F3E9"; // v371: 濃い→薄め白めに
+              const ruleColor = "#E6DEC9"; // うっすら罫線
+              const ruleH = 26; // 1行の高さ（罫線間隔）
+              // 2行目表記をスマホピースカードに合わせる（作曲家 / 作曲 年 / 調号 / 演奏時間）
+              const cComposeYear = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
+              const cKey = (p.key && p.key!=="ー") ? p.key : "";
+              const cDur = fmtDuration(p.duration, p.durationSecs);
+              const cLine2 = [p.composer, cComposeYear, cKey, cDur].filter(x=>x && String(x).trim()!=="").join(" / ");
               return (
-                <div key={p.id} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",marginBottom:4,
-                  background:creamBg,backgroundImage:staffPattern,border:"1px solid #DCD2B4",borderLeft:"3px solid "+era.color,borderRadius:5}}>
+                <div key={p.id} style={{display:"flex",alignItems:"stretch",gap:6,padding:"0 10px",marginBottom:4,
+                  background:creamBg,border:"1px solid #E6DEC9",borderLeft:"3px solid "+era.color,borderRadius:5}}>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
-                    <div style={{fontSize:10,color:"#7A6E52",fontFamily:SANS}}>{p.composer} / {p.key} / {p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</div>
+                    {/* 1行目＝曲名（罫線の上に乗る） */}
+                    <div style={{height:ruleH,display:"flex",alignItems:"center",borderBottom:"1px solid "+ruleColor,fontSize:12,color:"#4A3F2A",fontWeight:600,fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.title}</div>
+                    {/* 2行目＝作曲家 / 作曲 年 / 調号 / 演奏時間（スマホピースカードと同表記） */}
+                    <div style={{height:ruleH,display:"flex",alignItems:"center",borderBottom:"1px solid "+ruleColor,fontSize:10,color:"#7A6E52",fontFamily:FONT,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{cLine2}</div>
+                    {/* 3本目＝余白行の罫線（メモ帳らしさ） */}
+                    <div style={{height:ruleH,borderBottom:"1px solid "+ruleColor}} />
                   </div>
+                  <div style={{display:"flex",alignItems:"center",flexShrink:0}}>
                   <button onClick={async()=>{
                       if(addedAiIds.includes(p.id)) return;
                       // v278: 登録時にcomposerを空にするため、重複判定も空基準に揃える（曲名で照合）
@@ -2531,11 +2531,12 @@ const ManagePage = (props) => {
                       await addPiecesFromProgram([{...p, composer: decided}], {silent:true});
                     }}
                     disabled={added}
-                    style={{background:added?"#DCD2B4":"#C8A860",border:"none",color:added?"#8A7E62":"#fff",
+                    style={{background:added?"#E0D8C4":"#C8A860",border:"none",color:added?"#8A7E62":"#fff",
                       padding:"5px 12px",borderRadius:4,cursor:added?"default":"pointer",
                       fontSize:11,fontFamily:SANS,fontWeight:600,flexShrink:0,whiteSpace:"nowrap"}}>
                     {added?"✓ 追加済み":"＋ 追加"}
                   </button>
+                  </div>
                 </div>
               );
             })
