@@ -2740,18 +2740,33 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   種別リストは未確定（フェーズ2で拡充）。当面は現状4種別にデフォルトを割り当てて動かす。
   //   ユーザー割り当ては未実装（フェーズ2）。今はこのデフォルトが常に使われる。
   const EVENT_TYPE_DEFAULT_COLOR = {
-    recital: "topaz",    // 発表会
-    contest: "sapphire", // コンクール
-    concert: "ruby",     // コンサート
-    other:   "smoke",    // その他
+    recital:      "topaz",    // 発表会
+    concert:      "ruby",     // コンサート
+    solo_recital: "garnet",   // リサイタル
+    masterclass:  "emerald",  // マスタークラス
+    audition:     "amethyst", // オーディション
+    entrance_exam:"amethyst", // 入試
+    exam:         "amethyst", // 試験
+    contest:      "sapphire", // コンクール
+    intl_contest: "sapphire", // 国際コンクール
+    other:        "smoke",    // 自由入力
   };
   //   種別データ（label＝表示名。抽出・フィルタはこのキーで動く）。色は持たない＝データと表示の分離。
+  //   v376: 種別を成長順に拡充（参加系→テスト系→コンクール系）。otherは「自由入力…」の保存先として流用。
   const EVENT_TYPE_LABELS = {
-    recital: "発表会",
-    contest: "コンクール",
-    concert: "コンサート",
-    other:   "その他",
+    recital:      "発表会",
+    concert:      "コンサート",
+    solo_recital: "リサイタル",
+    masterclass:  "マスタークラス",
+    audition:     "オーディション",
+    entrance_exam:"入試",
+    exam:         "試験",
+    contest:      "コンクール",
+    intl_contest: "国際コンクール",
+    other:        "自由入力",
   };
+  //   v376: 種別セレクトの表示順（成長順）。otherは末尾＝「自由入力…」として特別扱い。
+  const EVENT_TYPE_ORDER = ["recital","concert","solo_recital","masterclass","audition","entrance_exam","exam","contest","intl_contest"];
   //   互換ヘルパ：既存コードは EVENT_TYPES[type].color / .label を参照している。
   //   分離した3定義から、従来と同じ {label, color} を組み立てて返す（既存表示を壊さない）。
   const EVENT_TYPES = Object.fromEntries(
@@ -2985,7 +3000,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4}}>
         <option value="">すべての種別</option>
-        {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
+        {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
+        <option value="other">自由入力</option>
       </select>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT,marginRight:4}}>{docSaveMsg}</span>}
       <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
@@ -3249,22 +3265,35 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             <div style={{display:"grid",gridTemplateColumns:"120px auto 1fr 1fr",gap:8,marginBottom:12,alignItems:"end"}}>
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>日付</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{...inpE,fontSize:11,padding:"4px 6px"}}/></div>
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>種別</div>
-                <select value={newEvent.type} onChange={e=>setNewEvent({...newEvent,type:e.target.value})} style={{...inpE,width:"auto",fontSize:11,padding:"4px 6px"}}>
-                  <option value="">ー</option>
-                  {Object.entries(EVENT_TYPES).map(([k,v])=>(<option key={k} value={k}>{v.label}</option>))}
-                </select>
+                {newEvent.type!=="other" ? (
+                  <select value={newEvent.type}
+                    onChange={e=>{
+                      const v=e.target.value;
+                      if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
+                      else { setNewEvent({...newEvent,type:v}); }
+                    }}
+                    style={{...inpE,width:"auto",fontSize:11,padding:"4px 6px"}}>
+                    <option value="">ー</option>
+                    {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
+                    <option value="other">自由入力…</option>
+                  </select>
+                ) : (
+                  <div style={{display:"flex",alignItems:"center",gap:4}}>
+                    <input
+                      value={newEvent.otherLabel||""}
+                      onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
+                      placeholder="種別を入力"
+                      autoFocus
+                      style={{...inpE,width:"auto",fontSize:11,padding:"4px 6px"}}
+                    />
+                    <button type="button" title="種別の選択に戻る"
+                      onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
+                      style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"4px 7px",borderRadius:4,fontFamily:FONT,flexShrink:0,lineHeight:1}}>
+                      ↩
+                    </button>
+                  </div>
+                )}
               </div>
-              {newEvent.type==="other" && (
-                <div style={{marginTop:6}}>
-                  <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>どんな催し？（自由入力）</div>
-                  <input
-                    value={newEvent.otherLabel||""}
-                    onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
-                    placeholder="例：マスタークラス、サロンコンサート など"
-                    style={inpE}
-                  />
-                </div>
-              )}
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>内容</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>場所</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
             </div>
