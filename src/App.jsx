@@ -2418,59 +2418,59 @@ const ManagePage = (props) => {
           {/* v270: 1行目 作曲家・曲名（幅比 1:2） */}
           <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:6,marginBottom:8}}>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>作曲家</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲家</div>
               <div style={{position:"relative"}}>
-                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>…</div>}
                 {sugComposers.length>0 && (
                   <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:180,overflowY:"auto"}}>
                     {sugComposers.map((name,i)=>(
                       <div key={i} onMouseDown={e=>e.preventDefault()} onClick={()=>selectSugComposer(name)}
-                        style={{padding:"6px 10px",cursor:"pointer",fontSize:12,color:"#EDE6D6",fontFamily:SANS}}>{name}</div>
+                        style={{padding:"6px 10px",cursor:"pointer",fontSize:12,color:"#EDE6D6",fontFamily:FONT}}>{name}</div>
                     ))}
                   </div>
                 )}
               </div>
             </div>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>曲名</div>
-              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>曲名</div>
+              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             {/* v204: キーワード（感情タグ）は育成中のため一時非表示。データがたまったら復活 */}
             {/* <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>キーワード</div>
-              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>キーワード</div>
+              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div> */}
           </div>
           {/* v270: 2行目 6分割 — 調性(1)・時代(1)・作曲年〜(2)・演奏時間〜(2)。難易度はv269でLv/Popを外したため除外 */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:10,alignItems:"end"}}>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>調性</div>
-              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>調性</div>
+              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
               </select>
             </div>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>時代</div>
-              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>時代</div>
+              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 <option value="">ー</option>
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
             </div>
             <div style={{gridColumn:"span 2"}}>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>作曲年</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲年</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
-                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
             <div style={{gridColumn:"span 2"}}>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:SANS,marginBottom:2}}>演奏時間（分）</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>演奏時間（分）</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
-                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:SANS,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
           </div>
