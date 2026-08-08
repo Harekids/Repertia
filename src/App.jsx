@@ -2911,13 +2911,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     return (
       <div style={{paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}>
         {ev.organizer && <div><span style={{color:"#94A3BE"}}>主催：</span>{ev.organizer}</div>}
-        {(ev.openTime||ev.startTime) && (
-          <div><span style={{color:"#94A3BE"}}>時間：</span>
-            {ev.openTime?"開場 "+ev.openTime:""}
-            {ev.openTime&&ev.startTime?" / ":""}
-            {ev.startTime?"開演 "+ev.startTime:""}
-          </div>
-        )}
         {ev.contact && <div><span style={{color:"#94A3BE"}}>問い合わせ：</span>{ev.contact}</div>}
         {/* v289: History と Upcoming で表示を排他にする（二重表示の整理）。
               Upcoming = items（これから弾く予定）／History = historyItems（弾いた記録）のみ。
@@ -3313,27 +3306,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>場所</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
             </div>
 
-            {/* ②③ 詳細を追加 — トグルボタン、常に表示、openAddしても状態維持 */}
+            {/* v380: 折りたたみ廃止（フラット化）。詳細トグル・濃紺パネルを撤去し、
+                 共演者/主催/備考を基本情報と同じエリアに常時表示。開演は削除（入力・表示とも）。 */}
             <div style={{marginBottom:8}}>
-              <button onClick={()=>setNewEvent(ev=>({...ev,showDetail:!ev.showDetail}))}
-                style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 14px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,marginBottom:newEvent.showDetail?8:0}}>
-                {newEvent.showDetail ? "▲ 詳細を閉じる" : "＋ 詳細を追加"}
-              </button>
-              {newEvent.showDetail && (
-                <div style={{background:"#15233F",borderRadius:6,padding:"10px 12px"}}>
-                  {/* ④ 備考を詳細の中に移動 */}
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:8}}>
-                    <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>共演者</div><input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>
-                    <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
-                    <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>開演</div><input value={newEvent.startTime} onChange={e=>setNewEvent({...newEvent,startTime:e.target.value})} placeholder="14:00" style={inpE}/></div>
-                  </div>
-                  <div>
-                    <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>備考</div>
-                    <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
-                      placeholder="備考" style={{...inpE,minHeight:48,resize:"vertical"}}/>
-                  </div>
-                </div>
-              )}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+                <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>共演者</div><input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>
+                <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>備考</div>
+                <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
+                  placeholder="備考" style={{...inpE,minHeight:48,resize:"vertical"}}/>
+              </div>
             </div>
 
             {/* ⑧ プログラム */}
@@ -3371,7 +3355,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               })}
               {/* v282: 手入力欄を廃止。RP/LPから選ぶピッカーを開く */}
               <button onClick={()=>{setPickerQuery("");setPickerOpen(true);}} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>＋ 曲を追加</button>
-              <div style={{fontSize:10,color:"#7A8FB5",fontFamily:FONT,marginTop:6,lineHeight:1.5}}>Repertoire / Learning の曲から選びます。一覧にない曲は Library の「Add Piece」で登録してから選んでください。</div>
+              <div style={{fontSize:10,color:"#7A8FB5",fontFamily:FONT,marginTop:6,lineHeight:1.5}}>Library（Repertoire / Learning）にある曲を追加できます。</div>
             </div>
             {/* v282: 曲ピッカー。RP/LPの曲を絞り込んで選ぶ。選ぶとpieceId参照で追加される */}
             {pickerOpen && (
