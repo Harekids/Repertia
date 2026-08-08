@@ -3122,9 +3122,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
                             transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
-                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"3.2em"}}>{fmtSlashDate(ev.date)}</span>
-                            {ev.title && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>}
+                          <div style={{display:"flex",alignItems:isSelected?"flex-start":"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
+                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"3.2em",lineHeight:"1.5"}}>{fmtSlashDate(ev.date)}</span>
+                            {ev.title && (isSelected
+                              ? <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:20,whiteSpace:"normal",overflowWrap:"anywhere",wordBreak:"break-word",minWidth:0,flex:"1 1 auto",lineHeight:"1.5"}}>{ev.title}</span>
+                              : <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>
+                            )}
                             {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,maxWidth:"40%"}}>{ev.venue}</span>}
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
                             {ev.date<=today && !ev.in_history && <RedDot/>}
