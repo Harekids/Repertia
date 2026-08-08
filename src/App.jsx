@@ -58,16 +58,17 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 // input/label は fontSize がスマホ/PCで変わるため関数で受ける（FORM.input(isMobile)）。
 const FORM = {
   // v360: 色ルール＝「入力できる＝#F4F6F9（リンクURLと同色）／入力できない＝#F0F2F5（Lv.と同色）」。
-  //   ※実機で見てから最終決定するため、まずは既存の数字そのままで差を出す。
+  //   v381: 入力値フォントを13固定に統一（①②Add/Search Pieceの直書き13を正とする・5画面統一）。
+  //   isMobile分岐（旧16/12）を廃止。iOSズームより「スマホで曲名等が収まること」を優先（企画判断2026-08-08）。
   input: (isMobile) => ({
     background:"#F4F6F9", border:"1px solid #C8CEDB", color:"#15233F",
-    padding:"5px 8px", fontFamily:FONT, fontSize:isMobile?16:12,
+    padding:"5px 8px", fontFamily:FONT, fontSize:13,
     borderRadius:4, width:"100%", boxSizing:"border-box"
   }),
   // inputDisabled（入力不可）=グレー。Lv./Pop.（育成中）等の触れない欄に使う。
   inputDisabled: (isMobile) => ({
     background:"#F0F2F5", border:"1px solid #C8CEDB", color:"#94A3BE",
-    padding:"5px 8px", fontFamily:FONT, fontSize:isMobile?16:12,
+    padding:"5px 8px", fontFamily:FONT, fontSize:13,
     borderRadius:4, width:"100%", boxSizing:"border-box", cursor:"default"
   }),
   label: {
@@ -2901,7 +2902,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   };
 
   // v316: スマホは入力欄を16pxに（iOSはinput<16pxでフォーカス時に自動ズームするため）。PCは12pxのまま。
-  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:isMobile?16:12,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const selE={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%"};
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:FONT,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
