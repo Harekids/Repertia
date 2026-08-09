@@ -2,6 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "./supabase";
 
+// v386 ③: 曲編集の「未保存移動ガード」をpropsのバケツリレー無しで内外に繋ぐための共有窓口。
+//   曲カードは深い階層に多数レンダリングされるが、編集モードは同時に1枚しか開かない
+//   （expandedが閉じるとediting=false）。編集を開いたカードだけがここに自分の
+//   { isDirty(), requestLeave(proceed) } を登録し、閉じる/保存で解除する。
+//   MainApp の attemptNav はこの窓口を見て、ダーティなら移動を保留してモーダルを出す。
+//   ※module-levelの単純オブジェクト。SSR無しの通常ブラウザ前提で安全。
+const pieceEditRegistry = { current: null };
+
 // v313: スマホ幅判定フック（640px以下＝スマホ）。全面インラインstyleに馴染むJS判定（案A）。
 //   今後のスマホ調整でも再利用する土台。リサイズにも追従する。
 const useIsMobile = (breakpoint = 640) => {
@@ -416,6 +424,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   const mainTxt = isAI ? txtColor : (expanded ? mainTxtExpanded : txtColor);
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState({});
+  // v386 ③: 編集を開いた瞬間のdraftを基準として保持（開いた瞬間比較）。
+  //   システム初期値(p由来)もbaselineに含む＝ユーザーが触らなければ「変更なし」。
+  const editBaselineRef = React.useRef(null);
+  // v386 ③: ページ移動を保留する箱。破棄確認[破棄]でこの移動(proceed)を実行。
+  const [pendingNavPiece, setPendingNavPiece] = React.useState(null);
   const [eraEditedDraft, setEraEditedDraft] = React.useState(false); // v273: 編集画面で時代を手で選び直したか（handleAddのeraEditedと同じ作り）
   // v347: ⋯メニュー廃止（♪𝄽は展開エリアへ・編集は直置き）。関連state/ref/effectも削除。
   // v298: 確認モーダルの状態。null＝閉じ。'move'＝RP⇄LP移動確認 / 'delete'＝削除確認。
@@ -427,13 +440,15 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   const startEdit = (e) => {
     e.stopPropagation();
-    setDraft({
+    const initDraft = {
       title:p.title, composer:p.composer, key:p.key||"",
       yearText:p.yearText||"", duration:p.duration||0, durationSecs:p.durationSecs||0,
       era:p.era||"", // v272: 時代を編集可能に
       memo:p.memo||"", keywords:p.keywords||"",
       links: Array.isArray(p.links) ? p.links.map(l=>({...l})) : [],
-    });
+    };
+    setDraft(initDraft);
+    editBaselineRef.current = JSON.stringify(initDraft); // v386 ③: 開いた瞬間を基準に固定
     setEraEditedDraft(false); // v273: 編集を開くたびに未編集から
     setEditing(true);
   };
@@ -452,6 +467,35 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
   };
   const cancelEditFn = (e) => { e.stopPropagation(); setEditing(false); };
   const cancelEdit = (e) => { e.stopPropagation(); setEditing(false); };
+
+  // v386 ③: 開いた瞬間から内容が変わっているか（④⑤と同じJSON比較・開いた瞬間比較）。
+  const isPieceDirty = () => {
+    if (!editing) return false;
+    try { return JSON.stringify(draft) !== editBaselineRef.current; }
+    catch (e) { return true; } // 比較不能なら安全側（変更ありとみなす）
+  };
+  // v386 ③: 編集中(editing)のこのカードだけを共有レジストリに登録する。
+  //   同時編集は1枚なので登録は常に0〜1件。閉じる/保存でnullに戻す。
+  //   最新のdraft/editingを掴めるよう、依存にeditingを入れて張り替える。
+  //   isDirty/requestLeaveは呼び出し時点の最新クロージャで評価される。
+  React.useEffect(() => {
+    if (!editing) {
+      // このカードが登録者だったら外す（別カードが登録していれば触らない）
+      return;
+    }
+    const entry = {
+      isDirty: () => {
+        try { return JSON.stringify(draft) !== editBaselineRef.current; }
+        catch (e) { return true; }
+      },
+      requestLeave: (proceed) => { setPendingNavPiece(() => proceed); },
+      cancel: () => { setEditing(false); },
+    };
+    pieceEditRegistry.current = entry;
+    return () => {
+      if (pieceEditRegistry.current === entry) pieceEditRegistry.current = null;
+    };
+  }, [editing, draft]);
 
   const yearStr = (p.yearText==="不明"||(p.year||0)===0) ? "作曲年不明" : (p.yearText||p.year)+"年";
 
@@ -828,6 +872,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
             </div>
           )}
         </div>
+      )}
+      {/* v386 ③: ページ移動(ロゴ／ナビ)の破棄確認。expandedの外に置く（Portalでbody直下に出る）。
+           見出しは削除モーダル準拠(作曲家：曲名)。[破棄]で編集を閉じ→保留していた移動を実行。 */}
+      {pendingNavPiece && (
+        <ConfirmModal SANS={SANS}
+          line1={(p.composer? p.composer+"：" : "")+p.title}
+          line2="保存していない変更があります。破棄して移動しますか?"
+          confirmLabel="破棄" confirmColor="#C0405A"
+          onCancel={()=>setPendingNavPiece(null)}
+          onConfirm={()=>{ const go=pendingNavPiece; setPendingNavPiece(null); setEditing(false); if(typeof go==="function") go(); }} />
       )}
     </div>
   );
@@ -3755,6 +3809,14 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     };
   }, []);
   const attemptNav = React.useCallback((go) => {
+    // v386 ③: まず曲編集レジストリを見る。編集中でダーティなら、そのカードに
+    //   確認モーダルを出してもらい移動を保留（proceed=goを渡す）。
+    const pe = pieceEditRegistry.current;
+    if (pe && pe.isDirty && pe.isDirty()) {
+      pe.requestLeave(go);
+      return; // 移動は保留
+    }
+    // v385 ④⑤: 次にイベント編集など登録済みガードを順に見る。
     const guards = navGuardsRef.current;
     for (let i = 0; i < guards.length; i++) {
       const passed = guards[i](go); // ガードが引き止めたら false
