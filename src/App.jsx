@@ -3262,10 +3262,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   ブラウザ既定の高さ制御が違うため、それぞれに合わせた指定で FLD_H に揃える。
   const FLD_H = 28;
   const inpEText = {...inpE, height:FLD_H, boxSizing:"border-box"};
-  // v393修正2 ④⑤: iOSのdateは-webkit-appearance:noneでネイティブUIを外さないとheightが効かず
-  //   背が高いままになる。行を縦中央に収めるためlineHeightをFLD_Hに合わせ、上下paddingは0に。
-  const inpEDate = {...inpE, height:FLD_H, boxSizing:"border-box",
-    WebkitAppearance:"none", MozAppearance:"none", appearance:"none",
+  // v393修正3 ④⑤: dateはappearance:noneを付けるとiOSでピッカーのリセットが効かなくなる。
+  //   → appearanceは外す（ネイティブのまま＝リセット復活）。高さは height/minHeight/maxHeight の
+  //   三点固定で、空でも値ありでも FLD_H に固定（空のとき背が伸びる癖を封じる）。
+  const inpEDate = {...inpE, height:FLD_H, minHeight:FLD_H, maxHeight:FLD_H, boxSizing:"border-box",
     lineHeight:(FLD_H-2)+"px", paddingTop:0, paddingBottom:0};
   // v393修正2 ④⑤: selectはheightを詰めると文字下端が切れる。appearance:noneでネイティブUIを外し、
   //   lineHeightを内寸に合わせて文字を縦中央へ。右にネイティブ矢印分の余白(paddingRight)を確保しつつ、
