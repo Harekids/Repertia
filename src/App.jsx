@@ -3695,6 +3695,32 @@ export default function App() {
 
 function MainApp({ user, handleLogout, pageState, setPage }) {
   const page = pageState;
+
+  // v384 移動ガードの土台（挙動はまだ変わらない・仕組みだけ）。
+  //   目的：ページ移動の関所（ロゴ／ナビボタン）は最外側(MainApp)にあり、
+  //         「今ダーティか」は各ページ内部(③④⑤)にある。両者を1つのガードで繋ぐ。
+  //   使い方（v385/v386で各ページが登録する）：
+  //     registerNavGuard(fn) …… fn(proceed) を登録。fn は
+  //         ・移動して良ければ proceed() を即実行して true を返す
+  //         ・未保存で確認が要るなら 自前ConfirmModalを出し、[破棄]で proceed() を呼ぶ。
+  //           このとき「引き止めた」= false を返す。
+  //   attemptNav(go) …… 関所はこれを通す。登録ガードが無い/全て通れば go() 実行。
+  const navGuardsRef = useRef([]);
+  const registerNavGuard = React.useCallback((fn) => {
+    navGuardsRef.current.push(fn);
+    return () => {
+      navGuardsRef.current = navGuardsRef.current.filter((g) => g !== fn);
+    };
+  }, []);
+  const attemptNav = React.useCallback((go) => {
+    const guards = navGuardsRef.current;
+    for (let i = 0; i < guards.length; i++) {
+      const passed = guards[i](go); // ガードが引き止めたら false
+      if (passed === false) return; // 移動は保留（ガード側がモーダルを出す）
+    }
+    go(); // 誰も止めなければ移動
+  }, []);
+
   const isMobile = useIsMobile(640); // v345: スマホはメインメニューをサブ下線幅に収める（間隔・padding・字を詰める）
   const [pieces, setPieces]                   = useState([]);
   const [piecesLoading, setPiecesLoading]     = useState(true);
@@ -4333,7 +4359,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           v345: スマホは Rくん↔Library↔Events↔Portfolio を等間隔に。
                 header を space-between にし、navを display:contents で透過して
                 ボタンをheader直下の兄弟に昇格→4要素が等間隔に並ぶ。右padding無し。 */}
-      <div onClick={()=>{setPage("manage");setLibraryTab("repertoire");}}
+      <div onClick={()=>attemptNav(()=>{setPage("manage");setLibraryTab("repertoire");})}
         style={{cursor:"pointer",userSelect:"none",display:"flex",alignItems:"center",
           paddingRight:isMobile?0:24,flexShrink:0}}>
         <img src="/rkun-round.png" alt="Repertia" style={{height:44,width:44,display:"block"}}/>
@@ -4343,7 +4369,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         {NAV.map(([p,l],i) => {
           const padH = isMobile ? 0 : 20;
           return (
-          <button key={p} onClick={()=>setPage(p)}
+          <button key={p} onClick={()=>attemptNav(()=>setPage(p))}
             style={{background:"none",border:"none",
               color: page===p ? "#C8A860" : "#9A8868",
               paddingTop:6,
