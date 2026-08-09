@@ -3257,7 +3257,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
   //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
-  const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>{t}</div>);
+  const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT,height:14,lineHeight:"14px",whiteSpace:"nowrap",overflow:"visible"}}>{t}</div>);
   // v393 ④⑤: date入力とselectはブラウザ既定で他のtext inputより背が高くなる。
   //   他ボックスと高さを揃えるため、年月日・種別だけ height を明示して合わせる。
   //   inpEのtext実効高さに合わせた値（実機で1px単位の微調整可）。
@@ -3413,15 +3413,15 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(64px,0.5fr) 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(64px,0.5fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"2fr 1.25fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"2fr 1.25fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldVenue}
                   {fldType}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldPerformers}
                   {fldOrganizer}
                 </div>
@@ -3429,13 +3429,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
             ) : (
               <React.Fragment>
-                <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                   {fldVenue}
                 </div>
                 <div style={{marginBottom:8}}>
-                  <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
                     {fldType}
                     {fldPerformers}
                     {fldOrganizer}
