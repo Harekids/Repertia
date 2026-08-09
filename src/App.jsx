@@ -3257,16 +3257,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
   //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
-  const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT,height:14,lineHeight:"14px",whiteSpace:"nowrap",overflow:"visible"}}>{t}</div>);
-  // v393 ④⑤: date入力とselectはブラウザ既定で他のtext inputより背が高くなる。
-  //   他ボックスと高さを揃えるため、年月日・種別だけ height を明示して合わせる。
-  //   inpEのtext実効高さに合わせた値（実機で1px単位の微調整可）。
-  const inpEDateSel = {...inpE, height:"31px", lineHeight:"1", paddingTop:0, paddingBottom:0};
+  const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT,height:14,lineHeight:"14px",whiteSpace:"nowrap",overflow:"hidden"}}>{t}</div>);
+  // v393修正 ④⑤: 全ボックスの高さを1つの値に統一する。text/date/selectはブラウザ既定高さが
+  //   バラバラなので、共通 height を全部に与えて下端を機械的に揃える（上端はラベル固定高で揃う）。
+  //   ボックス内は縦中央寄せ(display:flex,alignItems:center)にして文字が上下に泳がないように。
+  const FLD_H = 34;
+  const inpEText = {...inpE, height:FLD_H, boxSizing:"border-box"};
+  const inpEDateSel = {...inpE, height:FLD_H, boxSizing:"border-box"};
   const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDateSel}/></div>);
-  const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>);
-  const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>);
-  const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>);
-  const fldOrganizer = (<div>{fldLabel("主催")}<input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>);
+  const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
+  const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpEText}/></div>);
+  const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpEText}/></div>);
+  const fldOrganizer = (<div>{fldLabel("主催")}<input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpEText}/></div>);
   const fldType = (
     <div>{fldLabel("種別")}
       {newEvent.type!=="other" ? (
