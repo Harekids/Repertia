@@ -3258,7 +3258,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
   //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
   const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>{t}</div>);
-  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpE}/></div>);
+  // v393 ④⑤: date入力とselectはブラウザ既定で他のtext inputより背が高くなる。
+  //   他ボックスと高さを揃えるため、年月日・種別だけ height を明示して合わせる。
+  //   inpEのtext実効高さに合わせた値（実機で1px単位の微調整可）。
+  const inpEDateSel = {...inpE, height:"31px", lineHeight:"1", paddingTop:0, paddingBottom:0};
+  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDateSel}/></div>);
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>);
   const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>);
   const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>);
@@ -3272,7 +3276,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
             else { setNewEvent({...newEvent,type:v}); }
           }}
-          style={inpE}>
+          style={inpEDateSel}>
           <option value="">ー</option>
           {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
           <option value="other">自由入力…</option>
@@ -3284,7 +3288,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
             placeholder="種別を入力"
             autoFocus
-            style={{...inpE,minWidth:0}}
+            style={{...inpEDateSel,minWidth:0}}
           />
           <button type="button" title="種別の選択に戻る"
             onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
@@ -3409,7 +3413,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(72px,0.66fr) 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(64px,0.5fr) 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
