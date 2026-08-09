@@ -3261,7 +3261,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v393修正 ④⑤: 全ボックスの高さを1つの値に統一する。text/date/selectはブラウザ既定高さが
   //   バラバラなので、共通 height を全部に与えて下端を機械的に揃える（上端はラベル固定高で揃う）。
   //   ボックス内は縦中央寄せ(display:flex,alignItems:center)にして文字が上下に泳がないように。
-  const FLD_H = 34;
+  const FLD_H = 28;
   const inpEText = {...inpE, height:FLD_H, boxSizing:"border-box"};
   const inpEDateSel = {...inpE, height:FLD_H, boxSizing:"border-box"};
   const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDateSel}/></div>);
