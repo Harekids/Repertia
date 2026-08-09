@@ -2720,7 +2720,7 @@ const ManagePage = (props) => {
 
 
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
-const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg}) => {
+const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg, registerNavGuard}) => {
   const isMobile = useIsMobile(640); // v317: EventsPage内のinpEもisMobileを参照するため（v316の真っ白バグ修正）
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
@@ -2813,6 +2813,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const [editBaseline, setEditBaseline] = useState(null);
   // v303: タブ移動を保留しておく箱。破棄確認でOKされたら、この移動を実行する。
   const [pendingTab, setPendingTab]   = useState(null);
+  // v385 ④⑤: ページ移動（ロゴ／ナビ）を保留しておく箱。破棄確認[破棄]でこの移動を実行。
+  //   タブ移動(pendingTab)とは別の関所なので箱を分ける。
+  const [pendingNav, setPendingNav]   = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   // v338 ⑩-2: 削除確認モーダルの状態。null＝閉じ。イベントのidを入れると確認モーダルが開く。
   //   標準confirmを廃止し、ピースカードと同じ自前ConfirmModalにそろえる。
@@ -2848,6 +2851,27 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     closeEditForm();
     setEventsTab(k);
   };
+
+  // v385 ④⑤: ページ移動(ロゴ／ナビ)ガードを最外側に登録する。
+  //   クロージャが古いstateを掴まないよう、最新値を ref に映してガードはそれを読む。
+  //   登録は初回一度きり（依存空）→ アンマウントで解除。
+  const navGuardStateRef = React.useRef({ dirty:false, ev:null, editingId:null });
+  navGuardStateRef.current = {
+    dirty: (showForm && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })()),
+    ev: newEvent,
+    editingId: editingId,
+  };
+  React.useEffect(() => {
+    if (!registerNavGuard) return;
+    // proceed = 実際にページを移動する関数（MainAppのgo）。
+    const guard = (proceed) => {
+      const st = navGuardStateRef.current;
+      if (st.dirty) { setPendingNav(() => proceed); return false; } // 引き止めてモーダル
+      return true; // 変更なし → 素通り
+    };
+    const unregister = registerNavGuard(guard);
+    return unregister;
+  }, [registerNavGuard]);
 
   const saveEvent = () => {
     if (!newEvent.date) return;
@@ -3457,6 +3481,24 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           onCancel={()=>setPendingTab(null)}
           onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); setEventsTab(k); }} />
       )}
+      {/* v385 ④⑤: ページ移動(ロゴ／ナビ)の破棄確認。見出しは削除モーダル準拠(日付＋公演タイトル)。
+           [破棄]で編集を捨てて閉じ→保留していたページ移動(proceed)を実行。 */}
+      {pendingNav && (()=>{
+        const iso = newEvent.date || "";
+        const jpDate = iso.length >= 10
+          ? parseInt(iso.slice(0,4),10) + "年" + parseInt(iso.slice(5,7),10) + "月" + parseInt(iso.slice(8,10),10) + "日"
+          : iso;
+        const navTitle = newEvent.title || "（無題）";
+        const navLine1 = jpDate ? (jpDate + "　" + navTitle) : navTitle;
+        return (
+          <ConfirmModal SANS={SANS}
+            line1={navLine1}
+            line2="保存していない変更があります。破棄して移動しますか?"
+            confirmLabel="破棄" confirmColor="#C0405A"
+            onCancel={()=>setPendingNav(null)}
+            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); if(typeof go==="function") go(); }} />
+        );
+      })()}
       {/* v338 ⑩-2: イベント削除の確認モーダル（ピースカードと同じ自前ConfirmModalに統一）。
            標準confirmを廃止。deleteConfirmId にidが入っている間だけ開く。
            削除onConfirmはDBに触るため async。 */}
@@ -4444,7 +4486,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           events={events}
         />}
         {page==="print"  && <PrintPage handleLogout={handleLogout} allPool={allPool} pieces={pieces} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
-        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} />}
+        {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} registerNavGuard={registerNavGuard} />}
       </div>
       </div>
     </div>
