@@ -3258,13 +3258,25 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
   //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
   const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT,height:14,lineHeight:"14px",whiteSpace:"nowrap",overflow:"hidden"}}>{t}</div>);
-  // v393修正 ④⑤: 全ボックスの高さを1つの値に統一する。text/date/selectはブラウザ既定高さが
-  //   バラバラなので、共通 height を全部に与えて下端を機械的に揃える（上端はラベル固定高で揃う）。
-  //   ボックス内は縦中央寄せ(display:flex,alignItems:center)にして文字が上下に泳がないように。
+  // v393修正 ④⑤: 全ボックスの高さを1つの値(FLD_H)に統一。text/date/selectで
+  //   ブラウザ既定の高さ制御が違うため、それぞれに合わせた指定で FLD_H に揃える。
   const FLD_H = 28;
   const inpEText = {...inpE, height:FLD_H, boxSizing:"border-box"};
-  const inpEDateSel = {...inpE, height:FLD_H, boxSizing:"border-box"};
-  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDateSel}/></div>);
+  // v393修正2 ④⑤: iOSのdateは-webkit-appearance:noneでネイティブUIを外さないとheightが効かず
+  //   背が高いままになる。行を縦中央に収めるためlineHeightをFLD_Hに合わせ、上下paddingは0に。
+  const inpEDate = {...inpE, height:FLD_H, boxSizing:"border-box",
+    WebkitAppearance:"none", MozAppearance:"none", appearance:"none",
+    lineHeight:(FLD_H-2)+"px", paddingTop:0, paddingBottom:0};
+  // v393修正2 ④⑤: selectはheightを詰めると文字下端が切れる。appearance:noneでネイティブUIを外し、
+  //   lineHeightを内寸に合わせて文字を縦中央へ。右にネイティブ矢印分の余白(paddingRight)を確保しつつ、
+  //   自前の下向き矢印をbackgroundで描く（appearance:noneで消えるため）。フォント13は維持。
+  const inpESel = {...inpE, height:FLD_H, boxSizing:"border-box",
+    WebkitAppearance:"none", MozAppearance:"none", appearance:"none",
+    lineHeight:(FLD_H-2)+"px", paddingTop:0, paddingBottom:0, paddingRight:22,
+    backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%236B7A90'/></svg>\")",
+    backgroundRepeat:"no-repeat", backgroundPosition:"right 8px center"};
+  const inpEDateSel = inpEDate; // 後方互換（既存参照が残っていても壊れないように）
+  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDate}/></div>);
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
   const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpEText}/></div>);
   const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpEText}/></div>);
@@ -3278,7 +3290,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
             else { setNewEvent({...newEvent,type:v}); }
           }}
-          style={inpEDateSel}>
+          style={inpESel}>
           <option value="">ー</option>
           {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
           <option value="other">自由入力…</option>
@@ -3290,7 +3302,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
             placeholder="種別を入力"
             autoFocus
-            style={{...inpEDateSel,minWidth:0}}
+            style={{...inpEText,minWidth:0}}
           />
           <button type="button" title="種別の選択に戻る"
             onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
