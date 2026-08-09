@@ -2379,6 +2379,9 @@ const ManagePage = (props) => {
     setDiffMin(0); setDiffMax(5);
     setSugComposers([]); setSugPieces([]);
     setAiPieces([]);
+    // v388 ②: 検索モードを検索前(非"ai")に戻す。これを戻さないと結果表示(poolMode==="ai")が
+    //   最上位stateに残り、✕・移動・タブ切替・開き直しでも前の検索が永続していた。
+    if (setPoolMode) setPoolMode("repertoire");
   };
   const closeAndClearLearnSearch = () => {
     setShowLearnSearch(false);
