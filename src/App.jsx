@@ -3254,6 +3254,55 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v310: 案B統一。サブタブ(History/Upcoming)を固定領域に出し、本体だけスクロール。
   //   Library/Portfolio と同じ「flexShrink:0の固定サブタブ ＋ flex:1 overflowY:autoの本体」構造。
+
+  // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
+  //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
+  const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>{t}</div>);
+  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{...inpE,fontSize:11,padding:"4px 6px"}}/></div>);
+  const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>);
+  const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>);
+  const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>);
+  const fldOrganizer = (<div>{fldLabel("主催")}<input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>);
+  const fldType = (
+    <div>{fldLabel("種別")}
+      {newEvent.type!=="other" ? (
+        <select value={newEvent.type}
+          onChange={e=>{
+            const v=e.target.value;
+            if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
+            else { setNewEvent({...newEvent,type:v}); }
+          }}
+          style={{...inpE,fontSize:11,padding:"4px 6px"}}>
+          <option value="">ー</option>
+          {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
+          <option value="other">自由入力…</option>
+        </select>
+      ) : (
+        <div style={{display:"flex",alignItems:"center",gap:4}}>
+          <input
+            value={newEvent.otherLabel||""}
+            onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
+            placeholder="種別を入力"
+            autoFocus
+            style={{...inpE,fontSize:11,padding:"4px 6px",minWidth:0}}
+          />
+          <button type="button" title="種別の選択に戻る"
+            onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
+            style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"4px 7px",borderRadius:4,fontFamily:FONT,flexShrink:0,lineHeight:1}}>
+            ↩
+          </button>
+        </div>
+      )}
+    </div>
+  );
+  // v390 ④⑤: 備考。スマホは1行分の高さから開始し右下ハンドルで拡大可（resize:vertical）。
+  const fldNotes = (
+    <div>{fldLabel("備考")}
+      <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
+        placeholder="備考" style={{...inpE,minHeight:isMobile?32:48,resize:"vertical"}}/>
+    </div>
+  );
+
   return (
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
@@ -3352,57 +3401,42 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               <div style={FORM.title}>Add Event</div>
             )}
 
-            {/* v389 ①: 1行目=年月日・イベント内容・場所（3列）。主要情報=いつ・何を・どこで。
-                 種別は2行目(補助・任意)へ移動。列幅は左端固定110pxで2行目と縦に揃える。 */}
-            <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
-              <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>年月日</div><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{...inpE,fontSize:11,padding:"4px 6px"}}/></div>
-              <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>イベント内容</div><input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>
-              <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>場所</div><input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>
-            </div>
-
-            {/* v389 ②: 2行目=種別・共演者・主催者（3列）。補助・任意＝分類と人系。
-                 種別selfは自由入力(other)時に↩ボタン付きへ変身する。 */}
-            <div style={{marginBottom:8}}>
-              <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
-                <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>種別</div>
-                {newEvent.type!=="other" ? (
-                  <select value={newEvent.type}
-                    onChange={e=>{
-                      const v=e.target.value;
-                      if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
-                      else { setNewEvent({...newEvent,type:v}); }
-                    }}
-                    style={{...inpE,fontSize:11,padding:"4px 6px"}}>
-                    <option value="">ー</option>
-                    {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
-                    <option value="other">自由入力…</option>
-                  </select>
-                ) : (
-                  <div style={{display:"flex",alignItems:"center",gap:4}}>
-                    <input
-                      value={newEvent.otherLabel||""}
-                      onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
-                      placeholder="種別を入力"
-                      autoFocus
-                      style={{...inpE,fontSize:11,padding:"4px 6px",minWidth:0}}
-                    />
-                    <button type="button" title="種別の選択に戻る"
-                      onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
-                      style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"4px 7px",borderRadius:4,fontFamily:FONT,flexShrink:0,lineHeight:1}}>
-                      ↩
-                    </button>
+            {/* v390 ④⑤: 配置をPC/スマホで出し分け。ラベル・色・フォント13は不変。
+                 PC＝v389維持（1行目:年月日/イベント内容/場所、2行目:種別/共演者/主催、3行目:備考）。
+                 スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
+            {isMobile ? (
+              <div style={{marginBottom:8}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  {fldDate}
+                  {fldTitle}
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  {fldVenue}
+                  {fldType}
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  {fldPerformers}
+                  {fldOrganizer}
+                </div>
+                {fldNotes}
+              </div>
+            ) : (
+              <React.Fragment>
+                <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  {fldDate}
+                  {fldTitle}
+                  {fldVenue}
+                </div>
+                <div style={{marginBottom:8}}>
+                  <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                    {fldType}
+                    {fldPerformers}
+                    {fldOrganizer}
                   </div>
-                )}
-              </div>
-                <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>共演者</div><input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>
-                <div><div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>主催</div><input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpE}/></div>
-              </div>
-              <div>
-                <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>備考</div>
-                <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
-                  placeholder="備考" style={{...inpE,minHeight:48,resize:"vertical"}}/>
-              </div>
-            </div>
+                  {fldNotes}
+                </div>
+              </React.Fragment>
+            )}
 
             {/* ⑧ プログラム */}
             {true && (<React.Fragment>
