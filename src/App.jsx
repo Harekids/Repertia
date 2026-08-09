@@ -2346,6 +2346,7 @@ const ManagePage = (props) => {
   const {dashData, dashTotal} = props;
   const {dashAxis, setDashAxis, dashChart, setDashChart} = props;
   const {libraryTab, setLibraryTab, poolMode, setPoolMode} = props;
+  const {attemptNav} = props; // v387 ③: タブ切替も未保存ガードを通す
   const {toggleCandidate, onUpdatePiece} = props;
   const {composerFilter, setComposerFilter, titleFilter, setTitleFilter} = props;
   const {eraFilter, setEraFilter, yearMin, setYearMin, yearMax, setYearMax} = props;
@@ -2433,7 +2434,7 @@ const ManagePage = (props) => {
     <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
       <div style={{display:"flex",alignItems:"flex-end",gap:4,position:"relative"}}>
         {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
-          <button key={k} onClick={()=>setLibraryTab(k)}
+          <button key={k} onClick={()=>{ if(k===libraryTab) return; if(attemptNav){ attemptNav(()=>setLibraryTab(k)); } else { setLibraryTab(k); } }}
             style={{
               background:libraryTab===k?"#C8A860":"transparent",
               border:"none",
@@ -4526,7 +4527,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           ERAS={ERAS} ERA_ORDER={ERA_ORDER} SANS={SANS} FONT={FONT}
           dashData={dashData} dashTotal={dashTotal} PieChart={PieChart} BarChart={BarChart}
           dashAxis={dashAxis} setDashAxis={setDashAxis} dashChart={dashChart} setDashChart={setDashChart}
-          libraryTab={libraryTab} setLibraryTab={setLibraryTab}
+          libraryTab={libraryTab} setLibraryTab={setLibraryTab} attemptNav={attemptNav}
           poolMode={poolMode} setPoolMode={setPoolMode}
           composerFilter={composerFilter} setComposerFilter={setComposerFilter}
           titleFilter={titleFilter} setTitleFilter={setTitleFilter}
