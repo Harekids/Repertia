@@ -3786,6 +3786,14 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   // ── Supabase: プロフィール読み込み ──
   const profileLoaded = useRef(false);
+  // v383 ①: Add Piece はページ移動で無言クリア（確認しない・エネルギー最小）。
+  //   page が変わったら showAdd を閉じる → AddPieceForm がアンマウントされ、
+  //   内部の piece(useState(EMPTY_PIECE)) が破棄される。次に開くと必ず新品。
+  //   ※①だけの挙動。③④⑤は別途「未保存なら確認」を移動ガードで実装する。
+  useEffect(() => {
+    setShowAdd(false);
+  }, [page]);
+
   useEffect(() => {
     const loadProfile = async () => {
       const { data } = await supabase
