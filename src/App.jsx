@@ -3258,7 +3258,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v390 ④⑤: フォーム各入力を部品化。PC(v389=3列×2行)とスマホ(2列×3行・比率指定)で
   //   同じ部品を並べ替えるだけにして重複を防ぐ。ラベル・color・フォント13は不変。
   const fldLabel = (t) => (<div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT}}>{t}</div>);
-  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={{...inpE,fontSize:13,padding:"5px 4px"}}/></div>);
+  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpE}/></div>);
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpE}/></div>);
   const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpE}/></div>);
   const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpE}/></div>);
@@ -3272,7 +3272,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
             else { setNewEvent({...newEvent,type:v}); }
           }}
-          style={{...inpE,fontSize:13,padding:"5px 4px"}}>
+          style={inpE}>
           <option value="">ー</option>
           {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
           <option value="other">自由入力…</option>
@@ -3284,7 +3284,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
             placeholder="種別を入力"
             autoFocus
-            style={{...inpE,fontSize:13,padding:"5px 4px",minWidth:0}}
+            style={{...inpE,minWidth:0}}
           />
           <button type="button" title="種別の選択に戻る"
             onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
@@ -3409,11 +3409,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(108px,1fr) 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(72px,0.66fr) 3fr",gap:8,marginBottom:8,alignItems:"end"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"2fr 1.25fr",gap:8,marginBottom:8,alignItems:"end"}}>
                   {fldVenue}
                   {fldType}
                 </div>
@@ -3425,13 +3425,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
             ) : (
               <React.Fragment>
-                <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
                   {fldDate}
                   {fldTitle}
                   {fldVenue}
                 </div>
                 <div style={{marginBottom:8}}>
-                  <div style={{display:"grid",gridTemplateColumns:"110px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
+                  <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"end"}}>
                     {fldType}
                     {fldPerformers}
                     {fldOrganizer}
