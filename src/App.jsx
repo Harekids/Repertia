@@ -353,6 +353,29 @@ function LinkIcon({ type }) {
 // v298: Repertia独自の確認モーダル（中央・暗幕＋紺ボックス・既存トーストのトーン）。
 //   ブラウザ標準confirmを置き換える。移動（RP⇄LP）と削除で共用。
 //   2択で選ぶUI（キャンセル/実行）。✕は付けない（キャンセルボタンがその役割）。
+// v397 日付入力の共通部品。定義は一箇所・各画面は参照する。
+//   iOSのdateは空のとき背が高くなる癖があるため「高さ固定の外枠＋中に流し込むinput」構造を標準にする。
+//   各画面の見た目差は wrapStyle/inputStyle で吸収（イベント=高さFLD_H固定・Biography=inpSベース）。
+//   props: value, onChange(newValue), wrapStyle, inputStyle, showClear(×表示), clearColor, FONT
+//   v398で「未定(tbd)」オプションをここに足すと、両画面に一箇所で効く。
+const DateField = ({ value, onChange, wrapStyle, inputStyle, showClear, clearColor, FONT }) => {
+  return (
+    <div style={{...wrapStyle, position:"relative"}}>
+      <input type="date" value={value||""} onChange={e=>onChange(e.target.value)} style={inputStyle}/>
+      {showClear && value ? (
+        <button type="button" title="日付をクリア"
+          onClick={()=>onChange("")}
+          style={{position:"absolute",right:4,top:"50%",transform:"translateY(-50%)",
+            width:14,height:16,lineHeight:"16px",textAlign:"center",padding:0,
+            background:"transparent",border:"none",
+            color:clearColor||"#6B7A90",fontSize:13,cursor:"pointer",fontFamily:FONT,flexShrink:0}}>
+          ×
+        </button>
+      ) : null}
+    </div>
+  );
+};
+
 //   line1 = 「作曲家：曲名」／ line2 = 本文（「〜から〜に移動しますか？」等）。
 //   confirmLabel = 実行ボタンの文言／ confirmColor = 実行ボタンの色（削除=赤・移動=青）。
 const ConfirmModal = ({ SANS, line1, line2, note, confirmLabel, confirmColor, onConfirm, onCancel }) => {
@@ -1791,7 +1814,7 @@ const PrintPage = (props) => {
               {[
                 ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
-                ["生年月日",       <input type="date" value={profile.birthDate} onChange={e=>setProfile(p=>({...p,birthDate:e.target.value}))} style={{...inpS,flex:1,maxWidth:200}}/>],
+                ["生年月日",       <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{flex:1,maxWidth:200,display:"flex"}} inputStyle={{...inpS}} FONT={SANS}/>],
                 ["国籍",           <div style={{flex:1,position:"relative"}}>
                   <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%",maxWidth:240}}/>
                   {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
@@ -3285,23 +3308,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
     background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
     padding:"0 8px", margin:0};
-  // v395 ④⑤: iOSのピッカー内「リセット」はonChangeを発火しない個体があり、日付が消えないことがある。
-  //   → ネイティブに依存せず、値があるときだけ自前の×を出して確実に date:"" にできるようにする。
+  // v397 ④⑤: 日付入力を共通部品DateFieldへ。見た目・挙動は現状維持（外枠方式・×あり）。
   const fldDate = (
     <div>{fldLabel("年月日")}
-      <div style={{...dateBoxWrap, position:"relative"}}>
-        <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={dateInputInner}/>
-        {newEvent.date ? (
-          <button type="button" title="日付をクリア"
-            onClick={()=>setNewEvent({...newEvent,date:""})}
-            style={{position:"absolute",right:2,top:"50%",transform:"translateY(-50%)",
-              width:16,height:16,lineHeight:"14px",textAlign:"center",padding:0,
-              background:"#E2E6EE",border:"1px solid #C8CEDB",borderRadius:8,
-              color:"#6B7A90",fontSize:11,cursor:"pointer",fontFamily:FONT,flexShrink:0}}>
-            ×
-          </button>
-        ) : null}
-      </div>
+      <DateField value={newEvent.date} onChange={v=>setNewEvent({...newEvent,date:v})}
+        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} showClear={true} FONT={FONT}/>
     </div>
   );
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
