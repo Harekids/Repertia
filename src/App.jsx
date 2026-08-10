@@ -3285,7 +3285,25 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
     background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
     padding:"0 8px", margin:0};
-  const fldDate = (<div>{fldLabel("年月日")}<div style={dateBoxWrap}><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={dateInputInner}/></div></div>);
+  // v395 ④⑤: iOSのピッカー内「リセット」はonChangeを発火しない個体があり、日付が消えないことがある。
+  //   → ネイティブに依存せず、値があるときだけ自前の×を出して確実に date:"" にできるようにする。
+  const fldDate = (
+    <div>{fldLabel("年月日")}
+      <div style={{...dateBoxWrap, position:"relative"}}>
+        <input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={dateInputInner}/>
+        {newEvent.date ? (
+          <button type="button" title="日付をクリア"
+            onClick={()=>setNewEvent({...newEvent,date:""})}
+            style={{position:"absolute",right:2,top:"50%",transform:"translateY(-50%)",
+              width:16,height:16,lineHeight:"14px",textAlign:"center",padding:0,
+              background:"#E2E6EE",border:"1px solid #C8CEDB",borderRadius:8,
+              color:"#6B7A90",fontSize:11,cursor:"pointer",fontFamily:FONT,flexShrink:0}}>
+            ×
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
   const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpEText}/></div>);
   const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpEText}/></div>);
@@ -3436,7 +3454,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(64px,0.5fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(92px,0.7fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
