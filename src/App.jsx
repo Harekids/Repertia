@@ -1295,8 +1295,9 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // 複数ヒットのときだけ候補を出してユーザーに選ばせる。0件は空欄（＝未登録作曲家の材料）。
     setPendingComposers(hits.length > 1 ? hits.map(row => ({ label: row.display, reading: row.reading || "" })) : []);
     setDurationEdited(false); setEraEdited(false); setSuggestions([]); setComposerDoubt(false);
-    // v281: 照合が通ったときだけ裏取りする。空欄・候補提示中は確かめる対象がない。
-    if (hits.length === 1) verifyComposer(decided, rest.title || "");
+    // v403 案C: AI照合(verifyComposer)を撤去。AIが真作を誤って否定する誤爆（例:ショパン即興曲3番）を止める。
+    //   関数本体は温存（下記）＝曲DB構築時に「DB照合(案B)」のベースとして復活予定。今は呼ばない。
+    // if (hits.length === 1) verifyComposer(decided, rest.title || "");
   };
 
   // v281: AIの人違いに摩擦を作る。
@@ -1307,6 +1308,9 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   // これは判定ではない。AIの答えを採用して作曲家を消したり書き換えたりはしない（それはv269の逆行）。
   // 出すのは印だけで、直すかどうかはユーザーが決める。
   // 「いつもと違う挙動になれば、人間もアレ！？となる」— 判定を任せるのではなく、摩擦を作る。
+  // v403 案C: 現在このverifyComposerは呼び出していない（上記2箇所をコメントアウト）＝温存中。
+  //   「消さずに物置へ」。曲DB構築時、AI照合ではなく "曲がDBにあるか" のDB照合(案B)へ作り替えて復活させる。
+  //   そのとき文言「データベースに登録がない曲です。正確ではない可能性があります。」を使う（実態と一致する）。
   const verifyComposer = async (name, title) => {
     if (!name || !title) return;
     const myId = ++reqIdVerify.current; // この裏取りの世代番号
@@ -1333,7 +1337,8 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     setPendingComposers([]); setComposerLocked(true);
     // v281: ここも照合が通った瞬間なので裏取りする（selectSuggestionと対で存在する処理）。
     setComposerDoubt(false);
-    verifyComposer(name, piece.title || "");
+    // v403 案C: AI照合を撤去（上記selectSuggestionと同じ理由）。曲DB構築時に案Bとして復活予定。
+    // verifyComposer(name, piece.title || "");
   };
 
   const handleAdd = () => {
