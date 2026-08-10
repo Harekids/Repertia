@@ -356,24 +356,13 @@ function LinkIcon({ type }) {
 // v397 日付入力の共通部品。定義は一箇所・各画面は参照する。
 //   iOSのdateは空のとき背が高くなる癖があるため「高さ固定の外枠＋中に流し込むinput」構造を標準にする。
 //   各画面の見た目差は wrapStyle/inputStyle で吸収（イベント=高さFLD_H固定・Biography=inpSベース）。
-//   v398: ×(showClear)は廃止。tbdLabel を渡すと、日付が空のとき「未定」を重ねて表示する
-//     （イベント=「未定」／Biography=未指定＝表示なし）。date入力自体は生きておりタップでカレンダーが開く。
-//   props: value, onChange(newValue), wrapStyle, inputStyle, tbdLabel, FONT
-const DateField = ({ value, onChange, wrapStyle, inputStyle, tbdLabel, FONT }) => {
-  const empty = !value;
+//   v399: 「未定」オーバーレイ(tbdLabel)は撤去。空のときはネイティブのyyyy/mm/dd＋カレンダーアイコンをそのまま見せる
+//     （日付なしは「ー」で表現するのは表示側=fmtSlashDateの役割。入力欄自体はネイティブ表示に任せる）。
+//   props: value, onChange(newValue), wrapStyle, inputStyle, FONT
+const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT }) => {
   return (
     <div style={{...wrapStyle, position:"relative"}}>
       <input type="date" value={value||""} onChange={e=>onChange(e.target.value)} style={inputStyle}/>
-      {empty && tbdLabel ? (
-        // 未定オーバーレイ。日付未入力のときネイティブのyyyy/mm/dd表示を覆って「未定」を出す。
-        // pointerEvents:none でタップは下のinputへ通す（カレンダーは普通に開く）。
-        <div style={{position:"absolute",left:0,top:0,right:0,bottom:0,
-          display:"flex",alignItems:"center",paddingLeft:8,
-          background:wrapStyle&&wrapStyle.background?wrapStyle.background:"#F4F6F9",
-          color:"#6B7A90",fontSize:13,fontFamily:FONT,pointerEvents:"none",borderRadius:4}}>
-          {tbdLabel}
-        </div>
-      ) : null}
     </div>
   );
 };
@@ -2907,16 +2896,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const [dragOverId, setDragOverId]   = useState(null);
   const posterRef  = useRef(null);
   const today      = new Date().toISOString().slice(0,10);
-  // v398 ④⑤: 日付が空＝「未定」。未定は日程これから＝Upcomingに置く（Historyには入れない）。
-  //   History条件 = 日付あり且つ今日以前。Upcoming条件 = 未定 または 今日より後。
-  const isTBD  = (e) => !e.date;                          // 空文字/undefined＝未定
+  // v399 ④⑤: 日付が空＝日付なし（「ー」表示・未定と決めつけない）。日付なしは日程これから＝Upcomingに置く（Historyには入れない）。
+  //   History条件 = 日付あり且つ今日以前。Upcoming条件 = 日付なし または 今日より後。
+  const isNoDate = (e) => !e.date;                        // 空文字/undefined＝日付なし
   const isPast = (e) => !!e.date && e.date <= today;      // 日付あり且つ過去/今日
-  const isFut  = (e) => isTBD(e) || (e.date > today);     // 未定 または 未来
-  // 未定同士の並び順は保留（企画：実機を見て調整）。今は未定を末尾側にまとめる。
+  const isFut  = (e) => isNoDate(e) || (e.date > today);  // 日付なし または 未来
+  // 企画新方針：日付なしはUpcoming最上部にまとめ、その下に日付ありを時系列（近い順）。
   const sortFut = (a,b) => {
-    if (isTBD(a) && isTBD(b)) return 0;
-    if (isTBD(a)) return 1;   // 未定は後ろ
-    if (isTBD(b)) return -1;
+    if (isNoDate(a) && isNoDate(b)) return 0;
+    if (isNoDate(a)) return -1;  // 日付なしは先頭
+    if (isNoDate(b)) return 1;
     return a.date.localeCompare(b.date);
   };
   const filteredEvents = events
@@ -3159,7 +3148,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   };
   // v377: イベントカード用の短い日付表記（8/7）。イベント名の横幅を稼ぐため。
   const fmtSlashDate = (iso) => {
-    if (!iso) return "未定"; // v398 ④⑤: 日付未入力＝未定
+    if (!iso) return "ー"; // v399 ④⑤: 日付未入力＝日付なし（「ー」表示）
     if (iso.length < 10) return iso;
     const m = parseInt(iso.slice(5,7),10), d = parseInt(iso.slice(8,10),10);
     if (!m || !d) return iso;
@@ -3212,7 +3201,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               const groups = [];
               let cur = null;
               evs.forEach(ev => {
-                const y = (ev.date||"").slice(0,4) || "未定";
+                const y = (ev.date||"").slice(0,4) || "ー";
                 if (!cur || cur.year !== y) { cur = {year:y, items:[]}; groups.push(cur); }
                 cur.items.push(ev);
               });
@@ -3323,11 +3312,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
     background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
     padding:"0 8px", margin:0};
-  // v398 ④⑤: ×撤去（未定＝空で表現・×は不要）。日付未入力時はボックスに「未定」を表示。
+  // v399 ④⑤: 日付なしは空で表現（「未定」オーバーレイは撤去）。空のときはネイティブのyyyy/mm/dd＋カレンダーアイコンをそのまま見せる。
   const fldDate = (
     <div>{fldLabel("年月日")}
       <DateField value={newEvent.date} onChange={v=>setNewEvent({...newEvent,date:v})}
-        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT} tbdLabel="未定"/>
+        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT}/>
     </div>
   );
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
