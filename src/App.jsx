@@ -3217,7 +3217,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 <div key={g.year} style={{display:"flex",alignItems:"flex-start",marginBottom:18}}>
                   {/* v337: 年ラベルの頭＝えんじ境界線の左端（画面左マージン）に揃える。marginLeft撤去。
                        年とカードの間＝1文字分（marginRight）。 */}
-                  <div style={{flexShrink:0,marginRight:10,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}}>
+                  {/* v400: 年ラベルに固定幅を与え、全グループでカード開始位置・幅を揃える。
+                       「2027」(4桁)と「ー」(1文字)でラベル幅が変わると隣のカード領域(flex:1)の
+                       開始位置がずれ、日付なしカードだけ幅が短く見えていた。width固定で解消。 */}
+                  <div style={{flexShrink:0,width:"3.4em",marginRight:10,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}}>
                     {g.year}
                   </div>
                   {/* その年のイベント群 */}
