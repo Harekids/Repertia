@@ -3276,7 +3276,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%236B7A90'/></svg>\")",
     backgroundRepeat:"no-repeat", backgroundPosition:"right 8px center"};
   const inpEDateSel = inpEDate; // 後方互換（既存参照が残っていても壊れないように）
-  const fldDate = (<div>{fldLabel("年月日")}<input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={inpEDate}/></div>);
+  // v394 ④⑤: iOSのdateは空(未入力)のとき内部で最小高さを主張し、input単体のheight固定が
+  //   効かず背が高くなる。→ 外側のdivで高さをFLD_Hに完全固定し、input自体は height:100% で
+  //   親に従わせる。これで空でも値ありでも外形はFLD_Hのまま。appearanceは付けない＝リセット維持。
+  const dateBoxWrap = {height:FLD_H, minHeight:FLD_H, maxHeight:FLD_H, boxSizing:"border-box",
+    background:"#F4F6F9", border:"1px solid #C8CEDB", borderRadius:4, overflow:"hidden",
+    display:"flex", alignItems:"stretch", width:"100%"};
+  const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
+    background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
+    padding:"0 8px", margin:0};
+  const fldDate = (<div>{fldLabel("年月日")}<div style={dateBoxWrap}><input type="date" value={newEvent.date} onChange={e=>setNewEvent({...newEvent,date:e.target.value})} style={dateInputInner}/></div></div>);
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
   const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpEText}/></div>);
   const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpEText}/></div>);
