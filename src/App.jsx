@@ -3587,6 +3587,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             )}
             </React.Fragment>)}
 
+            {/* v400: Eventアーカイブ（Archive／＋リンクを追加）を非表示（削除ではなく温存）。
+                 理由：入れたものの出口（どこにどう表示されるか）が未定義。ベータでユーザーを迷わせないため今回は出さない。
+                 将来 Atelier/Studio/Discography 連携で復活想定。復活時はこのコメントを外すだけ。
+                 ※archives のデータ構造・保存/読込は温存（下記UIのみ非表示）。 */}
+            {false && (
             <div style={{marginTop:16,marginBottom:14}}>
               <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:8}}>Archive</div>
               {(newEvent.archives||[]).map((arc,i)=>(
@@ -3601,6 +3606,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 ＋ リンクを追加
               </button>
             </div>
+            )}
 
             {/* ⑦ ボタン行。v338 ⑩-1: ピースカードと同じ配置に。
                  左＝破壊的操作（削除・赤）を単独で置き、他と離す。右＝保存（金塗り）。
