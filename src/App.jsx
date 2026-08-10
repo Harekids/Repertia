@@ -1566,8 +1566,9 @@ const PrintPage = (props) => {
 
   // ── Derived from events ──
   const today = new Date().toISOString().slice(0,10);
-  const pastEvents   = events.filter(e=>e.date<=today).sort((a,b)=>b.date.localeCompare(a.date));
-  const futureEvents = events.filter(e=>e.date>today).sort((a,b)=>a.date.localeCompare(b.date));
+  // v399: 日付なしイベントは過去/未来どちらの実績にも入れない（!!e.date で日付ありのみ）。
+  const pastEvents   = events.filter(e=>!!e.date && e.date<=today).sort((a,b)=>b.date.localeCompare(a.date));
+  const futureEvents = events.filter(e=>!!e.date && e.date>today).sort((a,b)=>a.date.localeCompare(b.date));
   const contestEvents = pastEvents.filter(e=>e.type==="contest");
   const concertEvents = pastEvents.filter(e=>e.type!=="contest");
 
@@ -2958,10 +2959,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   }, [registerNavGuard]);
 
   const saveEvent = () => {
-    if (!newEvent.date) return;
+    // v399 ④⑤: 日付なし（「ー」）を許容。ただし空っぽ登録は防ぐため、タイトルか場所のどちらかは必須。
+    if (!(newEvent.title||"").trim() && !(newEvent.venue||"").trim()) {
+      window.alert("イベント内容か場所のどちらかを入力してください");
+      return;
+    }
+    // 日付が空の行があってもクラッシュしないよう、空安全ソート（(e.date||"")で比較）。
+    const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
     const nextEvents = editingId
-      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort((a,b)=>a.date.localeCompare(b.date))
-      : [...events,{...newEvent,id:Date.now()}].sort((a,b)=>a.date.localeCompare(b.date));
+      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort(byDate)
+      : [...events,{...newEvent,id:Date.now()}].sort(byDate);
     setEvents(nextEvents);
     saveEvents(nextEvents);
 
@@ -3065,7 +3072,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           </div>
         )}
         {/* v286(③-2): programId経由のプログラム内容表示を廃止（Atelierは別アプリへ分離）。 */}
-        {ev.date <= today && !ev.in_history && (
+        {!!ev.date && ev.date <= today && !ev.in_history && (
           <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
             style={{marginTop:8,background:"#5E1F28",border:"1px solid #8A4048",color:"#E7C4CA",
               padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,
