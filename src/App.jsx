@@ -178,7 +178,7 @@ const SAMPLE_PIECES = [
   { id:12, title:"クリスマス・ツリー組曲",           composer:"リスト",         year:1876, country:"ハンガリー",  key:"ト長調",   duration:25, readiness:45, difficulty:5, form:"組曲",   era:"romantic"  },
 ];
 
-const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"romantic", fav:false, candidate:false };
+const EMPTY_PIECE = { title:"", composer:"", year:0, yearText:"", country:"ー", key:"ー", duration:0, durationSecs:0, difficulty:0, frequency:0, keywords:"", form:"ー", era:"", fav:false, candidate:false };
 
 
 // ── Multilingual Search Aliases ───────────────────────────────────────────────
@@ -731,8 +731,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
                   <div style={fLabel}>時代</div>
-                  <select value={draft.era||"romantic"} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
+                  {/* v401 案B: romantic固定を廃止。作曲年からの自動補完(eraFromYear)に任せる。
+                       未編集・era空のときは「ー（自動補完）」を表示＝作曲年入力で埋まる。手で選べば上書き。 */}
+                  <select value={draft.era||""} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={fInput}>
+                    <option value="">ー（自動補完）</option>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
                 </div>
@@ -1433,7 +1436,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
-          <select value={piece.era||"romantic"} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
+          <select value={piece.era||""} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}><option value="">ー（自動補完）</option>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
@@ -2857,7 +2860,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     {color:"#8A8A8A", label:"その他"},
   ];
   const EMPTY_EVENT = {
-    date:"", type:"recital", title:"", organizer:"", venue:"",
+    date:"", type:"", title:"", organizer:"", venue:"",
     openTime:"", startTime:"", contact:"", otherLabel:"",
     items:[], notes:"", videoUrl:"", posterUrl:"",
   };
