@@ -1436,11 +1436,14 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
-          <select value={piece.era||""} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}><option value="">ー（自動補完）</option>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
+          <select value={piece.era||""} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}><option value="">ー</option>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
-          <input value={piece.yearText||(piece.year>0?String(piece.year):"")}
+          {/* v402 バグ修正: piece.yearへのフォールバックを外す。yearTextを空にした瞬間
+               piece.year(自動補完値)が復活して消せなかった。編集画面(744)と同じくyearText単独参照に揃える。
+               自動補完は候補選択時にyearTextへ年を入れる(1293)ので表示は保たれる。 */}
+          <input value={piece.yearText||""}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
             placeholder="例: 1810 / 1815-1820 / 不明"
             style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
