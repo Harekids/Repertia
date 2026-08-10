@@ -2902,11 +2902,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const isNoDate = (e) => !e.date;                        // 空文字/undefined＝日付なし
   const isPast = (e) => !!e.date && e.date <= today;      // 日付あり且つ過去/今日
   const isFut  = (e) => isNoDate(e) || (e.date > today);  // 日付なし または 未来
-  // 企画新方針：日付なしはUpcoming最上部にまとめ、その下に日付ありを時系列（近い順）。
+  // v400 企画方針転換：日付なしはUpcoming最下部にまとめる。日付ありを時系列（近い順）で先に、日付なし（ー）を末尾に。
+  //   理由：日程が決まっているのが通常・未定は稀。主役（日付あり）を先に、例外（未定）を末尾に。
   const sortFut = (a,b) => {
     if (isNoDate(a) && isNoDate(b)) return 0;
-    if (isNoDate(a)) return -1;  // 日付なしは先頭
-    if (isNoDate(b)) return 1;
+    if (isNoDate(a)) return 1;   // 日付なしは末尾
+    if (isNoDate(b)) return -1;
     return a.date.localeCompare(b.date);
   };
   const filteredEvents = events
