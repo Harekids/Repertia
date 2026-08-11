@@ -63,6 +63,10 @@ const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
 // 全フォーム（AddEvent/イベント編集/ピース編集/AddPiece/検索カード）の入力欄・ラベル・
 // セクション見出し・ボタンの土台を一箇所に定義。AddEvent画面の現状値を基準（見本）とする。
 // 色の塗り分けは当面なし＝Add/編集はタイトル・文言で区別する。
+// v413: 入力ボックスの基準色「目立ちすぎない白」。定義は一箇所・各所参照。
+//   検索/種別ボックス(Events＋Library)にまず適用。ゆくゆく他の入力欄へ展開する基準色。
+const INPUT_BG = "#DDE3EC";
+
 // input/label は fontSize がスマホ/PCで変わるため関数で受ける（FORM.input(isMobile)）。
 const FORM = {
   // v360: 色ルール＝「入力できる＝#F4F6F9（リンクURLと同色）／入力できない＝#F0F2F5（Lv.と同色）」。
@@ -3140,14 +3144,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     <div style={{display:"flex",gap:6,alignItems:"center",width:"100%"}}>
       {/* v410: Library検索と同じクリア×を追加。inputをrelativeラッパーで包み、右端に薄い×を重ねる。
            入力があるときだけ表示。押すと検索キーワードをクリア（evSearch/evSearchDebounced両方空に）。 */}
-      <div style={{position:"relative",flex:"1 1 0%",minWidth:0,display:"flex"}}>
+      <div style={{position:"relative",flex:isMobile?"1 1 0%":"1.2 1 0%",minWidth:0,display:"flex"}}>
         <input
           key="event-search-input"
           value={evSearch} onChange={e=>setEvSearch(e.target.value)}
           onCompositionStart={()=>{evComposingRef.current=true;}}
           onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
           placeholder="キーワードで検索"
-          style={{background:"#CDD6E2",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 24px 0 10px",height:28,fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%",minWidth:0,boxSizing:"border-box"}}
+          style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 24px 0 10px",height:isMobile?28:32,fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%",minWidth:0,boxSizing:"border-box"}}
         />
         {evSearch && (
           <span onClick={()=>{setEvSearch("");setEvSearchDebounced("");}}
@@ -3157,7 +3161,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-        style={{background:"#CDD6E2",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:28,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,flexShrink:0}}>
+        style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:isMobile?28:32,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,...(isMobile?{flexShrink:0}:{flex:"1 1 0%",minWidth:0})}}>
         <option value="">{"すべての種別　"}{evTypeCount("")}</option>
         {EVENT_TYPE_ORDER.map(k=>(
           <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
@@ -3242,19 +3246,25 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     const titleCount = (typeof total==="number") ? total : evs.length;
     return (
       <div style={{paddingTop:40,marginBottom:24}}>
-        {/* v408: 検索バーはタブバー直下へ移設済み。ここはタイトル（History N）だけ。 */}
-        <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:10}}>
-          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
-          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{titleCount}</span>
+        {/* v413: 検索バーの配置をisMobileで出し分け。
+             スマホ＝タイトル行の下・帯の下に全幅（現状維持）。
+             PC＝タイトル行の右・右寄せ・コンパクト（Library PCの配置に統一）。 */}
+        <div style={{display:"flex",alignItems:isMobile?"baseline":"center",justifyContent:"space-between",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+          <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+            <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
+            <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{titleCount}</span>
+          </div>
+          {/* PCのみ：タイトル行の右に検索バー */}
+          {!isMobile && <div style={{flex:"0 1 auto",maxWidth:520,minWidth:320}}>{eventSearchRow}</div>}
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
         <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:8}}/>
-        {/* v409: 検索バーを臙脂帯（イベントバー）の直下に配置＝Libraryと同じ順序（タイトル→帯→検索）。
-             eventSearchRowはflex全幅・三線メニューが右端＝帯の右端に揃う。
-             上下の間隔はカード行間(marginBottom:8)と揃える。 */}
-        <div style={{marginBottom:8}}>
-          {eventSearchRow}
-        </div>
+        {/* スマホのみ：帯の下に検索バーを全幅で（タイトル→帯→検索の順） */}
+        {isMobile && (
+          <div style={{marginBottom:8}}>
+            {eventSearchRow}
+          </div>
+        )}
         {evs.length===0 ? (
           <div style={{padding:"32px 0",textAlign:"center",color:"#94A3BE",fontSize:13,fontFamily:FONT}}>
             該当するイベントがありません
