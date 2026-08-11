@@ -2880,6 +2880,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const [pickerOpen, setPickerOpen]    = useState(false);
   const [pickerQuery, setPickerQuery]  = useState("");
   const evComposingRef = React.useRef(false); // 日本語変換中フラグ
+  const typeComposingRef = React.useRef(false); // v407b: 種別自由入力のIME変換中フラグ（全消し自動復帰の誤爆防止用）
   React.useEffect(() => {
     // 変換中は待つ。入力が止まって300msで検索値を更新
     if (evComposingRef.current) return;
@@ -3392,13 +3393,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       ) : (
         <div style={{display:"flex",alignItems:"center",gap:4}}>
           {/* v407: ↩ボタン廃止。自由入力の文字を全部消したら自動でドロップダウン(select)へ戻る。
-               onChangeは値変更時のみ発火するので、「自由入力…」選択直後の空(未入力)では戻らず、
-               ユーザーが打った文字を全消しした時だけ type:"" に戻る＝select復帰。 */}
+               v407b: 日本語変換(IME)中は「全消し判定」を発火させない。変換確定の瞬間onChangeが空で
+               来ることがあり、それを誤って"全消し"と見なすと確定した文字ごとselectに戻ってしまうため。
+               onCompositionStart/Endで変換中フラグを立て、変換中は otherLabel 更新だけ行い復帰しない。 */}
           <input
             value={newEvent.otherLabel||""}
+            onCompositionStart={()=>{typeComposingRef.current=true;}}
+            onCompositionEnd={e=>{typeComposingRef.current=false; setNewEvent({...newEvent,otherLabel:e.target.value});}}
             onChange={e=>{
               const v=e.target.value;
-              if(v===""){ setNewEvent({...newEvent,type:"",otherLabel:""}); }  // 全消し＝選択へ戻る
+              // 変換中は空でも戻さない（確定の瞬間の空発火で消えるのを防ぐ）。値だけ反映。
+              if(typeComposingRef.current){ setNewEvent({...newEvent,otherLabel:v}); return; }
+              if(v===""){ setNewEvent({...newEvent,type:"",otherLabel:""}); }  // 変換中でない全消し＝選択へ戻る
               else { setNewEvent({...newEvent,otherLabel:v}); }
             }}
             placeholder="種別を入力"
