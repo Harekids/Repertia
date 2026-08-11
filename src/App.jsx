@@ -3236,13 +3236,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const EVENT_CARD_DEFAULT_COLOR = "rgb(28,73,109)";
   const eventCardBg = (ev) => ev && ev.color ? ev.color : EVENT_CARD_DEFAULT_COLOR;
 
-  const TimelineSection = ({label, evs, defaultOpen=true}) => {
+  const TimelineSection = ({label, evs, total, defaultOpen=true}) => {
+    // v411: タイトルの数字はそのタブの総数(total)＝検索/種別フィルタで変えない（Library方式に統一）。
+    //   evs＝絞り込み後（表示リスト用）／total＝絞り込み前の総数（タイトル用）。totalが無ければevs.length。
+    const titleCount = (typeof total==="number") ? total : evs.length;
     return (
       <div style={{paddingTop:40,marginBottom:24}}>
         {/* v408: 検索バーはタブバー直下へ移設済み。ここはタイトル（History N）だけ。 */}
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:10}}>
           <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
-          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
+          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{titleCount}</span>
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
         <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:8}}/>
@@ -3699,10 +3702,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         {(
           <>
             {eventsTab==="history" && (past.length>0
-              ? TimelineSection({label:"History", evs:filteredPast, defaultOpen:true})
+              ? TimelineSection({label:"History", evs:filteredPast, total:past.length, defaultOpen:true})
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>まだ演奏の記録がありません。</div>)}
             {eventsTab==="upcoming" && (future.length>0
-              ? TimelineSection({label:"Upcoming", evs:filteredFuture, defaultOpen:true})
+              ? TimelineSection({label:"Upcoming", evs:filteredFuture, total:future.length, defaultOpen:true})
               : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>これからの予定はまだありません。</div>)}
           </>
         )}
