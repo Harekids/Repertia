@@ -2921,8 +2921,20 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     if (isNoDate(b)) return -1;
     return a.date.localeCompare(b.date);
   };
+  // v404 A: 種別フィルタ判定を専用関数化。「未設定」と「自由入力」を明確に分ける。
+  //   未設定  = type空 または (type==="other" かつ otherLabel空)  ← 実質ラベルなし＝未設定扱い
+  //   自由入力 = type==="other" かつ otherLabel有り                ← ユーザーが名前を付けたもの
+  //   これで「自由入力フィルタで空イベントまで出る」問題が解消（空は未設定に振り分く）。
+  const isNoType   = (e) => !e.type || (e.type==="other" && !(e.otherLabel||"").trim());
+  const isFreeType = (e) => e.type==="other" && !!(e.otherLabel||"").trim();
+  const matchEvType = (e, f) => {
+    if (!f) return true;                 // すべての種別
+    if (f==="__none__")  return isNoType(e);
+    if (f==="other")     return isFreeType(e);
+    return e.type===f;                   // 定型10種
+  };
   const filteredEvents = events
-    .filter(e=>!evTypeFilter||e.type===evTypeFilter)
+    .filter(e=>matchEvType(e, evTypeFilter))
     .filter(e=>!evSearchDebounced||(e.title||"").includes(evSearchDebounced)||(e.venue||"").includes(evSearchDebounced)||(e.notes||"").includes(evSearchDebounced));
   const filteredPast   = filteredEvents.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date));
   const filteredFuture = filteredEvents.filter(isFut).sort(sortFut);
@@ -3118,11 +3130,17 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         placeholder="キーワードで検索"
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:FONT,fontSize:12,borderRadius:4,width:160}}
       />
+      {/* v404 A: 種別フィルタの選択肢を件数付きに。定型10種＋自由入力（まとめ）＋未設定。0件も表示。
+           件数＝その種別が今events内に何件あるか。matchEvTypeと同じ判定で数える（表示と絞り込みの一致）。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4}}>
         <option value="">すべての種別</option>
-        {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
-        <option value="other">自由入力</option>
+        {EVENT_TYPE_ORDER.map(k=>{
+          const n = events.filter(e=>e.type===k).length;
+          return (<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{" "}{n}</option>);
+        })}
+        <option value="other">自由入力{" "}{events.filter(isFreeType).length}</option>
+        <option value="__none__">未設定{" "}{events.filter(isNoType).length}</option>
       </select>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT,marginRight:4}}>{docSaveMsg}</span>}
       <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
