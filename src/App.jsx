@@ -1161,7 +1161,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
           autoComplete="off"
           className="rp-search"
           style={{background:compact?"#1B2942":"#F4F6F9",border:compact?"1px solid #35456380":"1px solid #C8CEDB",color:compact?"#EDE6D6":"#15233F",
-            padding:compact?"3px 24px 3px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:4,
+            padding:compact?"0 24px 0 26px":"4px 24px 4px 26px",height:compact?26:undefined,fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {displayVal && (
@@ -2172,7 +2172,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
              v346 ⑤: 操作列にあった♪𝄽トグルは撤去（ここ「表示」内に移設）。空いた幅は検索ボックス(flex:1)が吸収。 */}
         <div style={{position:"relative",flexShrink:0}} ref={viewRef}>
           <button onClick={()=>setViewOpen(v=>!v)}
-            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#C8CEDB":"#15233F",padding:isMobile?"2px 10px":"4px 10px",
+            style={{background:isMobile?"#1B2942":"#F4F6F9",border:isMobile?"1px solid #35456380":"1px solid #C8CEDB",color:isMobile?"#C8CEDB":"#15233F",padding:isMobile?"0 10px":"4px 10px",height:isMobile?26:undefined,
               cursor:"pointer",fontSize:12,fontFamily:FONT,lineHeight:1.2,borderRadius:4,boxSizing:"border-box",
               display:"flex",alignItems:"center",justifyContent:"center",gap:5,whiteSpace:"nowrap",minWidth:isMobile?84:"auto"}}>
             表示
