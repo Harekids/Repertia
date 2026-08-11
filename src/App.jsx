@@ -3041,6 +3041,17 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setNewEvent(ev=>({...ev,items:ev.items.map(it=>it.id===id?{...it,...patch}:it)}));
   const removeItem = (id) =>
     setNewEvent(ev=>({...ev,items:ev.items.filter(it=>it.id!==id)}));
+  // v419: プログラムの並べ替えを▲▼ボタン方式に（HTML5 drag&dropはタッチで発火しないため）。
+  //   dir=-1で上へ、+1で下へ、隣の1曲と順序を入れ替える。先頭の▲・末尾の▼はボタン側でdisabled。
+  const moveItem = (id, dir) =>
+    setNewEvent(ev=>{
+      const arr=[...ev.items];
+      const i=arr.findIndex(x=>x.id===id);
+      const j=i+dir;
+      if (i<0 || j<0 || j>=arr.length) return ev;
+      const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+      return {...ev,items:arr};
+    });
   const onItemDragEnd = () => {
     if (dragItemId==null||dragOverId==null||dragItemId===dragOverId) { setDragItemId(null); setDragOverId(null); return; }
     setNewEvent(ev=>{
@@ -3597,15 +3608,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 // v282: pieceId から RP/LP の曲を引く。曲名・作曲家・時間は曲側が持つ（表示専用）。
                 const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
                 return (
-                <div key={it.id} draggable
-                  onDragStart={()=>setDragItemId(it.id)}
-                  onDragEnter={()=>setDragOverId(it.id)}
-                  onDragEnd={onItemDragEnd}
-                  onDragOver={e=>e.preventDefault()}
+                <div key={it.id}
                   style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,
-                    background:dragOverId===it.id?"#FDF5ED":"white",
-                    border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px",cursor:"grab"}}>
-                  <span style={{color:"#2A3F6A",fontSize:12,flexShrink:0}}>⣿</span>
+                    background:"white",
+                    border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+                  <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
+                    <button disabled={idx===0}
+                      onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
+                      style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===0?"default":"pointer",color:idx===0?"#C8CEDB":"#5B7FA6"}}>▲</button>
+                    <button disabled={idx===newEvent.items.length-1}
+                      onClick={async()=>{ if(idx===newEvent.items.length-1) return; moveItem(it.id,1); if(saveEvents) await saveEvents(); }}
+                      style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===newEvent.items.length-1?"default":"pointer",color:idx===newEvent.items.length-1?"#C8CEDB":"#5B7FA6"}}>▼</button>
+                  </div>
                   <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
                   {pc ? (
                     <React.Fragment>
