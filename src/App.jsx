@@ -3391,18 +3391,20 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         </select>
       ) : (
         <div style={{display:"flex",alignItems:"center",gap:4}}>
+          {/* v407: ↩ボタン廃止。自由入力の文字を全部消したら自動でドロップダウン(select)へ戻る。
+               onChangeは値変更時のみ発火するので、「自由入力…」選択直後の空(未入力)では戻らず、
+               ユーザーが打った文字を全消しした時だけ type:"" に戻る＝select復帰。 */}
           <input
             value={newEvent.otherLabel||""}
-            onChange={e=>setNewEvent({...newEvent,otherLabel:e.target.value})}
+            onChange={e=>{
+              const v=e.target.value;
+              if(v===""){ setNewEvent({...newEvent,type:"",otherLabel:""}); }  // 全消し＝選択へ戻る
+              else { setNewEvent({...newEvent,otherLabel:v}); }
+            }}
             placeholder="種別を入力"
             autoFocus
             style={{...inpEText,minWidth:0}}
           />
-          <button type="button" title="種別の選択に戻る"
-            onClick={()=>setNewEvent({...newEvent,type:"",otherLabel:""})}
-            style={{background:"none",border:"1px solid #2A3F6A",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"4px 7px",borderRadius:4,fontFamily:FONT,flexShrink:0,lineHeight:1}}>
-            ↩
-          </button>
         </div>
       )}
     </div>
