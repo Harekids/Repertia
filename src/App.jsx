@@ -3137,7 +3137,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v408: 検索バーをタブバー直下・全幅・両端揃えに移設。検索inputをflex:1で伸ばし、
   //   種別select・三線メニューを右に。コンテナはタブバーと同じ幅制約(maxWidth:CONTENT_W,padding:0 28px)側に置く。
   const eventSearchRow = (
-    <div style={{display:"flex",gap:8,alignItems:"center",width:"100%"}}>
+    <div style={{display:"flex",gap:6,alignItems:"center",width:"100%"}}>
       <input
         key="event-search-input"
         value={evSearch} onChange={e=>setEvSearch(e.target.value)}
@@ -3149,7 +3149,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4}}>
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4,flexShrink:0}}>
         <option value="">{"すべての種別　"}{evTypeCount("")}</option>
         {EVENT_TYPE_ORDER.map(k=>(
           <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
@@ -3157,13 +3157,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         <option value="other">{"自由入力　"}{evTypeCount("other")}</option>
         <option value="__none__">{"未設定　"}{evTypeCount("__none__")}</option>
       </select>
-      {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT,marginRight:4}}>{docSaveMsg}</span>}
+      {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT}}>{docSaveMsg}</span>}
+      {/* v409: 三線メニューの右端をイベントバー右端に揃える＝右paddingを0にしてボタン右辺をコンテナ右端に密着 */}
       <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
         <button onClick={()=>setHamEvOpen(v=>!v)}
           title="メニュー"
           style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
-            padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",
-            alignItems:"center",justifyContent:"center"}}>
+            padding:"3px 0 3px 5px",lineHeight:1,width:22,height:28,display:"inline-flex",
+            alignItems:"center",justifyContent:"flex-end"}}>
           ≡
         </button>
         {hamEvOpen && (
@@ -3235,7 +3236,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
-        <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:16}}/>
+        <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:8}}/>
+        {/* v409: 検索バーを臙脂帯（イベントバー）の直下に配置＝Libraryと同じ順序（タイトル→帯→検索）。
+             eventSearchRowはflex全幅・三線メニューが右端＝帯の右端に揃う。
+             上下の間隔はカード行間(marginBottom:8)と揃える。 */}
+        <div style={{marginBottom:8}}>
+          {eventSearchRow}
+        </div>
         {evs.length===0 ? (
           <div style={{padding:"32px 0",textAlign:"center",color:"#94A3BE",fontSize:13,fontFamily:FONT}}>
             該当するイベントがありません
@@ -3452,12 +3459,6 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     {/* 本体（スクロール領域） */}
     <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px 140px"}}>
-
-        {/* v408: 検索バーをタブバー直下・全幅・両端揃えに配置（History/Upcoming共通）。
-             コンテナの左右padding(0 28px)＋maxWidth:CONTENT_Wがタブバーと共通なので両端が一致する。 */}
-        <div style={{marginTop:2,marginBottom:16}}>
-          {eventSearchRow}
-        </div>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
