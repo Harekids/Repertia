@@ -1161,7 +1161,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
           autoComplete="off"
           className="rp-search"
           style={{background:compact?"#1B2942":"#F4F6F9",border:compact?"1px solid #35456380":"1px solid #C8CEDB",color:compact?"#EDE6D6":"#15233F",
-            padding:compact?"2px 24px 2px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:4,
+            padding:compact?"3px 24px 3px 26px":"4px 24px 4px 26px",fontFamily:FONT,fontSize:12,lineHeight:1.2,borderRadius:4,
             width:"100%",boxSizing:"border-box",outline:"none"}}
         />
         {displayVal && (
@@ -3151,7 +3151,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           onCompositionStart={()=>{evComposingRef.current=true;}}
           onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
           placeholder="キーワードで検索"
-          style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 24px 0 10px",height:isMobile?28:32,fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%",minWidth:0,boxSizing:"border-box"}}
+          style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 24px 0 10px",height:isMobile?26:28,fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%",minWidth:0,boxSizing:"border-box"}}
         />
         {evSearch && (
           <span onClick={()=>{setEvSearch("");setEvSearchDebounced("");}}
@@ -3161,7 +3161,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-        style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:isMobile?28:32,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,...(isMobile?{flexShrink:0}:{flex:"1 1 0%",minWidth:0})}}>
+        style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:isMobile?26:28,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,...(isMobile?{flexShrink:0}:{flex:"0.8 1 0%",minWidth:0})}}>
         <option value="">{"すべての種別　"}{evTypeCount("")}</option>
         {EVENT_TYPE_ORDER.map(k=>(
           <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
