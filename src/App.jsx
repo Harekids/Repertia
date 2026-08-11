@@ -3138,14 +3138,22 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   種別select・三線メニューを右に。コンテナはタブバーと同じ幅制約(maxWidth:CONTENT_W,padding:0 28px)側に置く。
   const eventSearchRow = (
     <div style={{display:"flex",gap:6,alignItems:"center",width:"100%"}}>
-      <input
-        key="event-search-input"
-        value={evSearch} onChange={e=>setEvSearch(e.target.value)}
-        onCompositionStart={()=>{evComposingRef.current=true;}}
-        onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
-        placeholder="キーワードで検索"
-        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 10px",height:28,fontFamily:FONT,fontSize:12,borderRadius:4,flex:"1 1 0%",minWidth:0,boxSizing:"border-box"}}
-      />
+      {/* v410: Library検索と同じクリア×を追加。inputをrelativeラッパーで包み、右端に薄い×を重ねる。
+           入力があるときだけ表示。押すと検索キーワードをクリア（evSearch/evSearchDebounced両方空に）。 */}
+      <div style={{position:"relative",flex:"1 1 0%",minWidth:0,display:"flex"}}>
+        <input
+          key="event-search-input"
+          value={evSearch} onChange={e=>setEvSearch(e.target.value)}
+          onCompositionStart={()=>{evComposingRef.current=true;}}
+          onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
+          placeholder="キーワードで検索"
+          style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 24px 0 10px",height:28,fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%",minWidth:0,boxSizing:"border-box"}}
+        />
+        {evSearch && (
+          <span onClick={()=>{setEvSearch("");setEvSearchDebounced("");}}
+            style={{position:"absolute",right:7,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#4A5A7A",cursor:"pointer",userSelect:"none"}}>×</span>
+        )}
+      </div>
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
