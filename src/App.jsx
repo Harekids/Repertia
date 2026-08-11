@@ -3134,15 +3134,17 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   };
 
   // ── 検索行（タイトル行の右側に相乗り：Repertoireのfilterと同じ思想）──
+  // v408: 検索バーをタブバー直下・全幅・両端揃えに移設。検索inputをflex:1で伸ばし、
+  //   種別select・三線メニューを右に。コンテナはタブバーと同じ幅制約(maxWidth:CONTENT_W,padding:0 28px)側に置く。
   const eventSearchRow = (
-    <div style={{display:"flex",gap:8,alignItems:"center"}}>
+    <div style={{display:"flex",gap:8,alignItems:"center",width:"100%"}}>
       <input
         key="event-search-input"
         value={evSearch} onChange={e=>setEvSearch(e.target.value)}
         onCompositionStart={()=>{evComposingRef.current=true;}}
         onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
         placeholder="キーワードで検索"
-        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:FONT,fontSize:12,borderRadius:4,width:160}}
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:FONT,fontSize:12,borderRadius:4,flex:"1 1 0%",minWidth:0,boxSizing:"border-box"}}
       />
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
@@ -3227,13 +3229,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const TimelineSection = ({label, evs, defaultOpen=true}) => {
     return (
       <div style={{paddingTop:40,marginBottom:24}}>
-        {/* タイトル行：左=タイトル+件数、右=検索（Repertoireと同骨格）*/}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
-          <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-            <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
-            <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
-          </div>
-          {eventSearchRow}
+        {/* v408: 検索バーはタブバー直下へ移設済み。ここはタイトル（History N）だけ。 */}
+        <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:10}}>
+          <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>{label}</span>
+          <span style={{fontSize:18,fontWeight:700,color:"#EDE6D6",fontFamily:FONT}}>{evs.length}</span>
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
         <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:16}}/>
@@ -3453,6 +3452,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     {/* 本体（スクロール領域） */}
     <div style={{flex:1,overflowY:"auto"}}>
       <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px 140px"}}>
+
+        {/* v408: 検索バーをタブバー直下・全幅・両端揃えに配置（History/Upcoming共通）。
+             コンテナの左右padding(0 28px)＋maxWidth:CONTENT_Wがタブバーと共通なので両端が一致する。 */}
+        <div style={{marginTop:2,marginBottom:16}}>
+          {eventSearchRow}
+        </div>
 
         {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
         {showEvtPanel && (
