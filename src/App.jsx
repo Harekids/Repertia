@@ -3144,12 +3144,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         onCompositionStart={()=>{evComposingRef.current=true;}}
         onCompositionEnd={e=>{evComposingRef.current=false;setEvSearch(e.target.value);setEvSearchDebounced(e.target.value);}}
         placeholder="キーワードで検索"
-        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:FONT,fontSize:12,borderRadius:4,flex:"1 1 0%",minWidth:0,boxSizing:"border-box"}}
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"0 10px",height:28,fontFamily:FONT,fontSize:12,borderRadius:4,flex:"1 1 0%",minWidth:0,boxSizing:"border-box"}}
       />
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4,flexShrink:0}}>
+        style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:28,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,flexShrink:0}}>
         <option value="">{"すべての種別　"}{evTypeCount("")}</option>
         {EVENT_TYPE_ORDER.map(k=>(
           <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
@@ -3158,12 +3158,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         <option value="__none__">{"未設定　"}{evTypeCount("__none__")}</option>
       </select>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT}}>{docSaveMsg}</span>}
-      {/* v409: 三線メニューの右端をイベントバー右端に揃える＝右paddingを0にしてボタン右辺をコンテナ右端に密着 */}
+      {/* v409b: 三線メニューの右端をイベントバー右端に揃える＋左右gapを検索↔種別と均等に。
+           左paddingを0にしてgap(6)だけで間隔が決まるようにする（種別↔三線＝検索↔種別と同じ6）。 */}
       <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
         <button onClick={()=>setHamEvOpen(v=>!v)}
           title="メニュー"
           style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",
-            padding:"3px 0 3px 5px",lineHeight:1,width:22,height:28,display:"inline-flex",
+            padding:0,lineHeight:1,width:18,height:28,display:"inline-flex",
             alignItems:"center",justifyContent:"flex-end"}}>
           ≡
         </button>
