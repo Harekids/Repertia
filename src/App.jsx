@@ -2941,6 +2941,19 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const past   = events.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date));
   const future = events.filter(isFut).sort(sortFut);
 
+  // v405 A仕上げ③: 種別フィルタの件数は「今表示しているタブ(History/Upcoming)の中だけ」で数える。
+  //   母数 = 現タブのイベント ＋ キーワード検索は反映（種別フィルタ自体は母数に掛けない＝自己絞り込み回避）。
+  //   これで各選択肢の件数合計＝「すべての種別」の件数＝そのタブのフィルタ後表示数、が一致する。
+  const evTypeCountBase = events
+    .filter(e=> eventsTab==="history" ? isPast(e) : isFut(e))
+    .filter(e=>!evSearchDebounced||(e.title||"").includes(evSearchDebounced)||(e.venue||"").includes(evSearchDebounced)||(e.notes||"").includes(evSearchDebounced));
+  const evTypeCount = (k) => {
+    if (k==="")         return evTypeCountBase.length;                       // すべての種別＝タブ総数
+    if (k==="other")    return evTypeCountBase.filter(isFreeType).length;    // 自由入力
+    if (k==="__none__") return evTypeCountBase.filter(isNoType).length;      // 未設定
+    return evTypeCountBase.filter(e=>e.type===k).length;                     // 定型10種
+  };
+
   // ── Form helpers ──
   const openAdd = () => { setNewEvent(EMPTY_EVENT); setEditBaseline(EMPTY_EVENT); setEditingId(null); setShowForm(true); setSelectedEvent(null); };
   const openEdit = (ev) => { setNewEvent({...ev}); setEditBaseline({...ev}); setEditingId(ev.id); setShowForm(true); setSelectedEvent(null); };
@@ -3130,17 +3143,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         placeholder="キーワードで検索"
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"4px 10px",fontFamily:FONT,fontSize:12,borderRadius:4,width:160}}
       />
-      {/* v404 A: 種別フィルタの選択肢を件数付きに。定型10種＋自由入力（まとめ）＋未設定。0件も表示。
-           件数＝その種別が今events内に何件あるか。matchEvTypeと同じ判定で数える（表示と絞り込みの一致）。 */}
+      {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
+           ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
       <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
         style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"4px 8px",fontFamily:FONT,fontSize:12,borderRadius:4}}>
-        <option value="">すべての種別</option>
-        {EVENT_TYPE_ORDER.map(k=>{
-          const n = events.filter(e=>e.type===k).length;
-          return (<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{" "}{n}</option>);
-        })}
-        <option value="other">自由入力{" "}{events.filter(isFreeType).length}</option>
-        <option value="__none__">未設定{" "}{events.filter(isNoType).length}</option>
+        <option value="">{"すべての種別　"}{evTypeCount("")}</option>
+        {EVENT_TYPE_ORDER.map(k=>(
+          <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
+        ))}
+        <option value="other">{"自由入力　"}{evTypeCount("other")}</option>
+        <option value="__none__">{"未設定　"}{evTypeCount("__none__")}</option>
       </select>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT,marginRight:4}}>{docSaveMsg}</span>}
       <div style={{position:"relative",flexShrink:0}} ref={hamEvRef}>
