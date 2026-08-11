@@ -3617,7 +3617,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                     // 参照先の曲が見つからない（削除された等）。IDは残すが赤字で警告。
                     <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
                   )}
+                  {/* v418: プログラム各曲の「演奏者」入力欄を非表示（削除でなく温存）。
+                       理由：他人の名前を同意なく記録/公開するとトラブルになりうる。共演者機能は
+                       ルール（同意・公開範囲・削除対応）を固めてから実装する。それまで置かない。
+                       performerのデータ構造・保存/読込(3039,4573)・表示(3090,3103)は無傷で温存。復活時はfalseを外す。 */}
+                  {false && (
                   <input value={it.performer||""} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
+                  )}
                   <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
                 </div>
                 );
