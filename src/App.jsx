@@ -732,10 +732,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
                   <div style={fLabel}>時代</div>
                   {/* v401 案B: romantic固定を廃止。作曲年からの自動補完(eraFromYear)に任せる。
-                       未編集・era空のときは「ー（自動補完）」を表示＝作曲年入力で埋まる。手で選べば上書き。 */}
+                       未編集・era空のときは「ー」を表示＝作曲年入力で埋まる。手で選べば上書き。 */}
                   <select value={draft.era||""} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={fInput}>
-                    <option value="">ー（自動補完）</option>
+                    <option value="">ー</option>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
                 </div>
