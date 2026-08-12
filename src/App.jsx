@@ -1297,6 +1297,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
 
 // ── AddPieceForm — fully self-contained, no App state dependency ──────────────
 const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
+  const isMobile = useIsMobile(640); // v430: Dropdown(調性)のPC/スマホ色・幅出し分け用
   const [piece, setPiece]                     = useState(EMPTY_PIECE);
   const [composerSuggestions, setComposerSuggestions] = useState([]);
   const [composerLocked, setComposerLocked]   = useState(false);
@@ -1532,7 +1533,13 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
+          {/* v430 B-Step2①: 調性をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
+               onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
+          <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
+            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー" />
+          {false && (
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
+          )}
         </div>
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
