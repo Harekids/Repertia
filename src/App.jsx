@@ -2264,7 +2264,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
              v346 ⑤: 操作列にあった♪𝄽トグルは撤去（ここ「表示」内に移設）。空いた幅は検索ボックス(flex:1)が吸収。 */}
         <div style={{position:"relative",flexShrink:0}} ref={viewRef}>
           <button onClick={()=>setViewOpen(v=>!v)}
-            style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:isMobile?"0 10px":"4px 10px",height:isMobile?26:undefined,
+            style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:isMobile?"0 10px":"4px 10px",height:isMobile?26:undefined,
               cursor:"pointer",fontSize:12,fontFamily:FONT,lineHeight:1.2,borderRadius:4,boxSizing:"border-box",
               display:"flex",alignItems:"center",justifyContent:"center",gap:5,whiteSpace:"nowrap",minWidth:isMobile?84:"auto"}}>
             表示
