@@ -1539,7 +1539,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
           <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
             options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
-            buttonStyle={{background:"white",height:32}} />
+            buttonStyle={{background:"white",height:30}} />
           {false && (
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
           )}
