@@ -390,7 +390,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
         <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
       </button>
       {open && rect && (
-        <div ref={listRef} style={listStyle}>
+        <div ref={listRef} className="dd-scroll" style={listStyle}>
           {options.map(o=>{
             const sel = o.value===value;
             return (
@@ -4846,7 +4846,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   );
   return (
     <div style={{height:"100dvh",background:"#0F1A33",fontFamily:FONT,color:"#EDE6D6",display:"flex",flexDirection:"column",overflow:"hidden",textAlign:"left"}}>
-      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;} input::placeholder,textarea::placeholder{color:#8A94A8;opacity:1;} input:focus,select:focus,textarea:focus{outline:none;border-color:#C8A860 !important;box-shadow:0 0 0 1px #C8A860;}"}</style>
+      <style>{".rp-search::placeholder{color:#8A94A8;opacity:1;} input::placeholder,textarea::placeholder{color:#8A94A8;opacity:1;} input:focus,select:focus,textarea:focus{outline:none;border-color:#C8A860 !important;box-shadow:0 0 0 1px #C8A860;} .dd-scroll::-webkit-scrollbar{width:6px;} .dd-scroll::-webkit-scrollbar-track{background:transparent;} .dd-scroll::-webkit-scrollbar-thumb{background:#8A94A8;border-radius:3px;} .dd-scroll{scrollbar-width:thin;scrollbar-color:#8A94A8 transparent;}"}</style>
       <div style={{width:"100%",height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <FontLoader />
       <Header />
