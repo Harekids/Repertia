@@ -315,37 +315,80 @@ const useCloseOnOutsideClick = (isOpen, onClose) => {
 // v420 B-Step1: 単一選択のアプリ製ドロップダウン共通部品（ネイティブ風・ふわっと出る）。
 //   props: value, onChange(v), options=[{value,label}], isMobile, placeholder, buttonStyle
 //   外クリック/Escで閉じる（useCloseOnOutsideClick流用）。選ぶと閉じて値反映。長い選択肢はmaxHeightでスクロール。
+// v421 B-Step1修正: 選択肢リストを position:fixed で表示（親のoverflow:hidden/autoに切られないため）。
+//   ボタンのgetBoundingClientRectで画面座標を取り、下の余白が足りなければ上に開く。スクロール/リサイズで閉じる。
 const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle }) => {
   const [open, setOpen] = React.useState(false);
-  const ref = useCloseOnOutsideClick(open, () => setOpen(false));
+  const [rect, setRect] = React.useState(null);
+  const btnRef = React.useRef(null);
+  const listRef = React.useRef(null);
   const cur = options.find(o => o.value === value);
-  const curLabel = cur ? cur.label : (placeholder!=null ? placeholder : "ー");
+  const curLabel = cur ? cur.label : (placeholder!=null ? placeholder : "\u30fc");
   const bg = isMobile ? INPUT_BG : "#F4F6F9";
   const h  = isMobile ? 26 : 25;
   const wrapExtra = {};
   if (buttonStyle && buttonStyle.flex) { wrapExtra.flex = buttonStyle.flex; wrapExtra.minWidth = 0; }
   if (buttonStyle && buttonStyle.flexShrink != null) { wrapExtra.flexShrink = buttonStyle.flexShrink; }
+  const openMenu = () => {
+    if (btnRef.current) setRect(btnRef.current.getBoundingClientRect());
+    setOpen(true);
+  };
+  React.useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const onDown = (e) => {
+      if (btnRef.current && btnRef.current.contains(e.target)) return;
+      if (listRef.current && listRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [open]);
+  let listStyle = null;
+  if (open && rect) {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const maxH = Math.min(260, Math.max(140, vh - rect.bottom - 12));
+    const openUp = (vh - rect.bottom) < 180 && rect.top > (vh - rect.bottom);
+    const width = Math.max(rect.width, 150);
+    const right = Math.max(8, vw - rect.right);
+    listStyle = {
+      position:"fixed", right: right, width: width, maxWidth: "78vw",
+      background:"#FFFFFF", border:"1px solid #C8CEDB", borderRadius:6,
+      boxShadow:"0 6px 20px rgba(0,0,0,0.18)", zIndex:1000,
+      overflowY:"auto", padding:"3px 0",
+    };
+    if (openUp) { listStyle.bottom = (vh - rect.top + 4); listStyle.maxHeight = Math.min(260, rect.top - 12); }
+    else { listStyle.top = (rect.bottom + 4); listStyle.maxHeight = maxH; }
+  }
   return (
-    <div ref={ref} style={{position:"relative", ...wrapExtra}}>
-      <button type="button" onClick={()=>setOpen(o=>!o)}
+    <div style={{position:"relative", ...wrapExtra}}>
+      <button ref={btnRef} type="button" onClick={()=> open ? setOpen(false) : openMenu()}
         style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,
           background:bg,border:"1px solid #C8CEDB",color:"#15233F",
           height:h,padding:"0 8px",fontFamily:FONT,fontSize:12,borderRadius:4,
           width:"100%",boxSizing:"border-box",cursor:"pointer",whiteSpace:"nowrap",overflow:"hidden",
           ...(buttonStyle||{})}}>
         <span style={{overflow:"hidden",textOverflow:"ellipsis",color:cur?"#15233F":"#8A94A8"}}>{curLabel}</span>
-        <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
+        <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>\u25bc</span>
       </button>
-      {open && (
-        <div style={{position:"absolute",top:"calc(100% + 3px)",right:0,minWidth:"100%",maxWidth:"78vw",
-          background:"#FFFFFF",border:"1px solid #C8CEDB",borderRadius:6,
-          boxShadow:"0 6px 20px rgba(0,0,0,0.18)",zIndex:300,
-          maxHeight:260,overflowY:"auto",padding:"3px 0"}}>
+      {open && rect && (
+        <div ref={listRef} style={listStyle}>
           {options.map(o=>{
             const sel = o.value===value;
             return (
               <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
-                style={{padding:"7px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
+                style={{padding:"8px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
                   color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:sel?600:400}}>
                 {o.label}
               </div>
