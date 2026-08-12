@@ -342,16 +342,21 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
       setOpen(false);
     };
     const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    // v423: リスト内スクロールでは閉じない（発生元がlistRef内なら無視）。ページ側スクロール時のみ閉じる。
+    const onScroll = (e) => {
+      if (listRef.current && e.target instanceof Node && listRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("touchstart", onDown);
     document.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", close, true);
+    window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", close);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("touchstart", onDown);
       document.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", close);
     };
   }, [open]);
