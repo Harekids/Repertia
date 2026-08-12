@@ -366,7 +366,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
     const maxH = Math.min(260, Math.max(140, vh - rect.bottom - 12));
     const openUp = (vh - rect.bottom) < 180 && rect.top > (vh - rect.bottom);
     // v431: 狭いボックス(4分割グリッド等)でも中身が切れないよう幅を確保し、はみ出す場合だけ左をずらす。
-    const desiredW = Math.min(220, Math.max(rect.width, 140));
+    const desiredW = Math.min(170, Math.max(rect.width, 120)); // v432: 横広がりを抑える
     let left = rect.left;
     if (left + desiredW > vw - 8) left = Math.max(8, vw - 8 - desiredW);
     listStyle = {
