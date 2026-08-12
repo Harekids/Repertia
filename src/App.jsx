@@ -3522,7 +3522,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
             else { setNewEvent({...newEvent,type:v}); }
           }}
-          style={inpESel}>
+          style={{...inpESel, ...(isMobile?{width:"66%"}:{})}}>
           <option value="">ー</option>
           {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
           <option value="other">自由入力…</option>
