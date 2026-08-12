@@ -393,7 +393,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
             const sel = o.value===value;
             return (
               <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
-                style={{padding:"8px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
+                style={{padding:"6px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
                   color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:400}}>
                 {o.label}
               </div>
@@ -2948,7 +2948,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     other:        "自由入力",
   };
   //   v376: 種別セレクトの表示順（成長順）。otherは末尾＝「自由入力…」として特別扱い。
-  const EVENT_TYPE_ORDER = ["recital","concert","solo_recital","masterclass","audition","entrance_exam","exam","contest","intl_contest"];
+  // v424: 「国際コンクール(intl_contest)」を「コンクール(contest)」に統合。ORDERから外す（選択肢/フィルタから消える）。
+  //   国際/国内の境界は曖昧・序列を選ばせない（裁定しない）。国際判定は将来イベント名から自動分類（曲DB期）。
+  //   互換のためLABELS/色にintl_contestは残す（既存データ表示の保険）。既存type=="intl_contest"はcontestへ寄せる（migrate）。
+  const EVENT_TYPE_ORDER = ["recital","concert","solo_recital","masterclass","audition","entrance_exam","exam","contest"];
   //   互換ヘルパ：既存コードは EVENT_TYPES[type].color / .label を参照している。
   //   分離した3定義から、従来と同じ {label, color} を組み立てて返す（既存表示を壊さない）。
   const EVENT_TYPES = Object.fromEntries(
@@ -4385,7 +4388,11 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         .select('data')
         .eq('user_id', user.id)
         .single();
-      if (data?.data) setEvents(data.data);
+      if (data?.data) {
+        // v424: 「国際コンクール(intl_contest)」を「コンクール(contest)」に統合。既存データを読込時に寄せる。
+        const migrated = data.data.map(e => e.type==="intl_contest" ? {...e, type:"contest"} : e);
+        setEvents(migrated);
+      }
     };
     loadEvents();
   }, [user.id]);
