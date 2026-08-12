@@ -384,7 +384,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
           height:h,padding:"0 8px",fontFamily:FONT,fontSize:12,borderRadius:4,
           width:"100%",boxSizing:"border-box",cursor:"pointer",whiteSpace:"nowrap",overflow:"hidden",
           ...(buttonStyle||{})}}>
-        <span style={{overflow:"hidden",textOverflow:"ellipsis",color:cur?"#15233F":"#8A94A8"}}>{curLabel}</span>
+        <span style={{overflow:"hidden",textOverflow:"ellipsis",color:(value===""||value==null)?"#8A94A8":"#15233F"}}>{curLabel}</span>
         <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
       </button>
       {open && rect && (
