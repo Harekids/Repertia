@@ -312,6 +312,51 @@ const useCloseOnOutsideClick = (isOpen, onClose) => {
   return ref;
 };
 
+// v420 B-Step1: 単一選択のアプリ製ドロップダウン共通部品（ネイティブ風・ふわっと出る）。
+//   props: value, onChange(v), options=[{value,label}], isMobile, placeholder, buttonStyle
+//   外クリック/Escで閉じる（useCloseOnOutsideClick流用）。選ぶと閉じて値反映。長い選択肢はmaxHeightでスクロール。
+const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle }) => {
+  const [open, setOpen] = React.useState(false);
+  const ref = useCloseOnOutsideClick(open, () => setOpen(false));
+  const cur = options.find(o => o.value === value);
+  const curLabel = cur ? cur.label : (placeholder!=null ? placeholder : "ー");
+  const bg = isMobile ? INPUT_BG : "#F4F6F9";
+  const h  = isMobile ? 26 : 25;
+  const wrapExtra = {};
+  if (buttonStyle && buttonStyle.flex) { wrapExtra.flex = buttonStyle.flex; wrapExtra.minWidth = 0; }
+  if (buttonStyle && buttonStyle.flexShrink != null) { wrapExtra.flexShrink = buttonStyle.flexShrink; }
+  return (
+    <div ref={ref} style={{position:"relative", ...wrapExtra}}>
+      <button type="button" onClick={()=>setOpen(o=>!o)}
+        style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,
+          background:bg,border:"1px solid #C8CEDB",color:"#15233F",
+          height:h,padding:"0 8px",fontFamily:FONT,fontSize:12,borderRadius:4,
+          width:"100%",boxSizing:"border-box",cursor:"pointer",whiteSpace:"nowrap",overflow:"hidden",
+          ...(buttonStyle||{})}}>
+        <span style={{overflow:"hidden",textOverflow:"ellipsis",color:cur?"#15233F":"#8A94A8"}}>{curLabel}</span>
+        <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
+      </button>
+      {open && (
+        <div style={{position:"absolute",top:"calc(100% + 3px)",right:0,minWidth:"100%",maxWidth:"78vw",
+          background:"#FFFFFF",border:"1px solid #C8CEDB",borderRadius:6,
+          boxShadow:"0 6px 20px rgba(0,0,0,0.18)",zIndex:300,
+          maxHeight:260,overflowY:"auto",padding:"3px 0"}}>
+          {options.map(o=>{
+            const sel = o.value===value;
+            return (
+              <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
+                style={{padding:"7px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
+                  color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:sel?600:400}}>
+                {o.label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const DotRating = ({ value, max=5, color }) => (
   <span style={{ letterSpacing:1, fontSize:11 }}>
     {Array.from({length:max}).map((_,i)=>(
@@ -3171,15 +3216,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       </div>
       {/* v405 A仕上げ: ①「すべての種別」にも件数（現タブ総数）②種別名と件数の間を全角1文字あける
            ③件数は現タブ(History/Upcoming)内だけで集計（evTypeCount）。タブ切替で件数が変わる。 */}
-      <select value={evTypeFilter} onChange={e=>setEvTypeFilter(e.target.value)}
-        style={{background:isMobile?INPUT_BG:"#F4F6F9",border:"1px solid #C8CEDB",color:"#8A94A8",padding:"0 8px",height:isMobile?26:25,boxSizing:"border-box",fontFamily:FONT,fontSize:12,borderRadius:4,...(isMobile?{flexShrink:0}:{flex:"0.8 1 0%",minWidth:0})}}>
-        <option value="">{"すべての種別　"}{evTypeCount("")}</option>
-        {EVENT_TYPE_ORDER.map(k=>(
-          <option key={k} value={k}>{EVENT_TYPE_LABELS[k]}{"　"}{evTypeCount(k)}</option>
-        ))}
-        <option value="other">{"自由入力　"}{evTypeCount("other")}</option>
-        <option value="__none__">{"未設定　"}{evTypeCount("__none__")}</option>
-      </select>
+      {/* v420 B-Step1: 種別フィルタをアプリ製Dropdownに試験導入（ネイティブselectから差し替え）。
+           options=件数付きラベル（現タブ集計 evTypeCount）。PC=flex0.8/スマホ=flexShrink0で従来幅を踏襲。
+           他7箇所のnative selectは温存（次段階）。戻す時はこのブロックを元のselectへ。 */}
+      <Dropdown isMobile={isMobile} value={evTypeFilter} onChange={setEvTypeFilter}
+        placeholder={"すべての種別"}
+        buttonStyle={isMobile?{flexShrink:0}:{flex:"0.8 1 0%"}}
+        options={[
+          {value:"", label:"すべての種別　"+evTypeCount("")},
+          ...EVENT_TYPE_ORDER.map(k=>({value:k, label:EVENT_TYPE_LABELS[k]+"　"+evTypeCount(k)})),
+          {value:"other", label:"自由入力　"+evTypeCount("other")},
+          {value:"__none__", label:"未設定　"+evTypeCount("__none__")},
+        ]}/>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT}}>{docSaveMsg}</span>}
       {/* v409b: 三線メニューの右端をイベントバー右端に揃える＋左右gapを検索↔種別と均等に。
            左paddingを0にしてgap(6)だけで間隔が決まるようにする（種別↔三線＝検索↔種別と同じ6）。 */}
