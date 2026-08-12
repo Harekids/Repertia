@@ -365,10 +365,12 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
     const vw = window.innerWidth, vh = window.innerHeight;
     const maxH = Math.min(260, Math.max(140, vh - rect.bottom - 12));
     const openUp = (vh - rect.bottom) < 180 && rect.top > (vh - rect.bottom);
-    const width = Math.max(rect.width, 150);
-    const right = Math.max(8, vw - rect.right);
+    // v431: 狭いボックス(4分割グリッド等)でも中身が切れないよう幅を確保し、はみ出す場合だけ左をずらす。
+    const desiredW = Math.min(220, Math.max(rect.width, 140));
+    let left = rect.left;
+    if (left + desiredW > vw - 8) left = Math.max(8, vw - 8 - desiredW);
     listStyle = {
-      position:"fixed", right: right, width: width, maxWidth: "78vw",
+      position:"fixed", left: left, width: desiredW, maxWidth: "92vw",
       background:"#FFFFFF", border:"1px solid #C8CEDB", borderRadius:6,
       boxShadow:"0 6px 20px rgba(0,0,0,0.18)", zIndex:1000,
       overflowY:"auto", padding:"3px 0",
@@ -1536,7 +1538,8 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           {/* v430 B-Step2①: 調性をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
                onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
           <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
-            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー" />
+            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
+            buttonStyle={{background:"white",height:32}} />
           {false && (
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
           )}
