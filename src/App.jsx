@@ -323,7 +323,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
   const btnRef = React.useRef(null);
   const listRef = React.useRef(null);
   const cur = options.find(o => o.value === value);
-  const curLabel = cur ? cur.label : (placeholder!=null ? placeholder : "\u30fc");
+  const curLabel = cur ? cur.label : (placeholder!=null ? placeholder : "ー");
   const bg = isMobile ? INPUT_BG : "#F4F6F9";
   const h  = isMobile ? 26 : 25;
   const wrapExtra = {};
@@ -380,7 +380,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
           width:"100%",boxSizing:"border-box",cursor:"pointer",whiteSpace:"nowrap",overflow:"hidden",
           ...(buttonStyle||{})}}>
         <span style={{overflow:"hidden",textOverflow:"ellipsis",color:cur?"#15233F":"#8A94A8"}}>{curLabel}</span>
-        <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>\u25bc</span>
+        <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
       </button>
       {open && rect && (
         <div ref={listRef} style={listStyle}>
@@ -389,7 +389,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
             return (
               <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
                 style={{padding:"8px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
-                  color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:sel?600:400}}>
+                  color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:400}}>
                 {o.label}
               </div>
             );
