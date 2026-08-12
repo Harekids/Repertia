@@ -3537,6 +3537,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             value={newEvent.otherLabel||""}
             onCompositionStart={()=>{typeComposingRef.current=true;}}
             onCompositionEnd={e=>{typeComposingRef.current=false; setNewEvent({...newEvent,otherLabel:e.target.value});}}
+            onKeyDown={e=>{
+              // v428: 「自由入力…」選択直後はotherLabelが最初から空。空のままBackspace/Deleteでは
+              //   onChangeが発火せず「全消し＝selectへ戻る」が動かない。空+非変換中でBackspace/Deleteなら戻す。
+              if(typeComposingRef.current) return;
+              if((e.key==="Backspace"||e.key==="Delete") && !(newEvent.otherLabel||"")){
+                setNewEvent({...newEvent,type:"",otherLabel:""});
+              }
+            }}
             onChange={e=>{
               const v=e.target.value;
               // 変換中は空でも戻さない（確定の瞬間の空発火で消えるのを防ぐ）。値だけ反映。
