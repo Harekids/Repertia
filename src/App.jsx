@@ -365,8 +365,10 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
     const vw = window.innerWidth, vh = window.innerHeight;
     const maxH = Math.min(260, Math.max(140, vh - rect.bottom - 12));
     const openUp = (vh - rect.bottom) < 180 && rect.top > (vh - rect.bottom);
-    // v431: 狭いボックス(4分割グリッド等)でも中身が切れないよう幅を確保し、はみ出す場合だけ左をずらす。
-    const desiredW = Math.min(170, Math.max(rect.width, 120)); // v432: 横広がりを抑える
+    // v442 幅原則（全Dropdown共通）: 開いた一覧の幅＝閉じたボタンの幅に合わせる（上限170は維持、下限120は撤廃）。
+    //   一覧だけ広がる/狭いのを避け、ボタン幅にそろえる。⑦種別の「一覧を幅2/3に」もこの原則で自動解決の見込み。
+    //   旧: const desiredW = Math.min(170, Math.max(rect.width, 120)); // v432: 横広がりを抑える（下限120で狭枠でも一覧を確保していた）
+    const desiredW = Math.min(170, rect.width); // v442: ボタン幅そのものに合わせる（上限170のみ）
     let left = rect.left;
     if (left + desiredW > vw - 8) left = Math.max(8, vw - 8 - desiredW);
     listStyle = {
