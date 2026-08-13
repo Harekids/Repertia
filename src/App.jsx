@@ -389,7 +389,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
         <span style={{overflow:"hidden",textOverflow:"ellipsis",color:(value===""||value==null)?"#8A94A8":"#15233F"}}>{curLabel}</span>
         <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
       </button>
-      {open && rect && (
+      {open && rect && createPortal((
         <div ref={listRef} className="dd-scroll" style={listStyle}>
           {options.map(o=>{
             const sel = o.value===value;
@@ -402,7 +402,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
             );
           })}
         </div>
-      )}
+      ), document.body)}
     </div>
   );
 };
