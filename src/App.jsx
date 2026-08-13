@@ -3334,15 +3334,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       {/* v420 B-Step1: 種別フィルタをアプリ製Dropdownに試験導入（ネイティブselectから差し替え）。
            options=件数付きラベル（現タブ集計 evTypeCount）。PC=flex0.8/スマホ=flexShrink0で従来幅を踏襲。
            他7箇所のnative selectは温存（次段階）。戻す時はこのブロックを元のselectへ。 */}
+      {/* v448 H: PC=幅を広げてminWidth確保（すべての種別　NN が窮屈にならない）。スマホ=種別名と件数の区切りを
+           全角→半角に詰めてギリギリ切れを回避。区切り文字sepをisMobileで出し分け（PCは全角維持）。
+           幅原則v443により一覧＝ボタン幅なので一覧も自動追従。 */}
       <Dropdown isMobile={isMobile} value={evTypeFilter} onChange={setEvTypeFilter}
         placeholder={"すべての種別"}
-        buttonStyle={isMobile?{flexShrink:0}:{flex:"0.8 1 0%"}}
-        options={[
-          {value:"", label:"すべての種別　"+evTypeCount("")},
-          ...EVENT_TYPE_ORDER.map(k=>({value:k, label:EVENT_TYPE_LABELS[k]+"　"+evTypeCount(k)})),
-          {value:"other", label:"自由入力　"+evTypeCount("other")},
-          {value:"__none__", label:"未設定　"+evTypeCount("__none__")},
-        ]}/>
+        buttonStyle={isMobile?{flexShrink:0}:{flex:"1 1 0%",minWidth:150}}
+        options={(()=>{ const sep = isMobile ? " " : "　"; return [
+          {value:"", label:"すべての種別"+sep+evTypeCount("")},
+          ...EVENT_TYPE_ORDER.map(k=>({value:k, label:EVENT_TYPE_LABELS[k]+sep+evTypeCount(k)})),
+          {value:"other", label:"自由入力"+sep+evTypeCount("other")},
+          {value:"__none__", label:"未設定"+sep+evTypeCount("__none__")},
+        ]; })()}/>
       {docSaveMsg && <span style={{fontSize:12,color:"#2A7A3A",fontFamily:FONT}}>{docSaveMsg}</span>}
       {/* v409b: 三線メニューの右端をイベントバー右端に揃える＋左右gapを検索↔種別と均等に。
            左paddingを0にしてgap(6)だけで間隔が決まるようにする（種別↔三線＝検索↔種別と同じ6）。 */}
