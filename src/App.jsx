@@ -1977,7 +1977,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",marginRight:-8}}>{idx===0?"学歴":""}</div>
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
                   {/* v441 B-Step2⑥: 学歴statusをアプリ製Dropdownに差し替え（旧selectは温存）。
@@ -2006,12 +2006,12 @@ const PrintPage = (props) => {
                 </div>
               ))}
               <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <div style={{width:130,flexShrink:0}}/>
+                <div style={{width:130,flexShrink:0,marginRight:-8}}/>
                 {addBtn("学歴を追加",()=>addListItem("educations",{period:"",school:"",status:""}))}
               </div>
               {(profile.teachers||[]).map((t,idx)=>(
                 <div key={t.id} style={{display:"flex",alignItems:"center",gap:8,marginTop:idx===0?10:0,flexWrap:"wrap"}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"師事者":""}</div>
+                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",marginRight:-8}}>{idx===0?"師事者":""}</div>
                   <input value={t.period||""} onChange={e=>updateListItem("teachers",t.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={t.name} onChange={e=>updateListItem("teachers",t.id,{name:e.target.value})} placeholder="師事者名" style={{...inpS,flex:1}}/>
                   <input value={t.note||""} onChange={e=>updateListItem("teachers",t.id,{note:e.target.value})} placeholder="備考" style={{...inpS,flex:2}}/>
@@ -2019,7 +2019,7 @@ const PrintPage = (props) => {
                 </div>
               ))}
               <div style={{display:"flex",alignItems:"center",gap:6}}>
-                <div style={{width:130,flexShrink:0}}/>
+                <div style={{width:130,flexShrink:0,marginRight:-6}}/>
                 {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
               </div>
             </div>
