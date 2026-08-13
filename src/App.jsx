@@ -377,7 +377,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
       position:"fixed", left: left, width: desiredW, maxWidth: "92vw",
       background:"#FFFFFF", border:"1px solid #C8CEDB", borderRadius:6,
       boxShadow:"0 6px 20px rgba(0,0,0,0.18)", zIndex:1000,
-      overflowY:"auto", padding:"3px 0",
+      overflowY:"auto", padding:"3px 8px 3px 0", // v447: right 8px separates scrollbar from text (counts)
     };
     if (openUp) { listStyle.bottom = (vh - rect.top + 4); listStyle.maxHeight = Math.min(260, rect.top - 12); }
     else { listStyle.top = (rect.bottom + 4); listStyle.maxHeight = maxH; }
@@ -401,7 +401,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
               <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
                 onMouseEnter={e=>{ if(!sel) e.currentTarget.style.background="#F4F6F9"; }}
                 onMouseLeave={e=>{ if(!sel) e.currentTarget.style.background="transparent"; }}
-                style={{padding:"6px 16px 6px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
+                style={{padding:"6px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
                   color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:400}}>
                 {o.label}
               </div>
