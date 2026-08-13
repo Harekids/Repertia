@@ -3339,7 +3339,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
            幅原則v443により一覧＝ボタン幅なので一覧も自動追従。 */}
       <Dropdown isMobile={isMobile} value={evTypeFilter} onChange={setEvTypeFilter}
         placeholder={"すべての種別"}
-        buttonStyle={isMobile?{flexShrink:0}:{flex:"1 1 0%",minWidth:150}}
+        buttonStyle={isMobile?{flexShrink:0}:{width:180,flexShrink:0}}
         options={(()=>{ const sep = isMobile ? " " : "　"; return [
           {value:"", label:"すべての種別"+sep+evTypeCount("")},
           ...EVENT_TYPE_ORDER.map(k=>({value:k, label:EVENT_TYPE_LABELS[k]+sep+evTypeCount(k)})),
