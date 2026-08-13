@@ -3581,6 +3581,23 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const fldType = (
     <div>{fldLabel("種別")}
       {newEvent.type!=="other" ? (
+        <React.Fragment>
+        {/* v445 B-Step2⑦: 種別のネイティブselectをアプリ製Dropdownに差し替え（旧selectは温存）。
+             並び=ー/定型10種/自由入力…（末尾）を維持。「自由入力…」選択でtype:"other"→下のテキスト入力に変身。
+             幅は幅原則v443により一覧＝ボタン幅。背景#F4F6F9・高さFLD_H(28)。onChangeは値そのものが来る。 */}
+        <Dropdown isMobile={isMobile} value={newEvent.type}
+          onChange={v=>{
+            if(v==="other"){ setNewEvent({...newEvent,type:"other",otherLabel:""}); }
+            else { setNewEvent({...newEvent,type:v}); }
+          }}
+          options={[
+            {value:"", label:"ー"},
+            ...EVENT_TYPE_ORDER.map(k=>({value:k, label:EVENT_TYPE_LABELS[k]})),
+            {value:"other", label:"自由入力…"},
+          ]}
+          placeholder="ー"
+          buttonStyle={{background:"#F4F6F9",height:FLD_H}} />
+        {false && (
         <select value={newEvent.type}
           onChange={e=>{
             const v=e.target.value;
@@ -3592,6 +3609,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           {EVENT_TYPE_ORDER.map(k=>(<option key={k} value={k}>{EVENT_TYPE_LABELS[k]}</option>))}
           <option value="other">自由入力…</option>
         </select>
+        )}
+        </React.Fragment>
       ) : (
         <div style={{display:"flex",alignItems:"center",gap:4}}>
           {/* v407: ↩ボタン廃止。自由入力の文字を全部消したら自動でドロップダウン(select)へ戻る。
