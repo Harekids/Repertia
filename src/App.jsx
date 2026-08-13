@@ -1547,7 +1547,14 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
+          {/* v435 B-Step2②: 時代をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
+               onChangeで値+eraEdited(手動選択フラグ)を立てる。基準：高さ30/フォント12/白背景。 */}
+          <Dropdown isMobile={isMobile} value={piece.era||""} onChange={v=>{setPiece({...piece,era:v}); setEraEdited(true);}}
+            options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
+            placeholder="ー" buttonStyle={{background:"white",height:30}} />
+          {false && (
           <select value={piece.era||""} onChange={e=>{setPiece({...piece,era:e.target.value}); setEraEdited(true);}} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}><option value="">ー</option>{ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}</select>
+          )}
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲年</div>
