@@ -1975,6 +1975,19 @@ const PrintPage = (props) => {
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{idx===0?"学歴":""}</div>
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
+                  {/* v441 B-Step2⑥: 学歴statusをアプリ製Dropdownに差し替え（旧selectは温存）。
+                       周辺(period/school)と同じ#F4F6F9・80px枠。各行ed.idで独立開閉。onChangeは値そのものが来る。 */}
+                  <Dropdown isMobile={isMobile} value={ed.status||""} onChange={v=>updateListItem("educations",ed.id,{status:v})}
+                    options={[
+                      {value:"", label:"ー"},
+                      {value:"入学", label:"入学"},
+                      {value:"在学中", label:"在学中"},
+                      {value:"在籍中", label:"在籍中"},
+                      {value:"卒業", label:"卒業"},
+                      {value:"修了", label:"修了"},
+                    ]}
+                    placeholder="ー" buttonStyle={{flex:"0 0 80px",background:"#F4F6F9",height:30}} />
+                  {false && (
                   <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
                     <option value="">ー</option>
                     <option value="入学">入学</option>
@@ -1983,6 +1996,7 @@ const PrintPage = (props) => {
                     <option value="卒業">卒業</option>
                     <option value="修了">修了</option>
                   </select>
+                  )}
                   <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>×</button>
                 </div>
               ))}
