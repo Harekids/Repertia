@@ -401,7 +401,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
               <div key={o.value} onClick={()=>{ onChange(o.value); setOpen(false); }}
                 onMouseEnter={e=>{ if(!sel) e.currentTarget.style.background="#F4F6F9"; }}
                 onMouseLeave={e=>{ if(!sel) e.currentTarget.style.background="transparent"; }}
-                style={{padding:"6px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
+                style={{padding:"6px 16px 6px 12px",fontFamily:FONT,fontSize:12,cursor:"pointer",whiteSpace:"nowrap",
                   color:sel?"#15233F":"#3A4A66",background:sel?"#EEF2F8":"transparent",fontWeight:400}}>
                 {o.label}
               </div>
