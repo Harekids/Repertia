@@ -2658,16 +2658,30 @@ const ManagePage = (props) => {
           <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:10,alignItems:"end"}}>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>調性</div>
+              {/* v439 B-Step2④: 検索(調性)をアプリ製Dropdownに差し替え（旧selectは温存）。
+                   検索は薄グレー地#F4F6F9・高さ26/25。「ー」=空文字=フィルタ解除の癖を維持。 */}
+              <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
+                options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
+                buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
+              {false && (
               <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
               </select>
+              )}
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>時代</div>
+              {/* v439 B-Step2⑤: 検索(時代)をアプリ製Dropdownに差し替え（旧selectは温存）。
+                   検索は薄グレー地#F4F6F9・高さ26/25。contemporary除外を維持。先頭「ー」=解除。 */}
+              <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
+                options={[{value:"",label:"ー"}, ...ERA_ORDER.filter(k=>k!=="contemporary").map(k=>({value:k, label:ERAS[k].label}))]}
+                placeholder="ー" buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
+              {false && (
               <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 <option value="">ー</option>
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
+              )}
             </div>
             <div style={{gridColumn:"span 2"}}>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲年</div>
