@@ -2301,8 +2301,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
   const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
   const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
-  // v441: isMobile定義はPrintPage先頭(1641)へ移動。ここは重複のためコメントアウト（旧v342: スマホは操作列をエラバー幅いっぱいに）。
-  // const isMobile = useIsMobile(640);
+  const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）※v441で一時誤削除→復活。これはFilterBar自身の定義でPrintPageとは別スコープ。
   const SORT_OPTS = [["composer","作曲家"],["year","作曲年"],["duration","演奏時間"]];
   return (
     <div style={{background:"transparent",flexShrink:0,width:isMobile?"100%":"auto"}}>
