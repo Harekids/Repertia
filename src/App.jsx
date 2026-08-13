@@ -832,11 +832,18 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={fLabel}>時代</div>
                   {/* v401 案B: romantic固定を廃止。作曲年からの自動補完(eraFromYear)に任せる。
                        未編集・era空のときは「ー」を表示＝作曲年入力で埋まる。手で選べば上書き。 */}
+                  {/* v436 B-Step2③: 曲編集の時代をDropdown化（AddPieceと統一）。onChangeでsetEraEditedDraft(true)維持。 */}
+                  <Dropdown isMobile={isMobile} value={draft.era||""}
+                    onChange={v=>{setDraft({...draft,era:v}); setEraEditedDraft(true);}}
+                    options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
+                    placeholder="ー" buttonStyle={{background:"white",height:30}} />
+                  {false && (
                   <select value={draft.era||""} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={fInput}>
                     <option value="">ー</option>
                     {ERA_ORDER.map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
                   </select>
+                  )}
                 </div>
                 <div>
                   <div style={fLabel}>作曲年</div>
@@ -846,8 +853,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 <div>
                   <div style={fLabel}>調性</div>
+                  {/* v436 B-Step2③: 曲編集の調性をKEYS Dropdownに統一（旧テキストinputは温存）。表記ゆれ防止。 */}
+                  <Dropdown isMobile={isMobile} value={draft.key||""} onChange={v=>setDraft({...draft,key:v})}
+                    options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
+                    buttonStyle={{background:"white",height:30}} />
+                  {false && (
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={fInput} />
+                  )}
                 </div>
                 <div>
                   <div style={fLabel}>演奏時間</div>
