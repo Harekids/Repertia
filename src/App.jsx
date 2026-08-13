@@ -367,8 +367,10 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
     const openUp = (vh - rect.bottom) < 180 && rect.top > (vh - rect.bottom);
     // v442 幅原則（全Dropdown共通）: 開いた一覧の幅＝閉じたボタンの幅に合わせる（上限170は維持、下限120は撤廃）。
     //   一覧だけ広がる/狭いのを避け、ボタン幅にそろえる。⑦種別の「一覧を幅2/3に」もこの原則で自動解決の見込み。
-    //   旧: const desiredW = Math.min(170, Math.max(rect.width, 120)); // v432: 横広がりを抑える（下限120で狭枠でも一覧を確保していた）
-    const desiredW = Math.min(170, rect.width); // v442: ボタン幅そのものに合わせる（上限170のみ）
+    //   旧v432: const desiredW = Math.min(170, Math.max(rect.width, 120)); // 下限120で狭枠でも一覧を確保していた
+    //   旧v442: const desiredW = Math.min(170, rect.width); // 上限170が残り、細いボタンでは一覧だけ広くなった（実機で判明）
+    // v443 幅原則の完全化: 上限170も撤廃し、一覧幅＝ボタン幅(rect.width)に完全一致させる。狭さは各buttonStyleの幅で制御する方針。
+    const desiredW = rect.width; // v443: 一覧＝ボタン幅ぴったり
     let left = rect.left;
     if (left + desiredW > vw - 8) left = Math.max(8, vw - 8 - desiredW);
     listStyle = {
