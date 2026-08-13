@@ -2671,10 +2671,10 @@ const ManagePage = (props) => {
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>時代</div>
-              {/* v439 B-Step2⑤: 検索(時代)をアプリ製Dropdownに差し替え（旧selectは温存）。
-                   検索は薄グレー地#F4F6F9・高さ26/25。contemporary除外を維持。先頭「ー」=解除。 */}
+              {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。登録では選べるのに検索で絞れない不整合を解消。
+                   バロック〜現代の5時代すべて検索可。検索は薄グレー地#F4F6F9・高さ26/25。先頭「ー」=解除。 */}
               <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
-                options={[{value:"",label:"ー"}, ...ERA_ORDER.filter(k=>k!=="contemporary").map(k=>({value:k, label:ERAS[k].label}))]}
+                options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
                 placeholder="ー" buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
               {false && (
               <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
