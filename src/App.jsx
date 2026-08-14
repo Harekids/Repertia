@@ -1542,7 +1542,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>作曲家</div>
           <div style={{position:"relative"}}>
             <input value={piece.composer} onChange={e=>onComposerChange(e.target.value)}
-              placeholder="作曲家名（例：F.Chopin）" autoComplete="off"
+              placeholder="ー" autoComplete="off"
               style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box",borderColor:composerDoubt?"#D96B6B":"#C8CEDB"}} />
             {composerLocked && !composerDoubt && <span style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",fontSize:12,color:"#6B9AC4"}}>✓</span>}
             {composerDoubt && <span style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",fontSize:15,color:"#C0392B",fontWeight:500}}>!</span>}
@@ -1580,7 +1580,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>曲名</div>
           <div style={{position:"relative"}}>
             <input value={piece.title} onChange={e=>onTitleChange(e.target.value)}
-              placeholder={piece.composer?piece.composer+"の曲を検索…":"曲名を入力…"}
+              placeholder="ー"
               autoComplete="off" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             {sugLoading && <div style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",fontSize:10,color:"#6B7A90",fontFamily:FONT}}>検索中…</div>}
             {suggestions.length>0 && (
@@ -1603,19 +1603,8 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
         </div>
       </div>
 
-      {/* 2行目: 調性・時代・作曲年・演奏時間（v270: 均等4分割） */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
-        <div>
-          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
-          {/* v430 B-Step2①: 調性をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
-               onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
-          <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
-            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
-            buttonStyle={{background:"white",height:30}} />
-          {false && (
-          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
-          )}
-        </div>
+      {/* 2行目: v462 A 並び順「時代・作曲年・調性・演奏時間」に。PC=4列均等のまま(折り返さない)／スマホ=1:2の2列で2行折返し(時代・作曲年/調性・演奏時間)。 */}
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 2fr":"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
         <div>
           {/* v270: 時代を表示・編集可に（保存ロジックはv271。現状はeraFromYearの結果が保存される） */}
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>時代</div>
@@ -1635,8 +1624,19 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                自動補完は候補選択時にyearTextへ年を入れる(1293)ので表示は保たれる。 */}
           <input value={piece.yearText||""}
             onChange={e=>setPiece({...piece, yearText:e.target.value})}
-            placeholder="例: 1810 / 1815-1820 / 不明"
+            placeholder="ー"
             style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
+          {/* v430 B-Step2①: 調性をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
+               onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
+          <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
+            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
+            buttonStyle={{background:"white",height:30}} />
+          {false && (
+          <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
+          )}
         </div>
         <div>
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left",whiteSpace:"nowrap"}}>
@@ -1666,7 +1666,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                 setDurationEdited(true);
                 e.target.value=m+"分"+(s>0?(s+"秒"):"");
               }}
-              placeholder="例: 5分30秒 / 5:30 / 5"
+              placeholder="ー"
               style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}
             />
           </div>
