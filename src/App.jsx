@@ -2706,25 +2706,13 @@ const ManagePage = (props) => {
               <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div> */}
           </div>
-          {/* v270: 2行目 6分割 — 調性(1)・時代(1)・作曲年〜(2)・演奏時間〜(2)。難易度はv269でLv/Popを外したため除外 */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8,marginBottom:10,alignItems:"end"}}>
-            <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>調性</div>
-              {/* v439 B-Step2④: 検索(調性)をアプリ製Dropdownに差し替え（旧selectは温存）。
-                   検索は薄グレー地#F4F6F9・高さ26/25。「ー」=空文字=フィルタ解除の癖を維持。 */}
-              <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
-                options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
-                buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
-              {false && (
-              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
-                {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
-              </select>
-              )}
-            </div>
+          {/* v457 B(レイアウト): 2行目を「時代・作曲年・調性・演奏時間(推定)」順に。列比率1:2:1:2で2行目(作曲家1:曲名2)と縦ライン統一。
+               PC=4列1行 / スマホ=2列で2行折返し(時代・作曲年 / 調性・演奏時間)。左列=選ぶ系, 右列=入力系。
+               ※範囲入力の1ボックス化・ⓘ・パースは次バージョン(v458)。ここはレイアウトと並び替えと(推定)表記のみ。 */}
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 2fr":"1fr 2fr 1fr 2fr",gap:8,marginBottom:10,alignItems:"end"}}>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>時代</div>
-              {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。登録では選べるのに検索で絞れない不整合を解消。
-                   バロック〜現代の5時代すべて検索可。検索は薄グレー地#F4F6F9・高さ26/25。先頭「ー」=解除。 */}
+              {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。バロック〜現代の5時代すべて検索可。先頭「ー」=解除。 */}
               <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
                 options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
                 placeholder="ー" buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
@@ -2735,7 +2723,7 @@ const ManagePage = (props) => {
               </select>
               )}
             </div>
-            <div style={{gridColumn:"span 2"}}>
+            <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲年</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
@@ -2743,8 +2731,20 @@ const ManagePage = (props) => {
                 <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
             </div>
-            <div style={{gridColumn:"span 2"}}>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>演奏時間（分）</div>
+            <div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>調性</div>
+              {/* v439 B-Step2④: 検索(調性)。「ー」=空文字=フィルタ解除の癖を維持。 */}
+              <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
+                options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
+                buttonStyle={{background:"#F4F6F9",height:isMobile?26:25}} />
+              {false && (
+              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+                {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
+              </select>
+              )}
+            </div>
+            <div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>演奏時間（推定）</div>
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
