@@ -161,6 +161,7 @@ const parseRange = (raw) => {
 //   linesは表示する説明行の配列。isMobileでホバー/タップを出し分け。
 const InfoTip = ({ lines, isMobile }) => {
   const [open, setOpen] = React.useState(false);
+  const tipRef = useCloseOnOutsideClick(open, () => setOpen(false)); // v459: ⓘの外側を触ると閉じる（スマホのタップ時に再タップ不要に）
   const wrapStyle = { position: "relative", display: "inline-flex", marginLeft: 4, verticalAlign: "middle" };
   const markStyle = {
     display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -177,7 +178,7 @@ const InfoTip = ({ lines, isMobile }) => {
   const hoverProps = isMobile ? {} : { onMouseEnter: () => setOpen(true), onMouseLeave: () => setOpen(false) };
   const tapProps = isMobile ? { onClick: (e) => { e.stopPropagation(); setOpen(o => !o); } } : {};
   return (
-    <span style={wrapStyle} {...hoverProps}>
+    <span ref={tipRef} style={wrapStyle} {...hoverProps}>
       <span style={markStyle} {...tapProps}>i</span>
       {open && (
         <span style={popStyle}>
