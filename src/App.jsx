@@ -1734,7 +1734,7 @@ const PrintPage = (props) => {
     const teacherNames = (p.teachers||[]).map(t=>t.name).filter(Boolean);
     const teacherStr = teacherNames.length>0 ? (lang==="ja"?"これまでに、"+teacherNames.join("、")+"の各氏に師事。":"Studied with "+teacherNames.join(", ")+". ") : "";
     const eduList = (p.educations||[]).filter(e=>e.school);
-    const eduStr = eduList.length>0 ? (lang==="ja"?eduList.map(e=>e.school+(e.status||"")).join("、")+"。":eduList.map(e=>(e.status?e.status+", ":"")+e.school).join(", ")) : "";
+    const eduSt2=e=>e.status==="other"?(e.statusOther||""):(e.status||"");const eduStr = eduList.length>0 ? (lang==="ja"?eduList.map(e=>e.school+eduSt2(e)).join("、")+"。":eduList.map(e=>(eduSt2(e)?eduSt2(e)+", ":"")+e.school).join(", ")) : "";
     return [intro,middle,teacherStr+eduStr].filter(Boolean).join(String.fromCharCode(10));
   };
 
@@ -1883,7 +1883,7 @@ const PrintPage = (props) => {
                   }
                   if (bioCheck.education) {
                     const eduList = (p.educations||[]).filter(e=>e.school);
-                    if (eduList.length>0) lines.push("【学歴】"+String.fromCharCode(10)+eduList.map(e=>(e.period?e.period+" ":"")+e.school+(e.status||"")).join(String.fromCharCode(10)));
+                    if (eduList.length>0) lines.push("【学歴】"+String.fromCharCode(10)+eduList.map(e=>(e.period?e.period+" ":"")+e.school+(e.status==="other"?(e.statusOther||""):(e.status||""))).join(String.fromCharCode(10)));
                   }
                   if (bioCheck.teacher) {
                     const tNames = (p.teachers||[]).map(t=>t.name).filter(Boolean);
@@ -2022,7 +2022,7 @@ const PrintPage = (props) => {
                     }}
                     placeholder="状態を入力"
                     autoFocus
-                    style={{...inpS,flex:"0 0 80px",minWidth:0}}
+                    style={{...inpS,flex:"0 0 110px",minWidth:0}}
                   />
                   )}
                   {false && (
