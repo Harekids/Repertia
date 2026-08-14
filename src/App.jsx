@@ -3672,7 +3672,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               if(v===""){ setNewEvent({...newEvent,type:"",otherLabel:""}); }  // 変換中でない全消し＝選択へ戻る
               else { setNewEvent({...newEvent,otherLabel:v}); }
             }}
-            placeholder="種別を入力"
+            placeholder=""
             autoFocus
             style={{...inpEText,minWidth:0}}
           />
