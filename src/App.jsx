@@ -1631,8 +1631,10 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           <div style={{fontSize:10,color:"#A8B4C8",marginBottom:3,fontFamily:FONT,textAlign:"left"}}>調性</div>
           {/* v430 B-Step2①: 調性をアプリ製Dropdownに差し替え（ネイティブselectは下に温存）。
                onChangeは値そのものが来る（e.target.valueではない）。KEYS25項目・先頭「ー」も値=ラベル。 */}
-          <Dropdown isMobile={isMobile} value={piece.key} onChange={v=>setPiece({...piece,key:v})}
-            options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
+          {/* v463: 初期値key="ー"を表示上だけ空扱いにして薄い「ー」に（時代と揃える）。データは従来通り"ー"保存。
+               value: "ー"→""に変換して薄表示 ／ onChange: ""→"ー"に戻して保存（見た目だけの変更）。 */}
+          <Dropdown isMobile={isMobile} value={piece.key==="ー"?"":piece.key} onChange={v=>setPiece({...piece,key:v===""?"ー":v})}
+            options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
             buttonStyle={{background:"white",height:30}} />
           {false && (
           <select value={piece.key} onChange={e=>setPiece({...piece,key:e.target.value})} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%"}}>{KEYS.map(k=><option key={k} value={k}>{k}</option>)}</select>
@@ -1645,7 +1647,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
           </div>
           <div style={{position:"relative"}}>
             <input
-              defaultValue={(piece.duration||0)+"分"+(piece.durationSecs>0?(piece.durationSecs+"秒"):"")}
+              defaultValue={((piece.duration||0)===0 && (piece.durationSecs||0)===0) ? "" : ((piece.duration||0)+"分"+(piece.durationSecs>0?(piece.durationSecs+"秒"):""))}
               key={piece.title}
               onFocus={e=>e.target.select()}
               onBlur={e=>{
