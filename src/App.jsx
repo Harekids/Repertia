@@ -2020,9 +2020,9 @@ const PrintPage = (props) => {
                       if(v===""){ updateListItem("educations",ed.id,{status:"",statusOther:""}); }  // 非変換中の全消し＝Dropdownへ戻る
                       else { updateListItem("educations",ed.id,{statusOther:v}); }
                     }}
-                    placeholder="状態を入力"
+                    placeholder=""
                     autoFocus
-                    style={{...inpS,flex:"0 0 110px",minWidth:0}}
+                    style={{...inpS,flex:"0 0 80px",minWidth:0}}
                   />
                   )}
                   {false && (
