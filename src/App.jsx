@@ -135,6 +135,58 @@ const ERA_ORDER = ["baroque","classical","romantic","modern","contemporary"];
 const COUNTRIES = ["ドイツ","オーストリア","フランス","ポーランド","ロシア","イタリア","スペイン","ノルウェー","フィンランド","ハンガリー","チェコ","アメリカ","日本","その他"];
 const COUNTRY_LIST = [{ja:"日本",en:"Japan"},{ja:"アメリカ合衆国",en:"United States"},{ja:"イギリス",en:"United Kingdom"},{ja:"ドイツ",en:"Germany"},{ja:"フランス",en:"France"},{ja:"イタリア",en:"Italy"},{ja:"スペイン",en:"Spain"},{ja:"オーストリア",en:"Austria"},{ja:"スイス",en:"Switzerland"},{ja:"オランダ",en:"Netherlands"},{ja:"ベルギー",en:"Belgium"},{ja:"ポーランド",en:"Poland"},{ja:"ロシア",en:"Russia"},{ja:"ウクライナ",en:"Ukraine"},{ja:"チェコ",en:"Czech Republic"},{ja:"スロバキア",en:"Slovakia"},{ja:"ハンガリー",en:"Hungary"},{ja:"ルーマニア",en:"Romania"},{ja:"ブルガリア",en:"Bulgaria"},{ja:"ギリシャ",en:"Greece"},{ja:"ポルトガル",en:"Portugal"},{ja:"デンマーク",en:"Denmark"},{ja:"スウェーデン",en:"Sweden"},{ja:"ノルウェー",en:"Norway"},{ja:"フィンランド",en:"Finland"},{ja:"アイスランド",en:"Iceland"},{ja:"アイルランド",en:"Ireland"},{ja:"クロアチア",en:"Croatia"},{ja:"セルビア",en:"Serbia"},{ja:"スロベニア",en:"Slovenia"},{ja:"エストニア",en:"Estonia"},{ja:"ラトビア",en:"Latvia"},{ja:"リトアニア",en:"Lithuania"},{ja:"ルクセンブルク",en:"Luxembourg"},{ja:"モナコ",en:"Monaco"},{ja:"リヒテンシュタイン",en:"Liechtenstein"},{ja:"マルタ",en:"Malta"},{ja:"キプロス",en:"Cyprus"},{ja:"アルバニア",en:"Albania"},{ja:"北マケドニア",en:"North Macedonia"},{ja:"ボスニア・ヘルツェゴビナ",en:"Bosnia and Herzegovina"},{ja:"モンテネグロ",en:"Montenegro"},{ja:"モルドバ",en:"Moldova"},{ja:"ベラルーシ",en:"Belarus"},{ja:"アンドラ",en:"Andorra"},{ja:"サンマリノ",en:"San Marino"},{ja:"バチカン市国",en:"Vatican City"},{ja:"中国",en:"China"},{ja:"韓国",en:"South Korea"},{ja:"北朝鮮",en:"North Korea"},{ja:"台湾",en:"Taiwan"},{ja:"香港",en:"Hong Kong"},{ja:"モンゴル",en:"Mongolia"},{ja:"インド",en:"India"},{ja:"パキスタン",en:"Pakistan"},{ja:"バングラデシュ",en:"Bangladesh"},{ja:"スリランカ",en:"Sri Lanka"},{ja:"ネパール",en:"Nepal"},{ja:"タイ",en:"Thailand"},{ja:"ベトナム",en:"Vietnam"},{ja:"フィリピン",en:"Philippines"},{ja:"インドネシア",en:"Indonesia"},{ja:"マレーシア",en:"Malaysia"},{ja:"シンガポール",en:"Singapore"},{ja:"ミャンマー",en:"Myanmar"},{ja:"カンボジア",en:"Cambodia"},{ja:"ラオス",en:"Laos"},{ja:"ブルネイ",en:"Brunei"},{ja:"カザフスタン",en:"Kazakhstan"},{ja:"ウズベキスタン",en:"Uzbekistan"},{ja:"アゼルバイジャン",en:"Azerbaijan"},{ja:"ジョージア",en:"Georgia"},{ja:"アルメニア",en:"Armenia"},{ja:"トルコ",en:"Turkey"},{ja:"イスラエル",en:"Israel"},{ja:"サウジアラビア",en:"Saudi Arabia"},{ja:"アラブ首長国連邦",en:"United Arab Emirates"},{ja:"イラン",en:"Iran"},{ja:"イラク",en:"Iraq"},{ja:"ヨルダン",en:"Jordan"},{ja:"レバノン",en:"Lebanon"},{ja:"シリア",en:"Syria"},{ja:"クウェート",en:"Kuwait"},{ja:"カタール",en:"Qatar"},{ja:"バーレーン",en:"Bahrain"},{ja:"オマーン",en:"Oman"},{ja:"イエメン",en:"Yemen"},{ja:"エジプト",en:"Egypt"},{ja:"モロッコ",en:"Morocco"},{ja:"アルジェリア",en:"Algeria"},{ja:"チュニジア",en:"Tunisia"},{ja:"リビア",en:"Libya"},{ja:"スーダン",en:"Sudan"},{ja:"エチオピア",en:"Ethiopia"},{ja:"ケニア",en:"Kenya"},{ja:"タンザニア",en:"Tanzania"},{ja:"ウガンダ",en:"Uganda"},{ja:"ナイジェリア",en:"Nigeria"},{ja:"ガーナ",en:"Ghana"},{ja:"南アフリカ",en:"South Africa"},{ja:"ジンバブエ",en:"Zimbabwe"},{ja:"ザンビア",en:"Zambia"},{ja:"セネガル",en:"Senegal"},{ja:"コートジボワール",en:"Ivory Coast"},{ja:"カメルーン",en:"Cameroon"},{ja:"コンゴ民主共和国",en:"DR Congo"},{ja:"アンゴラ",en:"Angola"},{ja:"モザンビーク",en:"Mozambique"},{ja:"マダガスカル",en:"Madagascar"},{ja:"ルワンダ",en:"Rwanda"},{ja:"ボツワナ",en:"Botswana"},{ja:"ナミビア",en:"Namibia"},{ja:"モーリシャス",en:"Mauritius"},{ja:"カナダ",en:"Canada"},{ja:"メキシコ",en:"Mexico"},{ja:"グアテマラ",en:"Guatemala"},{ja:"コスタリカ",en:"Costa Rica"},{ja:"パナマ",en:"Panama"},{ja:"キューバ",en:"Cuba"},{ja:"ジャマイカ",en:"Jamaica"},{ja:"ドミニカ共和国",en:"Dominican Republic"},{ja:"ブラジル",en:"Brazil"},{ja:"アルゼンチン",en:"Argentina"},{ja:"チリ",en:"Chile"},{ja:"ペルー",en:"Peru"},{ja:"コロンビア",en:"Colombia"},{ja:"ベネズエラ",en:"Venezuela"},{ja:"エクアドル",en:"Ecuador"},{ja:"ボリビア",en:"Bolivia"},{ja:"パラグアイ",en:"Paraguay"},{ja:"ウルグアイ",en:"Uruguay"},{ja:"オーストラリア",en:"Australia"},{ja:"ニュージーランド",en:"New Zealand"},{ja:"フィジー",en:"Fiji"}];
 const KEYS = ["ー","ハ長調","ニ長調","ホ長調","ヘ長調","ト長調","イ長調","ロ長調","変ロ長調","変ホ長調","変イ長調","変ニ長調","嬰ヘ長調","イ短調","ロ短調","ハ短調","ニ短調","ホ短調","ヘ短調","ト短調","嬰ト短調","変ロ短調","嬰ハ短調","嬰ヘ短調","変ホ短調"];
+
+// v458 検索の1ボックス範囲入力パーサ（作曲年・演奏時間 共通）。
+//   "N"→min=max=N一致 ／ "A-B"→A以上B以下 ／ "A-"→A以上 ／ "-B"→B以下 ／ ""→解除(両方空)。
+//   区切りは半角 - を基本に、全角 − ・波ダッシュ 〜 ・チルダ ~ を受理して内部正規化。
+//   裁定しない：5-5 や 3-5(逆転)等の変則入力も素直に解釈した結果を返すのみ（禁止・警告なし）。
+//   返り値 {min, max} は文字列（空文字＝指定なし）。既存のmin/maxロジックにそのまま渡せる形。
+const parseRange = (raw) => {
+  if (raw == null) return { min: "", max: "" };
+  let s = String(raw).trim()
+    .replace(/[\u2212\uFF0D]/g, "-")
+    .replace(/[\u301C\uFF5E~]/g, "-");
+  if (s === "") return { min: "", max: "" };
+  if (s.indexOf("-") === -1) {
+    return { min: s, max: s };
+  }
+  const i = s.indexOf("-");
+  const a = s.slice(0, i).trim();
+  const b = s.slice(i + 1).trim();
+  return { min: a, max: b };
+};
+
+// v458 ⓘ 書き方ガイドの共通部品。ラベル横に小さめⓘ、PC=ホバー/スマホ=タップで小ポップアップ。
+//   今後使い回せる汎用部品（作曲年・演奏時間の書き方、将来は時代の但し書き等にも転用可）。
+//   linesは表示する説明行の配列。isMobileでホバー/タップを出し分け。
+const InfoTip = ({ lines, isMobile }) => {
+  const [open, setOpen] = React.useState(false);
+  const wrapStyle = { position: "relative", display: "inline-flex", marginLeft: 4, verticalAlign: "middle" };
+  const markStyle = {
+    display: "inline-flex", alignItems: "center", justifyContent: "center",
+    width: 13, height: 13, borderRadius: "50%", border: "1px solid #A8B4C8",
+    color: "#94A3BE", fontSize: 9, fontFamily: FONT, cursor: "pointer", userSelect: "none", lineHeight: 1,
+  };
+  const popStyle = {
+    position: "absolute", top: "150%", left: 0, zIndex: 60,
+    background: "#16243F", border: "1px solid #2A3A5A", borderRadius: 6,
+    padding: "8px 10px", width: "max-content", maxWidth: 220,
+    boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+  };
+  const lineStyle = { fontSize: 11, color: "#EDE6D6", fontFamily: FONT, whiteSpace: "nowrap", lineHeight: 1.7 };
+  const hoverProps = isMobile ? {} : { onMouseEnter: () => setOpen(true), onMouseLeave: () => setOpen(false) };
+  const tapProps = isMobile ? { onClick: (e) => { e.stopPropagation(); setOpen(o => !o); } } : {};
+  return (
+    <span style={wrapStyle} {...hoverProps}>
+      <span style={markStyle} {...tapProps}>i</span>
+      {open && (
+        <span style={popStyle}>
+          {lines.map((ln, idx) => (<div key={idx} style={lineStyle}>{ln}</div>))}
+        </span>
+      )}
+    </span>
+  );
+};
 const FORMS = ["ソナタ","組曲","変奏曲","バラード","スケルツォ","夜想曲","即興曲","練習曲","前奏曲","幻想曲","舞曲","協奏曲","小品","その他"];
 
 // Composer birth years for born-year sorting
@@ -2558,6 +2610,7 @@ const ManagePage = (props) => {
   const {eraFilter, setEraFilter, yearMin, setYearMin, yearMax, setYearMax} = props;
   const {keyFilter, setKeyFilter} = props; // v270: LP調性フィルタ
   const {durMin, setDurMin, durMax, setDurMax} = props;
+  const {yearRange, setYearRange, durRange, setDurRange} = props; // v458①: 1ボックス範囲入力の文字列
   const {diffMin, setDiffMin, diffMax, setDiffMax} = props;
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAILearning} = props;
@@ -2724,12 +2777,16 @@ const ManagePage = (props) => {
               )}
             </div>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲年</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2,display:"flex",alignItems:"center"}}>作曲年<InfoTip isMobile={isMobile} lines={["2000 → 2000年","2000-2050 → 範囲","2000- → 以降","-2000 → 以前"]} /></div>
+              {/* v458①: 1ボックス範囲入力。yearRangeに文字列保持→parseRangeでsetYearMin/Maxに反映（既存フィルタ無変更）。「ー」=空=解除。 */}
+              <input value={yearRange} onChange={e=>{const v=e.target.value; setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
                 <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
+              )}
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>調性</div>
@@ -2744,12 +2801,16 @@ const ManagePage = (props) => {
               )}
             </div>
             <div>
-              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>演奏時間（推定）</div>
+              <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2,display:"flex",alignItems:"center"}}>演奏時間（推定）<InfoTip isMobile={isMobile} lines={["10 → 10分","5-10 → 範囲","10- → 以上","-10 → 以下"]} /></div>
+              {/* v458①: 1ボックス範囲入力。durRangeに文字列保持→parseRangeでsetDurMin/Maxに反映（既存フィルタ無変更）。「ー」=空=解除。 */}
+              <input value={durRange} onChange={e=>{const v=e.target.value; setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
                 <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
+              )}
             </div>
           </div>
                       <div style={{display:"flex",gap:24,justifyContent:"center",paddingTop:24,paddingBottom:4}}>
@@ -4294,6 +4355,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [yearMax,        setYearMax]          = useState("");
   const [durMin,         setDurMin]           = useState("");
   const [durMax,         setDurMax]           = useState("");
+  // v458 1: 1box range input. yearRange/durRange hold raw string; onChange parseRange -> existing min/max setters (filter unchanged).
+  const [yearRange,      setYearRange]        = useState("");
+  const [durRange,       setDurRange]         = useState("");
   const [diffMin,        setDiffMin]          = useState(0);
   const [diffMax,        setDiffMax]          = useState(5);
   const [freqMin,        setFreqMin]          = useState(0);
@@ -4980,6 +5044,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           keyFilter={keyFilter} setKeyFilter={setKeyFilter}
           yearMin={yearMin} setYearMin={setYearMin} yearMax={yearMax} setYearMax={setYearMax}
           durMin={durMin} setDurMin={setDurMin} durMax={durMax} setDurMax={setDurMax}
+          yearRange={yearRange} setYearRange={setYearRange} durRange={durRange} setDurRange={setDurRange}
           diffMin={diffMin} setDiffMin={setDiffMin} diffMax={diffMax} setDiffMax={setDiffMax}
           freqMin={freqMin} setFreqMin={setFreqMin} freqMax={freqMax} setFreqMax={setFreqMax}
           kwFilter={kwFilter} setKwFilter={setKwFilter}
