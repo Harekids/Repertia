@@ -1643,6 +1643,7 @@ const PrintPage = (props) => {
   const {allPool, pieces} = props;
   const {profile, setProfile, events} = props;
   const isMobile = useIsMobile(640); // v441: 学歴status Dropdown等がスコープ先頭でisMobileを参照するため定義位置を先頭へ移動（旧位置は後方2300行台にあり参照より後でクラッシュ＝真っ紺の原因）
+  const eduComposingRef = React.useRef(false); // v451: 学歴ステータス自由入力のIME変換中フラグ（⑦のtypeComposingRefは別コンポーネントスコープのため学歴用に新設。学歴は複数行だがフォーカスは常に1行なので単一refで足りる）
   // v156: パスワード変更
   const [pwOpen, setPwOpen] = useState(false);
   const [pwNew, setPwNew] = useState("");
@@ -1981,8 +1982,16 @@ const PrintPage = (props) => {
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
                   {/* v441 B-Step2⑥: 学歴statusをアプリ製Dropdownに差し替え（旧selectは温存）。
-                       周辺(period/school)と同じ#F4F6F9・80px枠。各行ed.idで独立開閉。onChangeは値そのものが来る。 */}
-                  <Dropdown isMobile={isMobile} value={ed.status||""} onChange={v=>updateListItem("educations",ed.id,{status:v})}
+                       周辺(period/school)と同じ#F4F6F9・80px枠。各行ed.idで独立開閉。onChangeは値そのものが来る。
+                     v451 ⑥自由入力(案Z): 末尾に「自由入力…」追加。選択でed.status="other"→ed.statusOtherのテキスト欄に変身。
+                       空で自動的にDropdownへ復帰／IME変換中ガード(eduComposingRef)。⑦種別の完成形を学歴(行ごとed.id)に移植。
+                       行ごとにed.status/ed.statusOtherを見るので、1行目を自由入力にしても他行は独立して通常のまま。 */}
+                  {ed.status!=="other" ? (
+                  <Dropdown isMobile={isMobile} value={ed.status||""}
+                    onChange={v=>{
+                      if(v==="other"){ updateListItem("educations",ed.id,{status:"other",statusOther:""}); }
+                      else { updateListItem("educations",ed.id,{status:v}); }
+                    }}
                     options={[
                       {value:"", label:"ー"},
                       {value:"入学", label:"入学"},
@@ -1990,8 +1999,32 @@ const PrintPage = (props) => {
                       {value:"在籍中", label:"在籍中"},
                       {value:"卒業", label:"卒業"},
                       {value:"修了", label:"修了"},
+                      {value:"other", label:"自由入力…"},
                     ]}
                     placeholder="ー" buttonStyle={{flex:"0 0 80px",background:"#F4F6F9",height:30}} />
+                  ) : (
+                  <input
+                    value={ed.statusOther||""}
+                    onCompositionStart={()=>{eduComposingRef.current=true;}}
+                    onCompositionEnd={e=>{eduComposingRef.current=false; updateListItem("educations",ed.id,{statusOther:e.target.value});}}
+                    onKeyDown={e=>{
+                      // v428流用: 「自由入力…」直後はstatusOtherが空。空のままBackspace/DeleteではonChangeが出ず復帰しないので、空+非変換中で戻す。
+                      if(eduComposingRef.current) return;
+                      if((e.key==="Backspace"||e.key==="Delete") && !(ed.statusOther||"")){
+                        updateListItem("educations",ed.id,{status:"",statusOther:""});
+                      }
+                    }}
+                    onChange={e=>{
+                      const v=e.target.value;
+                      if(eduComposingRef.current){ updateListItem("educations",ed.id,{statusOther:v}); return; }  // 変換中は空でも戻さない
+                      if(v===""){ updateListItem("educations",ed.id,{status:"",statusOther:""}); }  // 非変換中の全消し＝Dropdownへ戻る
+                      else { updateListItem("educations",ed.id,{statusOther:v}); }
+                    }}
+                    placeholder="状態を入力"
+                    autoFocus
+                    style={{...inpS,flex:"0 0 80px",minWidth:0}}
+                  />
+                  )}
                   {false && (
                   <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
                     <option value="">ー</option>
@@ -2124,7 +2157,7 @@ const PrintPage = (props) => {
                     const p=profile;
                     const name=outLang==="ja"?(p.nameJa||p.nameEn||""):(p.nameEn||p.nameJa||"");
                     const parts=[];
-                    if(outItems.profile&&name){const yr=s=>{const m=(s||"").match(/[0-9]{4}/);return m?m[0]:"";};const origin=p.city||(p.nationality&&p.nationality!=="ー"?p.nationality:"");const birthYear=yr(p.birthDate||"");const intro=outLang==="ja"?name+String.fromCharCode(10)+(birthYear?birthYear+"年、":"")+(origin?origin+"出身。":""):name+String.fromCharCode(10)+"Born"+(origin?" in "+origin:"")+(birthYear?" in "+birthYear:".")+". ";const allEvts=[...(contestEvents||[]),...(concertEvents||[])].filter(e=>(e.title||e.venue||"").trim()).sort((a,b)=>(a.date||"").localeCompare(b.date||""));const middle=allEvts.length>0?allEvts.map(e=>outLang==="ja"?yr(e.date)+"年、"+(e.title||e.venue||"")+(e.notes?"（"+e.notes+"）":""):yr(e.date)+", "+(e.title||e.venue||"")).join(outLang==="ja"?"。"+String.fromCharCode(10):"."+" ")+(outLang==="ja"?"。":""):"";const teacherNames=(p.teachers||[]).map(t=>t.name).filter(Boolean);const teacherStr=teacherNames.length>0?(outLang==="ja"?"これまでに、"+teacherNames.join("、")+"の各氏に師事。":"Studied with "+teacherNames.join(", ")+". "):"";const eduList=(p.educations||[]).filter(e=>e.school);const eduStr=eduList.length>0?(outLang==="ja"?eduList.map(e=>e.school+(e.status||"")).join("、")+"。":eduList.map(e=>(e.status?e.status+", ":"")+e.school).join(", ")):"";const bio=[intro,middle,teacherStr+eduStr].filter(Boolean).join(String.fromCharCode(10));parts.push(bio);}
+                    if(outItems.profile&&name){const yr=s=>{const m=(s||"").match(/[0-9]{4}/);return m?m[0]:"";};const origin=p.city||(p.nationality&&p.nationality!=="ー"?p.nationality:"");const birthYear=yr(p.birthDate||"");const intro=outLang==="ja"?name+String.fromCharCode(10)+(birthYear?birthYear+"年、":"")+(origin?origin+"出身。":""):name+String.fromCharCode(10)+"Born"+(origin?" in "+origin:"")+(birthYear?" in "+birthYear:".")+". ";const allEvts=[...(contestEvents||[]),...(concertEvents||[])].filter(e=>(e.title||e.venue||"").trim()).sort((a,b)=>(a.date||"").localeCompare(b.date||""));const middle=allEvts.length>0?allEvts.map(e=>outLang==="ja"?yr(e.date)+"年、"+(e.title||e.venue||"")+(e.notes?"（"+e.notes+"）":""):yr(e.date)+", "+(e.title||e.venue||"")).join(outLang==="ja"?"。"+String.fromCharCode(10):"."+" ")+(outLang==="ja"?"。":""):"";const teacherNames=(p.teachers||[]).map(t=>t.name).filter(Boolean);const teacherStr=teacherNames.length>0?(outLang==="ja"?"これまでに、"+teacherNames.join("、")+"の各氏に師事。":"Studied with "+teacherNames.join(", ")+". "):"";const eduList=(p.educations||[]).filter(e=>e.school);const eduSt=e=>e.status==="other"?(e.statusOther||""):(e.status||"");const eduStr=eduList.length>0?(outLang==="ja"?eduList.map(e=>e.school+eduSt(e)).join("、")+"。":eduList.map(e=>(eduSt(e)?eduSt(e)+", ":"")+e.school).join(", ")):"";const bio=[intro,middle,teacherStr+eduStr].filter(Boolean).join(String.fromCharCode(10));parts.push(bio);}
                     if(outItems.repertoire&&outRepIds.length>0){const rep=pieces.filter(p=>outRepIds.includes(p.id)).map(p=>p.composer+" / "+p.title).join(String.fromCharCode(10));parts.push(outLang==="ja"?"【レパートリー】"+String.fromCharCode(10)+rep:"[Repertoire]"+String.fromCharCode(10)+rep);}
                     if(outItems.contests&&contestEvents.length>0){const ct=contestEvents.map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【コンクール歴】"+String.fromCharCode(10)+ct:"[Competitions]"+String.fromCharCode(10)+ct);}
                     if(outItems.performances&&concertEvents.length>0){const pf=concertEvents.slice(0,10).map(e=>e.date.slice(0,7)+" "+(e.title||e.venue||"")).join("。"+String.fromCharCode(10));parts.push(outLang==="ja"?"【演奏活動】"+String.fromCharCode(10)+pf:"[Performances]"+String.fromCharCode(10)+pf);}
