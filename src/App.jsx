@@ -1883,7 +1883,7 @@ const PrintPage = (props) => {
                   }
                   if (bioCheck.education) {
                     const eduList = (p.educations||[]).filter(e=>e.school);
-                    if (eduList.length>0) lines.push("【学歴】"+String.fromCharCode(10)+eduList.map(e=>{var st=e.status==="other"?(e.statusOther||""):(e.status||"");return (e.period?e.period+" ":"")+e.school+(st?"　"+st:"");}).join(String.fromCharCode(10)));
+                    if (eduList.length>0) lines.push("【学歴】"+String.fromCharCode(10)+eduList.map(e=>{var st=e.status==="other"?(e.statusOther||""):(e.status||"");return (e.period?e.period+"　":"")+e.school+(st?"　"+st:"");}).join(String.fromCharCode(10)));
                   }
                   if (bioCheck.teacher) {
                     const tNames = (p.teachers||[]).map(t=>t.name).filter(Boolean);
