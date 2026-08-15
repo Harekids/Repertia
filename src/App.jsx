@@ -895,7 +895,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <Dropdown isMobile={isMobile} value={draft.era||""}
                     onChange={v=>{setDraft({...draft,era:v}); setEraEditedDraft(true);}}
                     options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
-                    placeholder="ー" buttonStyle={{background:"white",height:30}} />
+                    placeholder="ー" buttonStyle={{background:"#F4F6F9",height:30}} />
                   {false && (
                   <select value={draft.era||""} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={fInput}>
@@ -915,7 +915,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   {/* v436 B-Step2③: 曲編集の調性をKEYS Dropdownに統一（旧テキストinputは温存）。表記ゆれ防止。 */}
                   <Dropdown isMobile={isMobile} value={draft.key||""} onChange={v=>setDraft({...draft,key:v})}
                     options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
-                    buttonStyle={{background:"white",height:30}} />
+                    buttonStyle={{background:"#F4F6F9",height:30}} />
                   {false && (
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={fInput} />
