@@ -73,7 +73,7 @@ const FORM = {
   //   v381: 入力値フォントを13固定に統一（①②Add/Search Pieceの直書き13を正とする・5画面統一）。
   //   isMobile分岐（旧16/12）を廃止。iOSズームより「スマホで曲名等が収まること」を優先（企画判断2026-08-08）。
   input: (isMobile) => ({
-    background:"#F4F6F9", border:"1px solid #C8CEDB", color:"#15233F",
+    background:"white", border:"1px solid #C8CEDB", color:"#15233F",
     padding:"5px 8px", fontFamily:FONT, fontSize:13,
     borderRadius:4, width:"100%", boxSizing:"border-box"
   }),
@@ -947,7 +947,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <Dropdown isMobile={isMobile} value={draft.era||""}
                     onChange={v=>{setDraft({...draft,era:v}); setEraEditedDraft(true);}}
                     options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
-                    placeholder="ー" buttonStyle={{background:"#F4F6F9",height:30}} />
+                    placeholder="ー" buttonStyle={{background:"white",height:30}} />
                   {false && (
                   <select value={draft.era||""} onChange={e=>{setDraft({...draft,era:e.target.value}); setEraEditedDraft(true);}}
                     style={fInput}>
@@ -967,7 +967,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   {/* v436 B-Step2③: 曲編集の調性をKEYS Dropdownに統一（旧テキストinputは温存）。表記ゆれ防止。 */}
                   <Dropdown isMobile={isMobile} value={draft.key||""} onChange={v=>setDraft({...draft,key:v})}
                     options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
-                    buttonStyle={{background:"#F4F6F9",height:30}} />
+                    buttonStyle={{background:"white",height:30}} />
                   {false && (
                   <input value={draft.key||""} onChange={e=>setDraft({...draft,key:e.target.value})}
                     style={fInput} />
@@ -2810,7 +2810,7 @@ const ManagePage = (props) => {
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>作曲家</div>
               <div style={{position:"relative"}}>
-                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={composerFilter} onChange={e=>onComposerSearchChange(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 {sugLoadingC && <div style={{position:"absolute",right:8,top:6,fontSize:10,color:"#94A3BE"}}>…</div>}
                 {sugComposers.length>0 && (
                   <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:30,maxHeight:180,overflowY:"auto"}}>
@@ -2824,12 +2824,12 @@ const ManagePage = (props) => {
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>曲名</div>
-              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <input value={titleFilter} onChange={e=>setTitleFilter(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div>
             {/* v204: キーワード（感情タグ）は育成中のため一時非表示。データがたまったら復活 */}
             {/* <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2}}>キーワード</div>
-              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              <input value={kwFilter} onChange={e=>setKwFilter(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
             </div> */}
           </div>
           {/* v457 B(レイアウト): 2行目を「時代・作曲年・調性・演奏時間(推定)」順に。列比率1:2:1:2で2行目(作曲家1:曲名2)と縦ライン統一。
@@ -2841,9 +2841,9 @@ const ManagePage = (props) => {
               {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。バロック〜現代の5時代すべて検索可。先頭「ー」=解除。 */}
               <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
                 options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
-                placeholder="ー" buttonStyle={{background:"#F4F6F9",height:isMobile?28:27}} />
+                placeholder="ー" buttonStyle={{background:"white",height:isMobile?28:27}} />
               {false && (
-              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+              <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 <option value="">ー</option>
                 {ERA_ORDER.filter(k=>k!=="contemporary").map(k=><option key={k} value={k}>{ERAS[k].label}</option>)}
               </select>
@@ -2854,12 +2854,12 @@ const ManagePage = (props) => {
               {/* v458① + v479 A: onBlurで全角数字だけ半角表示に。範囲の書き方は保持。 */}
               <input value={yearRange} onChange={e=>{const v=e.target.value; setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}}
                 onBlur={e=>{const v=e.target.value.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}); setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}}
-                placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
-                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={yearMax} onChange={e=>setYearMax(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
               )}
             </div>
@@ -2868,9 +2868,9 @@ const ManagePage = (props) => {
               {/* v439 B-Step2④: 検索(調性)。「ー」=空文字=フィルタ解除の癖を維持。 */}
               <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
                 options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
-                buttonStyle={{background:"#F4F6F9",height:isMobile?28:27}} />
+                buttonStyle={{background:"white",height:isMobile?28:27}} />
               {false && (
-              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
+              <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
               </select>
               )}
@@ -2880,12 +2880,12 @@ const ManagePage = (props) => {
               {/* v458① + v479 A: onBlurで全角数字だけ半角表示に。範囲の書き方は保持。 */}
               <input value={durRange} onChange={e=>{const v=e.target.value; setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}}
                 onBlur={e=>{const v=e.target.value.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}); setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}}
-                placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
-                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
                 <span style={{fontSize:10,color:"#94A3BE",flexShrink:0}}>〜</span>
-                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+                <input value={durMax} onChange={e=>setDurMax(e.target.value)} placeholder="ー" style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               </div>
               )}
             </div>
@@ -3401,7 +3401,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   };
 
   // v316: スマホは入力欄を16pxに（iOSはinput<16pxでフォーカス時に自動ズームするため）。PCは12pxのまま。
-  const inpE={background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
+  const inpE={background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 8px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const selE={background:"#15233F",border:"1px solid #1E2A45",color:"#EDE6D6",padding:"5px 7px",fontFamily:FONT,fontSize:12,borderRadius:4,width:"100%"};
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:FONT,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
@@ -3736,7 +3736,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   効かず背が高くなる。→ 外側のdivで高さをFLD_Hに完全固定し、input自体は height:100% で
   //   親に従わせる。これで空でも値ありでも外形はFLD_Hのまま。appearanceは付けない＝リセット維持。
   const dateBoxWrap = {height:FLD_H, minHeight:FLD_H, maxHeight:FLD_H, boxSizing:"border-box",
-    background:"#F4F6F9", border:"1px solid #C8CEDB", borderRadius:4,
+    background:"white", border:"1px solid #C8CEDB", borderRadius:4,
     display:"flex", alignItems:"stretch", width:"100%"};
   const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
     background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
@@ -3771,7 +3771,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {value:"other", label:"自由入力…"},
           ]}
           placeholder="ー"
-          buttonStyle={{background:"#F4F6F9",height:FLD_H}} />
+          buttonStyle={{background:"white",height:FLD_H}} />
         {false && (
         <select value={newEvent.type}
           onChange={e=>{
