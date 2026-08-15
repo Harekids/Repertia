@@ -907,7 +907,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div>
                   <div style={fLabel}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
-                    placeholder="例: 1810"
+                    placeholder="ー"
                     style={fInput} />
                 </div>
                 <div>
@@ -982,9 +982,9 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
                 )}
               </div>
-              {/* キーワード */}
+              {/* タグ（旧キーワード）v465 C: label to tag, InfoTip for guide. seed of future shared/kansei search. */}
               <div style={{marginBottom:10}}>
-                <div style={fLabel}>キーワード</div>
+                <div style={{...fLabel,display:"flex",alignItems:"center"}}>タグ<InfoTip isMobile={isMobile} lines={["幻想的、キュンキュン、発表会…","思ったことを自由に記入してください。"]} /></div>
                 <input value={draft.keywords||""} onChange={e=>setDraft({...draft,keywords:e.target.value})}
                   placeholder="カンマ区切り"
                   style={fInput} />
