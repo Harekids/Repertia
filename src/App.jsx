@@ -1594,7 +1594,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                     <div style={{width:3,height:34,background:era.color,borderRadius:2,flexShrink:0}} />
                     <div>
                       <div style={{fontSize:13,color:"#15233F",marginBottom:2}}>{s.title}</div>
-                      <div style={{fontSize:11,color:"#6B7A90",fontFamily:FONT}}>{s.composer}　{s.year}年　{s.key}　{s.duration}分</div>
+                      <div style={{fontSize:11,color:"#6B7A90",fontFamily:FONT}}>{s.composer}　{s.year}年　{s.key}　{s.duration?s.duration+"分":""}</div>
                     </div>
                   </div>
                 ); })}
