@@ -975,10 +975,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     {/* v472 C: URL small, title large. PC=1 row(URL flex1,title flex2). mobile=title 2nd row full width. */}
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
                       style={{...fInput,flex:1,minWidth:0}} />
-                    <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
-                      style={{background:"none",border:"none",color:"#C0405A",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>✕</button>
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
                       style={{...fInput,flex:isMobile?"none":2,flexBasis:isMobile?"100%":"auto",width:isMobile?"100%":"auto",minWidth:0,order:isMobile?2:0}} />
+                    {/* v473 C: X always at end. PC=right end, mobile=after title(order3). color=dark gray bold small. */}
+                    <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
+                      style={{background:"none",border:"none",color:"#5A6B85",fontWeight:700,cursor:"pointer",fontSize:13,flexShrink:0,padding:"0 4px",order:isMobile?3:0}}>✕</button>
                   </div>
                 ))}
                 {(draft.links||[]).length < 3 && (
