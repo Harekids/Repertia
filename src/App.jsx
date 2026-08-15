@@ -959,9 +959,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{marginBottom:10}}>
                 <div style={fLabel}>リンク（最大3個）</div>
                 {(draft.links||[]).map((lk,i)=>(
-                  <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
+                  <div key={"edit-lk"+i} style={{display:"flex",flexWrap:isMobile?"wrap":"nowrap",gap:6,marginBottom:isMobile?10:5,alignItems:"center"}}>
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
-                      {/* v357: desc は内部名だと分かりにくいので information に。他はそのまま。 */}
                       {["desc","score","audio","video"].map(t=>(
                         <button key={t} type="button" title={t==="desc"?"information":t}
                           onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
@@ -973,12 +972,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         </button>
                       ))}
                     </div>
+                    {/* v472 C: URL small, title large. PC=1 row(URL flex1,title flex2). mobile=title 2nd row full width. */}
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{...fInput,flex:2,minWidth:0}} />
-                    <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
                       style={{...fInput,flex:1,minWidth:0}} />
                     <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
                       style={{background:"none",border:"none",color:"#C0405A",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>✕</button>
+                    <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
+                      style={{...fInput,flex:isMobile?"none":2,flexBasis:isMobile?"100%":"auto",width:isMobile?"100%":"auto",minWidth:0,order:isMobile?2:0}} />
                   </div>
                 ))}
                 {(draft.links||[]).length < 3 && (
