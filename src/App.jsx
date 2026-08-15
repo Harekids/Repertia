@@ -505,10 +505,10 @@ const fmtDuration = (mins, secs) => {
 //   showControls - ボタン類を表示するか（デフォルトtrue）
 function LinkIcon({ type }) {
   const common = { width:13, height:13, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:1.6, strokeLinecap:"round", strokeLinejoin:"round" };
-  if (type === "desc") return <span style={{fontStyle:"italic",fontFamily:"Georgia,serif",fontSize:12}}>i</span>;
+  if (type === "desc") return (<svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>);
   if (type === "score") return (<svg {...common}><path d="M12 5v14"/><path d="M12 5C10 3.5 6.5 3.5 4 4.5v13c2.5-1 6-1 8 .5"/><path d="M12 5c2-1.5 5.5-1.5 8-.5v13c-2.5-1-6-1-8 .5"/></svg>);
   if (type === "audio") return (<svg {...common}><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 8c1.2 1.2 1.2 6.8 0 8"/></svg>);
-  if (type === "video") return (<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 5v14l11-7z"/></svg>);
+  if (type === "video") return (<svg {...common}><path d="M8 5.5v13l10-6.5z"/></svg>);
   return null;
 }
 
@@ -962,7 +962,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 {(draft.links||[]).map((lk,i)=>{
                   const iconGroup = (
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
-                      {["desc","score","audio","video"].map(t=>(
+                      {["desc","score","video","audio"].map(t=>(
                         <button key={t} type="button" title={t==="desc"?"information":t}
                           onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
                           style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
