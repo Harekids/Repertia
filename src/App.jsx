@@ -2187,7 +2187,7 @@ const PrintPage = (props) => {
                         <span style={{fontSize:9,color:era.color,flexShrink:0}}>●</span>
                         <span style={{fontSize:10,flexShrink:0}}>{p.composer}</span>
                         <span style={{flex:1}}>{p.title}</span>
-                        <span style={{fontSize:10,color:"#94A3BE"}}>{p.duration}分{p.durationSecs>0?p.durationSecs+"秒":""}</span>
+                        <span style={{fontSize:10,color:"#94A3BE"}}>{(p.duration||p.durationSecs)?((p.duration||0)+"分"+(p.durationSecs>0?p.durationSecs+"秒":"")):""}</span>
                       </label>
                     );
                   })}
