@@ -3987,21 +3987,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                   </div>
                   <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
                   {pc ? (
-                    isMobile ? (
-                      <React.Fragment>
-                        <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:1}}>
-                          <span style={{fontSize:11,color:"#15233F",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pc.composer}</span>
-                          <span style={{fontSize:11,color:"#15233F",fontFamily:FONT,wordBreak:"break-word"}}>{pc.title}</span>
-                        </div>
-                        <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,marginLeft:"auto",paddingLeft:6}}>{pc.duration?pc.duration+"分":"—"}</span>
-                      </React.Fragment>
-                    ) : (
-                      <React.Fragment>
-                        <span style={{flex:"0 0 90px",fontSize:11,color:"#15233F",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginRight:"1em"}}>{pc.composer}</span>
-                        <span style={{flex:1,fontSize:11,color:"#15233F",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pc.title}</span>
-                        <span style={{flex:"0 0 48px",fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto"}}>{pc.duration?pc.duration+"分":"—"}</span>
-                      </React.Fragment>
-                    )
+                    <React.Fragment>
+                      <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{pc.composer}　：　{pc.title}</span>
+                      <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{pc.duration?pc.duration+"分":"—"}</span>
+                    </React.Fragment>
                   ) : (
                     // 参照先の曲が見つからない（削除された等）。IDは残すが赤字で警告。
                     <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
