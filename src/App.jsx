@@ -1675,7 +1675,8 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
                 const colonMatch=raw.match(/^(\d+):(\d+)$/);
                 const mMatch=raw.match(/(\d+)\s*分/);
                 const sMatch=raw.match(/(\d+)\s*秒/);
-                let m=piece.duration, s=0;
+                if(raw===""){ setPiece({...piece,duration:null,durationSecs:0}); setDurationEdited(true); e.target.value=""; return; }
+                let m=0, s=0;
                 if(colonMatch){
                   m=parseInt(colonMatch[1]); s=parseInt(colonMatch[2]);
                 }else if(mMatch||sMatch){
