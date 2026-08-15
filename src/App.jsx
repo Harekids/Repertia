@@ -521,10 +521,55 @@ function LinkIcon({ type }) {
 //   v399: 「未定」オーバーレイ(tbdLabel)は撤去。空のときはネイティブのyyyy/mm/dd＋カレンダーアイコンをそのまま見せる
 //     （日付なしは「ー」で表現するのは表示側=fmtSlashDateの役割。入力欄自体はネイティブ表示に任せる）。
 //   props: value, onChange(newValue), wrapStyle, inputStyle, FONT
+// v484: date text-input helpers. parseDateInput: free text -> ISO. toSlash: ISO -> YYYY/MM/DD.
+const parseDateInput = (raw) => {
+  if (raw == null) return "";
+  let s = String(raw).trim().replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  if (s === "") return "";
+  s = s.replace(/／/g, "/").replace(/．/g, ".").replace(/[－−]/g, "-");
+  s = s.replace(/[年月]/g, "-").replace(/日/g, "").replace(/[.\/\s]/g, "-");
+  let y, m, d;
+  const parts = s.split("-").filter(x => x !== "");
+  if (parts.length >= 3) {
+    y = parts[0]; m = parts[1]; d = parts[2];
+  } else if (/^[0-9]{8}$/.test(s)) {
+    y = s.slice(0, 4); m = s.slice(4, 6); d = s.slice(6, 8);
+  } else {
+    return "";
+  }
+  const yi = parseInt(y, 10), mi = parseInt(m, 10), di = parseInt(d, 10);
+  if (isNaN(yi) || isNaN(mi) || isNaN(di)) return "";
+  if (mi < 1 || mi > 12 || di < 1 || di > 31) return "";
+  const mm = String(mi).padStart(2, "0");
+  const dd = String(di).padStart(2, "0");
+  const yyyy = String(yi).padStart(4, "0");
+  return yyyy + "-" + mm + "-" + dd;
+};
+const toSlash = (iso) => {
+  if (!iso) return "";
+  const m = String(iso).match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/);
+  if (!m) return String(iso);
+  return m[1] + "/" + m[2] + "/" + m[3];
+};
+
 const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT }) => {
+  // v484: OS date -> text. display YYYY/MM/DD, save ISO. onBlur normalizes.
+  const [text, setText] = React.useState(toSlash(value));
+  const [focused, setFocused] = React.useState(false);
+  React.useEffect(() => { if (!focused) setText(toSlash(value)); }, [value, focused]);
   return (
     <div style={{...wrapStyle, position:"relative"}}>
-      <input type="date" value={value||""} onChange={e=>onChange(e.target.value)} style={inputStyle}/>
+      <input type="text" inputMode="numeric" value={text}
+        placeholder="例: 2026/08/15"
+        onFocus={()=>setFocused(true)}
+        onChange={e=>setText(e.target.value)}
+        onBlur={e=>{
+          setFocused(false);
+          const iso = parseDateInput(e.target.value);
+          onChange(iso);
+          setText(toSlash(iso));
+        }}
+        style={inputStyle}/>
     </div>
   );
 };
