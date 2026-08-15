@@ -851,11 +851,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 {/* 𝄽とリンクの間＝全角1文字分 */}
                 <span style={{width:"1em",flexShrink:0,display:"inline-block"}} />
-                {/* 中：リンク（記号・設定済みのみ・左寄せ）。YouTube検索は常時／カスタムリンクは有る時だけ。 */}
+                {/* 中：リンク（ユーザー登録の追加リンクのみ）。v481 B: 常設YouTube検索▶を削除（旧コードは温存）。 */}
                 <div style={{display:"flex",gap:4,alignItems:"center",flexShrink:0}}>
+                  {false && (
                   <a href={"https://www.youtube.com/results?search_query="+encodeURIComponent(p.title+" "+p.composer)} target="_blank" rel="noreferrer" title="YouTube"
                     style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
                     onClick={e=>e.stopPropagation()}>▶</a>
+                  )}
                   {Array.isArray(p.links) && p.links.map((lk,i)=>(
                     <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
                       style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
