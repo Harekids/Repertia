@@ -505,7 +505,7 @@ const fmtDuration = (mins, secs) => {
 //   showControls - ボタン類を表示するか（デフォルトtrue）
 function LinkIcon({ type }) {
   const common = { width:13, height:13, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", strokeWidth:1.6, strokeLinecap:"round", strokeLinejoin:"round" };
-  if (type === "desc") return (<svg {...common}><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>);
+  if (type === "desc") return (<svg {...common}><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>);
   if (type === "score") return (<svg {...common}><path d="M12 5v14"/><path d="M12 5C10 3.5 6.5 3.5 4 4.5v13c2.5-1 6-1 8 .5"/><path d="M12 5c2-1.5 5.5-1.5 8-.5v13c-2.5-1-6-1-8 .5"/></svg>);
   if (type === "audio") return (<svg {...common}><path d="M5 9v6h4l5 4V5L9 9H5z"/><path d="M17 8c1.2 1.2 1.2 6.8 0 8"/></svg>);
   if (type === "video") return (<svg {...common}><path d="M8 5.5v13l10-6.5z"/></svg>);
@@ -858,7 +858,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
                     onClick={e=>e.stopPropagation()}>▶</a>
                   )}
-                  {Array.isArray(p.links) && p.links.map((lk,i)=>(
+                  {Array.isArray(p.links) && p.links.filter(lk=>lk.url && lk.url.trim()).map((lk,i)=>(
                     <a key={"lk"+i} href={lk.url} target="_blank" rel="noreferrer" title={lk.title||lk.url}
                       style={{width:22,height:22,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#94A3BE",textDecoration:"none",border:"1px solid #2A3F6A",borderRadius:3,fontFamily:FONT,flexShrink:0}}
                       onClick={e=>e.stopPropagation()}><LinkIcon type={lk.type} /></a>
