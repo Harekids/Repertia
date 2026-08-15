@@ -927,6 +927,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
                     onBlur={e=>{
                       const raw=e.target.value.trim();
+                      if(raw===""){ setDraft({...draft,duration:0,durationSecs:0}); e.target.value=""; return; }
                       const colonMatch=raw.match(/^(\d+):(\d+)$/);
                       const mMatch=raw.match(/(\d+)\s*分/);
                       const sMatch=raw.match(/(\d+)\s*秒/);
