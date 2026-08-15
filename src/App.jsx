@@ -937,7 +937,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       setDraft({...draft,duration:m,durationSecs:s});
                       e.target.value=m+"分"+(s>0?(s+"秒"):"");
                     }}
-                    placeholder="例: 5分30秒"
+                    placeholder="ー"
                     style={fInput} />
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可)。v359: 「グレー＝入力できない」ルールでfInputDisabledを参照。 */}
