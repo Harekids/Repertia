@@ -614,7 +614,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
     e.stopPropagation();
     const initDraft = {
       title:p.title, composer:p.composer, key:p.key||"",
-      yearText:p.yearText||"", duration:p.duration||0, durationSecs:p.durationSecs||0,
+      yearText:p.yearText||"", duration:(p.duration===null||p.duration===undefined)?null:p.duration, durationSecs:p.durationSecs||0,
       era:p.era||"", // v272: 時代を編集可能に
       memo:p.memo||"", keywords:p.keywords||"",
       links: Array.isArray(p.links) ? p.links.map(l=>({...l})) : [],
@@ -924,14 +924,14 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div>
                   <div style={fLabel}>演奏時間</div>
                   <input
-                    defaultValue={(draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")}
+                    defaultValue={(draft.duration||draft.durationSecs) ? ((draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")) : ""}
                     onBlur={e=>{
                       const raw=e.target.value.trim();
-                      if(raw===""){ setDraft({...draft,duration:0,durationSecs:0}); e.target.value=""; return; }
+                      if(raw===""){ setDraft({...draft,duration:null,durationSecs:0}); e.target.value=""; return; }
                       const colonMatch=raw.match(/^(\d+):(\d+)$/);
                       const mMatch=raw.match(/(\d+)\s*分/);
                       const sMatch=raw.match(/(\d+)\s*秒/);
-                      let m=draft.duration||0, s=0;
+                      let m=0, s=0;
                       if(colonMatch){m=parseInt(colonMatch[1]);s=parseInt(colonMatch[2]);}
                       else if(mMatch||sMatch){if(mMatch)m=parseInt(mMatch[1]);if(sMatch)s=parseInt(sMatch[1]);}
                       else{const n=parseInt(raw);if(!isNaN(n))m=n;}
@@ -4620,7 +4620,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       year: updated.year||0,
       "yearText": updated.yearText || '', // v274: 「1815-1820」「不明」等の表記を保存
       era: updated.era || eraFromYear(updated.year||0), // v272: 編集画面で選んだ時代を保存
-      duration: updated.duration||0,
+      duration: (updated.duration===null||updated.duration===undefined)?null:updated.duration, // v467 A案: 未設定(null)を0に戻さず保つ（ーで保存→カードで非表示に）
       durationSecs: updated.durationSecs||0,
       memo: updated.memo||'',
       keywords: updated.keywords||'',
