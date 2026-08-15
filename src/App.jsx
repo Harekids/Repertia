@@ -958,8 +958,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* リンク（最大3個）。v357: 「演奏リンク」→「リンク」 */}
               <div style={{marginBottom:10}}>
                 <div style={fLabel}>リンク（最大3個）</div>
-                {(draft.links||[]).map((lk,i)=>(
-                  <div key={"edit-lk"+i} style={{display:"flex",flexWrap:isMobile?"wrap":"nowrap",gap:6,marginBottom:isMobile?10:5,alignItems:"center"}}>
+                {(draft.links||[]).map((lk,i)=>{
+                  const iconGroup = (
                     <div style={{display:"flex",gap:3,flexShrink:0}}>
                       {["desc","score","audio","video"].map(t=>(
                         <button key={t} type="button" title={t==="desc"?"information":t}
@@ -972,16 +972,31 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         </button>
                       ))}
                     </div>
-                    {/* v472 C: URL small, title large. PC=1 row(URL flex1,title flex2). mobile=title 2nd row full width. */}
+                  );
+                  const urlInput = (
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{...fInput,flex:1,flexBasis:isMobile?"60%":"auto",minWidth:0,order:isMobile?1:0}} />
+                      style={{...fInput,flex:1,minWidth:0}} />
+                  );
+                  const titleInput = (
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{...fInput,flex:isMobile?1:2,minWidth:0,order:isMobile?2:0}} />
-                    {/* v473 C: X always at end. PC=right end, mobile=after title(order3). color=dark gray bold small. */}
+                      style={{...fInput,flex:isMobile?1:2,minWidth:0}} />
+                  );
+                  const delBtn = (
                     <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
-                      style={{background:"none",border:"none",color:"#5A6B85",fontWeight:700,cursor:"pointer",fontSize:13,flexShrink:0,padding:"0 4px",order:isMobile?3:0}}>✕</button>
-                  </div>
-                ))}
+                      style={{background:"none",border:"none",color:"#5A6B85",fontWeight:700,cursor:"pointer",fontSize:13,flexShrink:0,padding:"0 4px"}}>✕</button>
+                  );
+                  /* v475 C: PC=1row. mobile=row1(icon,URL)/row2(title,X) subdivs. */
+                  return isMobile ? (
+                    <div key={"edit-lk"+i} style={{marginBottom:10}}>
+                      <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:5}}>{iconGroup}{urlInput}</div>
+                      <div style={{display:"flex",gap:6,alignItems:"center"}}>{titleInput}{delBtn}</div>
+                    </div>
+                  ) : (
+                    <div key={"edit-lk"+i} style={{display:"flex",gap:6,marginBottom:5,alignItems:"center"}}>
+                      {iconGroup}{urlInput}{titleInput}{delBtn}
+                    </div>
+                  );
+                })}
                 {(draft.links||[]).length < 3 && (
                   <button onClick={()=>{setDraft({...draft,links:[...(draft.links||[]),{type:"desc",url:"",title:""}]});}}
                     style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
