@@ -482,8 +482,11 @@ const EmojiRating = ({ label, value, max=5, filled, empty="◯" }) => (
 );
 
 const fmtDuration = (mins, secs) => {
-  if (!secs) return mins + "分";
-  return mins + "分" + (secs < 10 ? "0" : "") + secs + "秒";
+  const m = (mins===null||mins===undefined) ? 0 : mins;
+  const s = (secs===null||secs===undefined) ? 0 : secs;
+  if (!m && !s) return "";
+  if (!s) return m + "分";
+  return m + "分" + (s < 10 ? "0" : "") + s + "秒";
 };
 
 // ── PieceCardUnified (共通カードコンポーネント) ────────────────────────────────
@@ -4512,7 +4515,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           // 空（v274以前に登録した曲）のときだけ year から復元する。
           yearText: p.yearText || (p.year ? String(p.year) : ''),
           era: p.era || 'modern',
-          duration: p.duration || 5,
+          duration: (p.duration===null||p.duration===undefined||p.duration==="")?null:p.duration, // v470 A: null keep
           difficulty: p.difficulty || 3,
           readiness: p.readiness || 50,
           key: p.key || '',
@@ -4805,7 +4808,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       year: piece.year || null,
       "yearText": piece.yearText || '', // v274
       era: era,
-      duration: piece.duration || 5,
+      duration: (piece.duration===null||piece.duration===undefined||piece.duration==="")?null:piece.duration, // v470 A: null keep
       difficulty: piece.difficulty || 3,
       readiness: piece.readiness || 50,
       key: piece.key || '',
@@ -4842,7 +4845,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
         year: piece.year || null,
         "yearText": piece.yearText || '', // v274
         era: piece.era || era,
-        duration: piece.duration || 5,
+        duration: (piece.duration===null||piece.duration===undefined||piece.duration==="")?null:piece.duration, // v470 A: null keep
         difficulty: piece.difficulty || 3,
         readiness: piece.readiness || 50,
         key: piece.key || '',
