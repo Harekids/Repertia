@@ -929,7 +929,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <input
                     defaultValue={(draft.duration||draft.durationSecs) ? ((draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")) : ""}
                     onBlur={e=>{
-                      const raw=e.target.value.trim();
+                      const raw=e.target.value.trim().replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}).replace(/：/g,":"); // v476: fullwidth digit/colon to halfwidth
                       if(raw===""){ setDraft({...draft,duration:null,durationSecs:0}); e.target.value=""; return; }
                       const colonMatch=raw.match(/^(\d+):(\d+)$/);
                       const mMatch=raw.match(/(\d+)\s*分/);
@@ -1671,7 +1671,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
               key={piece.title}
               onFocus={e=>e.target.select()}
               onBlur={e=>{
-                const raw=e.target.value.trim();
+                const raw=e.target.value.trim().replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}).replace(/：/g,":"); // v476: fullwidth digit/colon to halfwidth
                 const colonMatch=raw.match(/^(\d+):(\d+)$/);
                 const mMatch=raw.match(/(\d+)\s*分/);
                 const sMatch=raw.match(/(\d+)\s*秒/);
