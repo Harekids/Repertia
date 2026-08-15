@@ -876,8 +876,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               {/* ④右上✕ */}
               <button onClick={cancelEditFn} title="キャンセル"
                 style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
-              {/* 1行目: 作曲家(1):曲名(2) */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 2fr",gap:8,marginBottom:8}}>
+              {/* 1行目: 作曲家(1):曲名(2). v471 C1: mobile=stack each 1 row. PC=1:2 keep. */}
+              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 2fr",gap:8,marginBottom:8}}>
                 {[["作曲家","composer"],["曲名","title"]].map(([label,field])=>(
                   <div key={field}>
                     <div style={fLabel}>{label}</div>
@@ -888,7 +888,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               </div>
               {/* 2行目: 6列均等グリッド。v356 ①: 並びを 時代・作曲年・調性・演奏時間・Lv.・Pop. に（カード2行目の表示順と整合）。
                    v356 ③: alignItems:start で各セル上端を揃える（Lv.の縦ずれ解消）。 */}
-              <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:8,marginBottom:8,alignItems:"start"}}>
+              <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(3, 1fr)":"repeat(6, 1fr)",gap:8,marginBottom:8,alignItems:"start"}}>
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
                   <div style={fLabel}>時代</div>
