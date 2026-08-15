@@ -144,6 +144,7 @@ const KEYS = ["ー","ハ長調","ニ長調","ホ長調","ヘ長調","ト長調",
 const parseRange = (raw) => {
   if (raw == null) return { min: "", max: "" };
   let s = String(raw).trim()
+    .replace(/[\uFF10-\uFF19]/g, function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}) // v478: fullwidth digits to halfwidth
     .replace(/[\u2212\uFF0D]/g, "-")
     .replace(/[\u301C\uFF5E~]/g, "-");
   if (s === "") return { min: "", max: "" };
