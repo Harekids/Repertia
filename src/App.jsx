@@ -2803,8 +2803,10 @@ const ManagePage = (props) => {
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2,display:"flex",alignItems:"center"}}>作曲年<InfoTip isMobile={isMobile} lines={["2000 → 2000年","2000-2050 → 範囲","2000- → 以降","-2000 → 以前"]} /></div>
-              {/* v458①: 1ボックス範囲入力。yearRangeに文字列保持→parseRangeでsetYearMin/Maxに反映（既存フィルタ無変更）。「ー」=空=解除。 */}
-              <input value={yearRange} onChange={e=>{const v=e.target.value; setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              {/* v458① + v479 A: onBlurで全角数字だけ半角表示に。範囲の書き方は保持。 */}
+              <input value={yearRange} onChange={e=>{const v=e.target.value; setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}}
+                onBlur={e=>{const v=e.target.value.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}); setYearRange(v); const r=parseRange(v); setYearMin(r.min); setYearMax(r.max);}}
+                placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={yearMin} onChange={e=>setYearMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
@@ -2827,8 +2829,10 @@ const ManagePage = (props) => {
             </div>
             <div>
               <div style={{fontSize:10,color:"#A8B4C8",fontFamily:FONT,marginBottom:2,display:"flex",alignItems:"center"}}>演奏時間（推定）<InfoTip isMobile={isMobile} lines={["10 → 10分","5-10 → 範囲","10- → 以上","-10 → 以下"]} /></div>
-              {/* v458①: 1ボックス範囲入力。durRangeに文字列保持→parseRangeでsetDurMin/Maxに反映（既存フィルタ無変更）。「ー」=空=解除。 */}
-              <input value={durRange} onChange={e=>{const v=e.target.value; setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
+              {/* v458① + v479 A: onBlurで全角数字だけ半角表示に。範囲の書き方は保持。 */}
+              <input value={durRange} onChange={e=>{const v=e.target.value; setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}}
+                onBlur={e=>{const v=e.target.value.replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0xFEE0);}); setDurRange(v); const r=parseRange(v); setDurMin(r.min); setDurMax(r.max);}}
+                placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
               {false && (
               <div style={{display:"flex",gap:4,alignItems:"center"}}>
                 <input value={durMin} onChange={e=>setDurMin(e.target.value)} placeholder="ー" style={{background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}} />
