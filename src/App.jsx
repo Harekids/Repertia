@@ -561,7 +561,7 @@ const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT, isMobile }) =
   return (
     <div style={{...wrapStyle, position:"relative", alignItems:"center"}}>
       <input type="text" inputMode="numeric" value={text}
-        placeholder="例: 20001231"
+        placeholder="例: 20261231"
         onFocus={()=>setFocused(true)}
         onChange={e=>setText(e.target.value)}
         onBlur={e=>{
@@ -571,7 +571,6 @@ const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT, isMobile }) =
           setText(toSlash(iso));
         }}
         style={inputStyle}/>
-      {isMobile !== undefined && <InfoTip isMobile={isMobile} lines={["20001231 → 2000/12/31"]} />}
     </div>
   );
 };
@@ -3744,9 +3743,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     padding:"0 8px", margin:0};
   // v399 ④⑤: 日付なしは空で表現（「未定」オーバーレイは撤去）。空のときはネイティブのyyyy/mm/dd＋カレンダーアイコンをそのまま見せる。
   const fldDate = (
-    <div>{fldLabel("年月日")}
+    <div>
+      <div style={{fontSize:10,color:"#94A3BE",marginBottom:3,fontFamily:FONT,height:14,lineHeight:"14px",whiteSpace:"nowrap",display:"flex",alignItems:"center"}}>年月日<InfoTip isMobile={isMobile} lines={["20261231 → 2026/12/31"]} /></div>
       <DateField value={newEvent.date} onChange={v=>setNewEvent({...newEvent,date:v})}
-        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT} isMobile={isMobile}/>
+        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT}/>
     </div>
   );
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
@@ -3949,7 +3949,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
             ) : (
               <React.Fragment>
-                <div style={{display:"grid",gridTemplateColumns:"178px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
+                <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                   {fldVenue}
