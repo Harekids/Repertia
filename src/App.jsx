@@ -3749,10 +3749,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT}/>
     </div>
   );
-  const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
-  const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="会場名" style={inpEText}/></div>);
-  const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="共演者・伴奏者" style={inpEText}/></div>);
-  const fldOrganizer = (<div>{fldLabel("主催")}<input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="主催者名" style={inpEText}/></div>);
+  const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="ー" style={inpEText}/></div>);
+  const fldVenue = (<div>{fldLabel("場所")}<input value={newEvent.venue} onChange={e=>setNewEvent({...newEvent,venue:e.target.value})} placeholder="ー" style={inpEText}/></div>);
+  const fldPerformers = (<div>{fldLabel("共演者")}<input value={newEvent.performers||""} onChange={e=>setNewEvent({...newEvent,performers:e.target.value})} placeholder="ー" style={inpEText}/></div>);
+  const fldOrganizer = (<div>{fldLabel("主催")}<input value={newEvent.organizer} onChange={e=>setNewEvent({...newEvent,organizer:e.target.value})} placeholder="ー" style={inpEText}/></div>);
   const fldType = (
     <div>{fldLabel("種別")}
       {newEvent.type!=="other" ? (
@@ -3823,10 +3823,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   v391: rows=1明示＋minHeightを1行分に下げて「開始は1行」を徹底。右下ハンドルは
   //   resize:"vertical"で表示。lineHeightを固定して1行高さを安定させる。
   const fldNotes = (
-    <div>{fldLabel("備考")}
+    <div>{fldLabel("メモ")}
       <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
         rows={1}
-        placeholder="備考" style={{...inpE,minHeight:30,lineHeight:1.4,resize:"vertical",display:"block"}}/>
+        placeholder="ー" style={{...inpE,minHeight:30,lineHeight:1.4,resize:"vertical",display:"block"}}/>
     </div>
   );
 
