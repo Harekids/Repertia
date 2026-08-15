@@ -552,15 +552,16 @@ const toSlash = (iso) => {
   return m[1] + "/" + m[2] + "/" + m[3];
 };
 
-const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT }) => {
+const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT, isMobile }) => {
   // v484: OS date -> text. display YYYY/MM/DD, save ISO. onBlur normalizes.
+  // v485: placeholder simplified + InfoTip guide. isMobile for tap/hover.
   const [text, setText] = React.useState(toSlash(value));
   const [focused, setFocused] = React.useState(false);
   React.useEffect(() => { if (!focused) setText(toSlash(value)); }, [value, focused]);
   return (
-    <div style={{...wrapStyle, position:"relative"}}>
+    <div style={{...wrapStyle, position:"relative", alignItems:"center"}}>
       <input type="text" inputMode="numeric" value={text}
-        placeholder="例: 2026/08/15"
+        placeholder="例: 20001231"
         onFocus={()=>setFocused(true)}
         onChange={e=>setText(e.target.value)}
         onBlur={e=>{
@@ -570,6 +571,7 @@ const DateField = ({ value, onChange, wrapStyle, inputStyle, FONT }) => {
           setText(toSlash(iso));
         }}
         style={inputStyle}/>
+      {isMobile !== undefined && <InfoTip isMobile={isMobile} lines={["20001231 → 2000/12/31"]} />}
     </div>
   );
 };
@@ -3735,7 +3737,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   効かず背が高くなる。→ 外側のdivで高さをFLD_Hに完全固定し、input自体は height:100% で
   //   親に従わせる。これで空でも値ありでも外形はFLD_Hのまま。appearanceは付けない＝リセット維持。
   const dateBoxWrap = {height:FLD_H, minHeight:FLD_H, maxHeight:FLD_H, boxSizing:"border-box",
-    background:"#F4F6F9", border:"1px solid #C8CEDB", borderRadius:4, overflow:"hidden",
+    background:"#F4F6F9", border:"1px solid #C8CEDB", borderRadius:4,
     display:"flex", alignItems:"stretch", width:"100%"};
   const dateInputInner = {flex:1, minWidth:0, height:"100%", boxSizing:"border-box",
     background:"transparent", border:"none", color:"#15233F", fontFamily:FONT, fontSize:13,
@@ -3744,7 +3746,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const fldDate = (
     <div>{fldLabel("年月日")}
       <DateField value={newEvent.date} onChange={v=>setNewEvent({...newEvent,date:v})}
-        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT}/>
+        wrapStyle={dateBoxWrap} inputStyle={dateInputInner} FONT={FONT} isMobile={isMobile}/>
     </div>
   );
   const fldTitle = (<div>{fldLabel("イベント内容")}<input value={newEvent.title} onChange={e=>setNewEvent({...newEvent,title:e.target.value})} placeholder="公演タイトル" style={inpEText}/></div>);
@@ -3931,7 +3933,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(92px,0.7fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(120px,0.9fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
@@ -3947,7 +3949,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
             ) : (
               <React.Fragment>
-                <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
+                <div style={{display:"grid",gridTemplateColumns:"178px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                   {fldVenue}
