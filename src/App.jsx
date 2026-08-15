@@ -3933,7 +3933,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                  スマホ＝2列×3行（1行目 年月日:イベント内容=1:3／2行目 場所:種別=2:1／3行目 共演者:主催=1:1）＋備考。 */}
             {isMobile ? (
               <div style={{marginBottom:8}}>
-                <div style={{display:"grid",gridTemplateColumns:"minmax(120px,0.9fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
+                <div style={{display:"grid",gridTemplateColumns:"minmax(96px,0.72fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
                   {fldDate}
                   {fldTitle}
                 </div>
