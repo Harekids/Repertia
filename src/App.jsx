@@ -965,8 +965,8 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                         <button key={t} type="button" title={t==="desc"?"information":t}
                           onClick={()=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,type:t}:x);setDraft({...draft,links:nl});}}
                           style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",
-                            background:(lk.type||"video")===t?"#DCE4F0":"#F4F6F9",
-                            border:(lk.type||"video")===t?"1px solid #5B7FA6":"1px solid #C8CEDB",
+                            background:(lk.type||"desc")===t?"#DCE4F0":"#F4F6F9",
+                            border:(lk.type||"desc")===t?"1px solid #5B7FA6":"1px solid #C8CEDB",
                             color:"#15233F",borderRadius:3,cursor:"pointer",padding:0,flexShrink:0}}>
                           <LinkIcon type={t} />
                         </button>
@@ -974,16 +974,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                     </div>
                     {/* v472 C: URL small, title large. PC=1 row(URL flex1,title flex2). mobile=title 2nd row full width. */}
                     <input value={lk.url||""} placeholder="URL" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,url:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{...fInput,flex:1,minWidth:0}} />
+                      style={{...fInput,flex:1,flexBasis:isMobile?"60%":"auto",minWidth:0,order:isMobile?1:0}} />
                     <input value={lk.title||""} placeholder="タイトル" onChange={e=>{const nl=(draft.links||[]).map((x,j)=>j===i?{...x,title:e.target.value}:x);setDraft({...draft,links:nl});}}
-                      style={{...fInput,flex:isMobile?"none":2,flexBasis:isMobile?"100%":"auto",width:isMobile?"100%":"auto",minWidth:0,order:isMobile?2:0}} />
+                      style={{...fInput,flex:isMobile?1:2,minWidth:0,order:isMobile?2:0}} />
                     {/* v473 C: X always at end. PC=right end, mobile=after title(order3). color=dark gray bold small. */}
                     <button onClick={()=>{const nl=(draft.links||[]).filter((x,j)=>j!==i);setDraft({...draft,links:nl});}}
                       style={{background:"none",border:"none",color:"#5A6B85",fontWeight:700,cursor:"pointer",fontSize:13,flexShrink:0,padding:"0 4px",order:isMobile?3:0}}>✕</button>
                   </div>
                 ))}
                 {(draft.links||[]).length < 3 && (
-                  <button onClick={()=>{setDraft({...draft,links:[...(draft.links||[]),{type:"video",url:"",title:""}]});}}
+                  <button onClick={()=>{setDraft({...draft,links:[...(draft.links||[]),{type:"desc",url:"",title:""}]});}}
                     style={{background:"none",border:"1px dashed #C8CEDB",color:"#5B7FA6",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:3,padding:"4px 10px",marginTop:2}}>＋ リンクを追加</button>
                 )}
               </div>
