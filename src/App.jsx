@@ -867,6 +867,17 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   {/* v351 ②: 調号・作曲年の表示を削除（2行目に集約済みでダブりのため）。
                        リンクは操作行(♪𝄽・編集の行)へ移動。ここはキーワード/メモのみ残す。 */}
                   {/* 2行目: キーワード → メモ の順（キーワード＝将来の共有・集合知、メモ＝個人的。共有可能→個人的の順）。 */}
+                  {/* v492: PC展開時、曲名直下（右カラム先頭）に「時代 / 作曲YYYY / 調性」を表示。
+                       v351で展開エリアから削除したが、集約先の2行目はスマホ(line2Parts)にしか無く、PCでは時代・作曲年・調性が完全に消えていた。PC用の場所で復活。
+                       空項目は出さず「/」を増やさない(line2Partsと同じ制御)。演奏時間は1行目にあるので入れない。 */}
+                  {(() => {
+                    const infoParts = [era.label, composeYearStr, keyStr].filter(x=>x && String(x).trim()!=="");
+                    return infoParts.length ? (
+                      <div style={{fontSize:11,color:"#94A3BE",lineHeight:1.5,marginBottom:8,fontFamily:FONT}}>
+                        {infoParts.join(" / ")}
+                      </div>
+                    ) : null;
+                  })()}
                   {(p.keywords || p.memo || p.reason) && (
                     <div style={{fontSize:12,color:isAI?"#5A564A":"#94A3BE",lineHeight:1.7,marginBottom:8,fontFamily:FONT}}>
                       {p.keywords && <div style={{marginBottom:(p.memo||p.reason)?4:0}}>{p.keywords}</div>}
