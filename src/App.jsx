@@ -2505,28 +2505,25 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               </div>
               {SORT_OPTS.map(([val,label])=>(
                 <button key={val} onClick={()=>setSortBy(val)}
-                  onMouseEnter={e=>{ if(sortBy!==val) e.currentTarget.style.background="#F4F6F9"; }}
-                  onMouseLeave={e=>{ if(sortBy!==val) e.currentTarget.style.background="transparent"; }}
-                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:sortBy===val?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v497: 文字を共通Dropと同じ#3A4A66・ホバー#F4F6F9追加・選択金維持 */}>
+                  onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.background=(sortBy===val)?"#F4F6F9":"transparent"; }}
+                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:sortBy===val?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: 金とチェックマーク廃止。選択=薄グレー背景常時・非選択はホバー時のみ */}>
                   <span>{label}</span>
-                  {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
                 </button>
               ))}
               {/* 絞り込み（独立ON/OFF・♪𝄽・記号のみ） */}
               <div style={{padding:"6px 12px 4px",marginTop:2,fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #E3E7EE"}/* v497: 区切り線を白地用#E3E7EEに */}>絞り込み</div>
               <button onClick={()=>setFilterNote(v=>!v)}
-                onMouseEnter={e=>{ if(!filterNote) e.currentTarget.style.background="#F4F6F9"; }}
-                onMouseLeave={e=>{ if(!filterNote) e.currentTarget.style.background="transparent"; }}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:filterNote?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}}>
+                onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=filterNote?"#F4F6F9":"transparent"; }}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:filterNote?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: ON=薄グレー背景常時・金とチェック廃止 */}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:15}}>{"\u266A"}</span>
-                {filterNote && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
               <button onClick={()=>setFilterRest(v=>!v)}
-                onMouseEnter={e=>{ if(!filterRest) e.currentTarget.style.background="#F4F6F9"; }}
-                onMouseLeave={e=>{ if(!filterRest) e.currentTarget.style.background="transparent"; }}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:filterRest?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}}>
+                onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=filterRest?"#F4F6F9":"transparent"; }}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:filterRest?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: ON=薄グレー背景常時・金とチェック廃止 */}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:13}}>{"\u{1D13D}"}</span>
-                {filterRest && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
             </div>
           )}
