@@ -2491,15 +2491,16 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             <span style={{fontSize:9,color:isMobile?"#8A94A8":"#8A94A8"}}>▼</span>
           </button>
           {viewOpen && (
-            <div style={{position:"absolute",right:0,top:"110%",background:"#FFFFFF",border:"1px solid #C8CEDB",borderRadius:6,boxShadow:"0 6px 20px rgba(0,0,0,0.18)",zIndex:60,minWidth:isMobile?120:180,overflow:"hidden",padding:"3px 0"}/* v497: 表示メニューを共通Dropdownの質感(白地・柔影)に統一 */}>
+            <div style={{position:"absolute",right:0,top:"110%",background:"#FFFFFF",border:"1px solid #C8CEDB",borderRadius:6,boxShadow:"0 6px 20px rgba(0,0,0,0.18)",zIndex:60,minWidth:isMobile?120:135,overflow:"hidden",padding:"3px 0"}/* v498: 幅を135に(180の2/3=120より少し広い) *//* v497: 表示メニューを共通Dropdownの質感(白地・柔影)に統一 */}>
               {/* 並び順（排他・1つ選択）。▲▼を見出しの隣に置く（選択中を金） */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 12px 4px"}}>
                 <span style={{fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</span>
                 <span style={{display:"flex",gap:10}}>
+                  {/* v498: 選択表現を金→「塗り三角/白抜き三角」に。選択中=塗(▲/▼)・非選択=白抜き(△/▽)、色は両方グレー#8A94A8統一。 */}
                   <span onClick={()=>setSortAsc(true)} title="昇順"
-                    style={{fontSize:12,cursor:"pointer",color:sortAsc?"#C8A860":"#8A94A8"}}>▲</span>
+                    style={{fontSize:12,cursor:"pointer",color:"#8A94A8"}}>{sortAsc?"▲":"△"}</span>
                   <span onClick={()=>setSortAsc(false)} title="降順"
-                    style={{fontSize:12,cursor:"pointer",color:!sortAsc?"#C8A860":"#8A94A8"}}>▼</span>
+                    style={{fontSize:12,cursor:"pointer",color:"#8A94A8"}}>{!sortAsc?"▼":"▽"}</span>
                 </span>
               </div>
               {SORT_OPTS.map(([val,label])=>(
