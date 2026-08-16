@@ -3471,23 +3471,30 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           </div>
         )}
         {/* v286(③-2): programId経由のプログラム内容表示を廃止（Atelierは別アプリへ分離）。 */}
-        {!!ev.date && ev.date <= today && !ev.in_history && (
+        {/* v496a: 登録ボタンをこの単体位置(メモ上)から最下部の操作行へ移動し、編集と両端に並べる。旧コードは{false&&()}で温存。 */}
+        {false && (!!ev.date && ev.date <= today && !ev.in_history && (
           <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
-            style={{marginTop:8,background:"#5E1F28",border:"1px solid #8A4048",color:"#E7C4CA",
-              padding:"4px 10px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4,
-              display:"inline-flex",alignItems:"center",gap:6,alignSelf:"flex-start"}}>
-            <span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:"#C0405A",flexShrink:0}}/>
-            History に登録する
+            style={{marginTop:8,background:"#C8A860",border:"none",color:"#0F1A33",
+              padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3,fontWeight:"bold",
+              display:"inline-flex",alignItems:"center",alignSelf:"flex-start"}}>
+            History に登録
           </button>
-        )}
+        ))}
         {ev.notes && <div><span style={{color:"#A9B6CC"}}>メモ：</span>{ev.notes}</div>}
         {ev.videoUrl && <div><span style={{color:"#A9B6CC"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
         {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #1E2A45",alignSelf:"flex-start",marginTop:4}}/>}
         {/* v338 ⑩-1/⑩-4: 展開時は「編集」ボタンだけ（削除は編集フォームの中へ移した）。
              サクッと消せないように＝歴史は消えてはいけない。 */}
         {!compact && (
-          <div style={{display:"flex",gap:8,marginTop:4,justifyContent:"flex-end"}}>
-            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #1E2A45",color:"#A9B6CC",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>✎ 編集</button>
+          /* v496a: 操作行を両端配置(space-between)に。左=Historyに登録(金・主アクション)/右=編集。
+             サイズはピースカードの編集ボタンと同一(border1px#2E3E5E・fontSize12・padding5/16・radius4)に揃える。
+             登録は金背景・濃紺字・同寸法。登録が無いイベントでもspace-betweenで編集は右端に残る。 */
+          <div style={{display:"flex",gap:8,marginTop:8,justifyContent:"space-between",alignItems:"center"}}>
+            {(!!ev.date && ev.date <= today && !ev.in_history)
+              ? <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
+                  style={{background:"#C8A860",border:"1px solid #C8A860",color:"#0F1A33",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,fontWeight:"bold",flexShrink:0}}>History に登録</button>
+              : <span/>}
+            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
           </div>
         )}
       </div>
