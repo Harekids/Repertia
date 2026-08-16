@@ -2815,7 +2815,7 @@ const ManagePage = (props) => {
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
-        <div style={{marginTop:10,marginBottom:24}/* v512: 下端をAddPieceと揃えて20→24 */}>
+        <div style={{marginTop:10,marginBottom:24}/* v513: 下端をAddPieceと揃えて20→24 */}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -3338,7 +3338,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
   // v303: 開いた時点から内容が変わっているか（案ウの判定）。JSON比較で十分（同一構造の素データ）。
   const isEditDirty = () => {
-    // v512: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
+    // v513: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
     //   どちらも newEvent/editBaseline を使う同じ仕組みなので、開いている方を見れば足りる（両者は排他）。
     if (!showForm && !editInCard) return false;
     try { return JSON.stringify(newEvent) !== JSON.stringify(editBaseline); }
@@ -3349,7 +3349,11 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const requestEventsTab = (k) => {
     if (k === eventsTab) return;
     if (isEditDirty()) { setPendingTab(k); return; } // 確認モーダルを出す
+    // v513: 変更なしで素通りする時も、上部フォーム/カード内編集の両方を確実に閉じる。
+    //   従来 closeEditForm() だけだったため editInCard が残り、移動後に「追加中の内容があります」
+    //   誤検知が出ていた（editInCardが真＋newEvent=EMPTY≠editBaseline=null→dirty誤判定・editingIdはnull化済で「追加中」表示）。
     closeEditForm();
+    closeInCardEdit();
     setEventsTab(k);
   };
 
@@ -3358,7 +3362,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   登録は初回一度きり（依存空）→ アンマウントで解除。
   const navGuardStateRef = React.useRef({ dirty:false, ev:null, editingId:null });
   navGuardStateRef.current = {
-    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v512: カード内編集(editInCard)もページ移動ガードの対象に */,
+    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v513: カード内編集(editInCard)もページ移動ガードの対象に */,
     ev: newEvent,
     editingId: editingId,
   };
@@ -3400,7 +3404,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   （従来は setEvents だけでDB保存が漏れていた＝削除がDBに反映されなかった。ここで直す）。
   const deleteEvent = async (id) => {
     // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
-    if (String(editingId) === String(id)) closeEditForm();
+    if (String(editingId) === String(id)) { closeEditForm(); closeInCardEdit(); }/* v513: カード内編集中に削除した場合もeditInCardを残さない */
     const nextEvents = events.filter(e=>String(e.id)!==String(id));
     setEvents(nextEvents);
     setSelectedEvent(null);
@@ -4053,7 +4057,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v510: 新規追加フォームを変数化しformSlotで帯直下に出す。
   const eventFormNode = showForm && (
-          <div style={{...FORM.card,marginTop:16,marginBottom:24,position:"relative",paddingTop:editingId?28:18}/* v512: 上下端を24に */}>
+          <div style={{...FORM.card,marginTop:16,marginBottom:24,position:"relative",paddingTop:editingId?28:18}/* v513: 上下端を24に */}>
             {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
             <button onClick={()=>{closeEditForm();}} title="キャンセル"
               style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
@@ -4336,7 +4340,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           line2="編集中の内容を破棄してタブを移動しますか？"
           confirmLabel="破棄して移動" confirmColor="#C0405A"
           onCancel={()=>setPendingTab(null)}
-          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v512: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
+          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v513: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
       )}
       {/* v385 ④⑤: ページ移動(ロゴ／ナビ)の破棄確認。見出しは削除モーダル準拠(日付＋公演タイトル)。
            [破棄]で編集を捨てて閉じ→保留していたページ移動(proceed)を実行。 */}
@@ -4353,7 +4357,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             line2="保存していない変更があります。破棄して移動しますか?"
             confirmLabel="破棄" confirmColor="#C0405A"
             onCancel={()=>setPendingNav(null)}
-            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v512: カード内編集も破棄して閉じる */ />
+            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v513: カード内編集も破棄して閉じる */ />
         );
       })()}
       {/* v338 ⑩-2: イベント削除の確認モーダル（ピースカードと同じ自前ConfirmModalに統一）。
