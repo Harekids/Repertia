@@ -3417,10 +3417,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const secLbl=(t)=>(<div style={{fontSize:10,color:"#94A3BE",letterSpacing:2,fontFamily:FONT,marginBottom:6,marginTop:14,borderBottom:"1px solid #15233F",paddingBottom:3}}>{t}</div>);
 
   // ── Event detail card ──
-  const EventDetail = ({ev, compact=false, allPool}) => {
+  const EventDetail = ({ev, compact=false, allPool, titleIndent=0}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
-      <div style={{paddingTop:8,fontSize:12,color:"#A9B6CC",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}/* v494: イベントカードは薄紺地#1C2E4A。本文テキストを旧グレー2色→#A9B6CCに白っぽく統一(方針A)。リンク色#5B7FA6・時代帯色は据え置き。 */>
+      <div style={{paddingTop:8,paddingLeft:titleIndent,fontSize:12,color:"#A9B6CC",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}/* v495: titleIndentでイベント名の頭に左端を揃える(History/Upcomingのみ・PCは日付幅+20px/スマホ0・ListViewは0で現状維持) */>
         {ev.organizer && <div><span style={{color:"#A9B6CC"}}>主催：</span>{ev.organizer}</div>}
         {ev.contact && <div><span style={{color:"#A9B6CC"}}>問い合わせ：</span>{ev.contact}</div>}
         {/* v289: History と Upcoming で表示を排他にする（二重表示の整理）。
@@ -3675,7 +3675,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
                             {ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
-                          {isSelected && <EventDetail ev={ev} allPool={allPool}/>}
+                          {isSelected && <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:"calc(3.2em + 20px)"}/>}
                         </div>
                       );
                     })}
