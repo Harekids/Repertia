@@ -3640,7 +3640,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v333 ①: History未登録フラグの赤丸。絵文字🔴の光沢をやめ、フラット単色の丸に。
   const RedDot = () => (
     <span title="History未登録" style={{display:"inline-block",width:9,height:9,borderRadius:"50%",
-      background:"#C0405A",flexShrink:0,verticalAlign:"middle"}}/>
+      background:"#C8A860",flexShrink:0,verticalAlign:"middle"}/* v509: 赤#C0405A→金#C8A860。登録を促す印=金(主アクション)。名前RedDotは温存 */}/>
   );
   const jewelFill = (hex) => {
     const a = 0.60; // ジュエル色の濃さ（0=紺だけ〜1=ジュエル色そのまま）。実機で調整
