@@ -2815,7 +2815,7 @@ const ManagePage = (props) => {
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
-        <div style={{marginTop:10,marginBottom:20}}>
+        <div style={{marginTop:10,marginBottom:24}/* v511: 下端をAddPieceと揃えて20→24 */}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -4051,7 +4051,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v510: 新規追加フォームを変数化しformSlotで帯直下に出す。
   const eventFormNode = showForm && (
-          <div style={{...FORM.card,marginBottom:20,position:"relative",paddingTop:editingId?28:18}}>
+          <div style={{...FORM.card,marginTop:16,marginBottom:24,position:"relative",paddingTop:editingId?28:18}/* v511: 上下端を24に */}>
             {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
             <button onClick={()=>{closeEditForm();}} title="キャンセル"
               style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
