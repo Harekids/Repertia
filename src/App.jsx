@@ -3489,7 +3489,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               <div key={it.id} style={{paddingLeft:0,marginBottom:2,fontSize:11}}>
                 {it.kind==="break"
                   ? <span style={{color:"#A9B6CC",fontStyle:"italic"}}>― 休憩 ―</span>
-                  : <span>{idx+1}. {it.performer&&<span style={{color:"#A9B6CC"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#A9B6CC"}}>{shownComposer} </span>}{shownTitle}{shownDur&&<span style={{color:"#A9B6CC"}}>　{shownDur}</span>}</span>
+                  : <span>{idx+1}. {it.performer&&<span style={{color:"#A9B6CC"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#A9B6CC"}}>{shownComposer}：</span>}{shownTitle}{shownDur&&<span style={{color:"#A9B6CC"}}>　{shownDur}</span>}</span>
                 }
               </div>
               );
@@ -3502,7 +3502,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {Array.isArray(ev.historyItems) && ev.historyItems.length>0
               ? ev.historyItems.map((s,i)=>(
                   <div key={i} style={{paddingLeft:0,marginBottom:2,fontSize:11,color:"#A9B6CC"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
-                    {(i+1)+". "}{s.performer&&<span style={{color:"#A9B6CC"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
+                    {(i+1)+". "}{s.performer&&<span style={{color:"#A9B6CC"}}>{s.performer}　</span>}{s.composer+"："+s.title}
                   </div>
                 ))
               : (
@@ -3944,7 +3944,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           <React.Fragment>
             {(Array.isArray(newEvent.historyItems)?newEvent.historyItems:[]).map((s,idx)=>(
               <div key={idx}
-                style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+                style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #D0D6DF",borderRadius:4,padding:"5px 7px"}}>
                 <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
                   <button disabled={idx===0}
                     onClick={()=>{ if(idx===0) return; moveHistoryItem(idx,-1); }}
@@ -3965,7 +3965,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
             return (
             <div key={it.id}
-              style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+              style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #D0D6DF",borderRadius:4,padding:"5px 7px"}}>
               <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
                 <button disabled={idx===0}
                   onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
@@ -4192,7 +4192,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 <div key={it.id}
                   style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,
                     background:"white",
-                    border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+                    border:"1px solid #D0D6DF",borderRadius:4,padding:"5px 7px"}}>
                   <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
                     <button disabled={idx===0}
                       onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
