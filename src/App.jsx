@@ -925,7 +925,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{flex:1,minWidth:"1em"}} />
                 {/* 右：編集（右寄せ） */}
                 <button onClick={e=>{e.stopPropagation();startEdit(e);}}
-                  style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
+                  style={{background:"none",border:"1px solid #C8CEDB",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}/* v496b [1]: 枠線を文字と同色#C8CEDBに */}>編集</button>
               </div>
             </>
           ) : (
@@ -3490,11 +3490,12 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
              サイズはピースカードの編集ボタンと同一(border1px#2E3E5E・fontSize12・padding5/16・radius4)に揃える。
              登録は金背景・濃紺字・同寸法。登録が無いイベントでもspace-betweenで編集は右端に残る。 */
           <div style={{display:"flex",gap:8,marginTop:8,justifyContent:"space-between",alignItems:"center"}}>
+            {/* v496b: [2]登録文字を更新ボタンと同色#fffに。[3]左端を月日ラインへ(marginLeftでtitleIndent相殺)、高さは編集と同寸。[1]編集の枠線を文字と同色#C8CEDBに。 */}
             {(!!ev.date && ev.date <= today && !ev.in_history)
               ? <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
-                  style={{background:"#C8A860",border:"1px solid #C8A860",color:"#0F1A33",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,fontWeight:"bold",flexShrink:0}}>History に登録</button>
+                  style={{background:"#C8A860",border:"1px solid #C8A860",color:"#fff",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,fontWeight:"bold",flexShrink:0,marginLeft:isMobile?0:(-EV_TITLE_INDENT)}}>History に登録</button>
               : <span/>}
-            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #2E3E5E",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
+            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #C8CEDB",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
           </div>
         )}
       </div>
