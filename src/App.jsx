@@ -3917,7 +3917,38 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         </React.Fragment>
       )}
 
-      {/* v501予定: プログラム簡易編集（曲追加・▲▼・×）をここに移植する。今はプレースホルダ。 */}
+      {/* v502: プログラム簡易編集をカード内に移植。newEvent.itemsを操作・曲ピッカー(pickerOpen全画面モーダル)は既存を1箇所共有。 */}
+      <div style={{marginTop:16,marginBottom:8}}>
+        <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:8}}>プログラム</div>
+        {newEvent.items.map((it,idx)=>{
+          const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
+          return (
+          <div key={it.id}
+            style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+            <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
+              <button disabled={idx===0}
+                onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
+                style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===0?"default":"pointer",color:idx===0?"#C8CEDB":"#5B7FA6"}}>▲</button>
+              <button disabled={idx===newEvent.items.length-1}
+                onClick={async()=>{ if(idx===newEvent.items.length-1) return; moveItem(it.id,1); if(saveEvents) await saveEvents(); }}
+                style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===newEvent.items.length-1?"default":"pointer",color:idx===newEvent.items.length-1?"#C8CEDB":"#5B7FA6"}}>▼</button>
+            </div>
+            <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
+            {pc ? (
+              <React.Fragment>
+                <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{pc.composer}　：　{pc.title}</span>
+                <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{pc.duration?pc.duration+"分":"—"}</span>
+              </React.Fragment>
+            ) : (
+              <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
+            )}
+            <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+          </div>
+          );
+        })}
+        <button onClick={()=>{setPickerQuery("");setPickerOpen(true);}} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>＋ 曲を追加</button>
+        <div style={{fontSize:10,color:"#7A8FB5",fontFamily:FONT,marginTop:6,lineHeight:1.5}}>Library（Repertoire / Learning）にある曲を追加できます。</div>
+      </div>
 
       {/* v500: 保存/削除/キャンセル（カード内）。金=保存(主アクション)／赤=削除／枠=キャンセル。ピース編集と同思想。 */}
       <div style={{display:"flex",gap:8,marginTop:12,justifyContent:"space-between",alignItems:"center"}}>
