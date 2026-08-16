@@ -2517,13 +2517,13 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               <button onClick={()=>setFilterNote(v=>!v)}
                 onMouseEnter={()=>setHoverKey("note")}
                 onMouseLeave={()=>setHoverKey(h=>h==="note"?null:h)}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterNote||hoverKey==="note")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterNote||hoverKey==="note")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"3px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:18}/* v499c: ♪を少し大きく15→18 */}>{"\u266A"}</span>
               </button>
               <button onClick={()=>setFilterRest(v=>!v)}
                 onMouseEnter={()=>setHoverKey("rest")}
                 onMouseLeave={()=>setHoverKey(h=>h==="rest"?null:h)}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterRest||hoverKey==="rest")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterRest||hoverKey==="rest")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"3px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:16}/* v499c: 休符を少し大きく13→16 */}>{"\u{1D13D}"}</span>
               </button>
             </div>
