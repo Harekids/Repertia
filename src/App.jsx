@@ -925,7 +925,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 <div style={{flex:1,minWidth:"1em"}} />
                 {/* 右：編集（右寄せ） */}
                 <button onClick={e=>{e.stopPropagation();startEdit(e);}}
-                  style={{background:"none",border:"1px solid #C8CEDB",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}/* v496b [1]: 枠線を文字と同色#C8CEDBに */}>編集</button>
+                  style={{background:"none",border:"1px solid #94A3BE",color:"#94A3BE",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}/* v496c: ピース編集=文字・枠とも#94A3BE(2行目と同色・濃紺地で押さえめ) */}>編集</button>
               </div>
             </>
           ) : (
@@ -3493,9 +3493,9 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {/* v496b: [2]登録文字を更新ボタンと同色#fffに。[3]左端を月日ラインへ(marginLeftでtitleIndent相殺)、高さは編集と同寸。[1]編集の枠線を文字と同色#C8CEDBに。 */}
             {(!!ev.date && ev.date <= today && !ev.in_history)
               ? <button onClick={async(e)=>{e.stopPropagation(); if(registerEventToHistory) await registerEventToHistory(ev);}}
-                  style={{background:"#C8A860",border:"1px solid #C8A860",color:"#fff",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,fontWeight:"bold",flexShrink:0,marginLeft:isMobile?0:(-EV_TITLE_INDENT)}}>History に登録</button>
+                  style={{background:"#C8A860",border:"1px solid #C8A860",color:"#fff",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0,marginLeft:isMobile?0:(-EV_TITLE_INDENT)}/* v496c: 太字を外し潰れ解消 */}>History に登録</button>
               : <span/>}
-            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #C8CEDB",color:"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>編集</button>
+            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #A9B6CC",color:"#A9B6CC",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}/* v496c: イベント編集=文字・枠とも#A9B6CC(本文と同色・薄紺地で統一) */}>編集</button>
           </div>
         )}
       </div>
