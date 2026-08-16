@@ -3961,6 +3961,46 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             style={{background:"#C8A860",border:"1px solid #C8A860",color:"#fff",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>保存</button>
         </div>
       </div>
+      {/* v503: ピッカーをインカード編集内にも描画。pickerOpen共有・showFormとeditInCardは排他なので二重なし。 */}
+            {pickerOpen && (
+              <div onClick={()=>setPickerOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,16,30,0.55)",zIndex:200,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:70}}>
+                <div onClick={e=>e.stopPropagation()} style={{background:"#0F1B30",border:"1px solid #2A3F6A",borderRadius:10,width:520,maxWidth:"92vw",maxHeight:"70vh",display:"flex",flexDirection:"column",boxShadow:"0 12px 40px rgba(0,0,0,0.5)"}}>
+                  <div style={{padding:"14px 16px 10px",borderBottom:"1px solid #1E2A45"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                      <span style={{fontSize:12,letterSpacing:1,color:"#EDE6D6",fontFamily:FONT}}>曲を選ぶ（Repertoire / Learning）</span>
+                      <button onClick={()=>setPickerOpen(false)} style={{background:"none",border:"none",color:"#94A3BE",fontSize:18,cursor:"pointer",lineHeight:1}}>×</button>
+                    </div>
+                    <input autoFocus value={pickerQuery} onChange={e=>setPickerQuery(e.target.value)} placeholder="作曲家名・曲名で絞り込み" style={{width:"100%",boxSizing:"border-box",background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"7px 10px",fontSize:13,borderRadius:5,fontFamily:FONT}}/>
+                  </div>
+                  <div style={{overflowY:"auto",padding:"6px 0"}}>
+                    {(() => {
+                      const q = pickerQuery.trim().toLowerCase();
+                      const list = (allPool||[]).filter(p=>{
+                        if (!q) return true;
+                        return (String(p.composer||"")+" "+String(p.title||"")).toLowerCase().includes(q);
+                      });
+                      if (list.length===0) return (
+                        <div style={{padding:"18px 16px",fontSize:12,color:"#7A8FB5",fontFamily:FONT,textAlign:"center"}}>該当する曲がありません。Library の「Add Piece」で登録してください。</div>
+                      );
+                      return list.map(p=>{
+                        const isLP = Array.isArray(learningIds) && learningIds.some(id=>String(id)===String(p.id));
+                        return (
+                          <div key={p.id} onClick={()=>{addPieceItem(p.id);setPickerOpen(false);}}
+                            style={{display:"flex",alignItems:"baseline",gap:8,padding:"8px 16px",cursor:"pointer",borderBottom:"1px solid #16233b"}}
+                            onMouseEnter={e=>e.currentTarget.style.background="#16233b"}
+                            onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                            <span style={{flex:"0 0 90px",fontSize:11,color:"#B9C6DC",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.composer}</span>
+                            <span style={{flex:1,fontSize:12,color:"#EDE6D6",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.title}</span>
+                            <span style={{flex:"0 0 auto",fontSize:9,color:isLP?"#8FA3C0":"#C8A860",fontFamily:FONT,letterSpacing:0.5}}>{isLP?"LP":"RP"}</span>
+                            <span style={{flex:"0 0 34px",fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right"}}>{p.duration?p.duration+"分":""}</span>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
     </div>
   );
 
