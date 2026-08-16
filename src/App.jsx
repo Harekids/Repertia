@@ -3149,6 +3149,10 @@ const ManagePage = (props) => {
 // ── EventsPage (top-level) ──────────────────────────────────────────────────
 const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds, addPiecesFromProgram, registerEventToHistory, saveEvents, eventsSaveMsg, documents, setDocuments, saveDocuments, docSaveMsg, setDocSaveMsg, registerNavGuard}) => {
   const isMobile = useIsMobile(640); // v317: EventsPage内のinpEもisMobileを参照するため（v316の真っ白バグ修正）
+  // v495 B: 頭揃えを構造で確定。emはフォントサイズ相対のため、日付列(fontSize14の3.2em=44.8px)とEventDetail(fontSize12)で同じ"3.2em"が別幅になりズレていた。px固定で両者を同一基準にし、フォント変更・日付桁数に左右されない。
+  const EV_DATE_W = 44.8;
+  const EV_TITLE_GAP = 20;
+  const EV_TITLE_INDENT = EV_DATE_W + EV_TITLE_GAP;
   const [evtCheck, setEvtCheck] = useState({ contest:true, concert:true, recital:true, other:true });
   const [showEvtPanel, setShowEvtPanel] = useState(false);
   const [eventsTab, setEventsTab] = useState("history"); // v222: History先・Upcoming後（確定した歴史が主役）
@@ -3666,16 +3670,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             transform:isSelected?"scale(1.015)":"scale(1)",
                             transition:"all 0.2s"}}>
                           <div style={{display:"flex",alignItems:isSelected?"flex-start":"center",gap:0,flexWrap:"nowrap",minWidth:0}}>
-                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:"3.2em",lineHeight:"1.5"}}>{fmtSlashDate(ev.date)}</span>
+                            <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,flexShrink:0,width:EV_DATE_W,lineHeight:"1.5"}}>{fmtSlashDate(ev.date)}</span>
                             {ev.title && (isSelected
-                              ? <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:20,whiteSpace:"normal",overflowWrap:"anywhere",wordBreak:"break-word",minWidth:0,flex:"1 1 auto",lineHeight:"1.5"}}>{ev.title}</span>
-                              : <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>
+                              ? <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:EV_TITLE_GAP,whiteSpace:"normal",overflowWrap:"anywhere",wordBreak:"break-word",minWidth:0,flex:"1 1 auto",lineHeight:"1.5"}}>{ev.title}</span>
+                              : <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:isMobile?3:EV_TITLE_GAP,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",minWidth:0,flex:"0 1 auto"}}>{ev.title}</span>
                             )}
                             {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,maxWidth:"40%"}}>{ev.venue}</span>}
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
                             {ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
-                          {isSelected && <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:"calc(3.2em + 20px)"}/>}
+                          {isSelected && <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:EV_TITLE_INDENT}/>}
                         </div>
                       );
                     })}
