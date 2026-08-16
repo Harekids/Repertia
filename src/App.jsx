@@ -3429,7 +3429,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               現在のライブラリの状態ではないため。 */}
         {!ev.in_history && ev.items&&ev.items.length>0 && (
           <div>
-            <div style={{color:"#94A3BE",marginBottom:3}}>曲目：</div>
+            {/* v493 ③: 呼称を「プログラム」に統一（入力画面AddEventと揃える・時制中立）。旧=曲目 */}<div style={{color:"#94A3BE",marginBottom:3}}>プログラム</div>
             {ev.items.map((it,idx)=>{
               // v282: pieceId から曲を解決して表示。旧データ（pieceTitle文字列）も後方互換で拾う。
               const pc = it.pieceId ? (allPool||[]).find(x=>String(x.id)===String(it.pieceId)) : null;
@@ -3449,10 +3449,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         )}
         {ev.in_history && (
           <div style={{marginTop:6}}>
-            <div style={{color:"#94A3BE",marginBottom:3}}>演奏した曲（記録）：</div>
+            {/* v493 ③: 呼称を「プログラム」に統一。旧=演奏した曲(記録) */}<div style={{color:"#94A3BE",marginBottom:3}}>プログラム</div>
             {Array.isArray(ev.historyItems) && ev.historyItems.length>0
               ? ev.historyItems.map((s,i)=>(
-                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#EDE6D6"}}>
+                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#94A3BE"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
                     {(i+1)+". "}{s.performer&&<span style={{color:"#94A3BE"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
                   </div>
                 ))
