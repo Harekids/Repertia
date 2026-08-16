@@ -3327,7 +3327,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     }
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
     const nextEvents = editingId
-      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort(byDate)
+      ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)/* v504: ID型不一致対策。古いデータはidが文字列のことがあり===で不一致→更新漏れ。String()で揃えて比較 */
       : [...events,{...newEvent,id:Date.now()}].sort(byDate);
     setEvents(nextEvents);
     saveEvents(nextEvents);
@@ -3380,7 +3380,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     // 日付が空の行があってもクラッシュしないよう、空安全ソート（(e.date||"")で比較）。
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
     const nextEvents = editingId
-      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort(byDate)
+      ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)
       : [...events,{...newEvent,id:Date.now()}].sort(byDate);
     setEvents(nextEvents);
     saveEvents(nextEvents);
@@ -3397,8 +3397,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   （従来は setEvents だけでDB保存が漏れていた＝削除がDBに反映されなかった。ここで直す）。
   const deleteEvent = async (id) => {
     // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
-    if (editingId === id) closeEditForm();
-    const nextEvents = events.filter(e=>e.id!==id);
+    if (String(editingId) === String(id)) closeEditForm();
+    const nextEvents = events.filter(e=>String(e.id)!==String(id));
     setEvents(nextEvents);
     setSelectedEvent(null);
     await saveEvents(nextEvents);
