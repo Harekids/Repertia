@@ -3657,7 +3657,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const EVENT_CARD_DEFAULT_COLOR = "rgb(28,73,109)";
   const eventCardBg = (ev) => ev && ev.color ? ev.color : EVENT_CARD_DEFAULT_COLOR;
 
-  const TimelineSection = ({label, evs, total, defaultOpen=true}) => {
+  const TimelineSection = ({label, evs, total, defaultOpen=true, formSlot=null}) => {
     // v411: タイトルの数字はそのタブの総数(total)＝検索/種別フィルタで変えない（Library方式に統一）。
     //   evs＝絞り込み後（表示リスト用）／total＝絞り込み前の総数（タイトル用）。totalが無ければevs.length。
     const titleCount = (typeof total==="number") ? total : evs.length;
@@ -3676,6 +3676,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         </div>
         {/* 臙脂の帯（EraBarと同サイズ：height:10,borderRadius:5／将来のイベントバーの器）v233:紫寄りの赤紫臙脂 */}
         <div style={{height:10,borderRadius:5,background:"#8B2A50",marginBottom:8}}/>
+        {/* v510: 新規追加フォームを帯の直下に。現在のタブ側にのみformSlotを渡す。 */}
+        {formSlot}
         {/* スマホのみ：帯の下に検索バーを全幅で（タイトル→帯→検索の順） */}
         {isMobile && (
           <div style={{marginBottom:8}}>
@@ -4047,94 +4049,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     </div>
   );
 
-  return (
-  <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-    {/* Events サブタブ（固定・Libraryのタブバーと同じ配置） */}
-    <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
-      <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
-        {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
-          <button key={k} onClick={()=>requestEventsTab(k)}
-            style={{
-              background:eventsTab===k?"#C8A860":"transparent",
-              border:"none",
-              color:eventsTab===k?"#1A1206":"#94A3BE",
-              padding:eventsTab===k?"7px 18px":"7px 14px",
-              cursor:"pointer",fontSize:13,fontFamily:FONT,letterSpacing:1,
-              fontWeight:eventsTab===k?700:400,
-              borderRadius:"6px 6px 0 0",
-              transition:"all 0.15s"}}>
-            {l}
-          </button>
-        ))}
-      </div>
-      <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
-    </div>
-
-    {/* 本体（スクロール領域） */}
-    <div style={{flex:1,overflowY:"auto"}}>
-      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px 140px"}}>
-
-        {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
-        {showEvtPanel && (
-          <div style={{marginBottom:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
-            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
-              <button onClick={()=>setShowEvtPanel(false)}
-                style={{background:"none",border:"none",color:"#94A3BE",fontSize:14,cursor:"pointer",padding:"2px 6px"}}>✕</button>
-            </div>
-            <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:FONT,marginBottom:10}}>出力する種類を選んでください</div>
-            <div style={{display:"flex",gap:14,marginBottom:12,fontSize:12,fontFamily:FONT,color:"#C8CEDB",flexWrap:"wrap"}}>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンクール</label>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.concert} onChange={e=>setEvtCheck(c=>({...c,concert:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンサート</label>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.recital} onChange={e=>setEvtCheck(c=>({...c,recital:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 発表会</label>
-              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.other} onChange={e=>setEvtCheck(c=>({...c,other:e.target.checked}))} style={{accentColor:"#C8A860"}}/> その他</label>
-            </div>
-            <button onClick={()=>{
-              const today = new Date().toISOString().slice(0,10);
-              const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
-              const past = events.filter(e=>(e.date||"")<=today);
-              const contest = past.filter(e=>e.type==="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-              const concert = past.filter(e=>e.type==="concert").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-              const recital = past.filter(e=>e.type==="recital").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-              const other   = past.filter(e=>e.type==="other").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-              const fmt = arr => arr.map(e=>yr(e.date)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).join(String.fromCharCode(10));
-              const blocks = [];
-              if (evtCheck.contest && contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
-              if (evtCheck.concert && concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
-              if (evtCheck.recital && recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
-              if (evtCheck.other && other.length>0)     blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
-              if (blocks.length===0) {
-                window.alert("該当するデータがありません");
-                return;
-              }
-              if (blocks.length>0) {
-                const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
-                const labels = [];
-                if (evtCheck.contest && contest.length>0) labels.push("コンクール歴");
-                if (evtCheck.concert && concert.length>0) labels.push("コンサート");
-                if (evtCheck.recital && recital.length>0) labels.push("発表会");
-                if (evtCheck.other && other.length>0) labels.push("その他");
-                const defaultName = labels.length>0 ? labels.join("・") : "演奏歴";
-                const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
-                if (inputName===null) return;
-                const finalName = inputName.trim() || defaultName;
-                const doc = { id: Date.now(), name: finalName, text: text };
-                const next = [doc, ...documents];
-                setDocuments(next);
-                saveDocuments(next);
-                setDocSaveMsg("ドキュメントを作成しました ✓");
-                setTimeout(() => setDocSaveMsg(""), 3000);
-                setShowEvtPanel(false);
-              }
-            }}
-              style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,width:"100%",fontWeight:600}}>
-              ✓ チェックした種類で、ドキュメント作成
-            </button>
-          </div>
-        )}
-
-        {/* Add / Edit form */}
-        {showForm && (
+  // v510: 新規追加フォームを変数化しformSlotで帯直下に出す。
+  const eventFormNode = showForm && (
           <div style={{...FORM.card,marginBottom:20,position:"relative",paddingTop:editingId?28:18}}>
             {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
             <button onClick={()=>{closeEditForm();}} title="キャンセル"
@@ -4307,17 +4223,105 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
             )}
           </div>
+  );
+
+  return (
+  <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+    {/* Events サブタブ（固定・Libraryのタブバーと同じ配置） */}
+    <div style={{background:"transparent",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 24px",boxSizing:"border-box"}}>
+      <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
+        {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
+          <button key={k} onClick={()=>requestEventsTab(k)}
+            style={{
+              background:eventsTab===k?"#C8A860":"transparent",
+              border:"none",
+              color:eventsTab===k?"#1A1206":"#94A3BE",
+              padding:eventsTab===k?"7px 18px":"7px 14px",
+              cursor:"pointer",fontSize:13,fontFamily:FONT,letterSpacing:1,
+              fontWeight:eventsTab===k?700:400,
+              borderRadius:"6px 6px 0 0",
+              transition:"all 0.15s"}}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
+    </div>
+
+    {/* 本体（スクロール領域） */}
+    <div style={{flex:1,overflowY:"auto"}}>
+      <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px 140px"}}>
+
+        {/* Top bar ④ ボタンはFilterの三線メニューに移動（v196） */}
+        {showEvtPanel && (
+          <div style={{marginBottom:10,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:6}}>
+              <button onClick={()=>setShowEvtPanel(false)}
+                style={{background:"none",border:"none",color:"#94A3BE",fontSize:14,cursor:"pointer",padding:"2px 6px"}}>✕</button>
+            </div>
+            <div style={{fontSize:11,letterSpacing:1,color:"#94A3BE",fontFamily:FONT,marginBottom:10}}>出力する種類を選んでください</div>
+            <div style={{display:"flex",gap:14,marginBottom:12,fontSize:12,fontFamily:FONT,color:"#C8CEDB",flexWrap:"wrap"}}>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.contest} onChange={e=>setEvtCheck(c=>({...c,contest:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンクール</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.concert} onChange={e=>setEvtCheck(c=>({...c,concert:e.target.checked}))} style={{accentColor:"#C8A860"}}/> コンサート</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.recital} onChange={e=>setEvtCheck(c=>({...c,recital:e.target.checked}))} style={{accentColor:"#C8A860"}}/> 発表会</label>
+              <label style={{cursor:"pointer"}}><input type="checkbox" checked={evtCheck.other} onChange={e=>setEvtCheck(c=>({...c,other:e.target.checked}))} style={{accentColor:"#C8A860"}}/> その他</label>
+            </div>
+            <button onClick={()=>{
+              const today = new Date().toISOString().slice(0,10);
+              const yr = s => { const m=(s||"").match(/[0-9]{4}/); return m?m[0]:""; };
+              const past = events.filter(e=>(e.date||"")<=today);
+              const contest = past.filter(e=>e.type==="contest").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const concert = past.filter(e=>e.type==="concert").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const recital = past.filter(e=>e.type==="recital").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const other   = past.filter(e=>e.type==="other").sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+              const fmt = arr => arr.map(e=>yr(e.date)+"年 "+(e.title||e.venue||"")+(e.notes?" "+e.notes:"")).join(String.fromCharCode(10));
+              const blocks = [];
+              if (evtCheck.contest && contest.length>0) blocks.push("【コンクール歴】"+String.fromCharCode(10)+fmt(contest));
+              if (evtCheck.concert && concert.length>0) blocks.push("【コンサート】"+String.fromCharCode(10)+fmt(concert));
+              if (evtCheck.recital && recital.length>0) blocks.push("【発表会】"+String.fromCharCode(10)+fmt(recital));
+              if (evtCheck.other && other.length>0)     blocks.push("【その他】"+String.fromCharCode(10)+fmt(other));
+              if (blocks.length===0) {
+                window.alert("該当するデータがありません");
+                return;
+              }
+              if (blocks.length>0) {
+                const text = blocks.join(String.fromCharCode(10)+String.fromCharCode(10));
+                const labels = [];
+                if (evtCheck.contest && contest.length>0) labels.push("コンクール歴");
+                if (evtCheck.concert && concert.length>0) labels.push("コンサート");
+                if (evtCheck.recital && recital.length>0) labels.push("発表会");
+                if (evtCheck.other && other.length>0) labels.push("その他");
+                const defaultName = labels.length>0 ? labels.join("・") : "演奏歴";
+                const inputName = window.prompt("ドキュメントの名前を入力してください", defaultName);
+                if (inputName===null) return;
+                const finalName = inputName.trim() || defaultName;
+                const doc = { id: Date.now(), name: finalName, text: text };
+                const next = [doc, ...documents];
+                setDocuments(next);
+                saveDocuments(next);
+                setDocSaveMsg("ドキュメントを作成しました ✓");
+                setTimeout(() => setDocSaveMsg(""), 3000);
+                setShowEvtPanel(false);
+              }
+            }}
+              style={{background:"#C8A860",border:"none",color:"#0F1A33",padding:"8px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,borderRadius:4,width:"100%",fontWeight:600}}>
+              ✓ チェックした種類で、ドキュメント作成
+            </button>
+          </div>
         )}
+
+        {/* Add / Edit form */}
 
         {/* Content — タイムライン（検索0件でも検索ボックスを消さないため、常にタブを表示） */}
         {(
           <>
             {eventsTab==="history" && (past.length>0
-              ? TimelineSection({label:"History", evs:filteredPast, total:past.length, defaultOpen:true})
-              : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>まだ演奏の記録がありません。</div>)}
+              ? TimelineSection({label:"History", evs:filteredPast, total:past.length, defaultOpen:true, formSlot:eventFormNode})
+              : <div>{TimelineSection({label:"History", evs:[], total:0, defaultOpen:true, formSlot:eventFormNode})}<div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>まだ演奏の記録がありません。</div></div>)}
             {eventsTab==="upcoming" && (future.length>0
-              ? TimelineSection({label:"Upcoming", evs:filteredFuture, total:future.length, defaultOpen:true})
-              : <div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>これからの予定はまだありません。</div>)}
+              ? TimelineSection({label:"Upcoming", evs:filteredFuture, total:future.length, defaultOpen:true, formSlot:eventFormNode})
+              : <div>{TimelineSection({label:"Upcoming", evs:[], total:0, defaultOpen:true, formSlot:eventFormNode})}<div style={{textAlign:"center",color:"#5A6B8C",padding:"32px",fontSize:12,fontFamily:FONT}}>これからの予定はまだありません。</div></div>)}
           </>
         )}
 
