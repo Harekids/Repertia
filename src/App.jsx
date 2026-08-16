@@ -3420,7 +3420,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const EventDetail = ({ev, compact=false, allPool, titleIndent=0}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
-      <div style={{paddingTop:8,paddingLeft:titleIndent,fontSize:12,color:"#A9B6CC",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}/* v495: titleIndentでイベント名の頭に左端を揃える(History/Upcomingのみ・PCは日付幅+20px/スマホ0・ListViewは0で現状維持) */>
+      <div style={{paddingTop:8,paddingLeft:titleIndent,fontSize:12,color:"#A9B6CC",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}/* v495: titleIndentで項目名の左端をイベント名の頭に揃える。曲リストのpaddingLeftも0にし項目名と同じ頭に一本化(History/Upcomingのみ・PC=日付幅+20px/スマホ=0・ListViewは0現状維持) */>
         {ev.organizer && <div><span style={{color:"#A9B6CC"}}>主催：</span>{ev.organizer}</div>}
         {ev.contact && <div><span style={{color:"#A9B6CC"}}>問い合わせ：</span>{ev.contact}</div>}
         {/* v289: History と Upcoming で表示を排他にする（二重表示の整理）。
@@ -3437,7 +3437,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               const shownComposer = pc ? pc.composer : (it.composer||"");
               const shownDur = pc ? (pc.duration?pc.duration+"分":"") : (it.duration||"");
               return (
-              <div key={it.id} style={{paddingLeft:8,marginBottom:2,fontSize:11}}>
+              <div key={it.id} style={{paddingLeft:0,marginBottom:2,fontSize:11}}>
                 {it.kind==="break"
                   ? <span style={{color:"#A9B6CC",fontStyle:"italic"}}>― 休憩 ―</span>
                   : <span>{idx+1}. {it.performer&&<span style={{color:"#A9B6CC"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#A9B6CC"}}>{shownComposer} </span>}{shownTitle}{shownDur&&<span style={{color:"#A9B6CC"}}>　{shownDur}</span>}</span>
@@ -3452,7 +3452,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             {/* v493 ③: 呼称を「プログラム」に統一。旧=演奏した曲(記録) */}<div style={{color:"#A9B6CC",marginBottom:3}}>プログラム</div>
             {Array.isArray(ev.historyItems) && ev.historyItems.length>0
               ? ev.historyItems.map((s,i)=>(
-                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#A9B6CC"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
+                  <div key={i} style={{paddingLeft:0,marginBottom:2,fontSize:11,color:"#A9B6CC"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
                     {(i+1)+". "}{s.performer&&<span style={{color:"#A9B6CC"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
                   </div>
                 ))
@@ -3460,7 +3460,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                   /* v289: items にフォールバックしない。
                      「歴史は消えてはいけない」の裏側は「無い歴史を作ってはいけない」。
                      記録が無いことを、記録が有るように見せない。 */
-                  <div style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#A9B6CC",fontStyle:"italic"}}>
+                  <div style={{paddingLeft:0,marginBottom:2,fontSize:11,color:"#A9B6CC",fontStyle:"italic"}}>
                     （記録なし）
                   </div>
                 )}
