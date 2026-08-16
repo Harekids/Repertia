@@ -3326,8 +3326,10 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       return;
     }
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
+    const _matchCount = events.filter(e=>String(e.id)===String(editingId)).length;
+    window.alert("DEBUG v505"+String.fromCharCode(10)+"editingId="+JSON.stringify(editingId)+String.fromCharCode(10)+"events="+events.length+" match="+_matchCount+String.fromCharCode(10)+"items="+((newEvent.items||[]).length)+String.fromCharCode(10)+"ev0.id="+JSON.stringify((events[0]||{}).id));
     const nextEvents = editingId
-      ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)/* v504: ID型不一致対策。古いデータはidが文字列のことがあり===で不一致→更新漏れ。String()で揃えて比較 */
+      ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)
       : [...events,{...newEvent,id:Date.now()}].sort(byDate);
     setEvents(nextEvents);
     saveEvents(nextEvents);
