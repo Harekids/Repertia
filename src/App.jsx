@@ -3420,16 +3420,16 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const EventDetail = ({ev, compact=false, allPool}) => {
     const et = EVENT_TYPES[ev.type]||EVENT_TYPES.other;
     return (
-      <div style={{paddingTop:8,fontSize:12,color:"#94A3BE",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}>
-        {ev.organizer && <div><span style={{color:"#94A3BE"}}>主催：</span>{ev.organizer}</div>}
-        {ev.contact && <div><span style={{color:"#94A3BE"}}>問い合わせ：</span>{ev.contact}</div>}
+      <div style={{paddingTop:8,fontSize:12,color:"#A9B6CC",fontFamily:FONT,display:"flex",flexDirection:"column",gap:5}}/* v494: イベントカードは薄紺地#1C2E4A。本文テキストを旧グレー2色→#A9B6CCに白っぽく統一(方針A)。リンク色#5B7FA6・時代帯色は据え置き。 */>
+        {ev.organizer && <div><span style={{color:"#A9B6CC"}}>主催：</span>{ev.organizer}</div>}
+        {ev.contact && <div><span style={{color:"#A9B6CC"}}>問い合わせ：</span>{ev.contact}</div>}
         {/* v289: History と Upcoming で表示を排他にする（二重表示の整理）。
               Upcoming = items（これから弾く予定）／History = historyItems（弾いた記録）のみ。
               History で items を出さないのは、見せるべきが「そのとき何を弾いたか」であって
               現在のライブラリの状態ではないため。 */}
         {!ev.in_history && ev.items&&ev.items.length>0 && (
           <div>
-            {/* v493 ③: 呼称を「プログラム」に統一（入力画面AddEventと揃える・時制中立）。旧=曲目 */}<div style={{color:"#94A3BE",marginBottom:3}}>プログラム</div>
+            {/* v493 ③: 呼称を「プログラム」に統一（入力画面AddEventと揃える・時制中立）。旧=曲目 */}<div style={{color:"#A9B6CC",marginBottom:3}}>プログラム</div>
             {ev.items.map((it,idx)=>{
               // v282: pieceId から曲を解決して表示。旧データ（pieceTitle文字列）も後方互換で拾う。
               const pc = it.pieceId ? (allPool||[]).find(x=>String(x.id)===String(it.pieceId)) : null;
@@ -3439,8 +3439,8 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               return (
               <div key={it.id} style={{paddingLeft:8,marginBottom:2,fontSize:11}}>
                 {it.kind==="break"
-                  ? <span style={{color:"#94A3BE",fontStyle:"italic"}}>― 休憩 ―</span>
-                  : <span>{idx+1}. {it.performer&&<span style={{color:"#94A3BE"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#7A8FB5"}}>{shownComposer} </span>}{shownTitle}{shownDur&&<span style={{color:"#94A3BE"}}>　{shownDur}</span>}</span>
+                  ? <span style={{color:"#A9B6CC",fontStyle:"italic"}}>― 休憩 ―</span>
+                  : <span>{idx+1}. {it.performer&&<span style={{color:"#A9B6CC"}}>{it.performer}　</span>}{shownComposer&&<span style={{color:"#A9B6CC"}}>{shownComposer} </span>}{shownTitle}{shownDur&&<span style={{color:"#A9B6CC"}}>　{shownDur}</span>}</span>
                 }
               </div>
               );
@@ -3449,18 +3449,18 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         )}
         {ev.in_history && (
           <div style={{marginTop:6}}>
-            {/* v493 ③: 呼称を「プログラム」に統一。旧=演奏した曲(記録) */}<div style={{color:"#94A3BE",marginBottom:3}}>プログラム</div>
+            {/* v493 ③: 呼称を「プログラム」に統一。旧=演奏した曲(記録) */}<div style={{color:"#A9B6CC",marginBottom:3}}>プログラム</div>
             {Array.isArray(ev.historyItems) && ev.historyItems.length>0
               ? ev.historyItems.map((s,i)=>(
-                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#94A3BE"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
-                    {(i+1)+". "}{s.performer&&<span style={{color:"#94A3BE"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
+                  <div key={i} style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#A9B6CC"/* v493 ②: 旧#EDE6D6(白系で見出しより目立っていた)→見出しと同トーンに落として調和・Upcomingと揃える */}}>
+                    {(i+1)+". "}{s.performer&&<span style={{color:"#A9B6CC"}}>{s.performer}　</span>}{s.composer+" / "+s.title}
                   </div>
                 ))
               : (
                   /* v289: items にフォールバックしない。
                      「歴史は消えてはいけない」の裏側は「無い歴史を作ってはいけない」。
                      記録が無いことを、記録が有るように見せない。 */
-                  <div style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#94A3BE",fontStyle:"italic"}}>
+                  <div style={{paddingLeft:8,marginBottom:2,fontSize:11,color:"#A9B6CC",fontStyle:"italic"}}>
                     （記録なし）
                   </div>
                 )}
@@ -3476,14 +3476,14 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             History に登録する
           </button>
         )}
-        {ev.notes && <div><span style={{color:"#94A3BE"}}>メモ：</span>{ev.notes}</div>}
-        {ev.videoUrl && <div><span style={{color:"#94A3BE"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
+        {ev.notes && <div><span style={{color:"#A9B6CC"}}>メモ：</span>{ev.notes}</div>}
+        {ev.videoUrl && <div><span style={{color:"#A9B6CC"}}>動画：</span><a href={ev.videoUrl} target="_blank" rel="noreferrer" style={{color:"#5B7FA6"}}>{ev.videoUrl}</a></div>}
         {ev.posterUrl && <img src={ev.posterUrl} alt="poster" style={{width:80,height:80,objectFit:"cover",borderRadius:4,border:"1px solid #1E2A45",alignSelf:"flex-start",marginTop:4}}/>}
         {/* v338 ⑩-1/⑩-4: 展開時は「編集」ボタンだけ（削除は編集フォームの中へ移した）。
              サクッと消せないように＝歴史は消えてはいけない。 */}
         {!compact && (
           <div style={{display:"flex",gap:8,marginTop:4,justifyContent:"flex-end"}}>
-            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #1E2A45",color:"#94A3BE",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>✎ 編集</button>
+            <button onClick={e=>{e.stopPropagation();openEdit(ev);}} style={{background:"none",border:"1px solid #1E2A45",color:"#A9B6CC",padding:"2px 10px",cursor:"pointer",fontSize:10,fontFamily:FONT,borderRadius:3}}>✎ 編集</button>
           </div>
         )}
       </div>
