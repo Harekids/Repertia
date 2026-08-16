@@ -2918,11 +2918,12 @@ const ManagePage = (props) => {
         {/* 結果一覧 */}
         <div style={{marginBottom:20}}>
         <div style={{padding:"14px 0 8px"}}>
-          {poolMode!=="ai" && aiPieces.length===0 && (
+          {/* v508 ②: Search Piece下の案内文を削除(不要・操作で自明)。旧コードは{false&&()}で温存。 */}
+          {false && (poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
               「検索」で追加した曲はLearningリストに保存されます
             </div>
-          )}
+          ))}
           {aiLoading && (
             <div style={{textAlign:"center",color:"#94A3BE",padding:"24px",fontSize:12,fontFamily:SANS}}>検索中…</div>
           )}
@@ -3730,7 +3731,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             )}
                             {!isMobile && ev.venue && <span style={{fontSize:14,color:"#EDE6D6",fontFamily:FONT,marginLeft:20,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flexShrink:0,maxWidth:"40%"}}>{ev.venue}</span>}
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
-                            {ev.date<=today && !ev.in_history && <RedDot/>}
+                            {!!ev.date && ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
                           {isSelected && (editInCard===ev.id ? renderEventEditCard(ev) : <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:EV_TITLE_INDENT}/>)/* v500: 編集中はインカード編集UI、それ以外は閲覧EventDetail */}
                         </div>
@@ -3760,7 +3761,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                 <span style={{fontSize:12,color:"#94A3BE",fontFamily:FONT,flexShrink:0}}>{ev.date}</span>
-                {ev.date<=today && !ev.in_history && <RedDot/>}
+                {!!ev.date && ev.date<=today && !ev.in_history && <RedDot/>}
                 <span style={{fontSize:13,color:"#EDE6D6",fontFamily:FONT,flex:1,fontWeight:500}}>{ev.title||"（無題）"}</span>
                 {ev.venue && <span style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>{ev.venue}</span>}
               </div>
