@@ -3902,7 +3902,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   fld定義より後のスコープなので部品参照が自然。基本情報＋保存/キャンセル/削除。プログラム編集はv501で追加予定。
   //   関数にして呼び出し時の最新newEventを反映（JSX変数だと生成時点固定になるため）。
   const renderEventEditCard = (ev) => (
-    <div onClick={e=>e.stopPropagation()} style={{paddingTop:8}}>
+    <div onClick={e=>e.stopPropagation()} style={{...FORM.card,marginTop:8,marginBottom:4}/* v506: ピースカード編集と揃えFORM.card(明るい面#EEF1F5)で包む。別画面感を出し、1行目クリックの違和感を解消(方針B) */}>
       {isMobile ? (
         <div style={{marginBottom:8}}>
           <div style={{display:"grid",gridTemplateColumns:"minmax(96px,0.72fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
