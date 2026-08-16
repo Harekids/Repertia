@@ -3423,6 +3423,26 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
       return {...ev,items:arr};
     });
+  // v505: History確定イベント用のプログラム操作（historyItems=独立スナップショットを直接編集）。
+  //   方針C-A: 過去の記録はLibraryと切り離す。追加時はLibrary曲をその瞬間スナップショット化して固定（以後Library非依存）。
+  //   これらは newEvent.historyItems を操作。保存(saveEventInCard)でそのままeventsに保存され、Libraryには一切触れない。
+  const addHistoryItem = (pieceId) =>
+    setNewEvent(ev=>{
+      const p = (pieces||[]).find(x=>String(x.id)===String(pieceId));
+      if (!p) return ev;
+      const snap = { id: p.id, title: p.title, composer: p.composer, year: p.year, key: p.key, duration: p.duration, difficulty: p.difficulty, era: p.era, form: p.form, performer: "" };
+      return {...ev, historyItems:[...(Array.isArray(ev.historyItems)?ev.historyItems:[]), snap]};
+    });
+  const removeHistoryItem = (idx) =>
+    setNewEvent(ev=>({...ev, historyItems:(Array.isArray(ev.historyItems)?ev.historyItems:[]).filter((_,i)=>i!==idx)}));
+  const moveHistoryItem = (idx, dir) =>
+    setNewEvent(ev=>{
+      const arr=[...(Array.isArray(ev.historyItems)?ev.historyItems:[])];
+      const j=idx+dir;
+      if (idx<0 || j<0 || j>=arr.length) return ev;
+      const tmp=arr[idx]; arr[idx]=arr[j]; arr[j]=tmp;
+      return {...ev, historyItems:arr};
+    });
   const onItemDragEnd = () => {
     if (dragItemId==null||dragOverId==null||dragItemId===dragOverId) { setDragItemId(null); setDragOverId(null); return; }
     setNewEvent(ev=>{
@@ -3917,37 +3937,59 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
         </React.Fragment>
       )}
 
-      {/* v502: プログラム簡易編集をカード内に移植。newEvent.itemsを操作・曲ピッカー(pickerOpen全画面モーダル)は既存を1箇所共有。 */}
+      {/* v505: プログラム編集をin_historyで分岐。History=historyItems(独立スナップショット)を直接編集／Upcoming=items(Library参照)。方針C-A。 */}
       <div style={{marginTop:16,marginBottom:8}}>
         <div style={{fontSize:11,letterSpacing:2,color:"#94A3BE",fontFamily:FONT,marginBottom:8}}>プログラム</div>
-        {newEvent.items.map((it,idx)=>{
-          const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
-          return (
-          <div key={it.id}
-            style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
-            <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
-              <button disabled={idx===0}
-                onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
-                style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===0?"default":"pointer",color:idx===0?"#C8CEDB":"#5B7FA6"}}>▲</button>
-              <button disabled={idx===newEvent.items.length-1}
-                onClick={async()=>{ if(idx===newEvent.items.length-1) return; moveItem(it.id,1); if(saveEvents) await saveEvents(); }}
-                style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===newEvent.items.length-1?"default":"pointer",color:idx===newEvent.items.length-1?"#C8CEDB":"#5B7FA6"}}>▼</button>
+        {ev.in_history ? (
+          <React.Fragment>
+            {(Array.isArray(newEvent.historyItems)?newEvent.historyItems:[]).map((s,idx)=>(
+              <div key={idx}
+                style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+                <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
+                  <button disabled={idx===0}
+                    onClick={()=>{ if(idx===0) return; moveHistoryItem(idx,-1); }}
+                    style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===0?"default":"pointer",color:idx===0?"#C8CEDB":"#5B7FA6"}}>▲</button>
+                  <button disabled={idx===(newEvent.historyItems||[]).length-1}
+                    onClick={()=>{ if(idx===(newEvent.historyItems||[]).length-1) return; moveHistoryItem(idx,1); }}
+                    style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===(newEvent.historyItems||[]).length-1?"default":"pointer",color:idx===(newEvent.historyItems||[]).length-1?"#C8CEDB":"#5B7FA6"}}>▼</button>
+                </div>
+                <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
+                <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{s.composer}　：　{s.title}</span>
+                <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{s.duration?s.duration+"分":"—"}</span>
+                <button onClick={()=>removeHistoryItem(idx)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+              </div>
+            ))}
+          </React.Fragment>
+        ) : (
+          newEvent.items.map((it,idx)=>{
+            const pc = (allPool||[]).find(x=>String(x.id)===String(it.pieceId));
+            return (
+            <div key={it.id}
+              style={{display:"flex",alignItems:"center",gap:5,marginBottom:5,background:"white",border:"1px solid #1E2A45",borderRadius:4,padding:"5px 7px"}}>
+              <div style={{display:"flex",flexDirection:"column",flexShrink:0,gap:1}}>
+                <button disabled={idx===0}
+                  onClick={async()=>{ if(idx===0) return; moveItem(it.id,-1); if(saveEvents) await saveEvents(); }}
+                  style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===0?"default":"pointer",color:idx===0?"#C8CEDB":"#5B7FA6"}}>▲</button>
+                <button disabled={idx===newEvent.items.length-1}
+                  onClick={async()=>{ if(idx===newEvent.items.length-1) return; moveItem(it.id,1); if(saveEvents) await saveEvents(); }}
+                  style={{background:"none",border:"none",padding:0,lineHeight:1,fontSize:11,cursor:idx===newEvent.items.length-1?"default":"pointer",color:idx===newEvent.items.length-1?"#C8CEDB":"#5B7FA6"}}>▼</button>
+              </div>
+              <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
+              {pc ? (
+                <React.Fragment>
+                  <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{pc.composer}　：　{pc.title}</span>
+                  <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{pc.duration?pc.duration+"分":"—"}</span>
+                </React.Fragment>
+              ) : (
+                <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
+              )}
+              <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
             </div>
-            <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
-            {pc ? (
-              <React.Fragment>
-                <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{pc.composer}　：　{pc.title}</span>
-                <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{pc.duration?pc.duration+"分":"—"}</span>
-              </React.Fragment>
-            ) : (
-              <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
-            )}
-            <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
-          </div>
-          );
-        })}
+            );
+          })
+        )}
         <button onClick={()=>{setPickerQuery("");setPickerOpen(true);}} style={{background:"none",border:"1px dashed #2A3F6A",color:"#94A3BE",padding:"4px 12px",cursor:"pointer",fontSize:11,fontFamily:FONT,borderRadius:4}}>＋ 曲を追加</button>
-        <div style={{fontSize:10,color:"#7A8FB5",fontFamily:FONT,marginTop:6,lineHeight:1.5}}>Library（Repertoire / Learning）にある曲を追加できます。</div>
+        <div style={{fontSize:10,color:"#7A8FB5",fontFamily:FONT,marginTop:6,lineHeight:1.5}}>Library（Repertoire / Learning）にある曲を追加できます。{ev.in_history?"（過去の記録として固定されます）":""}</div>
       </div>
 
       {/* v500: 保存/削除/キャンセル（カード内）。金=保存(主アクション)／赤=削除／枠=キャンセル。ピース編集と同思想。 */}
@@ -3985,7 +4027,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                       return list.map(p=>{
                         const isLP = Array.isArray(learningIds) && learningIds.some(id=>String(id)===String(p.id));
                         return (
-                          <div key={p.id} onClick={()=>{addPieceItem(p.id);setPickerOpen(false);}}
+                          <div key={p.id} onClick={()=>{ const _ev=events.find(x=>String(x.id)===String(editInCard)); if(_ev&&_ev.in_history){addHistoryItem(p.id);}else{addPieceItem(p.id);} setPickerOpen(false);}}/* v505: History編集中はhistoryItemsにスナップショット追加・Upcomingはitems */
                             style={{display:"flex",alignItems:"baseline",gap:8,padding:"8px 16px",cursor:"pointer",borderBottom:"1px solid #16233b"}}
                             onMouseEnter={e=>e.currentTarget.style.background="#16233b"}
                             onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
