@@ -3257,6 +3257,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   タブ移動(pendingTab)とは別の関所なので箱を分ける。
   const [pendingNav, setPendingNav]   = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [editInCard, setEditInCard] = useState(null); // v500: イベント編集のインカード化。編集中のイベントID。カード展開部で editInCard===ev.id なら編集UI、そうでなければEventDetail(閲覧)。上部フォーム(showForm)は新規追加専用に残す。
   // v338 ⑩-2: 削除確認モーダルの状態。null＝閉じ。イベントのidを入れると確認モーダルが開く。
   //   標準confirmを廃止し、ピースカードと同じ自前ConfirmModalにそろえる。
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -3312,7 +3313,26 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // ── Form helpers ──
   const openAdd = () => { setNewEvent(EMPTY_EVENT); setEditBaseline(EMPTY_EVENT); setEditingId(null); setShowForm(true); setSelectedEvent(null); };
-  const openEdit = (ev) => { setNewEvent({...ev}); setEditBaseline({...ev}); setEditingId(ev.id); setShowForm(true); setSelectedEvent(null); };
+  // v500: openEditをインカード化。上部フォーム(showForm)を開かず、そのカードを開いたまま(setSelectedEvent(ev.id))編集モード(editInCard)にする。カードは閉じない。
+  const openEdit = (ev) => { setNewEvent({...ev}); setEditBaseline({...ev}); setEditingId(ev.id); setEditInCard(ev.id); setSelectedEvent(ev.id); };
+  // v500: 旧・上部フォームを開く版。消さず温存（必要になったら復活可）。
+  const openEditForm_old = (ev) => { setNewEvent({...ev}); setEditBaseline({...ev}); setEditingId(ev.id); setShowForm(true); setSelectedEvent(null); };
+  // v500: インカード編集を閉じる（閲覧に戻す）。showForm系は触らず editInCard だけ戻す。カードは開いたまま。
+  const closeInCardEdit = () => { setEditInCard(null); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
+  // v500: インカード編集の保存。saveEventの保存ロジック(editingId分岐)を流用し、最後はcloseInCardEditで閉じる（closeEditFormはshowForm前提のため使わない）。
+  const saveEventInCard = () => {
+    if (!(newEvent.title||"").trim() && !(newEvent.venue||"").trim()) {
+      window.alert("イベント内容か場所のどちらかを入力してください");
+      return;
+    }
+    const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
+    const nextEvents = editingId
+      ? events.map(e=>e.id===editingId?{...newEvent,id:editingId}:e).sort(byDate)
+      : [...events,{...newEvent,id:Date.now()}].sort(byDate);
+    setEvents(nextEvents);
+    saveEvents(nextEvents);
+    closeInCardEdit();
+  };
   // v303: 編集/追加フォームを閉じて状態を捨てる（既存キャンセルと同じ内容を一箇所に）。
   const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
   // v303: 開いた時点から内容が変わっているか（案ウの判定）。JSON比較で十分（同一構造の素データ）。
@@ -3692,7 +3712,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                             <span style={{flex:"1 1 auto",minWidth:8}}/>
                             {ev.date<=today && !ev.in_history && <RedDot/>}
                           </div>
-                          {isSelected && <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:EV_TITLE_INDENT}/>}
+                          {isSelected && (editInCard===ev.id ? renderEventEditCard(ev) : <EventDetail ev={ev} allPool={allPool} titleIndent={isMobile?0:EV_TITLE_INDENT}/>)/* v500: 編集中はインカード編集UI、それ以外は閲覧EventDetail */}
                         </div>
                       );
                     })}
@@ -3726,7 +3746,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               </div>
               {isSelected && (
                 <div style={{padding:"0 14px 12px"}}>
-                  <EventDetail ev={ev} allPool={allPool}/>
+                  {editInCard===ev.id ? renderEventEditCard(ev) : <EventDetail ev={ev} allPool={allPool}/>}{/* v500: リスト側も同様に出し分け */}
                 </div>
               )}
             </div>
@@ -3855,6 +3875,61 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       <textarea value={newEvent.notes} onChange={e=>setNewEvent({...newEvent,notes:e.target.value})}
         rows={1}
         placeholder="ー" style={{...inpE,minHeight:30,lineHeight:1.4,resize:"vertical",display:"block"}}/>
+    </div>
+  );
+
+  // v500: インカード編集UI（B方式＝カード展開部で EventDetail(閲覧) と出し分け）。
+  //   fld定義より後のスコープなので部品参照が自然。基本情報＋保存/キャンセル/削除。プログラム編集はv501で追加予定。
+  //   関数にして呼び出し時の最新newEventを反映（JSX変数だと生成時点固定になるため）。
+  const renderEventEditCard = (ev) => (
+    <div style={{paddingTop:8}}>
+      {isMobile ? (
+        <div style={{marginBottom:8}}>
+          <div style={{display:"grid",gridTemplateColumns:"minmax(96px,0.72fr) 3fr",gap:8,marginBottom:8,alignItems:"start"}}>
+            {fldDate}
+            {fldTitle}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"2fr 1.25fr",gap:8,marginBottom:8,alignItems:"start"}}>
+            {fldVenue}
+            {fldType}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
+            {fldPerformers}
+            {fldOrganizer}
+          </div>
+          {fldNotes}
+        </div>
+      ) : (
+        <React.Fragment>
+          <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
+            {fldDate}
+            {fldTitle}
+            {fldVenue}
+          </div>
+          <div style={{marginBottom:8}}>
+            <div style={{display:"grid",gridTemplateColumns:"137px 1fr 1fr",gap:8,marginBottom:8,alignItems:"start"}}>
+              {fldType}
+              {fldPerformers}
+              {fldOrganizer}
+            </div>
+            {fldNotes}
+          </div>
+        </React.Fragment>
+      )}
+
+      {/* v501予定: プログラム簡易編集（曲追加・▲▼・×）をここに移植する。今はプレースホルダ。 */}
+
+      {/* v500: 保存/削除/キャンセル（カード内）。金=保存(主アクション)／赤=削除／枠=キャンセル。ピース編集と同思想。 */}
+      <div style={{display:"flex",gap:8,marginTop:12,justifyContent:"space-between",alignItems:"center"}}>
+        <button onClick={()=>{ if(window.confirm("このイベントを削除しますか？")) deleteEvent(ev.id); }}
+          style={{background:"none",border:"1px solid #C0405A",color:"#C0405A",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>削除</button>
+        <div style={{display:"flex",gap:8,alignItems:"center"}}>
+          <button onClick={()=>closeInCardEdit()}
+            style={{background:"none",border:"1px solid #A9B6CC",color:"#A9B6CC",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>キャンセル</button>
+          <button onClick={()=>{ saveEventInCard(); }}
+            style={{background:"#C8A860",border:"1px solid #C8A860",color:"#fff",fontSize:12,fontFamily:FONT,padding:"5px 16px",cursor:"pointer",borderRadius:4,flexShrink:0}}>保存</button>
+        </div>
+      </div>
     </div>
   );
 
