@@ -2474,6 +2474,7 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
   const hamRef = useCloseOnOutsideClick(hamOpen, () => setHamOpen(false)); // v276
   const [viewOpen, setViewOpen] = useState(false); // v346 ④: 「表示」ドロップダウン（並び順＋絞り込み）
   const viewRef = useCloseOnOutsideClick(viewOpen, () => setViewOpen(false));
+  const [hoverKey, setHoverKey] = useState(null); // v499c: 表示メニューのホバー中キーをstate管理。背景は「選択||ホバー」で決定し、再レンダーで常に最新sortByを参照→選択が移れれば古い背景は自動で消える（DOM直操作の累積バグを回避）。
   const isMobile = useIsMobile(640); // v342: スマホは操作列をエラバー幅いっぱいに（検索ボックスがflex:1で余白を吸う）※v441で一時誤削除→復活。これはFilterBar自身の定義でPrintPageとは別スコープ。
   const SORT_OPTS = [["composer","作曲家"],["year","作曲年"],["duration","演奏時間"]];
   return (
@@ -2505,25 +2506,25 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               </div>
               {SORT_OPTS.map(([val,label])=>(
                 <button key={val} onClick={()=>setSortBy(val)}
-                  onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
-                  onMouseLeave={e=>{ e.currentTarget.style.background=(sortBy===val)?"#F4F6F9":"transparent"; }}
-                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:sortBy===val?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: 金とチェックマーク廃止。選択=薄グレー背景常時・非選択はホバー時のみ */}>
+                  onMouseEnter={()=>setHoverKey("sort:"+val)}
+                  onMouseLeave={()=>setHoverKey(h=>h==="sort:"+val?null:h)}
+                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(sortBy===val||hoverKey==="sort:"+val)?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499c: 背景=選択||ホバー(state)。選択が移れれば再レンダーで古い背景自動消去。 */}>
                   <span>{label}</span>
                 </button>
               ))}
               {/* 絞り込み（独立ON/OFF・♪𝄽・記号のみ） */}
               <div style={{padding:"6px 12px 4px",marginTop:2,fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #E3E7EE"}/* v497: 区切り線を白地用#E3E7EEに */}>絞り込み</div>
               <button onClick={()=>setFilterNote(v=>!v)}
-                onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=filterNote?"#F4F6F9":"transparent"; }}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:filterNote?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: ON=薄グレー背景常時・金とチェック廃止 */}>
-                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:15}}>{"\u266A"}</span>
+                onMouseEnter={()=>setHoverKey("note")}
+                onMouseLeave={()=>setHoverKey(h=>h==="note"?null:h)}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterNote||hoverKey==="note")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
+                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:18}/* v499c: ♪を少し大きく15→18 */}>{"\u266A"}</span>
               </button>
               <button onClick={()=>setFilterRest(v=>!v)}
-                onMouseEnter={e=>{ e.currentTarget.style.background="#F4F6F9"; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=filterRest?"#F4F6F9":"transparent"; }}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:filterRest?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499: ON=薄グレー背景常時・金とチェック廃止 */}>
-                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:13}}>{"\u{1D13D}"}</span>
+                onMouseEnter={()=>setHoverKey("rest")}
+                onMouseLeave={()=>setHoverKey(h=>h==="rest"?null:h)}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:(filterRest||hoverKey==="rest")?"#F4F6F9":"transparent",border:"none",color:"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v499c: 背景=ON||ホバー(state) */}>
+                <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:16}/* v499c: 休符を少し大きく13→16 */}>{"\u{1D13D}"}</span>
               </button>
             </div>
           )}
