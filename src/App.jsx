@@ -2491,9 +2491,9 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
             <span style={{fontSize:9,color:isMobile?"#8A94A8":"#8A94A8"}}>▼</span>
           </button>
           {viewOpen && (
-            <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2E3E5E",borderRadius:6,boxShadow:"0 4px 12px rgba(0,0,0,0.3)",zIndex:60,minWidth:isMobile?120:180,overflow:"hidden"}}>
+            <div style={{position:"absolute",right:0,top:"110%",background:"#FFFFFF",border:"1px solid #C8CEDB",borderRadius:6,boxShadow:"0 6px 20px rgba(0,0,0,0.18)",zIndex:60,minWidth:isMobile?120:180,overflow:"hidden",padding:"3px 0"}/* v497: 表示メニューを共通Dropdownの質感(白地・柔影)に統一 */}>
               {/* 並び順（排他・1つ選択）。▲▼を見出しの隣に置く（選択中を金） */}
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 14px 4px"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 12px 4px"}}>
                 <span style={{fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1}}>並び順</span>
                 <span style={{display:"flex",gap:10}}>
                   <span onClick={()=>setSortAsc(true)} title="昇順"
@@ -2504,20 +2504,26 @@ const FilterBar = ({pool, searchQ, setSearchQ, sortBy, setSortBy, sortAsc, setSo
               </div>
               {SORT_OPTS.map(([val,label])=>(
                 <button key={val} onClick={()=>setSortBy(val)}
-                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:sortBy===val?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                  onMouseEnter={e=>{ if(sortBy!==val) e.currentTarget.style.background="#F4F6F9"; }}
+                  onMouseLeave={e=>{ if(sortBy!==val) e.currentTarget.style.background="transparent"; }}
+                  style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:sortBy===val?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}/* v497: 文字を共通Dropと同じ#3A4A66・ホバー#F4F6F9追加・選択金維持 */}>
                   <span>{label}</span>
                   {sortBy===val && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
                 </button>
               ))}
               {/* 絞り込み（独立ON/OFF・♪𝄽・記号のみ） */}
-              <div style={{padding:"8px 14px 4px",fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #2E3E5E"}}>絞り込み</div>
+              <div style={{padding:"6px 12px 4px",marginTop:2,fontSize:10,color:"#8A94A8",fontFamily:FONT,letterSpacing:1,borderTop:"1px solid #E3E7EE"}/* v497: 区切り線を白地用#E3E7EEに */}>絞り込み</div>
               <button onClick={()=>setFilterNote(v=>!v)}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterNote?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                onMouseEnter={e=>{ if(!filterNote) e.currentTarget.style.background="#F4F6F9"; }}
+                onMouseLeave={e=>{ if(!filterNote) e.currentTarget.style.background="transparent"; }}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:filterNote?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:15}}>{"\u266A"}</span>
                 {filterNote && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
               <button onClick={()=>setFilterRest(v=>!v)}
-                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"none",border:"none",color:filterRest?"#C8A860":"#C8CEDB",fontSize:12,fontFamily:FONT,padding:"8px 14px",cursor:"pointer"}}>
+                onMouseEnter={e=>{ if(!filterRest) e.currentTarget.style.background="#F4F6F9"; }}
+                onMouseLeave={e=>{ if(!filterRest) e.currentTarget.style.background="transparent"; }}
+                style={{display:"flex",width:"100%",alignItems:"center",justifyContent:"space-between",textAlign:"left",background:"transparent",border:"none",color:filterRest?"#C8A860":"#3A4A66",fontSize:12,fontFamily:FONT,padding:"6px 12px",cursor:"pointer"}}>
                 <span style={{fontFamily:"RepertiaMusic, sans-serif",fontSize:13}}>{"\u{1D13D}"}</span>
                 {filterRest && <span style={{fontSize:11,color:"#C8A860"}}>✓</span>}
               </button>
