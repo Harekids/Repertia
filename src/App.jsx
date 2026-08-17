@@ -2815,7 +2815,7 @@ const ManagePage = (props) => {
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
-        <div style={{marginTop:10,marginBottom:24}/* v519: 下端をAddPieceと揃えて20→24 */}>
+        <div style={{marginTop:10,marginBottom:24}/* v520: 下端をAddPieceと揃えて20→24 */}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -2857,7 +2857,7 @@ const ManagePage = (props) => {
               {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。バロック〜現代の5時代すべて検索可。先頭「ー」=解除。 */}
               <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
                 options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
-                placeholder="ー" buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v519: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v519(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
+                placeholder="ー" buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v520: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v520(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
               {false && (
               <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 <option value="">ー</option>
@@ -2884,7 +2884,7 @@ const ManagePage = (props) => {
               {/* v439 B-Step2④: 検索(調性)。「ー」=空文字=フィルタ解除の癖を維持。 */}
               <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
                 options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
-                buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v519: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v519(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
+                buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v520: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v520(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
               {false && (
               <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
@@ -3257,7 +3257,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v385 ④⑤: ページ移動（ロゴ／ナビ）を保留しておく箱。破棄確認[破棄]でこの移動を実行。
   //   タブ移動(pendingTab)とは別の関所なので箱を分ける。
   const [pendingNav, setPendingNav]   = useState(null);
-  // v519: 「編集中カードの1行目クリック＝閲覧に戻る（カードは開いたまま）」用の保留箱。
+  // v520: 「編集中カードの1行目クリック＝閲覧に戻る（カードは開いたまま）」用の保留箱。
   //   ピースカードと挙動統一（企画指示）。未保存があれば破棄確認を挟み、[破棄]で閲覧へ戻す。
   const [pendingReturnView, setPendingReturnView] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -3341,7 +3341,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
   // v303: 開いた時点から内容が変わっているか（案ウの判定）。JSON比較で十分（同一構造の素データ）。
   const isEditDirty = () => {
-    // v519: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
+    // v520: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
     //   どちらも newEvent/editBaseline を使う同じ仕組みなので、開いている方を見れば足りる（両者は排他）。
     if (!showForm && !editInCard) return false;
     try { return JSON.stringify(newEvent) !== JSON.stringify(editBaseline); }
@@ -3352,7 +3352,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const requestEventsTab = (k) => {
     if (k === eventsTab) return;
     if (isEditDirty()) { setPendingTab(k); return; } // 確認モーダルを出す
-    // v519: 変更なしで素通りする時も、上部フォーム/カード内編集の両方を確実に閉じる。
+    // v520: 変更なしで素通りする時も、上部フォーム/カード内編集の両方を確実に閉じる。
     //   従来 closeEditForm() だけだったため editInCard が残り、移動後に「追加中の内容があります」
     //   誤検知が出ていた（editInCardが真＋newEvent=EMPTY≠editBaseline=null→dirty誤判定・editingIdはnull化済で「追加中」表示）。
     closeEditForm();
@@ -3360,7 +3360,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setEventsTab(k);
   };
 
-  // v519: イベントカード1行目クリックの入口。ピースカードと挙動統一。
+  // v520: イベントカード1行目クリックの入口。ピースカードと挙動統一。
   //   ・編集中(editInCard===ev.id)にこのカードの1行目を押したら＝「閲覧に戻る」（カードは開いたまま）。
   //       未保存があれば破棄確認を先に出す（v512-513の未保存ガードと同じ思想を、この導線にも適用）。
   //   ・編集中でなければ＝従来どおり開閉トグル。
@@ -3380,7 +3380,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   登録は初回一度きり（依存空）→ アンマウントで解除。
   const navGuardStateRef = React.useRef({ dirty:false, ev:null, editingId:null });
   navGuardStateRef.current = {
-    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v519: カード内編集(editInCard)もページ移動ガードの対象に */,
+    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v520: カード内編集(editInCard)もページ移動ガードの対象に */,
     ev: newEvent,
     editingId: editingId,
   };
@@ -3422,7 +3422,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   （従来は setEvents だけでDB保存が漏れていた＝削除がDBに反映されなかった。ここで直す）。
   const deleteEvent = async (id) => {
     // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
-    if (String(editingId) === String(id)) { closeEditForm(); closeInCardEdit(); }/* v519: カード内編集中に削除した場合もeditInCardを残さない */
+    if (String(editingId) === String(id)) { closeEditForm(); closeInCardEdit(); }/* v520: カード内編集中に削除した場合もeditInCardを残さない */
     const nextEvents = events.filter(e=>String(e.id)!==String(id));
     setEvents(nextEvents);
     setSelectedEvent(null);
@@ -3743,7 +3743,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                       const isSelected=selectedEvent===ev.id;
                       const md=(ev.date||"").slice(5); // MM-DD
                       return (
-                        <div key={ev.id} onClick={()=>requestTitleClick(ev)}/* v519: ピースと挙動統一。編集中の1行目クリックは閲覧へ戻す(開いたまま)。未保存はガード */
+                        <div key={ev.id} onClick={()=>requestTitleClick(ev)}/* v520: ピースと挙動統一。編集中の1行目クリックは閲覧へ戻す(開いたまま)。未保存はガード */
                           style={{background:eventCardBg(ev),
                             borderRadius:5,padding:"9px 12px",marginBottom:8,cursor:"pointer",
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
@@ -3783,7 +3783,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           const isSelected=selectedEvent===ev.id;
           return (
             <div key={ev.id} style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"4px solid "+et.color,borderRadius:6,marginBottom:6,overflow:"hidden",boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",transition:"all 0.2s"}}>
-              <div onClick={()=>requestTitleClick(ev)}/* v519: リスト側も同様に統一 */
+              <div onClick={()=>requestTitleClick(ev)}/* v520: リスト側も同様に統一 */
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                 <span style={{fontSize:12,color:"#94A3BE",fontFamily:FONT,flexShrink:0}}>{ev.date}</span>
@@ -4075,7 +4075,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v510: 新規追加フォームを変数化しformSlotで帯直下に出す。
   const eventFormNode = showForm && (
-          <div style={{...FORM.card,marginTop:34,marginBottom:31,position:"relative",paddingTop:editingId?28:18}/* v519: AddEventの上下余白をAddPiece(基準・悪くない)に寄せる第一歩。上=帯marginBottom8と相殺する側のmarginTopを16→34(実測0.9cm→目標1.9cm換算)、下=marginBottom24→31(1.4cm→1.8cm換算)。cmからのpx換算の初手・実機で微調整前提。paddingTopは編集時タイトル間隔用で不変 */}>
+          <div style={{...FORM.card,marginTop:34,marginBottom:33,position:"relative",paddingTop:editingId?28:18}/* v520: AddEventの上下余白をAddPiece(基準・悪くない)に寄せる第一歩。上=帯marginBottom8と相殺する側のmarginTopを16→34(実測0.9cm→目標1.9cm換算)、下=marginBottom24→31(1.4cm→1.8cm換算)。cmからのpx換算の初手・実機で微調整前提。paddingTopは編集時タイトル間隔用で不変 */}>
             {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
             <button onClick={()=>{closeEditForm();}} title="キャンセル"
               style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
@@ -4351,7 +4351,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
       </div>
       </div>
-      {/* v519: 編集中カードの1行目クリック＝閲覧に戻る前の破棄確認（未保存があるときだけ）。
+      {/* v520: 編集中カードの1行目クリック＝閲覧に戻る前の破棄確認（未保存があるときだけ）。
            [破棄]で編集を捨てて閲覧展開へ（カードは開いたまま／selectedEventは維持）。 */}
       {pendingReturnView && (
         <ConfirmModal SANS={SANS}
@@ -4368,7 +4368,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           line2="編集中の内容を破棄してタブを移動しますか？"
           confirmLabel="破棄して移動" confirmColor="#C0405A"
           onCancel={()=>setPendingTab(null)}
-          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v519: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
+          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v520: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
       )}
       {/* v385 ④⑤: ページ移動(ロゴ／ナビ)の破棄確認。見出しは削除モーダル準拠(日付＋公演タイトル)。
            [破棄]で編集を捨てて閉じ→保留していたページ移動(proceed)を実行。 */}
@@ -4385,7 +4385,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             line2="保存していない変更があります。破棄して移動しますか?"
             confirmLabel="破棄" confirmColor="#C0405A"
             onCancel={()=>setPendingNav(null)}
-            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v519: カード内編集も破棄して閉じる */ />
+            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v520: カード内編集も破棄して閉じる */ />
         );
       })()}
       {/* v338 ⑩-2: イベント削除の確認モーダル（ピースカードと同じ自前ConfirmModalに統一）。
