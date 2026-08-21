@@ -660,10 +660,10 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
     if (!expanded) setEditing(false);
   }, [expanded]);
 
-  // v532 方針Z: 編集中は外クリック(1行目/展開部の空き領域クリック=onToggleExpand)を無効化。
+  // v533 方針Z: 編集中は外クリック(1行目/展開部の空き領域クリック=onToggleExpand)を無効化。
   //   決着は保存/キャンセルボタンのみ。閲覧中は従来どおり開閉トグル。イベントカードと挙動統一。
   const onOutsideToggle = (e) => {
-    // v532 確定ルール: 変更あり(isPieceDirty)なら外クリック(1行目/展開部空き)を無視。変更なし(未編集含む)ならトグル。
+    // v533 確定ルール: 変更あり(isPieceDirty)なら外クリック(1行目/展開部空き)を無視。変更なし(未編集含む)ならトグル。
     if (isPieceDirty()) return;
     onToggleExpand && onToggleExpand(e);
   };
@@ -776,7 +776,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
       {/* ── 1行目（常に表示） ── */}
       <div style={{padding:"10px 12px 8px 13px",display:"flex",alignItems:"center",gap:6,cursor:"pointer"}}
-        onClick={onOutsideToggle}/* v532 方針Z: 編集中は無効・閲覧中のみ開閉 */>
+        onClick={onOutsideToggle}/* v533 方針Z: 編集中は無効・閲覧中のみ開閉 */>
         {isMobile ? (
           /* v313: スマホ幅＝縦レイアウト。曲名を上に大きく（折り返して全部見える）／作曲家・時間を下に小さく。
              調は出さない（案イ・v293維持）。切れずに全体が見える。 */
@@ -840,7 +840,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
       {/* ── 展開部分 ── */}
       {expanded && (
-        <div style={{padding:"0 12px 10px 13px",background:isAI?memoBg:"#18283F"}} onClick={onOutsideToggle}/* v532 方針Z: 編集中は無効 */>
+        <div style={{padding:"0 12px 10px 13px",background:isAI?memoBg:"#18283F"}} onClick={onOutsideToggle}/* v533 方針Z: 編集中は無効 */>
           {!editing ? (
             <>
               {/* 左右2カラム: 左=作曲家列(縦線まで)、右=曲の全情報 */}
@@ -1308,7 +1308,7 @@ const rankComposers = (composerPool, lower, limit) => {
     .map(x => x.row);
 };
 
-// v532 🔴: AIが返す作曲家表記(「F.Chopin」「F. Chopin」「Frédéric Chopin」「Chopin」等)の
+// v533 🔴: AIが返す作曲家表記(「F.Chopin」「F. Chopin」「Frédéric Chopin」「Chopin」等)の
 //   スペース/ドット/イニシャルのブレで、同じ作曲家がある時は1件ヒット・ある時は0件になり、
 //   「1回目空・2回目入る」という不安定を生んでいた（表記ノイズによる照合の揺れ）。
 //   ここでAI文字列を正規化して姓(surname)基準で確実に引く。思想は不変：
@@ -1572,7 +1572,7 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     // プロンプトの「F.姓形式」指定は当てにしない（ヒントであって保証ではない）。
     // 何が返ってきても必ず照合を通す。通らなければ空欄。
     const { composer, ...rest } = s;
-    // v532 🔴: 表記ブレに強い照合へ。生キー→(0/複数なら)姓完全一致の順で引く。思想は不変。
+    // v533 🔴: 表記ブレに強い照合へ。生キー→(0/複数なら)姓完全一致の順で引く。思想は不変。
     const hits = matchComposerByAI(composerPool, composer);
     // 一意に決まったときだけ自動で入れる。複数ヒットで1位を自動採用すると「AIが決めた」に戻る。
     const decided = hits.length === 1 ? hits[0].display : "";
@@ -1968,7 +1968,7 @@ const PrintPage = (props) => {
     <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
       {/* Inner tabs（インデックスタブ v213：Libraryと統一） */}
-      <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v532: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
+      <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v533: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
         <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
           {[["profile","Profile"],["output","Documents"]].map(([k,l])=>(
             <button key={k} onClick={()=>setPortfolioTab(k)}
@@ -2739,6 +2739,14 @@ const ManagePage = (props) => {
   const {freqMin, setFreqMin, freqMax, setFreqMax, kwFilter, setKwFilter} = props;
   const {aiPieces, setAiPieces, aiLoading, askAILearning} = props;
   const {learningIds, setLearningIds, expandedId, setExpandedId} = props;
+  // v533 方針Zの穴(スコープ修正): 別カード/同カードの展開クリックのルールをManagePage内に定義。
+  //   pieceEditRegistry(モジュール共有・v386)を見て、編集中で変更ありなら無視・そうでなければトグル。
+  //   (v533はApp側に置いたためManagePageから参照できず全カードが開かなくなった不具合の修正)
+  const requestExpandPiece = (id) => {
+    const pe = pieceEditRegistry.current;
+    if (pe && pe.isDirty && pe.isDirty()) return; // 変更あり=クリック無視
+    setExpandedId(prev => prev === id ? null : id); // 変更なし=トグル
+  };
   const {events=[]} = props; // 逆引き用（この曲どのイベントで弾いた？）
   const isMobile = useIsMobile(640); // v372: 検索ピースカードの頭出し（PCのみ2文字右）に使用
   const [showRepDocPanel, setShowRepDocPanel] = useState(false);
@@ -2817,7 +2825,7 @@ const ManagePage = (props) => {
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* ② Library タブバー（インデックスタブ v212：金塗り＋細い金ライン1本・箱なし） */}
-    <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v532: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
+    <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v533: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
       <div style={{display:"flex",alignItems:"flex-end",gap:4,position:"relative"}}>
         {[["repertoire","Repertoire"],["learning","Learning"]].map(([k,l])=>(
           <button key={k} onClick={()=>{ if(k===libraryTab) return; if(attemptNav){ attemptNav(()=>setLibraryTab(k)); } else { setLibraryTab(k); } }}
@@ -2850,7 +2858,7 @@ const ManagePage = (props) => {
           } />
         {showLearnSearch && (<React.Fragment>
         {/* v268: RPと同じ並び（EraBarの下）。幅は親のCONTENT_Wを継承 */}
-        <div style={{marginTop:10,marginBottom:4}/* v532: SearchPiece下をもう少し狭く(10→4)。一覧padding-top14と合わせて基準1.9cm付近へ。v532: SearchPiece下が4.3cmと広すぎ(ラッパmarginBottom24＋結果一覧padding-top14の二重)。基準1.9cmへ寄せる第一歩として、ラッパmarginBottomを24→10に。結果一覧側のpadding-top:14は温存(通常表示の間隔に効くため触らない)。実機で1.9cmになるか要確認 */}>
+        <div style={{marginTop:10,marginBottom:4}/* v533: SearchPiece下をもう少し狭く(10→4)。一覧padding-top14と合わせて基準1.9cm付近へ。v533: SearchPiece下が4.3cmと広すぎ(ラッパmarginBottom24＋結果一覧padding-top14の二重)。基準1.9cmへ寄せる第一歩として、ラッパmarginBottomを24→10に。結果一覧側のpadding-top:14は温存(通常表示の間隔に効くため触らない)。実機で1.9cmになるか要確認 */}>
         {/* Search Piece パネル */}
         <div style={{background:"#EEF1F5",border:"1px solid #D0D6DF",borderRadius:10,padding:22,position:"relative",flexShrink:0}}>
           <button onClick={closeAndClearLearnSearch} title="キャンセル"
@@ -2892,7 +2900,7 @@ const ManagePage = (props) => {
               {/* v440: 検索(時代)の contemporary(現代) 除外を撤廃（企画確定）。バロック〜現代の5時代すべて検索可。先頭「ー」=解除。 */}
               <Dropdown isMobile={isMobile} value={eraFilter} onChange={setEraFilter}
                 options={[{value:"",label:"ー"}, ...ERA_ORDER.map(k=>({value:k, label:ERAS[k].label}))]}
-                placeholder="ー" buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v532: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v532(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
+                placeholder="ー" buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v533: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v533(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
               {false && (
               <select value={eraFilter} onChange={e=>setEraFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 <option value="">ー</option>
@@ -2919,7 +2927,7 @@ const ManagePage = (props) => {
               {/* v439 B-Step2④: 検索(調性)。「ー」=空文字=フィルタ解除の癖を維持。 */}
               <Dropdown isMobile={isMobile} value={keyFilter} onChange={setKeyFilter}
                 options={KEYS.map(k=>({value:k==="ー"?"":k, label:k}))} placeholder="ー"
-                buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v532: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v532(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
+                buttonStyle={{background:"white",height:"auto",padding:"5.5px 8px 5px",fontSize:13,lineHeight:1.2}}/* v533: 案A(構造で揃える)。height固定をやめ隣input(padding5+border1+fontSize13/border-box)と同じ縦padding・fontSizeをボタンに渡し同式で高さを出す。v514(30)高すぎ/v533(28)まだ高い→1px追いをやめ構造で決着。横padding8はキャレット間隔で維持。共通部品Dropdownは不変 */ />
               {false && (
               <select value={keyFilter} onChange={e=>setKeyFilter(e.target.value)} style={{background:"white",border:"1px solid #C8CEDB",color:"#15233F",padding:"5px 7px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"}}>
                 {KEYS.map(k=><option key={k} value={k==="ー"?"":k}>{k}</option>)}
@@ -2951,8 +2959,8 @@ const ManagePage = (props) => {
         </div>
         </div>
         {/* 結果一覧 */}
-        <div style={{marginBottom:10}/* v532: SearchPiece空状態の下余白を約85%に。結果一覧ラッパmarginBottom 20→10が主レバー */}>
-        <div style={{padding:"8px 0 8px"}/* v532: 結果表示時の1曲目上余白を8に戻す(空状態はmarginBottom側で詰める)。旧v532: SearchPiece下をさらに狭く。結果一覧padding-top 8→4(ラッパmarginBottom4据置) */}>
+        <div style={{marginBottom:10}/* v533: SearchPiece空状態の下余白を約85%に。結果一覧ラッパmarginBottom 20→10が主レバー */}>
+        <div style={{padding:"8px 0 8px"}/* v533: 結果表示時の1曲目上余白を8に戻す(空状態はmarginBottom側で詰める)。旧v533: SearchPiece下をさらに狭く。結果一覧padding-top 8→4(ラッパmarginBottom4据置) */}>
           {/* v508 ②: Search Piece下の案内文を削除(不要・操作で自明)。旧コードは{false&&()}で温存。 */}
           {false && (poolMode!=="ai" && aiPieces.length===0 && (
             <div style={{textAlign:"center",color:"#4A5A7A",padding:"32px 12px",fontSize:12,lineHeight:2,fontFamily:SANS}}>
@@ -3029,7 +3037,7 @@ const ManagePage = (props) => {
                   <PieceCardUnified
                     p={p}
                     expanded={expandedId===p.id}
-                    onToggleExpand={()=>requestExpand(p.id, setExpandedId)}/* v532: 編集中で変更ありなら別カードクリックを無視・変更なしならトグル */
+                    onToggleExpand={()=>requestExpandPiece(p.id)}/* v533: 編集中で変更ありなら別カードクリックを無視・変更なしならトグル(ManagePage内関数) */
                     inProgram={undefined}
                     onToggleFav={()=>toggleFav(p.id)}
                     onToggleMarkNote={()=>toggleMarkNote(p.id)}
@@ -3146,7 +3154,7 @@ const ManagePage = (props) => {
               <PieceCardUnified
                 p={p}
                 expanded={expandedId===p.id}
-                onToggleExpand={()=>requestExpand(p.id, setExpandedId)}/* v532: 編集中で変更ありなら別カードクリックを無視・変更なしならトグル */
+                onToggleExpand={()=>requestExpandPiece(p.id)}/* v533: 編集中で変更ありなら別カードクリックを無視・変更なしならトグル(ManagePage内関数) */
                 inProgram={undefined}
                 onToggleFav={()=>toggleFav(p.id)}
                 onToggleMarkNote={()=>toggleMarkNote(p.id)}
@@ -3292,7 +3300,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   // v385 ④⑤: ページ移動（ロゴ／ナビ）を保留しておく箱。破棄確認[破棄]でこの移動を実行。
   //   タブ移動(pendingTab)とは別の関所なので箱を分ける。
   const [pendingNav, setPendingNav]   = useState(null);
-  // v532: 「編集中カードの1行目クリック＝閲覧に戻る（カードは開いたまま）」用の保留箱。
+  // v533: 「編集中カードの1行目クリック＝閲覧に戻る（カードは開いたまま）」用の保留箱。
   //   ピースカードと挙動統一（企画指示）。未保存があれば破棄確認を挟み、[破棄]で閲覧へ戻す。
   const [pendingReturnView, setPendingReturnView] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -3376,7 +3384,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); };
   // v303: 開いた時点から内容が変わっているか（案ウの判定）。JSON比較で十分（同一構造の素データ）。
   const isEditDirty = () => {
-    // v532: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
+    // v533: showForm(上部フォーム=新規追加)だけでなく editInCard(カード内編集)も対象に。
     //   どちらも newEvent/editBaseline を使う同じ仕組みなので、開いている方を見れば足りる（両者は排他）。
     if (!showForm && !editInCard) return false;
     try { return JSON.stringify(newEvent) !== JSON.stringify(editBaseline); }
@@ -3387,7 +3395,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const requestEventsTab = (k) => {
     if (k === eventsTab) return;
     if (isEditDirty()) { setPendingTab(k); return; } // 確認モーダルを出す
-    // v532: 変更なしで素通りする時も、上部フォーム/カード内編集の両方を確実に閉じる。
+    // v533: 変更なしで素通りする時も、上部フォーム/カード内編集の両方を確実に閉じる。
     //   従来 closeEditForm() だけだったため editInCard が残り、移動後に「追加中の内容があります」
     //   誤検知が出ていた（editInCardが真＋newEvent=EMPTY≠editBaseline=null→dirty誤判定・editingIdはnull化済で「追加中」表示）。
     closeEditForm();
@@ -3395,13 +3403,13 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setEventsTab(k);
   };
 
-  // v532: イベントカード1行目クリックの入口。ピースカードと挙動統一。
+  // v533: イベントカード1行目クリックの入口。ピースカードと挙動統一。
   //   ・編集中(editInCard===ev.id)にこのカードの1行目を押したら＝「閲覧に戻る」（カードは開いたまま）。
   //       未保存があれば破棄確認を先に出す（v512-513の未保存ガードと同じ思想を、この導線にも適用）。
   //   ・編集中でなければ＝従来どおり開閉トグル。
   //   ※closeInCardEditはselectedEventを触らないので、editだけ畳んでEventDetail(閲覧)に戻る＝カードは開いたまま。
   const requestTitleClick = (ev) => {
-    // v532 方針Zの穴・確定ルール: 判断基準は「変更あり/なし」。同カード/別カードで例外を作らない。
+    // v533 方針Zの穴・確定ルール: 判断基準は「変更あり/なし」。同カード/別カードで例外を作らない。
     //   ・編集中(editInCard)で変更あり(isEditDirty) → 何も起きない(同カードの1行目も別カードのクリックも無視・留まる・モーダルなし)
     //   ・それ以外(未編集/編集中でも変更なし) → 従来どおりトグル(編集中でも変更なしなら黙って閉じてOK=捨てるものがない)
     //   ※タブ移動・ページ移動の未保存ガード(v512-513)は別導線なので従来どおり働く（明示移動は確認する）。
@@ -3414,7 +3422,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   登録は初回一度きり（依存空）→ アンマウントで解除。
   const navGuardStateRef = React.useRef({ dirty:false, ev:null, editingId:null });
   navGuardStateRef.current = {
-    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v532: カード内編集(editInCard)もページ移動ガードの対象に */,
+    dirty: ((showForm || editInCard) && (()=>{ try { return JSON.stringify(newEvent)!==JSON.stringify(editBaseline);} catch(e){ return true; } })())/* v533: カード内編集(editInCard)もページ移動ガードの対象に */,
     ev: newEvent,
     editingId: editingId,
   };
@@ -3456,7 +3464,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   //   （従来は setEvents だけでDB保存が漏れていた＝削除がDBに反映されなかった。ここで直す）。
   const deleteEvent = async (id) => {
     // v303 ⑤: 編集中のイベントを削除したら、宙に浮くのでフォームを閉じる。
-    if (String(editingId) === String(id)) { closeEditForm(); closeInCardEdit(); }/* v532: カード内編集中に削除した場合もeditInCardを残さない */
+    if (String(editingId) === String(id)) { closeEditForm(); closeInCardEdit(); }/* v533: カード内編集中に削除した場合もeditInCardを残さない */
     const nextEvents = events.filter(e=>String(e.id)!==String(id));
     setEvents(nextEvents);
     setSelectedEvent(null);
@@ -3761,23 +3769,23 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 cur.items.push(ev);
               });
               return groups.map(g => (
-                <div key={g.year} style={{display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"stretch":"flex-start",marginBottom:18}/* v532: スマホは年ラベル上・カード全幅の縦積み。PCは従来の横並び(年左・カード右) */}>
+                <div key={g.year} style={{display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"stretch":"flex-start",marginBottom:18}/* v533: スマホは年ラベル上・カード全幅の縦積み。PCは従来の横並び(年左・カード右) */}>
                   {/* v337: 年ラベルの頭＝えんじ境界線の左端（画面左マージン）に揃える。marginLeft撤去。
                        年とカードの間＝1文字分（marginRight）。 */}
                   {/* v400: 年ラベルに固定幅を与え、全グループでカード開始位置・幅を揃える。
                        「2027」(4桁)と「ー」(1文字)でラベル幅が変わると隣のカード領域(flex:1)の
                        開始位置がずれ、日付なしカードだけ幅が短く見えていた。width固定で解消。 */}
-                  <div style={isMobile ? {width:"100%",marginBottom:8,paddingTop:0,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,textAlign:"left"} : {flexShrink:0,width:"3.4em",marginRight:10,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}/* v532: スマホは年ラベルを独立行(全幅・左寄せ・下marginで間隔)。PCは3.4em固定幅の横並び維持 */}>
+                  <div style={isMobile ? {width:"100%",marginBottom:8,paddingTop:0,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,textAlign:"left"} : {flexShrink:0,width:"3.4em",marginRight:10,paddingTop:8,fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT}/* v533: スマホは年ラベルを独立行(全幅・左寄せ・下marginで間隔)。PCは3.4em固定幅の横並び維持 */}>
                     {g.year}
                   </div>
                   {/* その年のイベント群 */}
-                  <div style={isMobile ? {width:"100%",minWidth:0} : {flex:1,minWidth:0}/* v532: スマホは全幅・PCはflex:1で右側を占有 */}>
+                  <div style={isMobile ? {width:"100%",minWidth:0} : {flex:1,minWidth:0}/* v533: スマホは全幅・PCはflex:1で右側を占有 */}>
                     {g.items.map(ev=>{
                       const et=EVENT_TYPES[ev.type]||EVENT_TYPES.other;
                       const isSelected=selectedEvent===ev.id;
                       const md=(ev.date||"").slice(5); // MM-DD
                       return (
-                        <div key={ev.id} onClick={()=>requestTitleClick(ev)}/* v532: ピースと挙動統一。編集中の1行目クリックは閲覧へ戻す(開いたまま)。未保存はガード */
+                        <div key={ev.id} onClick={()=>requestTitleClick(ev)}/* v533: ピースと挙動統一。編集中の1行目クリックは閲覧へ戻す(開いたまま)。未保存はガード */
                           style={{background:eventCardBg(ev),
                             borderRadius:5,padding:"9px 12px",marginBottom:8,cursor:"pointer",
                             boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",
@@ -3817,7 +3825,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           const isSelected=selectedEvent===ev.id;
           return (
             <div key={ev.id} style={{background:isSelected?"#1C2E4A":"transparent",borderLeft:"4px solid "+et.color,borderRadius:6,marginBottom:6,overflow:"hidden",boxShadow:isSelected?"0 6px 20px rgba(0,0,0,0.5)":"none",transition:"all 0.2s"}}>
-              <div onClick={()=>requestTitleClick(ev)}/* v532: リスト側も同様に統一 */
+              <div onClick={()=>requestTitleClick(ev)}/* v533: リスト側も同様に統一 */
                 style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer"}}>
                 <div style={{width:10,height:10,borderRadius:"50%",background:et.color,flexShrink:0}}></div>
                 <span style={{fontSize:12,color:"#94A3BE",fontFamily:FONT,flexShrink:0}}>{ev.date}</span>
@@ -4109,7 +4117,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
   // v510: 新規追加フォームを変数化しformSlotで帯直下に出す。
   const eventFormNode = showForm && (
-          <div style={{...FORM.card,marginTop:34,marginBottom:33,position:"relative",paddingTop:editingId?28:18}/* v532: AddEventの上下余白をAddPiece(基準・悪くない)に寄せる第一歩。上=帯marginBottom8と相殺する側のmarginTopを16→34(実測0.9cm→目標1.9cm換算)、下=marginBottom24→31(1.4cm→1.8cm換算)。cmからのpx換算の初手・実機で微調整前提。paddingTopは編集時タイトル間隔用で不変 */}>
+          <div style={{...FORM.card,marginTop:34,marginBottom:33,position:"relative",paddingTop:editingId?28:18}/* v533: AddEventの上下余白をAddPiece(基準・悪くない)に寄せる第一歩。上=帯marginBottom8と相殺する側のmarginTopを16→34(実測0.9cm→目標1.9cm換算)、下=marginBottom24→31(1.4cm→1.8cm換算)。cmからのpx換算の初手・実機で微調整前提。paddingTopは編集時タイトル間隔用で不変 */}>
             {/* v364 ②: 閉じるは右上✕に一本化（キャンセルボタン撤去）。位置は他フォームと同じ内側マージン。 */}
             <button onClick={()=>{closeEditForm();}} title="キャンセル"
               style={{position:"absolute",top:6,right:6,background:"none",border:"none",color:"#6B7A90",fontSize:16,cursor:"pointer",lineHeight:1,padding:"2px 4px"}}>✕</button>
@@ -4287,7 +4295,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
     {/* Events サブタブ（固定・Libraryのタブバーと同じ配置） */}
-    <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v532: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
+    <div style={{background:"#0F1A33",padding:"0 28px",flexShrink:0,width:"100%",maxWidth:CONTENT_W,margin:"6px auto 0",boxSizing:"border-box",position:"relative",zIndex:3,boxShadow:"0 10px 16px -2px rgba(4,8,18,0.9)"}/* v533: ①金線の「もう少し下」で切れていた=タブバー下の透明な24px余白(旧marginBottom)にスクロール中身が覗いていた。marginBottomを24→0にしてスクロール開始を金線直下に密着させ、覗きを解消。②影を強く・太く(オフセット6→10・ぼかし10→16・濃さ0.8→0.9)。at-restの上余白は各ページ本体側の上paddingで確保(Events=TimelineSectionのpaddingTop40等)。3画面共通 */}>
       <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
         {[["history","History"],["upcoming","Upcoming"]].map(([k,l])=>(
           <button key={k} onClick={()=>requestEventsTab(k)}
@@ -4385,7 +4393,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 
       </div>
       </div>
-      {/* v532 方針Z: 外クリックで確認を出す導線を廃止（編集中は外クリック自体を無効化）。
+      {/* v533 方針Z: 外クリックで確認を出す導線を廃止（編集中は外クリック自体を無効化）。
            旧pendingReturnViewモーダルは温存のため{false&&}で無効化。stateも未使用のまま残置。 */}
       {false && pendingReturnView && (
         <ConfirmModal SANS={SANS}
@@ -4402,7 +4410,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           line2="編集中の内容を破棄してタブを移動しますか？"
           confirmLabel="破棄して移動" confirmColor="#C0405A"
           onCancel={()=>setPendingTab(null)}
-          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v532: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
+          onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* v533: 上部フォーム/カード内編集どちらでも破棄して閉じる（両閉じは冪等） */ />
       )}
       {/* v385 ④⑤: ページ移動(ロゴ／ナビ)の破棄確認。見出しは削除モーダル準拠(日付＋公演タイトル)。
            [破棄]で編集を捨てて閉じ→保留していたページ移動(proceed)を実行。 */}
@@ -4419,7 +4427,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
             line2="保存していない変更があります。破棄して移動しますか?"
             confirmLabel="破棄" confirmColor="#C0405A"
             onCancel={()=>setPendingNav(null)}
-            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v532: カード内編集も破棄して閉じる */ />
+            onConfirm={()=>{ const go=pendingNav; setPendingNav(null); closeEditForm(); closeInCardEdit(); if(typeof go==="function") go(); }}/* v533: カード内編集も破棄して閉じる */ />
         );
       })()}
       {/* v338 ⑩-2: イベント削除の確認モーダル（ピースカードと同じ自前ConfirmModalに統一）。
@@ -4694,16 +4702,6 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     go(); // 誰も止めなければ移動
   }, []);
 
-  // v532 方針Zの穴: 別カード(または同カード)の展開クリック時のルール。
-  //   企画決定＝判断基準は「変更あり/なし」:
-  //   ・編集中でダーティ(変更あり) → 何も起きない(クリック無視・今のカードに留まる・モーダルなし)
-  //   ・それ以外(未編集/編集中でも変更なし) → 従来どおりトグル(今のカードは黙って閉じる=捨てるものがない)
-  //   ※isDirtyはピース編集レジストリ(v386)を再利用。1行目クリックも別カードクリックも同じ判定に揃う。
-  const requestExpand = React.useCallback((id, setExpandedId) => {
-    const pe = pieceEditRegistry.current;
-    if (pe && pe.isDirty && pe.isDirty()) return; // 変更あり=無視
-    setExpandedId(prev => prev === id ? null : id); // 変更なし=トグル
-  }, []);
 
   const isMobile = useIsMobile(640); // v345: スマホはメインメニューをサブ下線幅に収める（間隔・padding・字を詰める）
   const [pieces, setPieces]                   = useState([]);
@@ -5345,7 +5343,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
 
   // ── Shared header (v168: Rくん + ゴシック + 高さ72 + 下線を文字直下に) ──────────
   const Header = () => (
-    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:28,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box",justifyContent:isMobile?"space-between":"flex-start"}/* v532: v532のヘッダー影は狙う場所が違ったため撤去。影はサブメニュー(タブバー)側に付け直し */}>
+    <header style={{background:"#0F1A33",display:"flex",alignItems:"center",flexShrink:0,height:84,paddingLeft:28,paddingRight:28,width:"100%",maxWidth:CONTENT_W,margin:"0 auto",boxSizing:"border-box",justifyContent:isMobile?"space-between":"flex-start"}/* v533: v533のヘッダー影は狙う場所が違ったため撤去。影はサブメニュー(タブバー)側に付け直し */}>
       {/* Rくん（クリックでホーム＝Library）
           v345: スマホは Rくん↔Library↔Events↔Portfolio を等間隔に。
                 header を space-between にし、navを display:contents で透過して
