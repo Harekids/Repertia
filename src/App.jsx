@@ -2378,7 +2378,7 @@ const PrintPage = (props) => {
 
             {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
             {/* v166: 保存トースト（右上にふわっと・数秒で消える） */}
-            {profileSaveMsg && (
+            {false && profileSaveMsg && (/* v579: 封印。保存トーストは共通ToastHost(下中央・白)に一本化。旧・右上独立実装は消さず温存。*/
               <div style={{position:"fixed",top:20,right:20,zIndex:9999,background:"#16243F",border:"1px solid #2A3A5A",color:"#EDE6D6",padding:"10px 18px",borderRadius:8,fontSize:13,fontFamily:FONT,boxShadow:"0 4px 16px rgba(0,0,0,0.25)"}}>
                 {profileSaveMsg}
               </div>
@@ -4903,10 +4903,10 @@ const ToastHost = () => {
   const node = (
     <div style={{position:"fixed",left:0,right:0,bottom:32,display:"flex",justifyContent:"center",
       zIndex:2147483001,pointerEvents:"none",padding:"0 16px"}}>
-      <div style={{background:"#16243F",border:"1px solid #2A3A5A",color:"#EDE6D6",
+      <div style={{background:"#F4F6F9",border:"1px solid #D0D6DF",color:"#15233F",
         fontSize:13,fontFamily:FONT,padding:"10px 18px",borderRadius:8,
-        boxShadow:"0 6px 20px rgba(6,12,24,0.4)",maxWidth:420,textAlign:"center",
-        wordBreak:"break-word",pointerEvents:"auto"}}>
+        boxShadow:"0 6px 20px rgba(6,12,24,0.28)",maxWidth:420,textAlign:"center",
+        wordBreak:"break-word",pointerEvents:"auto"}/* v579: トースト白統一。確認モーダル(#F4F6F9/#D0D6DF/#15233F)と同色。「浮いてる面は明るい世界に」で一貫。*/}>
         {toast.msg}
       </div>
     </div>
@@ -5089,8 +5089,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       .upsert({ user_id: user.id, data: profile, updated_at: new Date().toISOString() },
                { onConflict: 'user_id' });
     if (!error) {
-      setProfileSaveMsg("保存しました ✓");
-      setTimeout(() => setProfileSaveMsg(""), 3000);
+      fireToast("保存しました ✓");/* v579: 保存トーストを共通ToastHost(下中央・白)に一本化。①(曲追加等)と場所・見た目・仕様を完全一致。*/
+      /* v579: 旧・右上独立トーストは封印(表示側を{false&&()}で温存)。state/props配線は温存(消さない原則)。 */
     }
   };
 
