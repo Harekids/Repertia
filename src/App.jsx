@@ -1560,7 +1560,7 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
 
 
 // ── AddPieceForm — fully self-contained, no App state dependency ──────────────
-const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
+const AddPieceForm = ({ onAdd, onCancel, composerPool = [], piece: pieceProp, setPiece: setPieceProp }) => {/* v585 A: 入力データpieceを親から受け取れるように(stateリフト)。未指定なら内部stateにフォールバック(後方互換) */
   const isMobile = useIsMobile(640); // v430: Dropdown(調性)のPC/スマホ色・幅出し分け用
   // v578 手順5: 「入力あり/空」を共有refに登録（Library内タブ移動の閉じる/キープ判定用）。
   //   pieceがEMPTY_PIECEと1つでも違えば「入力あり」。最新pieceを掴めるよう毎レンダー更新。
@@ -1585,7 +1585,10 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   React.useEffect(() => {
     return () => { addPieceInputRef.current = null; };
   }, []);
-  const [piece, setPiece]                     = useState(EMPTY_PIECE);
+  // v585 A(stateリフト): 親からpiece/setPieceが来ればそれを使う(タブ移動で消えない)。来なければ内部stateで自己完結(後方互換)。
+  const [pieceLocal, setPieceLocal]           = useState(EMPTY_PIECE);
+  const piece    = pieceProp    !== undefined ? pieceProp    : pieceLocal;
+  const setPiece = setPieceProp !== undefined ? setPieceProp : setPieceLocal;
   const [composerSuggestions, setComposerSuggestions] = useState([]);
   const [composerCursor, setComposerCursor] = useState(-1); // v578 手順8: 作曲家候補の↓↑ハイライト
   const [composerLocked, setComposerLocked]   = useState(false);
@@ -2874,7 +2877,7 @@ const BarChart = ({dashData}) => {
 
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
-  const {pieces, setPieces, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd} = props;
+  const {pieces, setPieces, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd, addPieceData, setAddPieceData} = props;/* v585 A: 入力データを親から受け取る */
   const {composers=[]} = props; // v263: 293人マスタ（検索用）
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
@@ -3028,15 +3031,6 @@ const ManagePage = (props) => {
         ))}
       </div>
       <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
-    </div>
-
-    {/* v584 B(置き場所移動): AddPieceの常設マウント。両タブの外に置き、タブ移動でアンマウントさせない=中身保持。
-         表示は showAdd かつ Repertoireタブのときだけ(displayで切替・条件レンダーにしない=マウント維持)。
-         位置は本来Repertoire一覧の途中だが、Bではまず外に出して実機でズレを見る(企画:ズレたら調整orA)。 */}
-    <div style={{display:(showAdd && libraryTab==="repertoire")?"block":"none",maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px",boxSizing:"border-box",width:"100%"}}>
-      <div style={{marginBottom:24,marginTop:24}}>
-        <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} />
-      </div>
     </div>
 
     {/* Learning タブ（プレースホルダー） */}
@@ -3328,11 +3322,10 @@ const ManagePage = (props) => {
         </div>
       )}
 
-      {/* v584 B(置き場所移動): 曲追加フォームの実体は「両タブの外」に常設マウントへ移動(タブ移動でアンマウントされない=中身保持)。
-           ここ(Repertoireツリー内)には置かない。旧位置は封印・温存。 */}
-      {false && showAdd && (
+      {/* 曲追加フォーム — 境界線で視覚的に分離 */}
+      {showAdd && (
         <div style={{marginBottom:24}}>
-          <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} />
+          <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} piece={addPieceData} setPiece={setAddPieceData}/* v585 A: 入力データを親から渡す=タブ移動で消えない(stateリフト) */ />
         </div>
       )}
 
@@ -5054,6 +5047,10 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   // Bar chart
   const [learningIds, setLearningIds]           = useState([]); // ② Learning管理
   const [showAdd, setShowAdd]                 = useState(false);
+  // v585 A(stateリフト): AddPieceの入力データ(piece)を親(MainApp)で保持。
+  //   AddPieceFormはタブ移動でアンマウントされるが、データはここに残る→再マウント時に復元=入力ありキープ。
+  //   見た目/配置は一切変えない(AddPieceは元の位置=EraBarの下のまま)。Bのようなレイアウト崩れを起こさない解。
+  const [addPieceData, setAddPieceData]       = useState(EMPTY_PIECE);
   const [portfolioTab, setPortfolioTab]        = useState("profile"); // "profile"|"output"
   const [events, setEvents]                    = useState([]);
   const [documents, setDocuments]              = useState([]); // 📦 ドキュメントボックス
@@ -5706,7 +5703,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           composers={composers}
           pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
-          showAdd={showAdd} setShowAdd={setShowAdd} editMode={editMode} setEditMode={setEditMode}
+          showAdd={showAdd} setShowAdd={setShowAdd} addPieceData={addPieceData} setAddPieceData={setAddPieceData}/* v585 A: 入力データを親から渡す(キープの本体) */ editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} promoteToRepertoire={promoteToRepertoire} demoteToLearning={demoteToLearning} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest}
           sortBy={sortBy} setSortBy={setSortBy} sortAsc={sortAsc} setSortAsc={setSortAsc}
           searchQ={searchQ} setSearchQ={setSearchQ} sel={sel} fmtDuration={fmtDuration}
