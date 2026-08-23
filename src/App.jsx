@@ -3030,6 +3030,15 @@ const ManagePage = (props) => {
       <div style={{height:1.5,background:"#C8A860",width:"100%"}}/>
     </div>
 
+    {/* v584 B(置き場所移動): AddPieceの常設マウント。両タブの外に置き、タブ移動でアンマウントさせない=中身保持。
+         表示は showAdd かつ Repertoireタブのときだけ(displayで切替・条件レンダーにしない=マウント維持)。
+         位置は本来Repertoire一覧の途中だが、Bではまず外に出して実機でズレを見る(企画:ズレたら調整orA)。 */}
+    <div style={{display:(showAdd && libraryTab==="repertoire")?"block":"none",maxWidth:CONTENT_W,margin:"0 auto",padding:"0 28px",boxSizing:"border-box",width:"100%"}}>
+      <div style={{marginBottom:24,marginTop:24}}>
+        <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} />
+      </div>
+    </div>
+
     {/* Learning タブ（プレースホルダー） */}
     {libraryTab==="learning" && (
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
@@ -3319,8 +3328,9 @@ const ManagePage = (props) => {
         </div>
       )}
 
-      {/* 曲追加フォーム — 境界線で視覚的に分離 */}
-      {showAdd && (
+      {/* v584 B(置き場所移動): 曲追加フォームの実体は「両タブの外」に常設マウントへ移動(タブ移動でアンマウントされない=中身保持)。
+           ここ(Repertoireツリー内)には置かない。旧位置は封印・温存。 */}
+      {false && showAdd && (
         <div style={{marginBottom:24}}>
           <AddPieceForm onAdd={onAddPiece} onCancel={()=>setShowAdd(false)} composerPool={composers} />
         </div>
