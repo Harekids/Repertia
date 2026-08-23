@@ -5092,8 +5092,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       .upsert({ user_id: user.id, data: profile, updated_at: new Date().toISOString() },
                { onConflict: 'user_id' });
     if (!error) {
-      fireToast("Profileに保存しました！");/* v580: 文言変更(✓→!・範囲=profile全体でBiography含む・企画確定)。表示は共通ToastHost(下中央・白)。*/
-      /* v579: 旧・右上独立トーストは封印(表示側を{false&&()}で温存)。state/props配線は温存(消さない原則)。 */
+      /* v582: 企画決定A=自動保存は静かに。トースト発火を封印(温存)。理由=自動保存は「押していない→報告不要」。手動アクション(曲追加)はトースト◯／自動保存は静か。保存機能(0.8秒後)は生きたまま・データは守られる。 */
+      /* v580(封印): fireToast("Profileに保存しました！"); ← 自動保存のたびに全ページ下中央に出て邪魔だったため停止。復活時はこの行を戻す。 */
+      /* v579: 旧・右上独立トーストも封印済み(表示側{false&&()}で温存)。state/props配線は温存(消さない原則)。 */
     }
   };
 
