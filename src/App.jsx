@@ -3546,7 +3546,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
   const saveEventInCard = () => {
     if (!(newEvent.title||"").trim()) {
       setEventFormError(true); // v578: 必須=イベント内容のみに変更。ラベル右に※必須
-      return;
+      return false;/* v581: 保存失敗=false。呼び出し側(タブ移動)がタブを動かさず留まる判断に使う。 */
     }
     setEventFormError(false);
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
@@ -3556,6 +3556,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setEvents(nextEvents);
     saveEvents(nextEvents);
     closeInCardEdit();
+    return true;/* v581: 保存成功=true。 */
   };
   // v303: 編集/追加フォームを閉じて状態を捨てる（既存キャンセルと同じ内容を一箇所に）。
   const closeEditForm = () => { setShowForm(false); setEditingId(null); setNewEvent(EMPTY_EVENT); setEditBaseline(null); setEventFormError(false); };
@@ -3622,7 +3623,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     // v399 ④⑤: 日付なし（「ー」）を許容。ただし空っぽ登録は防ぐため、タイトルか場所のどちらかは必須。
     if (!(newEvent.title||"").trim()) {
       setEventFormError(true); // v578: 必須=イベント内容のみに変更。ラベル右に※必須
-      return;
+      return false;/* v581: 保存失敗=false。呼び出し側(タブ移動)がタブを動かさず留まる判断に使う。 */
     }
     setEventFormError(false);
     // 日付が空の行があってもクラッシュしないよう、空安全ソート（(e.date||"")で比較）。
@@ -3638,6 +3639,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     //   ※読み取り側（逆引き2091・History登録4352）は③まで両対応のまま残す。
 
     closeEditForm();
+    return true;/* v581: 保存成功=true。 */
   };
 
   // v338 ⑩-2: 実際の削除処理。確認モーダルでOKされてから呼ばれる（自前で確認はしない）。
@@ -4213,7 +4215,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
                 <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{s.composer}　：　{s.title}</span>
                 <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{s.duration?s.duration+"分":"—"}</span>
-                <button onClick={()=>removeHistoryItem(idx)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
+                <button onClick={()=>removeHistoryItem(idx)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px",flexShrink:0}}>✕</button>
               </div>
             ))}
           </React.Fragment>
@@ -4240,7 +4242,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               ) : (
                 <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
               )}
-              <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
+              <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px",flexShrink:0}}>✕</button>
             </div>
             );
           })
@@ -4389,7 +4391,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                   {false && (
                   <input value={it.performer||""} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
                   )}
-                  <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
+                  <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px",flexShrink:0}}>✕</button>
                 </div>
                 );
               })}
@@ -4628,7 +4630,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
           line2="変更を保存しますか？"
           saveLabel="保存する" discardLabel="保存しない"/* v578: 見出し・文言を統一(企画決定) */
           onCancel={()=>setPendingTab(null)}
-          onSave={()=>{ const k=pendingTab; setPendingTab(null); if(editInCard){ saveEventInCard(); } else { saveEvent(); } setEventsTab(k); }}/* v578 手順6: 保存する→保存してから移動 */
+          onSave={()=>{ const k=pendingTab; setPendingTab(null); const ok = editInCard ? saveEventInCard() : saveEvent(); if(ok){ setEventsTab(k); } }}/* v581: 企画決定A・最小修正。保存成功時だけタブ移動。必須(内容)が空で保存中断ならタブを動かさずフォームに留まる(※必須表示)→無限ループを断つ。 */
           onConfirm={()=>{ const k=pendingTab; setPendingTab(null); closeEditForm(); closeInCardEdit(); setEventsTab(k); }}/* 保存しない→破棄して移動 */ />
       )}
       {/* v385 ④⑤: ページ移動(ロゴ／ナビ)の破棄確認。見出しは削除モーダル準拠(日付＋公演タイトル)。
