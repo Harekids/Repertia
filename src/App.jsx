@@ -4213,7 +4213,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                 <span style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,flexShrink:0,width:18,textAlign:"right"}}>{idx+1}</span>
                 <span style={{flex:1,minWidth:0,fontSize:11,color:"#15233F",fontFamily:FONT,lineHeight:1.5,wordBreak:"break-word"}}>{s.composer}　：　{s.title}</span>
                 <span style={{flexShrink:0,fontSize:11,color:"#7A8FB5",fontFamily:FONT,textAlign:"right",marginLeft:"auto",paddingLeft:6}}>{s.duration?s.duration+"分":"—"}</span>
-                <button onClick={()=>removeHistoryItem(idx)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+                <button onClick={()=>removeHistoryItem(idx)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>/* v580: 行削除×→✕統一(企画おまかせ) */
               </div>
             ))}
           </React.Fragment>
@@ -4240,7 +4240,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
               ) : (
                 <span style={{flex:1,fontSize:11,color:"#C0392B",fontFamily:FONT}}>曲が見つかりません（削除された可能性）</span>
               )}
-              <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+              <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>/* v580: 行削除×→✕統一(企画おまかせ) */
             </div>
             );
           })
@@ -4389,7 +4389,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
                   {false && (
                   <input value={it.performer||""} onChange={e=>updateItem(it.id,{performer:e.target.value})} placeholder="演奏者" style={{...inpE,flex:"0 0 100px"}}/>
                   )}
-                  <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+                  <button onClick={()=>removeItem(it.id)} style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>/* v580: 行削除×→✕統一(企画おまかせ) */
                 </div>
                 );
               })}
