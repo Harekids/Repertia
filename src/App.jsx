@@ -3014,6 +3014,19 @@ const ManagePage = (props) => {
               const ai = addPieceInputRef.current;
               const isEmptyForSure = !!(ai && typeof ai.hasInput === "function" && ai.hasInput() === false);
               if (setShowAdd && isEmptyForSure) setShowAdd(false); // 空が確実な時だけ閉じる
+              // v585 B(企画決定): SearchPiece(Learning検索)も「空なら閉じる」だけ揃える。
+              //   役割の違い=SearchPieceは探す(検索語は一時的キーワード)。入力ありキープ(stateリフト)はしない=開いたまま残るだけ。
+              //   主要な検索欄が全部空なら閉じる。1つでも入力があれば従来どおり開いたまま。
+              const learnSearchEmpty = !(
+                (composerFilter && composerFilter.trim()) ||
+                (titleFilter && titleFilter.trim()) ||
+                (eraFilter && eraFilter.trim()) ||
+                (keyFilter && keyFilter.trim()) ||
+                (kwFilter && String(kwFilter).trim()) ||
+                (yearRange && String(yearRange).trim()) ||
+                (durRange && String(durRange).trim())
+              );
+              if (setShowLearnSearch && showLearnSearch && learnSearchEmpty) setShowLearnSearch(false); // 空なら閉じる(AddPieceと対称の"閉じる"だけ・キープはしない)
               setLibraryTab(k);
             };
             if(attemptNav){ attemptNav(goTab); } else { goTab(); } }}
