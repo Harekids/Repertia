@@ -1563,17 +1563,28 @@ const SearchBox = ({ searchQ, setSearchQ, allPool, composerPool = [], flex = fal
 const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
   const isMobile = useIsMobile(640); // v430: Dropdown(調性)のPC/スマホ色・幅出し分け用
   // v578 手順5: 「入力あり/空」を共有refに登録（Library内タブ移動の閉じる/キープ判定用）。
-  //   pieceがEMPTY_PIECEと1つでも違えば「入力あり」。最新pieceを掴めるよう依存にpiece。
+  //   pieceがEMPTY_PIECEと1つでも違えば「入力あり」。最新pieceを掴めるよう毎レンダー更新。
+  // v583 B手当て(落とし穴#5): 旧実装は毎レンダーのcleanupで current=null にしていた。
+  //   タブ移動で再レンダー→cleanupが走る一瞬、currentがnullになり「空」誤判定→AddPieceが閉じてクリア。
+  //   対策=毎レンダーでの登録は残しつつ「cleanupでのnull化」を撤去。null化はアンマウント時だけにする(下の[]effect)。
+  //   企画キープ範囲: 作曲家 or 曲名 のどちらかに入力あり→キープ。それ以外の全項目も従来通り差分で拾う。
   React.useEffect(() => {
     addPieceInputRef.current = {
       hasInput: () => {
         try {
+          // 作曲家 or 曲名のどちらかに入力があれば「作業中」=キープ(企画①・最優先の判定)。
+          if ((piece.composer && piece.composer.trim()) || (piece.title && piece.title.trim())) return true;
+          // それ以外も、EMPTY_PIECEと1つでも違えば入力ありとみなす(従来の網羅判定・温存)。
           return Object.keys(EMPTY_PIECE).some(k => JSON.stringify(piece[k]) !== JSON.stringify(EMPTY_PIECE[k]));
         } catch (e) { return true; } // 判定不能なら安全側(入力ありとみなしキープ)
       }
     };
-    return () => { addPieceInputRef.current = null; };
+    // v583: ここでの return(cleanup)は置かない。毎レンダーのnull化事故を断つ。
   });
+  // v583 B手当て: アンマウント時だけ ref を掃除する(マウント中は決してnullにしない)。
+  React.useEffect(() => {
+    return () => { addPieceInputRef.current = null; };
+  }, []);
   const [piece, setPiece]                     = useState(EMPTY_PIECE);
   const [composerSuggestions, setComposerSuggestions] = useState([]);
   const [composerCursor, setComposerCursor] = useState(-1); // v578 手順8: 作曲家候補の↓↑ハイライト
@@ -2995,8 +3006,11 @@ const ManagePage = (props) => {
             // v578 手順5: Library内タブ移動時のAddPiece開閉。空→閉じる／入力あり→キープ（SearchPieceに挙動を揃える）。
             //   別メイン(Events/Portfolio)移動は従来どおりpage変化のeffectで無条件に閉じる。
             const goTab = () => {
+              // v583 B手当て: 「空が確実な時だけ閉じる」。ai(ref)がnull/判定不能なら閉じない=キープ(安全側)。
+              //   旧: !(ai && ai.hasInput && ai.hasInput()) はaiがnullだとtrue→閉じる、だった(誤判定の入口)。
               const ai = addPieceInputRef.current;
-              if (setShowAdd && !(ai && ai.hasInput && ai.hasInput())) setShowAdd(false); // 空なら閉じる
+              const isEmptyForSure = !!(ai && typeof ai.hasInput === "function" && ai.hasInput() === false);
+              if (setShowAdd && isEmptyForSure) setShowAdd(false); // 空が確実な時だけ閉じる
               setLibraryTab(k);
             };
             if(attemptNav){ attemptNav(goTab); } else { goTab(); } }}
