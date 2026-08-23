@@ -1752,9 +1752,10 @@ const AddPieceForm = ({ onAdd, onCancel, composerPool = [] }) => {
     else if (/^\d{4}$/.test(yt)) yearNum = parseInt(yt);
     // v271: 時代は手で選び直したときだけその値を送る。触っていなければ作曲年から補完（durationEditedと同じ考え方）
     const addedTitle = piece.title; // トースト用に退避(clearForm前)
+    const addedComposer = piece.composer; // v580: トーストに作曲家名も出す(企画A案)
     onAdd({...piece, year:yearNum, yearText: yt||String(yearNum), era: eraEdited ? piece.era : eraFromYear(yearNum)});
     clearForm(); // v578: 追加後の自動クリア＝クリアボタン/✕と同じ処理に一本化（連続登録できる）
-    fireToast("「"+addedTitle+"」を追加しました"); // v578 再設計③: 追加の手応え(成功トースト・3秒で消える・操作を止めない)
+    fireToast(addedComposer+"　"+addedTitle+" を追加しました！"); // v580: 作曲家＋全角スペース＋曲名 を追加しました!(企画A案・鉤括弧なし・カナなし・末尾!)
   };
   // v578: フォームを空に戻す（クリアボタン=開いたまま／✕=この後閉じる／追加後の自動クリア、で共有）。
   // v578 再設計: 企画確定＝AddPieceでは4項目(時代/作曲年/調性/演奏時間)を常時ロック(触れない)。
@@ -5089,7 +5090,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       .upsert({ user_id: user.id, data: profile, updated_at: new Date().toISOString() },
                { onConflict: 'user_id' });
     if (!error) {
-      fireToast("保存しました ✓");/* v579: 保存トーストを共通ToastHost(下中央・白)に一本化。①(曲追加等)と場所・見た目・仕様を完全一致。*/
+      fireToast("Profileに保存しました！");/* v580: 文言変更(✓→!・範囲=profile全体でBiography含む・企画確定)。表示は共通ToastHost(下中央・白)。*/
       /* v579: 旧・右上独立トーストは封印(表示側を{false&&()}で温存)。state/props配線は温存(消さない原則)。 */
     }
   };
