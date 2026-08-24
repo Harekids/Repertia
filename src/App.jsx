@@ -3579,6 +3579,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
       return false;/* v581: 保存失敗=false。呼び出し側(タブ移動)がタブを動かさず留まる判断に使う。 */
     }
     setEventFormError(false);
+    const isNewEventIC = !editingId;/* v587: カード内編集も新規/編集分岐。トーストは追加の時だけ。 */
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
     const nextEvents = editingId
       ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)
@@ -3586,6 +3587,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setEvents(nextEvents);
     saveEvents(nextEvents);
     closeInCardEdit();
+    if (isNewEventIC) fireToast((newEvent.title||"") + " を追加しました！");/* v587: イベント追加トースト(企画)。 */
     return true;/* v581: 保存成功=true。 */
   };
   // v303: 編集/追加フォームを閉じて状態を捨てる（既存キャンセルと同じ内容を一箇所に）。
@@ -3658,6 +3660,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     setEventFormError(false);
     // 日付が空の行があってもクラッシュしないよう、空安全ソート（(e.date||"")で比較）。
     const byDate = (a,b) => (a.date||"").localeCompare(b.date||"");
+    const isNewEvent = !editingId;/* v587: 新規追加か編集かの分岐。トーストは追加の時だけ(企画: 編集の保存には出さない)。 */
     const nextEvents = editingId
       ? events.map(e=>String(e.id)===String(editingId)?{...newEvent,id:editingId}:e).sort(byDate)
       : [...events,{...newEvent,id:Date.now()}].sort(byDate);
@@ -3669,6 +3672,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
     //   ※読み取り側（逆引き2091・History登録4352）は③まで両対応のまま残す。
 
     closeEditForm();
+    if (isNewEvent) fireToast((newEvent.title||"") + " を追加しました！");/* v587: イベント追加トースト(企画・曲追加と揃える)。共通ToastHost(下中央・白)。 */
     return true;/* v581: 保存成功=true。 */
   };
 
@@ -5598,8 +5602,10 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     //   ここでlearningをfalseにするのは棚の移動であって、銀→金の価値判断ではない。
     //   この移動処理を「v283で消したはず」と誤認して消さないこと（金庫の記録）。
     // d) トースト通知
-    setEventsSaveMsg("History に登録しました ✓");
-    setTimeout(() => setEventsSaveMsg(""), 3000);
+    // v587: 共通ToastHost(下中央・白)に一本化。文言も曲追加/イベント追加と揃える(対象名+！)。
+    //   旧・独自eventsSaveMsg方式は封印(表示箇所が無く見えていなかった)。state/配線は温存(消さない原則)。
+    fireToast((ev.title||"") + " をHistoryに登録しました！");
+    /* v587(封印): setEventsSaveMsg("History に登録しました ✓"); setTimeout(()=>setEventsSaveMsg(""),3000); */
   };
 
   // ── filtered/sorted pool ──
