@@ -2280,10 +2280,20 @@ const PrintPage = (props) => {
               </div>
             </div>
             {showProfileDetail && (<React.Fragment>
+            {/* v589 レイアウト試作(氏名ペア): スマホ=ラベル上・入力欄下の縦積み／PC=氏名(日)+氏名(英)を横並び。
+                 共通フィールド=ラベル(上)+入力欄(下)。isMobileで縦積み/横並びを出し分け。まず1ペアで方向性確認→OKなら残りに展開。 */}
+            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（日本語）</div>
+                <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS}}/>
+              </div>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（英語）</div>
+                <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS}}/>
+              </div>
+            </div>
             <div style={{display:"flex",flexDirection:"column",gap:28}}>
               {[
-                ["氏名（日本語）", <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
-                ["氏名（英語）",   <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["生年月日",       <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{flex:1,maxWidth:200,display:"flex"}} inputStyle={{...inpS}} FONT={SANS}/>],
                 ["国籍",           <div style={{flex:1,position:"relative"}}>
                   <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%",maxWidth:240}}/>
