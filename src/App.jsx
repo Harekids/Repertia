@@ -2280,138 +2280,72 @@ const PrintPage = (props) => {
               </div>
             </div>
             {showProfileDetail && (<React.Fragment>
-            {/* ============================================================
-                 v591 下線方式・試作プレビュー(企画依頼・実機で複数パターン見て選ぶ用)。
-                 実データにはつながないダミー表示。選定後に本実装し、このブロックは削除する。
-                 3列配置(企画): 氏名(日)/氏名(英)/生年月日 ・ 国籍/郵便番号/住所 ・ 電話/連絡先メール。
-                 ============================================================ */}
-            <div style={{border:"1px dashed #C8A860",borderRadius:8,padding:"16px 18px",marginBottom:32,background:"rgba(200,168,96,0.04)"}}>
-              <div style={{fontSize:12,color:"#C8A860",fontFamily:FONT,marginBottom:16,letterSpacing:"0.05em"}}>▼ 下線方式・試作プレビュー（選ぶ用・本番データではありません）</div>
-
-              {(() => {
-                const FONTX = FONT;
-                // 下線フィールド部品: ラベルの置き方・罫線・文字色をパターンで差し替え
-                const UField = ({label, val, lineColor, lineW, textColor, labelMode, lineStyle}) => {
-                  const inputStyle = {
-                    background:"transparent", border:"none",
-                    borderBottom:lineW+" "+(lineStyle||"solid")+" "+lineColor,/* v592: 罫線の種類(solid/dashed/dotted)をパターンで切替 */
-                    color:textColor, padding:"5px 2px 5px 10px",/* v592: 左paddingを10pxに(文字を左端から少し内側=記入欄っぽく) */
-                    fontFamily:FONTX, fontSize:14, width:"100%",
-                    boxSizing:"border-box", outline:"none"
-                  };
-                  if (labelMode==="placeholder") {
-                    return <div style={{flex:1,display:"flex",flexDirection:"column"}}>
-                      <input defaultValue={val} placeholder={label} style={inputStyle}/>
-                    </div>;
-                  }
-                  if (labelMode==="left") {
-                    return <div style={{flex:1,display:"flex",alignItems:"flex-end",gap:8}}>
-                      <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONTX,flexShrink:0,paddingBottom:6}}>{label}</div>
-                      <input defaultValue={val} style={inputStyle}/>
-                    </div>;
-                  }
-                  // "top"
-                  return <div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>
-                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONTX,letterSpacing:"0.03em"}}>{label}</div>
-                    <input defaultValue={val} style={inputStyle}/>
-                  </div>;
-                };
-                const Row = ({children}) => <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?14:20,marginBottom:18}}>{children}</div>;
-                const PatternBlock = ({title, lineColor, lineW, textColor, labelMode, lineStyle}) => (
-                  <div style={{marginBottom:26,paddingBottom:20,borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
-                    <div style={{fontSize:11,color:"#EDE6D6",fontFamily:FONTX,marginBottom:12,fontWeight:600}}>{title}</div>
-                    <Row>
-                      <UField label="氏名（日本語）" val="山田 太郎" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                      <UField label="氏名（英語）" val="Taro Yamada" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                      <UField label="生年月日" val="1990/01/01" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                    </Row>
-                    <Row>
-                      <UField label="国籍" val="日本 / Japan" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                      <UField label="郵便番号" val="123-4567" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                      <UField label="住所" val="東京都..." lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                    </Row>
-                    <Row>
-                      <UField label="電話" val="090-1234-5678" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                      <UField label="連絡先メール" val="taro@example.com" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
-                    </Row>
-                  </div>
-                );
-                return <div>
-                  <PatternBlock title="A：実線・細（ラベル上・文字を少し内側から）" lineColor="#6B7789" lineW="1px" lineStyle="solid" textColor="#EDE6D6" labelMode="top"/>
-                  <PatternBlock title="B：破線 dashed・グレー（ラベル上）" lineColor="#8A97AD" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="top"/>
-                  <PatternBlock title="C：点線 dotted・グレー（ラベル上）" lineColor="#8A97AD" lineW="1.5px" lineStyle="dotted" textColor="#EDE6D6" labelMode="top"/>
-                  <PatternBlock title="D：破線 dashed・ゴールド#C8A860（ラベル上）" lineColor="#C8A860" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="top"/>
-                  <PatternBlock title="E：破線 dashed・ゴールド（ラベル薄字プレースホルダー）" lineColor="#C8A860" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="placeholder"/>
-                </div>;
-              })()}
-            </div>
-            {/* v589 レイアウト試作(氏名ペア): スマホ=ラベル上・入力欄下の縦積み／PC=氏名(日)+氏名(英)を横並び。
-                 共通フィールド=ラベル(上)+入力欄(下)。isMobileで縦積み/横並びを出し分け。まず1ペアで方向性確認→OKなら残りに展開。 */}
-            {/* v589 幅当て: 氏名(日)=中 / 氏名(英)=中。PCは上限をつけて間延び防止・左寄せ。スマホは100%。 */}
-            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
-              <div style={{flex:isMobile?"none":"0 1 300px",display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（日本語）</div>
-                <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS}}/>
-              </div>
-              <div style={{flex:isMobile?"none":"0 1 300px",display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（英語）</div>
-                <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS}}/>
-              </div>
-            </div>
-            {/* v589 レイアウト試作(全ペア): スマホ=縦積み／PC=横並びペア。氏名ペアと同じ形式(ラベル上・入力欄下)で統一。
-                 ペア: 生年月日+国籍／郵便番号+住所／電話(単独)。SNSは追加方式へ移すため今回のペアから外す。
-                 幅はいったんflex:1(均等)で骨格を見る→全体バランスを見て大中小を当てる。 */}
-            {/* ペア1: 生年月日 + 国籍 */}
-            {/* v589 幅当て: 生年月日=小 / 国籍=中。 */}
-            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28,alignItems:"flex-start"}}>
-              <div style={{flex:isMobile?"none":"0 1 180px",display:"flex",flexDirection:"column",gap:6,width:isMobile?"100%":"auto"}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>生年月日</div>
-                <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{display:"flex",width:"100%"}} inputStyle={{...inpS}} FONT={SANS}/>
-              </div>
-              <div style={{flex:isMobile?"none":"0 1 260px",display:"flex",flexDirection:"column",gap:6,width:isMobile?"100%":"auto"}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>国籍</div>
-                <div style={{position:"relative"}}>
-                  <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS}}/>
-                  {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
-                    <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
-                      {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
-                        <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
-                      ))}
+            {/* v593 下線方式・本実装(企画確定B=グレー破線dashed)。試作プレビューは削除。
+                 配置(企画): 1行目 氏名(日)/氏名(英)/生年月日 ・ 2行目 国籍/郵便番号/住所 ・ 3行目 電話/連絡先メール。
+                 様式: 下線=グレー破線(#8A97AD 1px dashed)・塗りboxなし・ラベル上に小さく・文字は左padding10pxで少し内側。
+                 スマホ=縦積み(isMobile)／PC=横並び。連絡先メールは既存profile.contact.emailを配置(データ分離は氏名分離と共に後日)。
+                 SNSは追加方式へ(次バージョン)。国籍オートコンプリート/DateFieldも下線化して組み込み。 */}
+            {(() => {
+              // 下線入力欄の共通スタイル(グレー破線)
+              const uLine = {
+                background:"transparent", border:"none", borderBottom:"1px dashed #8A97AD",
+                color:"#EDE6D6", padding:"5px 2px 5px 10px", fontFamily:FONT, fontSize:14,
+                width:"100%", boxSizing:"border-box", outline:"none"
+              };
+              const uLabel = {fontSize:10, color:"#94A3BE", fontFamily:FONT, letterSpacing:"0.03em", marginBottom:4};
+              // 1フィールド(ラベル上+下線入力)。flexで幅制御。
+              const Field = ({label, node, grow}) => (
+                <div style={{flex:isMobile?"none":grow, width:isMobile?"100%":"auto", display:"flex", flexDirection:"column"}}>
+                  <div style={uLabel}>{label}</div>
+                  {node}
+                </div>
+              );
+              const rowStyle = {display:"flex", flexDirection:isMobile?"column":"row", gap:isMobile?18:24, marginBottom:24, alignItems:"flex-start"};
+              return <div>
+                {/* 1行目: 氏名(日) / 氏名(英) / 生年月日 */}
+                <div style={rowStyle}>
+                  <Field label="氏名（日本語）" grow="1 1 0" node={
+                    <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} style={uLine}/>
+                  }/>
+                  <Field label="氏名（英語）" grow="1 1 0" node={
+                    <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} style={uLine}/>
+                  }/>
+                  <Field label="生年月日" grow="0 1 160px" node={
+                    <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{display:"flex",width:"100%"}} inputStyle={uLine} FONT={SANS}/>
+                  }/>
+                </div>
+                {/* 2行目: 国籍 / 郵便番号 / 住所 */}
+                <div style={rowStyle}>
+                  <Field label="国籍" grow="1 1 0" node={
+                    <div style={{position:"relative"}}>
+                      <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={uLine}/>
+                      {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
+                        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
+                          {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
+                            <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  }/>
+                  <Field label="郵便番号" grow="0 1 150px" node={
+                    <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} style={uLine}/>
+                  }/>
+                  <Field label="住所" grow="2 1 0" node={
+                    <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} style={uLine}/>
+                  }/>
                 </div>
-              </div>
-            </div>
-            {/* ペア2: 郵便番号 + 住所 */}
-            {/* v589 幅当て: 郵便番号=小 / 住所=大。 */}
-            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
-              <div style={{flex:isMobile?"none":"0 1 160px",display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>郵便番号</div>
-                <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS}}/>
-              </div>
-              <div style={{flex:isMobile?"none":"1 1 400px",display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>住所</div>
-                <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS}}/>
-              </div>
-            </div>
-            {/* 電話(単独) */}
-            <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:28}}>
-              <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>電話</div>
-              <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,maxWidth:isMobile?"100%":360}}/>
-            </div>
-            {/* v589: SNSは「追加方式(◯◯を追加)」へ移すため、ここから外した(旧inpS版は下記で温存)。 */}
-            {false && (
-            <div style={{display:"flex",flexDirection:"column",gap:28}}>
-              {[
-                ["SNS", <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
-              ].map(([label, input])=>(
-                <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
-                  <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
-                  {input}
+                {/* 3行目: 電話 / 連絡先メール */}
+                <div style={rowStyle}>
+                  <Field label="電話" grow="1 1 0" node={
+                    <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} style={uLine}/>
+                  }/>
+                  <Field label="連絡先メール" grow="1 1 0" node={
+                    <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={uLine}/>
+                  }/>
                 </div>
-              ))}
-            </div>
-            )}
+              </div>;
+            })()}
 
             {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
