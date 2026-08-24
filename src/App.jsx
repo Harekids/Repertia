@@ -2293,7 +2293,9 @@ const PrintPage = (props) => {
                 width:"100%", boxSizing:"border-box", outline:"none"
               };
               const uLabel = {fontSize:10, color:"#94A3BE", fontFamily:FONT, letterSpacing:"0.03em", marginBottom:4};
-              // 1フィールド(ラベル上+下線入力)。flexで幅制御。
+              // v594fix: Fieldを「コンポーネント(<Field/>)」ではなく「JSXを返す普通の関数(Field())」にする。
+              //   レンダー内で定義したコンポーネントを<Field/>で使うと、1文字打つ毎に別物として作り直され入力欄が再生成→フォーカスが外れる(1文字ずつしか打てない)Reactの落とし穴。
+              //   {Field({...})}で呼べば「ただのJSX」扱いになり作り直されない=連続入力OK。
               const Field = ({label, node, grow}) => (
                 <div style={{flex:isMobile?"none":grow, width:isMobile?"100%":"auto", display:"flex", flexDirection:"column"}}>
                   <div style={uLabel}>{label}</div>
@@ -2304,19 +2306,19 @@ const PrintPage = (props) => {
               return <div style={{paddingLeft:isMobile?12:24, paddingRight:isMobile?12:24}/* v594: 項目群を左右とも内側に寄せる(インデント)。見出しBiographyの子=配下であることを視覚化。左右対称で「囲われた領域」感。色は触らない(親子逆転防止)。スマホは控えめに12。 */}>
                 {/* 1行目: 氏名(日) / 氏名(英) / 生年月日 */}
                 <div style={rowStyle}>
-                  <Field label="氏名（日本語）" grow="1 1 0" node={
+                  {Field({label:"氏名（日本語）", grow:"1 1 0", node:(
                     <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} style={uLine}/>
-                  }/>
-                  <Field label="氏名（英語）" grow="1 1 0" node={
+                  )})}
+                  {Field({label:"氏名（英語）", grow:"1 1 0", node:(
                     <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} style={uLine}/>
-                  }/>
-                  <Field label="生年月日" grow="0 1 160px" node={
+                  )})}
+                  {Field({label:"生年月日", grow:"0 1 160px", node:(
                     <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{display:"flex",width:"100%"}} inputStyle={uLine} FONT={SANS}/>
-                  }/>
+                  )})}
                 </div>
                 {/* 2行目: 国籍 / 郵便番号 / 住所 */}
                 <div style={rowStyle}>
-                  <Field label="国籍" grow="1 1 0" node={
+                  {Field({label:"国籍", grow:"1 1 0", node:(
                     <div style={{position:"relative"}}>
                       <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={uLine}/>
                       {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
@@ -2327,22 +2329,22 @@ const PrintPage = (props) => {
                         </div>
                       )}
                     </div>
-                  }/>
-                  <Field label="郵便番号" grow="0 1 150px" node={
+                  )})}
+                  {Field({label:"郵便番号", grow:"0 1 150px", node:(
                     <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} style={uLine}/>
-                  }/>
-                  <Field label="住所" grow="2 1 0" node={
+                  )})}
+                  {Field({label:"住所", grow:"2 1 0", node:(
                     <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} style={uLine}/>
-                  }/>
+                  )})}
                 </div>
                 {/* 3行目: 電話 / 連絡先メール */}
                 <div style={rowStyle}>
-                  <Field label="電話" grow="1 1 0" node={
+                  {Field({label:"電話", grow:"1 1 0", node:(
                     <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} style={uLine}/>
-                  }/>
-                  <Field label="連絡先メール" grow="1 1 0" node={
+                  )})}
+                  {Field({label:"連絡先メール", grow:"1 1 0", node:(
                     <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={uLine}/>
-                  }/>
+                  )})}
                 </div>
               </div>;
             })()}
