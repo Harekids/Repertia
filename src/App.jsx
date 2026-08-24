@@ -2072,7 +2072,7 @@ const PrintPage = (props) => {
   };
 
   // ── Helpers ──
-  const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};/* v588(Yuko決定B): 入力欄=#F4F6F9(Repertia標準の白・編集ボックス/確認モーダル/トーストと同じ)。真っ白#FFFFFFより馴染む。inpSはPrintPage(Biography/Account)専用。 */
+  const inpS = {background:"#F4F6F9",border:"1px solid #C8CEDB",color:"#15233F",padding:"6px 9px",fontFamily:FONT,fontSize:13,borderRadius:4,width:"100%",boxSizing:"border-box"};
   const lblS = {fontSize:10,color:"#94A3BE",marginBottom:4,fontFamily:FONT};
   const secTitle = (t) => (
     <div style={{fontSize:11,letterSpacing:3,color:"#94A3BE",fontFamily:FONT,marginBottom:10,marginTop:20,borderBottom:"1px solid #1E2A45",paddingBottom:4}}>{t}</div>
@@ -2152,7 +2152,7 @@ const PrintPage = (props) => {
 
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
-        <div style={{flex:1,overflowY:"auto",overflowX:"hidden",background:"#556B86"}/* v588 A(企画確定): Biography土台色=スレートブルー#556B86。事務ページを色で区別(意味の違いを見た目で表す)。眩しさ対策=暗すぎず真っ白すぎず。他画面(紺#0F1A33)は触らない。 */}>
+        <div style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
           <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px 140px",boxSizing:"border-box"}}>
 
 
