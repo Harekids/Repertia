@@ -2291,10 +2291,12 @@ const PrintPage = (props) => {
               {(() => {
                 const FONTX = FONT;
                 // 下線フィールド部品: ラベルの置き方・罫線・文字色をパターンで差し替え
-                const UField = ({label, val, lineColor, lineW, textColor, labelMode}) => {
+                const UField = ({label, val, lineColor, lineW, textColor, labelMode, lineStyle}) => {
                   const inputStyle = {
-                    background:"transparent", border:"none", borderBottom:lineW+" solid "+lineColor,
-                    color:textColor, padding:"5px 2px", fontFamily:FONTX, fontSize:14, width:"100%",
+                    background:"transparent", border:"none",
+                    borderBottom:lineW+" "+(lineStyle||"solid")+" "+lineColor,/* v592: 罫線の種類(solid/dashed/dotted)をパターンで切替 */
+                    color:textColor, padding:"5px 2px 5px 10px",/* v592: 左paddingを10pxに(文字を左端から少し内側=記入欄っぽく) */
+                    fontFamily:FONTX, fontSize:14, width:"100%",
                     boxSizing:"border-box", outline:"none"
                   };
                   if (labelMode==="placeholder") {
@@ -2315,30 +2317,31 @@ const PrintPage = (props) => {
                   </div>;
                 };
                 const Row = ({children}) => <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?14:20,marginBottom:18}}>{children}</div>;
-                const PatternBlock = ({title, lineColor, lineW, textColor, labelMode}) => (
+                const PatternBlock = ({title, lineColor, lineW, textColor, labelMode, lineStyle}) => (
                   <div style={{marginBottom:26,paddingBottom:20,borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
                     <div style={{fontSize:11,color:"#EDE6D6",fontFamily:FONTX,marginBottom:12,fontWeight:600}}>{title}</div>
                     <Row>
-                      <UField label="氏名（日本語）" val="山田 太郎" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
-                      <UField label="氏名（英語）" val="Taro Yamada" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
-                      <UField label="生年月日" val="1990/01/01" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="氏名（日本語）" val="山田 太郎" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
+                      <UField label="氏名（英語）" val="Taro Yamada" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
+                      <UField label="生年月日" val="1990/01/01" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
                     </Row>
                     <Row>
-                      <UField label="国籍" val="日本 / Japan" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
-                      <UField label="郵便番号" val="123-4567" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
-                      <UField label="住所" val="東京都..." lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="国籍" val="日本 / Japan" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
+                      <UField label="郵便番号" val="123-4567" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
+                      <UField label="住所" val="東京都..." lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
                     </Row>
                     <Row>
-                      <UField label="電話" val="090-1234-5678" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
-                      <UField label="連絡先メール" val="taro@example.com" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="電話" val="090-1234-5678" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
+                      <UField label="連絡先メール" val="taro@example.com" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode} lineStyle={lineStyle}/>
                     </Row>
                   </div>
                 );
                 return <div>
-                  <PatternBlock title="パターン1：細い罫線・黒文字・ラベル上" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="top"/>
-                  <PatternBlock title="パターン2：やや濃い罫線・クリーム文字・ラベル上" lineColor="#9AA6B8" lineW="1.5px" textColor="#F4F6F9" labelMode="top"/>
-                  <PatternBlock title="パターン3：ラベルは薄字プレースホルダー（罫線のみ）" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="placeholder"/>
-                  <PatternBlock title="パターン4：罫線＋ラベル左に小さく" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="left"/>
+                  <PatternBlock title="A：実線・細（ラベル上・文字を少し内側から）" lineColor="#6B7789" lineW="1px" lineStyle="solid" textColor="#EDE6D6" labelMode="top"/>
+                  <PatternBlock title="B：破線 dashed・グレー（ラベル上）" lineColor="#8A97AD" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="top"/>
+                  <PatternBlock title="C：点線 dotted・グレー（ラベル上）" lineColor="#8A97AD" lineW="1.5px" lineStyle="dotted" textColor="#EDE6D6" labelMode="top"/>
+                  <PatternBlock title="D：破線 dashed・ゴールド#C8A860（ラベル上）" lineColor="#C8A860" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="top"/>
+                  <PatternBlock title="E：破線 dashed・ゴールド（ラベル薄字プレースホルダー）" lineColor="#C8A860" lineW="1px" lineStyle="dashed" textColor="#EDE6D6" labelMode="placeholder"/>
                 </div>;
               })()}
             </div>
