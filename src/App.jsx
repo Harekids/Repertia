@@ -2282,12 +2282,13 @@ const PrintPage = (props) => {
             {showProfileDetail && (<React.Fragment>
             {/* v589 レイアウト試作(氏名ペア): スマホ=ラベル上・入力欄下の縦積み／PC=氏名(日)+氏名(英)を横並び。
                  共通フィールド=ラベル(上)+入力欄(下)。isMobileで縦積み/横並びを出し分け。まず1ペアで方向性確認→OKなら残りに展開。 */}
+            {/* v589 幅当て: 氏名(日)=中 / 氏名(英)=中。PCは上限をつけて間延び防止・左寄せ。スマホは100%。 */}
             <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{flex:isMobile?"none":"0 1 300px",display:"flex",flexDirection:"column",gap:6}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（日本語）</div>
                 <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS}}/>
               </div>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{flex:isMobile?"none":"0 1 300px",display:"flex",flexDirection:"column",gap:6}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>氏名（英語）</div>
                 <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS}}/>
               </div>
@@ -2296,12 +2297,13 @@ const PrintPage = (props) => {
                  ペア: 生年月日+国籍／郵便番号+住所／電話(単独)。SNSは追加方式へ移すため今回のペアから外す。
                  幅はいったんflex:1(均等)で骨格を見る→全体バランスを見て大中小を当てる。 */}
             {/* ペア1: 生年月日 + 国籍 */}
-            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+            {/* v589 幅当て: 生年月日=小 / 国籍=中。 */}
+            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28,alignItems:"flex-start"}}>
+              <div style={{flex:isMobile?"none":"0 1 180px",display:"flex",flexDirection:"column",gap:6,width:isMobile?"100%":"auto"}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>生年月日</div>
                 <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{display:"flex",width:"100%"}} inputStyle={{...inpS}} FONT={SANS}/>
               </div>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{flex:isMobile?"none":"0 1 260px",display:"flex",flexDirection:"column",gap:6,width:isMobile?"100%":"auto"}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>国籍</div>
                 <div style={{position:"relative"}}>
                   <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS}}/>
@@ -2316,12 +2318,13 @@ const PrintPage = (props) => {
               </div>
             </div>
             {/* ペア2: 郵便番号 + 住所 */}
+            {/* v589 幅当て: 郵便番号=小 / 住所=大。 */}
             <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{flex:isMobile?"none":"0 1 160px",display:"flex",flexDirection:"column",gap:6}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>郵便番号</div>
                 <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS}}/>
               </div>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{flex:isMobile?"none":"1 1 400px",display:"flex",flexDirection:"column",gap:6}}>
                 <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>住所</div>
                 <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS}}/>
               </div>
