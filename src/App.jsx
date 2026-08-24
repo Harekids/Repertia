@@ -2301,7 +2301,7 @@ const PrintPage = (props) => {
                 </div>
               );
               const rowStyle = {display:"flex", flexDirection:isMobile?"column":"row", gap:isMobile?18:24, marginBottom:24, alignItems:"flex-start"};
-              return <div>
+              return <div style={{paddingLeft:isMobile?12:24}/* v594: 項目群を少し内側に寄せる(インデント)。見出しBiographyの子=配下であることを視覚化。色は触らない(項目を強くすると親子逆転するため)。スマホは控えめに12。 */}>
                 {/* 1行目: 氏名(日) / 氏名(英) / 生年月日 */}
                 <div style={rowStyle}>
                   <Field label="氏名（日本語）" grow="1 1 0" node={
