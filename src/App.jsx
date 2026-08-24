@@ -2280,6 +2280,68 @@ const PrintPage = (props) => {
               </div>
             </div>
             {showProfileDetail && (<React.Fragment>
+            {/* ============================================================
+                 v591 下線方式・試作プレビュー(企画依頼・実機で複数パターン見て選ぶ用)。
+                 実データにはつながないダミー表示。選定後に本実装し、このブロックは削除する。
+                 3列配置(企画): 氏名(日)/氏名(英)/生年月日 ・ 国籍/郵便番号/住所 ・ 電話/連絡先メール。
+                 ============================================================ */}
+            <div style={{border:"1px dashed #C8A860",borderRadius:8,padding:"16px 18px",marginBottom:32,background:"rgba(200,168,96,0.04)"}}>
+              <div style={{fontSize:12,color:"#C8A860",fontFamily:FONT,marginBottom:16,letterSpacing:"0.05em"}}>▼ 下線方式・試作プレビュー（選ぶ用・本番データではありません）</div>
+
+              {(() => {
+                const FONTX = FONT;
+                // 下線フィールド部品: ラベルの置き方・罫線・文字色をパターンで差し替え
+                const UField = ({label, val, lineColor, lineW, textColor, labelMode}) => {
+                  const inputStyle = {
+                    background:"transparent", border:"none", borderBottom:lineW+" solid "+lineColor,
+                    color:textColor, padding:"5px 2px", fontFamily:FONTX, fontSize:14, width:"100%",
+                    boxSizing:"border-box", outline:"none"
+                  };
+                  if (labelMode==="placeholder") {
+                    return <div style={{flex:1,display:"flex",flexDirection:"column"}}>
+                      <input defaultValue={val} placeholder={label} style={inputStyle}/>
+                    </div>;
+                  }
+                  if (labelMode==="left") {
+                    return <div style={{flex:1,display:"flex",alignItems:"flex-end",gap:8}}>
+                      <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONTX,flexShrink:0,paddingBottom:6}}>{label}</div>
+                      <input defaultValue={val} style={inputStyle}/>
+                    </div>;
+                  }
+                  // "top"
+                  return <div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>
+                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONTX,letterSpacing:"0.03em"}}>{label}</div>
+                    <input defaultValue={val} style={inputStyle}/>
+                  </div>;
+                };
+                const Row = ({children}) => <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?14:20,marginBottom:18}}>{children}</div>;
+                const PatternBlock = ({title, lineColor, lineW, textColor, labelMode}) => (
+                  <div style={{marginBottom:26,paddingBottom:20,borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
+                    <div style={{fontSize:11,color:"#EDE6D6",fontFamily:FONTX,marginBottom:12,fontWeight:600}}>{title}</div>
+                    <Row>
+                      <UField label="氏名（日本語）" val="山田 太郎" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="氏名（英語）" val="Taro Yamada" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="生年月日" val="1990/01/01" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                    </Row>
+                    <Row>
+                      <UField label="国籍" val="日本 / Japan" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="郵便番号" val="123-4567" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="住所" val="東京都..." lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                    </Row>
+                    <Row>
+                      <UField label="電話" val="090-1234-5678" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                      <UField label="連絡先メール" val="taro@example.com" lineColor={lineColor} lineW={lineW} textColor={textColor} labelMode={labelMode}/>
+                    </Row>
+                  </div>
+                );
+                return <div>
+                  <PatternBlock title="パターン1：細い罫線・黒文字・ラベル上" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="top"/>
+                  <PatternBlock title="パターン2：やや濃い罫線・クリーム文字・ラベル上" lineColor="#9AA6B8" lineW="1.5px" textColor="#F4F6F9" labelMode="top"/>
+                  <PatternBlock title="パターン3：ラベルは薄字プレースホルダー（罫線のみ）" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="placeholder"/>
+                  <PatternBlock title="パターン4：罫線＋ラベル左に小さく" lineColor="#6B7789" lineW="1px" textColor="#EDE6D6" labelMode="left"/>
+                </div>;
+              })()}
+            </div>
             {/* v589 レイアウト試作(氏名ペア): スマホ=ラベル上・入力欄下の縦積み／PC=氏名(日)+氏名(英)を横並び。
                  共通フィールド=ラベル(上)+入力欄(下)。isMobileで縦積み/横並びを出し分け。まず1ペアで方向性確認→OKなら残りに展開。 */}
             {/* v589 幅当て: 氏名(日)=中 / 氏名(英)=中。PCは上限をつけて間延び防止・左寄せ。スマホは100%。 */}
