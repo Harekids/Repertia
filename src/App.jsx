@@ -2292,11 +2292,19 @@ const PrintPage = (props) => {
                 <input value={profile.nameEn} onChange={e=>setProfile(p=>({...p,nameEn:e.target.value}))} placeholder="" style={{...inpS}}/>
               </div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:28}}>
-              {[
-                ["生年月日",       <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{flex:1,maxWidth:200,display:"flex"}} inputStyle={{...inpS}} FONT={SANS}/>],
-                ["国籍",           <div style={{flex:1,position:"relative"}}>
-                  <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS,width:"100%",maxWidth:240}}/>
+            {/* v589 レイアウト試作(全ペア): スマホ=縦積み／PC=横並びペア。氏名ペアと同じ形式(ラベル上・入力欄下)で統一。
+                 ペア: 生年月日+国籍／郵便番号+住所／電話(単独)。SNSは追加方式へ移すため今回のペアから外す。
+                 幅はいったんflex:1(均等)で骨格を見る→全体バランスを見て大中小を当てる。 */}
+            {/* ペア1: 生年月日 + 国籍 */}
+            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>生年月日</div>
+                <DateField value={profile.birthDate} onChange={v=>setProfile(p=>({...p,birthDate:v}))} wrapStyle={{display:"flex",width:"100%"}} inputStyle={{...inpS}} FONT={SANS}/>
+              </div>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>国籍</div>
+                <div style={{position:"relative"}}>
+                  <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={{...inpS}}/>
                   {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
                     <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
                       {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
@@ -2304,11 +2312,30 @@ const PrintPage = (props) => {
                       ))}
                     </div>
                   )}
-                </div>],
-                ["郵便番号",       <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:160}}/>],
-                ["住所",           <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:520}}/>],
-                ["電話",           <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:240}}/>],
-                ["SNS",            <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                </div>
+              </div>
+            </div>
+            {/* ペア2: 郵便番号 + 住所 */}
+            <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:16,marginBottom:28}}>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>郵便番号</div>
+                <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} placeholder="" style={{...inpS}}/>
+              </div>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>住所</div>
+                <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} placeholder="" style={{...inpS}}/>
+              </div>
+            </div>
+            {/* 電話(単独) */}
+            <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:28}}>
+              <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT}}>電話</div>
+              <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} placeholder="" style={{...inpS,maxWidth:isMobile?"100%":360}}/>
+            </div>
+            {/* v589: SNSは「追加方式(◯◯を追加)」へ移すため、ここから外した(旧inpS版は下記で温存)。 */}
+            {false && (
+            <div style={{display:"flex",flexDirection:"column",gap:28}}>
+              {[
+                ["SNS", <input value={profile.contact.sns} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,sns:e.target.value}}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
               ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
@@ -2316,6 +2343,7 @@ const PrintPage = (props) => {
                 </div>
               ))}
             </div>
+            )}
 
             {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
