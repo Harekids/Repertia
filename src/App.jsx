@@ -2329,7 +2329,7 @@ const PrintPage = (props) => {
                         onFocus={()=>setNatOpen(true)}
                         onBlur={()=>setTimeout(()=>setNatOpen(false),150)/* 候補クリックを拾えるよう遅延 */}
                         placeholder="国名を入力（例：Ja → Japan）／▼で一覧" style={{...uLine,paddingRight:26}}/>
-                      <button type="button" onMouseDown={e=>{e.preventDefault();}} onClick={()=>setNatOpen(o=>!o)} title="一覧"
+                      <button type="button" onMouseDown={e=>{e.preventDefault(); setNatOpen(true);}/* v598fix: onClickだとonBlur(150ms)と競合して閉じる→onMouseDownで先に確実に開く。トグルやめ「必ず開く」に。 */} title="一覧"
                         style={{position:"absolute",right:2,bottom:6,background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"0 2px",lineHeight:1}}>▼</button>
                       {natOpen && (() => {
                         // v598 ②修正: 「完全一致なら隠す」条件を撤去→記入中も▼で開ける。natOpenが真なら常に候補を出す。
