@@ -2430,18 +2430,31 @@ const PrintPage = (props) => {
               </div>;
             })()}
 
-            {/* ①②③④⑤ 学歴・師事者をgap:16統合コンテナで揃える */}
+            {/* v607 経歴統合(企画): 学歴+師事者→「経歴（学歴・師事歴）」1本。下線方式・1行記入＋薄いプレースホルダー・複数なら行を足す。
+                 1行1経歴・時系列で自由に書く・データは1行の文字列(careers[{id,text}])。旧educations/teachers UIは下記{false&&}で温存。 */}
+            <div style={{display:"flex",flexDirection:"column",gap:14,marginTop:28,paddingLeft:isMobile?12:24,paddingRight:isMobile?12:24}}>
+              <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:2}}>経歴（学歴・師事歴）</div>
+              {(profile.careers||[]).map((c,idx)=>(
+                <div key={c.id} style={{display:"flex",alignItems:"flex-end",gap:8}}>
+                  <input value={c.text||""} onChange={e=>updateListItem("careers",c.id,{text:e.target.value})}
+                    placeholder={idx===0?"3歳より◯◯音楽教室で△△氏に師事":"2010年　◯◯音楽大学　入学"}
+                    style={{background:"transparent",border:"none",borderBottom:"1px dashed #8A97AD",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
+                  <button type="button" onClick={()=>removeListItem("careers",c.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
+                </div>
+              ))}
+              <div>
+                {addBtn("経歴を追加",()=>addListItem("careers",{text:""}))}
+              </div>
+            </div>
+
+            {/* v607: 旧・学歴/師事者UIは温存(消さない原則)。データ(educations/teachers)も残す。企画:経歴統合で新careersに一本化。 */}
+            {false && (
             <div style={{display:"flex",flexDirection:"column",gap:18,marginTop:28}}>
               {(profile.educations||[]).map((ed,idx)=>(
                 <div key={ed.id} style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box",marginRight:-8}}>{idx===0?"学歴":""}</div>
                   <input value={ed.period||""} onChange={e=>updateListItem("educations",ed.id,{period:e.target.value})} placeholder="期間" style={{...inpS,flex:"0 0 130px"}}/>
                   <input value={ed.school} onChange={e=>updateListItem("educations",ed.id,{school:e.target.value})} placeholder="大学・高校・教室名" style={{...inpS,flex:2}}/>
-                  {/* v441 B-Step2⑥: 学歴statusをアプリ製Dropdownに差し替え（旧selectは温存）。
-                       周辺(period/school)と同じ#F4F6F9・80px枠。各行ed.idで独立開閉。onChangeは値そのものが来る。
-                     v451 ⑥自由入力(案Z): 末尾に「自由入力…」追加。選択でed.status="other"→ed.statusOtherのテキスト欄に変身。
-                       空で自動的にDropdownへ復帰／IME変換中ガード(eduComposingRef)。⑦種別の完成形を学歴(行ごとed.id)に移植。
-                       行ごとにed.status/ed.statusOtherを見るので、1行目を自由入力にしても他行は独立して通常のまま。 */}
                   {ed.status!=="other" ? (
                   <Dropdown isMobile={isMobile} value={ed.status||""}
                     onChange={v=>{
@@ -2464,7 +2477,6 @@ const PrintPage = (props) => {
                     onCompositionStart={()=>{eduComposingRef.current=true;}}
                     onCompositionEnd={e=>{eduComposingRef.current=false; updateListItem("educations",ed.id,{statusOther:e.target.value});}}
                     onKeyDown={e=>{
-                      // v428流用: 「自由入力…」直後はstatusOtherが空。空のままBackspace/DeleteではonChangeが出ず復帰しないので、空+非変換中で戻す。
                       if(eduComposingRef.current) return;
                       if((e.key==="Backspace"||e.key==="Delete") && !(ed.statusOther||"")){
                         updateListItem("educations",ed.id,{status:"",statusOther:""});
@@ -2472,24 +2484,14 @@ const PrintPage = (props) => {
                     }}
                     onChange={e=>{
                       const v=e.target.value;
-                      if(eduComposingRef.current){ updateListItem("educations",ed.id,{statusOther:v}); return; }  // 変換中は空でも戻さない
-                      if(v===""){ updateListItem("educations",ed.id,{status:"",statusOther:""}); }  // 非変換中の全消し＝Dropdownへ戻る
+                      if(eduComposingRef.current){ updateListItem("educations",ed.id,{statusOther:v}); return; }
+                      if(v===""){ updateListItem("educations",ed.id,{status:"",statusOther:""}); }
                       else { updateListItem("educations",ed.id,{statusOther:v}); }
                     }}
                     placeholder=""
                     autoFocus
                     style={{...inpS,flex:"0 0 80px",minWidth:0}}
                   />
-                  )}
-                  {false && (
-                  <select value={ed.status||""} onChange={e=>updateListItem("educations",ed.id,{status:e.target.value})} style={{...inpS,flex:"0 0 80px"}}>
-                    <option value="">ー</option>
-                    <option value="入学">入学</option>
-                    <option value="在学中">在学中</option>
-                    <option value="在籍中">在籍中</option>
-                    <option value="卒業">卒業</option>
-                    <option value="修了">修了</option>
-                  </select>
                   )}
                   <button onClick={()=>removeListItem("educations",ed.id)} style={{background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:14,flexShrink:0,padding:"0 4px"}}>×</button>
                 </div>
@@ -2512,6 +2514,7 @@ const PrintPage = (props) => {
                 {addBtn("師事者を追加",()=>addListItem("teachers",{period:"",name:"",note:""}))}
               </div>
             </div>
+            )}
             </React.Fragment>)}
 
             {/* v165: 自動保存に移行（手動保存ボタン・上の下線を引退）。保存表示だけ残す。 */}
@@ -5203,6 +5206,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     educations:[{id:1,period:"",school:"",status:""}],
     teachers:[{id:1,period:"",name:"",note:""}],
     snsList:[],/* v603 SNS(企画案A): {id,type,url}の配列。type=YouTube/Instagram/X/Facebook/公式サイト/その他。空配列開始=「中身がある時だけ現れる」思想(追加した人だけ行が出る)。 */
+    careers:[],/* v607 経歴統合(企画): 学歴+師事歴を1本に。{id,text}=1行の文字列(構造化しない)。時系列で自由記入。空配列開始=中身がある時だけ現れる。旧educations/teachersは温存(下記{false&&}・データも残す)。 */
     competitions:[],
     contact:{email:"", website:"", tel:"", sns:""},
   });
@@ -5240,6 +5244,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           educations: (d.educations && d.educations.length > 0) ? d.educations : prev.educations,
           teachers:   (d.teachers   && d.teachers.length   > 0) ? d.teachers   : prev.teachers,
           snsList:    Array.isArray(d.snsList) ? d.snsList : prev.snsList,/* v603 SNS: 保存済みがあれば復元・なければ空 */
+          careers:    Array.isArray(d.careers) ? d.careers : prev.careers,/* v607 経歴: 保存済みがあれば復元・なければ空 */
           contact:    { ...prev.contact, ...(d.contact || {}) },
         };
       });
