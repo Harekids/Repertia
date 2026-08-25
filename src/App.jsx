@@ -2389,11 +2389,12 @@ const PrintPage = (props) => {
                 </div>
                 {/* v603 SNS(企画案A): 種類Dropdown(共通部品)＋URL・下線方式・複数追加(◯◯を追加/✕削除)。
                      種類はデータ保存(アプリ内アイコン／PDFは文字で出し分け)。中身がある時だけ行が出る(空配列開始)。 */}
+                {/* v607: SNS見出しを常時表示(経歴と揃える・行がなくても出す)。 */}
+                <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginTop:8,marginBottom:8}}>SNS・リンク</div>
                 {(profile.snsList||[]).map((s, idx)=>(
                   <div key={s.id} style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?12:16,marginBottom:16,alignItems:isMobile?"stretch":"flex-end"}}>
                     <div style={{flex:isMobile?"none":"0 1 150px",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
-                      {idx===0 && <div style={uLabel}>SNS・リンク</div>}
-                      {/* v606 SNS種類=国籍方式(企画A): 下線・打って絞る・候補＋自由入力。Dropdown廃止で色問題が消え下線トーンに完全に揃う。データは文字列。 */}
+                      {/* v607: SNS種類=国籍方式(企画A): 下線・打って絞る・候補＋自由入力。 */}
                       <div style={{position:"relative"}} data-snstype="1">
                         <input value={s.type||""}
                           onChange={e=>{ updateListItem("snsList",s.id,{type:e.target.value}); setSnsTypeOpenId(s.id); }}
@@ -2416,7 +2417,6 @@ const PrintPage = (props) => {
                       </div>
                     </div>
                     <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
-                      {idx===0 && <div style={uLabel}>URL</div>}
                       <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
                         <input value={s.url||""} onChange={e=>updateListItem("snsList",s.id,{url:e.target.value})} placeholder="https://…" style={uLine}/>
                         <button type="button" onClick={()=>removeListItem("snsList",s.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
@@ -2437,7 +2437,7 @@ const PrintPage = (props) => {
               {(profile.careers||[]).map((c,idx)=>(
                 <div key={c.id} style={{display:"flex",alignItems:"flex-end",gap:8}}>
                   <input value={c.text||""} onChange={e=>updateListItem("careers",c.id,{text:e.target.value})}
-                    placeholder={idx===0?"3歳より◯◯音楽教室で△△氏に師事":"2010年　◯◯音楽大学　入学"}
+                    placeholder={idx===0?"3歳より◯◯音楽教室で△△氏に師事":(idx===1?"2010年　◯◯音楽大学　入学":"")}/* v607: 例文は1・2行目だけ。3行目以降(idx>=2)は空欄(書き方は最初の2行で伝わる)。 */
                     style={{background:"transparent",border:"none",borderBottom:"1px dashed #8A97AD",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
                   <button type="button" onClick={()=>removeListItem("careers",c.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
                 </div>
