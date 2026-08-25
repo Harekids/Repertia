@@ -2376,6 +2376,37 @@ const PrintPage = (props) => {
                     <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={uLine}/>
                   )})}
                 </div>
+                {/* v603 SNS(企画案A): 種類Dropdown(共通部品)＋URL・下線方式・複数追加(◯◯を追加/✕削除)。
+                     種類はデータ保存(アプリ内アイコン／PDFは文字で出し分け)。中身がある時だけ行が出る(空配列開始)。 */}
+                {(profile.snsList||[]).map((s, idx)=>(
+                  <div key={s.id} style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?12:16,marginBottom:16,alignItems:isMobile?"stretch":"flex-end"}}>
+                    <div style={{flex:isMobile?"none":"0 1 150px",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
+                      {idx===0 && <div style={uLabel}>SNS・リンク</div>}
+                      <Dropdown isMobile={isMobile} value={s.type||""}
+                        onChange={v=>updateListItem("snsList",s.id,{type:v})}
+                        options={[
+                          {value:"", label:"種類"},
+                          {value:"YouTube", label:"YouTube"},
+                          {value:"Instagram", label:"Instagram"},
+                          {value:"X", label:"X"},
+                          {value:"Facebook", label:"Facebook"},
+                          {value:"公式サイト", label:"公式サイト"},
+                          {value:"その他", label:"その他"},
+                        ]}
+                        placeholder="種類" buttonStyle={{width:"100%",background:"transparent",border:"none",borderBottom:"1px dashed #8A97AD",borderRadius:0,height:30,color:"#EDE6D6"}} />
+                    </div>
+                    <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
+                      {idx===0 && <div style={uLabel}>URL</div>}
+                      <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
+                        <input value={s.url||""} onChange={e=>updateListItem("snsList",s.id,{url:e.target.value})} placeholder="https://…" style={uLine}/>
+                        <button type="button" onClick={()=>removeListItem("snsList",s.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{marginBottom:8}}>
+                  {addBtn("＋ SNS・リンクを追加", ()=>addListItem("snsList",{type:"",url:""}))}
+                </div>
               </div>;
             })()}
 
@@ -5151,6 +5182,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     photoUrl:"",
     educations:[{id:1,period:"",school:"",status:""}],
     teachers:[{id:1,period:"",name:"",note:""}],
+    snsList:[],/* v603 SNS(企画案A): {id,type,url}の配列。type=YouTube/Instagram/X/Facebook/公式サイト/その他。空配列開始=「中身がある時だけ現れる」思想(追加した人だけ行が出る)。 */
     competitions:[],
     contact:{email:"", website:"", tel:"", sns:""},
   });
@@ -5187,6 +5219,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           ...d,
           educations: (d.educations && d.educations.length > 0) ? d.educations : prev.educations,
           teachers:   (d.teachers   && d.teachers.length   > 0) ? d.teachers   : prev.teachers,
+          snsList:    Array.isArray(d.snsList) ? d.snsList : prev.snsList,/* v603 SNS: 保存済みがあれば復元・なければ空 */
           contact:    { ...prev.contact, ...(d.contact || {}) },
         };
       });
