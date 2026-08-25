@@ -2330,19 +2330,19 @@ const PrintPage = (props) => {
                       )}
                     </div>
                   )})}
-                  {Field({label:"郵便番号", grow:"0 1 150px", node:(
+                  {Field({label:"郵便番号", grow:"0 1 105px"/* v596: 150→105px(約70%) */, node:(
                     <input value={profile.postalCode||""} onChange={e=>setProfile(p=>({...p,postalCode:e.target.value}))} style={uLine}/>
                   )})}
-                  {Field({label:"住所", grow:"2 1 0", node:(
+                  {Field({label:"住所", grow:"3 1 0"/* v596: 住所を広げる(2→3) */, node:(
                     <input value={profile.city} onChange={e=>setProfile(p=>({...p,city:e.target.value}))} style={uLine}/>
                   )})}
                 </div>
                 {/* 3行目: 電話 / 連絡先メール */}
                 <div style={rowStyle}>
-                  {Field({label:"電話", grow:"1 1 0", node:(
+                  {Field({label:"電話", grow:"2 1 0"/* v596: 電話:メール=2:3 */, node:(
                     <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} style={uLine}/>
                   )})}
-                  {Field({label:"連絡先メール", grow:"1 1 0", node:(
+                  {Field({label:"連絡先メール", grow:"3 1 0"/* v596: 電話:メール=2:3 */, node:(
                     <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={uLine}/>
                   )})}
                 </div>
