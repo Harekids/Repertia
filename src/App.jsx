@@ -2392,8 +2392,8 @@ const PrintPage = (props) => {
                 {/* v607: SNS見出しを常時表示(経歴と揃える・行がなくても出す)。 */}
                 <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginTop:8,marginBottom:8}}>SNS・リンク</div>
                 {(profile.snsList||[]).map((s, idx)=>(
-                  <div key={s.id} style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?12:16,marginBottom:16,alignItems:isMobile?"stretch":"flex-end"}}>
-                    <div style={{flex:isMobile?"none":"0 1 150px",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
+                  <div key={s.id} style={{display:"flex",flexDirection:"row",gap:isMobile?10:16,marginBottom:16,alignItems:"flex-end"}/* v608: SNSはスマホでも横並び(種類+URLを1行)。種類は短く・URLは見切れてOK。 */}>
+                    <div style={{flex:isMobile?"0 0 110px":"0 1 150px",width:"auto",display:"flex",flexDirection:"column"}}>
                       {/* v607: SNS種類=国籍方式(企画A): 下線・打って絞る・候補＋自由入力。 */}
                       <div style={{position:"relative"}} data-snstype="1">
                         <input value={s.type||""}
@@ -2416,7 +2416,7 @@ const PrintPage = (props) => {
                         })()}
                       </div>
                     </div>
-                    <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
+                    <div style={{flex:"1 1 0",minWidth:0,width:"auto",display:"flex",flexDirection:"column"}/* v608: URLはスマホでも横並びで残り幅に(見切れてOK)。minWidth:0で縮小可。 */}>
                       <div style={{display:"flex",alignItems:"flex-end",gap:8}}>
                         <input value={s.url||""} onChange={e=>updateListItem("snsList",s.id,{url:e.target.value})} placeholder="https://…" style={uLine}/>
                         <button type="button" onClick={()=>removeListItem("snsList",s.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
