@@ -1986,6 +1986,7 @@ const PrintPage = (props) => {
   const [pwLoading, setPwLoading] = useState(false);
   const [pwShow, setPwShow] = useState(false);
   const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
+  const [natOpen, setNatOpen] = useState(false); // v597: 国籍コンボの候補開閉。▼で開く/選択・外クリックで閉じる。フォーカス問題回避のためField外のPrintPageスコープに置く。
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -2320,14 +2321,30 @@ const PrintPage = (props) => {
                 <div style={rowStyle}>
                   {Field({label:"国籍", grow:"1 1 0", node:(
                     <div style={{position:"relative"}}>
-                      <input value={profile.nationality||""} onChange={e=>setProfile(p=>({...p,nationality:e.target.value}))} placeholder="国名を入力（例：Ja → Japan）" style={uLine}/>
-                      {(profile.nationality||"").trim().length>0 && COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).length>0 && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (
-                        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:160,overflowY:"auto"}}>
-                          {COUNTRY_LIST.filter(c=>{const q=(profile.nationality||"").toLowerCase();return c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q);}).slice(0,8).map(c=>(
-                            <div key={c.en} onClick={()=>setProfile(p=>({...p,nationality:c.ja+" / "+c.en}))} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
+                      {/* v597 国籍コンボ化: ▼付き・押して開く・打って絞る・候補になくても自由入力OK。
+                           候補は natOpen が真の時に表示。入力があれば絞り込み、空なら全リスト(先頭から)。
+                           完全一致(選択済み)の時は候補を出さない。 */}
+                      <input value={profile.nationality||""}
+                        onChange={e=>{ setProfile(p=>({...p,nationality:e.target.value})); setNatOpen(true); }}
+                        onFocus={()=>setNatOpen(true)}
+                        onBlur={()=>setTimeout(()=>setNatOpen(false),150)/* 候補クリックを拾えるよう遅延 */}
+                        placeholder="国名を入力（例：Ja → Japan）／▼で一覧" style={{...uLine,paddingRight:26}}/>
+                      <button type="button" onMouseDown={e=>{e.preventDefault();}} onClick={()=>setNatOpen(o=>!o)} title="一覧"
+                        style={{position:"absolute",right:2,bottom:6,background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"0 2px",lineHeight:1}}>▼</button>
+                      {natOpen && !COUNTRY_LIST.some(c=>(c.ja+" / "+c.en)===profile.nationality) && (() => {
+                        const q=(profile.nationality||"").toLowerCase().trim();
+                        const list = q.length>0
+                          ? COUNTRY_LIST.filter(c=>c.ja.toLowerCase().includes(q)||c.en.toLowerCase().includes(q))
+                          : COUNTRY_LIST;
+                        if (list.length===0) return null;
+                        return (
+                        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:200,overflowY:"auto"}}>
+                          {list.slice(0,40).map(c=>(
+                            <div key={c.en} onMouseDown={e=>{e.preventDefault(); setProfile(p=>({...p,nationality:c.ja+" / "+c.en})); setNatOpen(false);}} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
                           ))}
                         </div>
-                      )}
+                        );
+                      })()}
                     </div>
                   )})}
                   {Field({label:"郵便番号", grow:"0 1 105px"/* v596: 150→105px(約70%) */, node:(
