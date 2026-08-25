@@ -1987,6 +1987,7 @@ const PrintPage = (props) => {
   const [pwShow, setPwShow] = useState(false);
   const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
   const [natOpen, setNatOpen] = useState(false); // v597: 国籍コンボの候補開閉。▼で開く/選択・外クリックで閉じる。フォーカス問題回避のためField外のPrintPageスコープに置く。
+  const [snsTypeOpenId, setSnsTypeOpenId] = useState(null); // v606: SNS種類コンボ(国籍方式)。開いている行のidを持つ(複数行のうち1つだけ開く)。null=全閉じ。
   // v599fix: 外側クリックで国籍候補を閉じる(onBlur方式は▼の開くと競合したため廃止)。natOpen中だけdocumentを監視。
   React.useEffect(() => {
     if (!natOpen) return;
@@ -1999,6 +2000,17 @@ const PrintPage = (props) => {
     document.addEventListener('mousedown', onDocDown);
     return () => document.removeEventListener('mousedown', onDocDown);
   }, [natOpen]);
+  // v606: SNS種類コンボ(国籍方式)の外側クリックで閉じる。開いている行があるときだけ監視。
+  React.useEffect(() => {
+    if (snsTypeOpenId==null) return;
+    const onDocDown = (e) => {
+      const t = e.target;
+      if (t && t.closest && t.closest('[data-snstype]')) return;
+      setSnsTypeOpenId(null);
+    };
+    document.addEventListener('mousedown', onDocDown);
+    return () => document.removeEventListener('mousedown', onDocDown);
+  }, [snsTypeOpenId]);
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -2381,18 +2393,27 @@ const PrintPage = (props) => {
                   <div key={s.id} style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?12:16,marginBottom:16,alignItems:isMobile?"stretch":"flex-end"}}>
                     <div style={{flex:isMobile?"none":"0 1 150px",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
                       {idx===0 && <div style={uLabel}>SNS・リンク</div>}
-                      <Dropdown isMobile={isMobile} value={s.type||""}
-                        onChange={v=>updateListItem("snsList",s.id,{type:v})}
-                        options={[
-                          {value:"", label:"種類"},
-                          {value:"YouTube", label:"YouTube"},
-                          {value:"Instagram", label:"Instagram"},
-                          {value:"X", label:"X"},
-                          {value:"Facebook", label:"Facebook"},
-                          {value:"公式サイト", label:"公式サイト"},
-                          {value:"その他", label:"その他"},
-                        ]}
-                        placeholder="種類" labelColor="#EDE6D6" buttonStyle={{width:"100%",flex:"1 1 0",background:"#26374F",border:"1px solid #3A4A66"}}/* v604 企画A: SNS種類Dropだけ暗背景(#26374F)＋明るい文字(#EDE6D6)に上書き。下線方式のトーンに馴染ませる。共通Drop本体は後方互換(labelColor未指定なら従来色)＝他Dropに影響なし。 */ />
+                      {/* v606 SNS種類=国籍方式(企画A): 下線・打って絞る・候補＋自由入力。Dropdown廃止で色問題が消え下線トーンに完全に揃う。データは文字列。 */}
+                      <div style={{position:"relative"}} data-snstype="1">
+                        <input value={s.type||""}
+                          onChange={e=>{ updateListItem("snsList",s.id,{type:e.target.value}); setSnsTypeOpenId(s.id); }}
+                          onFocus={()=>setSnsTypeOpenId(s.id)}
+                          placeholder="種類" style={{...uLine}}/>
+                        {snsTypeOpenId===s.id && (() => {
+                          const SNS_TYPES = ["YouTube","Instagram","X","Facebook","公式サイト","note","TikTok","その他"];
+                          const raw=(s.type||"").trim();
+                          const q=raw.toLowerCase();
+                          const list = q.length>0 ? SNS_TYPES.filter(t=>t.toLowerCase().startsWith(q)) : SNS_TYPES;
+                          if (list.length===0) return null;
+                          return (
+                          <div data-snstype="1" style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:200,overflowY:"auto"}}>
+                            {list.map(t=>(
+                              <div key={t} data-snstype="1" onMouseDown={e=>{e.preventDefault(); updateListItem("snsList",s.id,{type:t}); setSnsTypeOpenId(null);}} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{t}</div>
+                            ))}
+                          </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                     <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
                       {idx===0 && <div style={uLabel}>URL</div>}
