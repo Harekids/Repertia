@@ -1987,6 +1987,18 @@ const PrintPage = (props) => {
   const [pwShow, setPwShow] = useState(false);
   const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
   const [natOpen, setNatOpen] = useState(false); // v597: 国籍コンボの候補開閉。▼で開く/選択・外クリックで閉じる。フォーカス問題回避のためField外のPrintPageスコープに置く。
+  // v599fix: 外側クリックで国籍候補を閉じる(onBlur方式は▼の開くと競合したため廃止)。natOpen中だけdocumentを監視。
+  React.useEffect(() => {
+    if (!natOpen) return;
+    const onDocDown = (e) => {
+      const t = e.target;
+      if (t && t.closest && t.closest('[data-natcombo]')) return; // コンボ内(入力/▼/候補)は無視
+      if (t && t.getAttribute && t.getAttribute('data-natitem')) return;
+      setNatOpen(false);
+    };
+    document.addEventListener('mousedown', onDocDown);
+    return () => document.removeEventListener('mousedown', onDocDown);
+  }, [natOpen]);
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -2327,9 +2339,8 @@ const PrintPage = (props) => {
                       <input value={profile.nationality||""}
                         onChange={e=>{ setProfile(p=>({...p,nationality:e.target.value})); setNatOpen(true); }}
                         onFocus={()=>setNatOpen(true)}
-                        onBlur={()=>setTimeout(()=>setNatOpen(false),150)/* 候補クリックを拾えるよう遅延 */}
-                        placeholder="国名を入力（例：Ja → Japan）／▼で一覧" style={{...uLine,paddingRight:26}}/>
-                      <button type="button" onMouseDown={e=>{e.preventDefault(); setNatOpen(true);}/* v598fix: onClickだとonBlur(150ms)と競合して閉じる→onMouseDownで先に確実に開く。トグルやめ「必ず開く」に。 */} title="一覧"
+                        placeholder="国名を入力（例：Ja → Japan）／▼で一覧" style={{...uLine,paddingRight:26}} data-natcombo="1"/* v599fix: onBlur閉じをやめ、外側クリックで閉じる方式に(▼の開くと競合しないため)。data属性でコンボ内判定。 */ />
+                      <button type="button" onClick={()=>setNatOpen(o=>!o)} title="一覧" data-natcombo="1"
                         style={{position:"absolute",right:2,bottom:6,background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"0 2px",lineHeight:1}}>▼</button>
                       {natOpen && (() => {
                         // v598 ②修正: 「完全一致なら隠す」条件を撤去→記入中も▼で開ける。natOpenが真なら常に候補を出す。
@@ -2341,9 +2352,9 @@ const PrintPage = (props) => {
                           : COUNTRY_LIST;
                         if (list.length===0) return null;
                         return (
-                        <div style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:200,overflowY:"auto"}}>
+                        <div data-natcombo="1" style={{position:"absolute",top:"100%",left:0,right:0,background:"#16243F",border:"1px solid #2A3A5A",borderRadius:6,zIndex:20,maxHeight:200,overflowY:"auto"}}>
                           {list.slice(0,40).map(c=>(
-                            <div key={c.en} onMouseDown={e=>{e.preventDefault(); setProfile(p=>({...p,nationality:c.ja+" / "+c.en})); setNatOpen(false);}} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
+                            <div key={c.en} data-natcombo="1" onMouseDown={e=>{e.preventDefault(); setProfile(p=>({...p,nationality:c.ja+" / "+c.en})); setNatOpen(false);}} style={{padding:"6px 10px",cursor:"pointer",fontSize:13,color:"#EDE6D6",fontFamily:FONT}}>{c.ja} / {c.en}</div>
                           ))}
                         </div>
                         );
