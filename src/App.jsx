@@ -2338,9 +2338,8 @@ const PrintPage = (props) => {
                       <input value={profile.nationality||""}
                         onChange={e=>{ setProfile(p=>({...p,nationality:e.target.value})); setNatOpen(true); }}
                         onFocus={()=>setNatOpen(true)}
-                        placeholder="" style={{...uLine,paddingRight:26}} data-natcombo="1"/* v601: 案内文は消す(切れて中途半端に出るため・企画)。 */ />
-                      <button type="button" onClick={()=>setNatOpen(o=>!o)} title="一覧" data-natcombo="1"
-                        style={{position:"absolute",right:2,bottom:6,background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"0 2px",lineHeight:1}}>▼</button>
+                        placeholder="" style={{...uLine}} data-natcombo="1"/* v603: 案内文なし。▼も廃止(欄をタップ/フォーカスで一覧が出るので不要。▼があると押してしまい"何も出ない"と誤解を招く=引き算)。 */ />
+                      {/* v603: 国籍の▼ボタンは廃止。onFocusで一覧が出る／空にすれば全件／打てば絞る、で足りる。 */}
                       {natOpen && (() => {
                         // v601 B割り切り(企画確定): 選択済み特別処理(isSelected)は外す。入力あれば頭文字で絞る／空なら全リスト。
                         //   選び直しは「消せば一覧が全部出る」で足りる=シンプル。③頭文字検索=前方一致(startsWith)。
@@ -2393,7 +2392,7 @@ const PrintPage = (props) => {
                           {value:"公式サイト", label:"公式サイト"},
                           {value:"その他", label:"その他"},
                         ]}
-                        placeholder="種類" buttonStyle={{width:"100%",background:"transparent",border:"none",borderBottom:"1px dashed #8A97AD",borderRadius:0,height:30,color:"#EDE6D6"}} />
+                        placeholder="種類" buttonStyle={{width:"100%",flex:"1 1 0"}}/* v603: 種類Dropdownは共通部品の白ボタンのまま(下線化すると選択後の文字色#15233Fが暗背景に沈み見えない)。白box=選ぶ／下線=書く の役割分け。 */ />
                     </div>
                     <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
                       {idx===0 && <div style={uLabel}>URL</div>}
@@ -2405,7 +2404,7 @@ const PrintPage = (props) => {
                   </div>
                 ))}
                 <div style={{marginBottom:8}}>
-                  {addBtn("＋ SNS・リンクを追加", ()=>addListItem("snsList",{type:"",url:""}))}
+                  {addBtn("SNS・リンクを追加", ()=>addListItem("snsList",{type:"",url:""}))}
                 </div>
               </div>;
             })()}
