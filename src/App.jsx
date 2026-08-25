@@ -2333,18 +2333,17 @@ const PrintPage = (props) => {
                 <div style={rowStyle}>
                   {Field({label:"国籍", grow:"1 1 0", node:(
                     <div style={{position:"relative"}}>
-                      {/* v597 国籍コンボ化: ▼付き・押して開く・打って絞る・候補になくても自由入力OK。
-                           候補は natOpen が真の時に表示。入力があれば絞り込み、空なら全リスト(先頭から)。
-                           完全一致(選択済み)の時は候補を出さない。 */}
+                      {/* v601 国籍コンボ(企画確定): ▼で開く・頭文字で絞る・候補になければ自由入力・外クリックで閉じる。
+                           選び直し=B割り切り(消せば一覧が出る)。選択済みでも▼で一覧を出す作り込みはしない(シンプル至上)。 */}
                       <input value={profile.nationality||""}
                         onChange={e=>{ setProfile(p=>({...p,nationality:e.target.value})); setNatOpen(true); }}
                         onFocus={()=>setNatOpen(true)}
-                        placeholder="国名を入力（例：Ja → Japan）／▼で一覧" style={{...uLine,paddingRight:26}} data-natcombo="1"/* v599fix: onBlur閉じをやめ、外側クリックで閉じる方式に(▼の開くと競合しないため)。data属性でコンボ内判定。 */ />
+                        placeholder="" style={{...uLine,paddingRight:26}} data-natcombo="1"/* v601: 案内文は消す(切れて中途半端に出るため・企画)。 */ />
                       <button type="button" onClick={()=>setNatOpen(o=>!o)} title="一覧" data-natcombo="1"
                         style={{position:"absolute",right:2,bottom:6,background:"none",border:"none",color:"#94A3BE",cursor:"pointer",fontSize:11,padding:"0 2px",lineHeight:1}}>▼</button>
                       {natOpen && (() => {
-                        // v598 ②修正: 「完全一致なら隠す」条件を撤去→記入中も▼で開ける。natOpenが真なら常に候補を出す。
-                        // v598 ③頭文字検索: includes→前方一致(startsWith)。「ツ」→ツバル(ドイツは出ない)。ja/en両方で前方一致。
+                        // v601 B割り切り(企画確定): 選択済み特別処理(isSelected)は外す。入力あれば頭文字で絞る／空なら全リスト。
+                        //   選び直しは「消せば一覧が全部出る」で足りる=シンプル。③頭文字検索=前方一致(startsWith)。
                         const raw=(profile.nationality||"").trim();
                         const q=raw.toLowerCase();
                         const list = q.length>0
