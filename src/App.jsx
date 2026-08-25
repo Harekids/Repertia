@@ -380,7 +380,7 @@ const useCloseOnOutsideClick = (isOpen, onClose) => {
 //   外クリック/Escで閉じる（useCloseOnOutsideClick流用）。選ぶと閉じて値反映。長い選択肢はmaxHeightでスクロール。
 // v421 B-Step1修正: 選択肢リストを position:fixed で表示（親のoverflow:hidden/autoに切られないため）。
 //   ボタンのgetBoundingClientRectで画面座標を取り、下の余白が足りなければ上に開く。スクロール/リサイズで閉じる。
-const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle }) => {
+const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle, labelColor }) => {
   const [open, setOpen] = React.useState(false);
   const [rect, setRect] = React.useState(null);
   const [activeIdx, setActiveIdx] = React.useState(-1); // v578: ↓↑キーのハイライト位置
@@ -475,7 +475,7 @@ const Dropdown = ({ value, onChange, options, isMobile, placeholder, buttonStyle
           height:h,padding:"0 8px",fontFamily:FONT,fontSize:12,borderRadius:4,
           width:"100%",boxSizing:"border-box",cursor:"pointer",whiteSpace:"nowrap",overflow:"hidden",
           ...(buttonStyle||{})}}>
-        <span style={{overflow:"hidden",textOverflow:"ellipsis",color:(value===""||value==null)?"#8A94A8":"#15233F"}}>{curLabel}</span>
+        <span style={{overflow:"hidden",textOverflow:"ellipsis",color:(value===""||value==null)?(labelColor||"#8A94A8"):(labelColor||"#15233F")}}>{curLabel}</span>
         <span style={{fontSize:9,color:"#8A94A8",flexShrink:0}}>▼</span>
       </button>
       {open && rect && createPortal((
@@ -2392,7 +2392,7 @@ const PrintPage = (props) => {
                           {value:"公式サイト", label:"公式サイト"},
                           {value:"その他", label:"その他"},
                         ]}
-                        placeholder="種類" buttonStyle={{width:"100%",flex:"1 1 0"}}/* v603: 種類Dropdownは共通部品の白ボタンのまま(下線化すると選択後の文字色#15233Fが暗背景に沈み見えない)。白box=選ぶ／下線=書く の役割分け。 */ />
+                        placeholder="種類" labelColor="#EDE6D6" buttonStyle={{width:"100%",flex:"1 1 0",background:"#26374F",border:"1px solid #3A4A66"}}/* v604 企画A: SNS種類Dropだけ暗背景(#26374F)＋明るい文字(#EDE6D6)に上書き。下線方式のトーンに馴染ませる。共通Drop本体は後方互換(labelColor未指定なら従来色)＝他Dropに影響なし。 */ />
                     </div>
                     <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column"}}>
                       {idx===0 && <div style={uLabel}>URL</div>}
