@@ -2205,11 +2205,13 @@ const PrintPage = (props) => {
                   <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
                 </div>
               </div>
-              {/* パスワード(単独行) v613: ラベル「パスワード」廃止・ボタン自体を「パスワードを変更」にしてラベル役も兼ねる(企画)。 */}
+              {/* ログインパスワード(単独行) v616(企画確定A): ラベル「ログインパスワード」を追加し表示名/ログイン用メールと同じ「ラベル+中身」構造に揃える。
+                   ボタン=「パスワードを変更する」(目的語を残し単体で意味完結)。 */}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログインパスワード</div>
                 <div style={{maxWidth:pwOpen?760:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
                   {!pwOpen ? (
-                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>パスワードを変更</button>
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>パスワードを変更する</button>
                   ) : (
                     <div style={{display:"flex",flexDirection:"column",gap:8}/* v612 パスワード展開: 入力2つ＋ボタン2つを1行に横並び(企画)。 */}>
                       <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}/* v615: ボックス間gapをBiographyと同じ(PC24/スマホ18)に統一。並び順=新パスワード/確認/キャンセル/変更を保存(企画)。 */}>
@@ -2224,7 +2226,7 @@ const PrintPage = (props) => {
                           </button>
                         </div>
                         <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認用）" style={{...inpS,flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":120,width:isMobile?"100%":"auto"}}/>
-                        <div style={{display:"flex",flexDirection:"row",gap:isMobile?10:24,alignItems:"center",flexShrink:0,width:isMobile?"100%":"auto",justifyContent:isMobile?"flex-start":"flex-start"}/* v615: ボタン2つを1グループに(キャンセル左・変更を保存右)。スマホは小さめ横並び・PCは従来通り。 */}>
+                        <div style={{display:"flex",flexDirection:"row",gap:isMobile?10:24,alignItems:"center",flexShrink:0,width:isMobile?"100%":"auto",justifyContent:"flex-end"}/* v616(企画): ボタン2つ(キャンセル左・変更を保存右)。右寄せ=「パスワード欄内の操作」と一致(中央だとページ全体保存に見える)。PCも結果的に右で一貫。 */}>
                           <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
                           <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1,flexShrink:0}/* v612 ①: 金背景+白・細文字 */}>{pwLoading?"処理中...":"変更を保存"}</button>
                         </div>
