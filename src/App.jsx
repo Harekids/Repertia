@@ -2189,10 +2189,12 @@ const PrintPage = (props) => {
                 ログアウト
               </button>
             </div>
+            {/* v610 Account整理(企画): 氏名分離(表示名=displayName)・メール分離(ログイン用=loginEmail)・ラベル変更・スマホ2行ラベル上左寄せ。
+                 入力欄はボックス(inpS)のまま(下線化しない=Accountは事務・登録情報で役割が違う)。旧共用(nameJa/contact.email)UIは下記{false&&}温存。 */}
             <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56}}>
               {[
-                ["表示名",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
-                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["表示名",   <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["ログイン用メールアドレス", <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
                 ["パスワード",     <div style={{flex:1}}>
                   {!pwOpen ? (
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更する</button>
@@ -2215,12 +2217,27 @@ const PrintPage = (props) => {
                   {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:FONT,marginTop:6}}>{pwMsg}</div>}
                 </div>],
               ].map(([label, input])=>(
+                <div key={label} style={{display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"stretch":"center",gap:isMobile?6:0}/* v610 ②: スマホ=ラベル上・入力下の2行(Biographyと同じ)／PC=横並び。 */}>
+                  <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,width:isMobile?"auto":130,flexShrink:0,textAlign:isMobile?"left":"right",paddingRight:isMobile?0:14,boxSizing:"border-box",letterSpacing:isMobile?"0.03em":"normal"}}>{label}</div>
+                  {input}
+                </div>
+              ))}
+            </div>
+
+            {/* v610: 旧・Account入力(表示名=nameJa共用/メール=contact.email共用)は温存。企画:分離のため新displayName/loginEmailに移行。 */}
+            {false && (
+            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56}}>
+              {[
+                ["表示名",   <input value={profile.nameJa} onChange={e=>setProfile(p=>({...p,nameJa:e.target.value}))} placeholder="" style={{...inpS,flex:1,maxWidth:360}}/>],
+                ["メールアドレス", <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={{...inpS,flex:1,maxWidth:360}}/>],
+              ].map(([label, input])=>(
                 <div key={label} style={{display:"flex",alignItems:"center",gap:0}}>
                   <div style={{fontSize:11,color:"#94A3BE",fontFamily:FONT,width:130,flexShrink:0,textAlign:"right",paddingRight:14,boxSizing:"border-box"}}>{label}</div>
                   {input}
                 </div>
               ))}
             </div>
+            )}
 
             {showBioPanel && (
               <div style={{marginTop:10,marginBottom:16,background:"#15233F",border:"1px solid #1E2A45",borderRadius:8,padding:"14px 16px"}}>
@@ -2383,7 +2400,7 @@ const PrintPage = (props) => {
                   {Field({label:"電話", grow:"2 1 0"/* v596: 電話:メール=2:3 */, node:(
                     <input value={profile.contact.tel} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,tel:e.target.value}}))} style={uLine}/>
                   )})}
-                  {Field({label:"連絡先メール", grow:"3 1 0"/* v596: 電話:メール=2:3 */, node:(
+                  {Field({label:"連絡先メールアドレス", grow:"3 1 0"/* v596: 電話:メール=2:3 / v610: ラベル「連絡先メールアドレス」(Accountのログイン用と用途で区別) */, node:(
                     <input value={profile.contact.email} onChange={e=>setProfile(p=>({...p,contact:{...p.contact,email:e.target.value}}))} placeholder="email@example.com" style={uLine}/>
                   )})}
                 </div>
@@ -5202,6 +5219,8 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
   const [chartType, setChartType]              = useState("pie");
   const [profile, setProfile]                  = useState({
     nameJa:"", nameEn:"", birthDate:"", nationality:"ー", city:"",
+    displayName:"",/* v610 氏名分離(企画): Account表示名(変更可・呼びかけ用)。Biographyの正式名nameJaとは別データ。 */
+    loginEmail:"",/* v610 メール分離(企画): Accountログイン用メール。Biographyの連絡先メール(contact.email)とは別データ。 */
     photoUrl:"",
     educations:[{id:1,period:"",school:"",status:""}],
     teachers:[{id:1,period:"",name:"",note:""}],
