@@ -2191,34 +2191,41 @@ const PrintPage = (props) => {
               </button>
             </div>
             {/* v612 Account整理(企画): PC=表示名+ログイン用メールを1行横並び(Biographyと同じ「PC列/スマホ縦」)。パスワードは単独行。
-                 入力欄はボックス(inpS)のまま。①「変更を保存」は金背景+白・細文字に統一。旧共用UIは下記{false&&}温存。 */}
-            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56}}>
+                 入力欄はボックス(inpS)のまま。①「変更を保存」は金背景+白・細文字に統一。旧共用UIは下記{false&&}温存。
+                 v615: Biographyと同じ左右インデント(PC24/スマホ12)で囲む・ボックス間gapもBiographyと同じ24に統一。 */}
+            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56,paddingLeft:isMobile?12:24,paddingRight:isMobile?12:24}}>
               {/* 表示名 + ログイン用メール(PC横並び/スマホ縦積み) */}
-              <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?28:24,alignItems:"flex-start"}}>
+              <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:"flex-start"}/* v615: gapをBiographyと同じ(PC24/スマホ18)に。 */}>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
-                  <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,width:"100%",maxWidth:360}}/>
+                  <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,width:"100%"}}/>
                 </div>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレス</div>
-                  <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,width:"100%",maxWidth:360}}/>
+                  <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
                 </div>
               </div>
               {/* パスワード(単独行) v613: ラベル「パスワード」廃止・ボタン自体を「パスワードを変更」にしてラベル役も兼ねる(企画)。 */}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{maxWidth:pwOpen?720:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
+                <div style={{maxWidth:pwOpen?760:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
                   {!pwOpen ? (
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>パスワードを変更</button>
                   ) : (
                     <div style={{display:"flex",flexDirection:"column",gap:8}/* v612 パスワード展開: 入力2つ＋ボタン2つを1行に横並び(企画)。 */}>
-                      <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:8,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}}>
+                      <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}/* v615: ボックス間gapをBiographyと同じ(PC24/スマホ18)に統一。並び順=新パスワード/確認/キャンセル/変更を保存(企画)。 */}>
                         <div style={{position:"relative",flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":140}}>
-                          <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52,width:"100%"}}/>
-                          <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:FONT,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
+                          <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:40,width:"100%"}}/>
+                          <button onClick={()=>setPwShow(!pwShow)} title={pwShow?"隠す":"表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+                            {pwShow ? (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            ) : (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            )}
+                          </button>
                         </div>
-                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="確認" style={{...inpS,flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":100,width:isMobile?"100%":"auto"}}/>
-                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1,flexShrink:0}/* v612 ①: 金背景+白・細文字 */}>{pwLoading?"処理中...":"変更を保存"}</button>
+                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認用）" style={{...inpS,flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":120,width:isMobile?"100%":"auto"}}/>
                         <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
+                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1,flexShrink:0}/* v612 ①: 金背景+白・細文字 */}>{pwLoading?"処理中...":"変更を保存"}</button>
                       </div>
                       {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{pwErr}</div>}
                     </div>
