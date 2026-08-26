@@ -3051,7 +3051,7 @@ const BarChart = ({dashData}) => {
 
 // ── ManagePage (top-level) ──────────────────────────────────────────────────
 const ManagePage = (props) => {
-  const {pieces, setPieces, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd, addPieceData, setAddPieceData} = props;/* v585 A: 入力データを親から受け取る */
+  const {pieces, setPieces, piecesLoading, poolFiltered, learningPoolFiltered, addPiecesFromProgram, showAdd, setShowAdd, addPieceData, setAddPieceData} = props;/* v585 A: 入力データを親から受け取る / v618: piecesLoading=取得中フラグ */
   const {composers=[]} = props; // v263: 293人マスタ（検索用）
   const {documents, setDocuments, saveDocuments} = props;
   const {docSaveMsg, setDocSaveMsg} = props;
@@ -3519,7 +3519,11 @@ const ManagePage = (props) => {
       {/* 一覧エリア — フォームと分ける境界（FilterBarはEraBarへ移動 v211） */}
       <div style={{background:"transparent",overflow:"hidden"}}>
         <div style={{padding:"2px 8px"}}>
-          {poolFiltered.length===0 ? (
+          {piecesLoading ? (
+            // v618 起動直後の誤表示バグ修正(企画): 取得中は「曲がありません」を出さず読み込み中を表示。
+            //   取得完了(piecesLoading=false)後に初めて0件判定→空表示 or 一覧。「取得中」と「本当に0件」を区別する。
+            <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>読み込み中...</div>
+          ) : poolFiltered.length===0 ? (
             // v277: LPと同じ判断。0件で真っ白にせず、状態を分けて伝える
             pieces.filter(p=>!p.learning).length===0 ? (
               <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだRepertoireの曲がありません。上で曲を追加してください。</div>
@@ -5900,7 +5904,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
       <div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column"}}>
         {page==="manage" && <ManagePage
           composers={composers}
-          pieces={pieces} setPieces={setPieces} poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
+          pieces={pieces} setPieces={setPieces} piecesLoading={piecesLoading}/* v618: 起動直後の誤表示バグ修正=取得中は空表示を出さない */ poolFiltered={poolFiltered} learningPoolFiltered={learningPoolFiltered} addPiecesFromProgram={addPiecesFromProgram}
           documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg}
           showAdd={showAdd} setShowAdd={setShowAdd} addPieceData={addPieceData} setAddPieceData={setAddPieceData}/* v585 A: 入力データを親から渡す(キープの本体) */ editMode={editMode} setEditMode={setEditMode}
           onAddPiece={onAddPiece} toggleFav={toggleFav} toggleMarkNote={toggleMarkNote} toggleMarkRest={toggleMarkRest} promoteToRepertoire={promoteToRepertoire} demoteToLearning={demoteToLearning} filterMark={filterMark} setFilterMark={setFilterMark} filterNote={filterNote} setFilterNote={setFilterNote} filterRest={filterRest} setFilterRest={setFilterRest}
