@@ -2207,26 +2207,25 @@ const PrintPage = (props) => {
               {/* パスワード(単独行) */}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>パスワード</div>
-                <div style={{maxWidth:360}}>
+                <div style={{maxWidth:pwOpen?720:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
                   {!pwOpen ? (
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更する</button>
                   ) : (
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <div style={{position:"relative"}}>
-                        <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
-                        <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:FONT,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
-                      </div>
-                      <div style={{position:"relative"}}>
-                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:52}}/>
-                      </div>
-                      <div style={{display:"flex",gap:8}}>
-                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1}/* v612 ①: 他の金ボタンと統一=金背景+白・細文字(旧:濃紺#0F1A33・太字で潰れて見えた)。 */}>{pwLoading?"処理中...":"変更を保存"}</button>
-                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>キャンセル</button>
+                    <div style={{display:"flex",flexDirection:"column",gap:8}/* v612 パスワード展開: 入力2つ＋ボタン2つを1行に横並び(企画)。 */}>
+                      <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:8,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}}>
+                        <div style={{position:"relative",flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":140}}>
+                          <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52,width:"100%"}}/>
+                          <button onClick={()=>setPwShow(!pwShow)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:FONT,cursor:"pointer",padding:0}}>{pwShow?"隠す":"表示"}</button>
+                        </div>
+                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="確認" style={{...inpS,flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":100,width:isMobile?"100%":"auto"}}/>
+                        <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1,flexShrink:0}/* v612 ①: 金背景+白・細文字 */}>{pwLoading?"処理中...":"変更を保存"}</button>
+                        <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
                       </div>
                       {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{pwErr}</div>}
                     </div>
                   )}
-                  {pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:FONT,marginTop:6}}>{pwMsg}</div>}
+                  {/* v612: 緑の「パスワードを変更しました。」テキストは削除(トーストを出すので不要・企画)。旧pwMsg表示は封印。 */}
+                  {false && pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:FONT,marginTop:6}}>{pwMsg}</div>}
                 </div>
               </div>
             </div>
