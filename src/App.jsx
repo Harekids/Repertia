@@ -2204,12 +2204,11 @@ const PrintPage = (props) => {
                   <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,width:"100%",maxWidth:360}}/>
                 </div>
               </div>
-              {/* パスワード(単独行) */}
+              {/* パスワード(単独行) v613: ラベル「パスワード」廃止・ボタン自体を「パスワードを変更」にしてラベル役も兼ねる(企画)。 */}
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>パスワード</div>
                 <div style={{maxWidth:pwOpen?720:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
                   {!pwOpen ? (
-                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更する</button>
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>パスワードを変更</button>
                   ) : (
                     <div style={{display:"flex",flexDirection:"column",gap:8}/* v612 パスワード展開: 入力2つ＋ボタン2つを1行に横並び(企画)。 */}>
                       <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:8,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}}>
