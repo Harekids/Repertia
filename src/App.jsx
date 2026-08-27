@@ -5734,7 +5734,9 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     }
     if (addedIds.length>0) {
       setLearningIds(prev => [...prev, ...addedIds]);
-      if (!silent) fireToast(addedIds.length+"曲をLearningに追加しました！");/* v578: 成功通知をトースト化(操作を止めない・3秒) / v620: 末尾を✓→！に(他の追加系と揃える) */
+      if (!silent) fireToast(addedIds.length+"曲をLearningに追加しました！");/* v578: 成功通知をトースト化(操作を止めない・3秒) / v620: 末尾を✓→！に(他の追加系と揃える)
+        ※現状このトーストは鳴らない：唯一の呼び出し元(AI検索候補の「追加」ボタン・3394付近)がsilent:trueで呼ぶため。
+          将来「複数曲を一括Learning追加してトーストを出す」経路ができたらsilentを外せばそのまま鳴る(条件は準備済み)。 */
     }
   };
 
