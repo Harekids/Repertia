@@ -4964,19 +4964,18 @@ const AuthPage = ({ onLogin }) => {
         {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
              中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
              3モード(login/signup/reset)で最も背が高いのはlogin(メール+パスワード+お忘れリンク)。それに合わせて固定。 */}
-        <div style={{minHeight:186,display:"flex",flexDirection:"column"}}>
+        <div style={{minHeight:160,display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
               placeholder="メールアドレス" style={inpS}/>
-            {/* v623 ② お忘れモード時はパスワード欄を隠す(リセットに不要・モードが変わったと体で分かる) */}
-            {!resetMode && (
-            <div style={{position:"relative"}}>
+            {/* v626 ② お忘れモード時: パスワード欄を消さず visibility:hidden で隠す(場所は保持)。
+                 →消す(display:none)と高さが減ってガタつく。隠すだけなら高さが1pxも変わらない=確実なガタつき防止。企画「パスワード欄を隠す」も満たす。 */}
+            <div style={{position:"relative",visibility:resetMode?"hidden":"visible"}}>
               <input type={showPw?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)}
                 placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:52}}
-                onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
+                onKeyDown={e=>e.key==="Enter"&&handleSubmit()} tabIndex={resetMode?-1:0}/>
               <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
             </div>
-            )}
           </div>
           {/* 補助行(固定枠内): お忘れリンク / リセット案内+戻る / エラー・メッセージ。ここが増減してもminHeightで吸収。 */}
           <div style={{marginTop:8,flex:1}}>
