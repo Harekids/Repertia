@@ -4964,7 +4964,7 @@ const AuthPage = ({ onLogin }) => {
         {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
              中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
              3モード(login/signup/reset)で最も背が高いのはlogin(メール+パスワード+お忘れリンク)。それに合わせて固定。 */}
-        <div style={{minHeight:170,display:"flex",flexDirection:"column"}}>
+        <div style={{minHeight:186,display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
               placeholder="メールアドレス" style={inpS}/>
