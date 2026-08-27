@@ -4964,7 +4964,7 @@ const AuthPage = ({ onLogin }) => {
         {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
              中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
              3モード(login/signup/reset)で最も背が高いのはlogin(メール+パスワード+お忘れリンク)。それに合わせて固定。 */}
-        <div style={{minHeight:150,display:"flex",flexDirection:"column"}}>
+        <div style={{minHeight:170,display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
               placeholder="メールアドレス" style={inpS}/>
@@ -5008,7 +5008,8 @@ const AuthPage = ({ onLogin }) => {
             opacity:loading?0.6:1}}>
           {resetMode
             ? (loading?"送信中…":"再設定メールを送る")
-            : (loading?"処理中…":(mode==="login"?"ログイン":"アカウント作成"))}
+            : (loading?(mode==="login"?"ログイン中…":"作成中…"):(mode==="login"?"ログイン":"アカウント作成"))}
+          {/* v625: 処理中文言=ログイン中…/作成中…に出し分け(企画確定・無機質な「処理中…」をやめる)。リセットは送信中…。 */}
         </button>
         {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。リセットモード時は出さない(戻るリンクがあるため)。高さ固定のため常に枠を確保 */}
         <div style={{textAlign:"center",marginTop:16,minHeight:16}}>
