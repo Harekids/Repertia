@@ -1977,6 +1977,7 @@ const PrintPage = (props) => {
   const {profile, setProfile, events} = props;
   const isMobile = useIsMobile(640); // v441: 学歴status Dropdown等がスコープ先頭でisMobileを参照するため定義位置を先頭へ移動（旧位置は後方2300行台にあり参照より後でクラッシュ＝真っ紺の原因）
   const eduComposingRef = React.useRef(false); // v451: 学歴ステータス自由入力のIME変換中フラグ（⑦のtypeComposingRefは別コンポーネントスコープのため学歴用に新設。学歴は複数行だがフォーカスは常に1行なので単一refで足りる）
+  const acctFocusValRef = React.useRef(""); // v619: Account表示名/メールのonBlur判定用。フォーカスした時点の値を覚え、外れた時に変わっていれば1回だけトースト(企画B案)。
   // v156: パスワード変更
   const [pwOpen, setPwOpen] = useState(false);
   const [pwNew, setPwNew] = useState("");
@@ -2198,11 +2199,17 @@ const PrintPage = (props) => {
               <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:"flex-start"}/* v615: gapをBiographyと同じ(PC24/スマホ18)に。 */}>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
-                  <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,width:"100%"}}/>
+                  <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))}
+                    onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
+                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("保存しました"); }/* v619(企画B): 外れた時に変わっていれば1回だけトースト。1文字ごとには出さない=変更確定の区切り。 */}
+                    placeholder="" style={{...inpS,width:"100%"}}/>
                 </div>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレス</div>
-                  <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))} placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
+                  <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))}
+                    onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
+                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("保存しました"); }/* v619(企画B): 外れた時に変わっていれば1回だけトースト。 */}
+                    placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
                 </div>
               </div>
               {/* ログインパスワード(単独行) v616(企画確定A): ラベル「ログインパスワード」を追加し表示名/ログイン用メールと同じ「ラベル+中身」構造に揃える。
