@@ -2028,7 +2028,7 @@ const PrintPage = (props) => {
       }
     } else {
       setPwMsg("パスワードを変更しました。");
-      fireToast("パスワードを変更しました！");/* v612 企画: パスワード変更は手動確定=トースト対象。共通ToastHost(下中央・白)。 */
+      fireToast("パスワードを変更しました");/* v612 企画: パスワード変更は手動確定=トースト対象。共通ToastHost(下中央・白)。 v620: 「！」を取る(セキュリティ操作は淡々と) */
       setPwNew(""); setPwConfirm("");
       setPwOpen(false); // ★変更完了後はフォームを閉じる（謎の入力欄・ボタンを残さない）
     }
@@ -5734,7 +5734,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
     }
     if (addedIds.length>0) {
       setLearningIds(prev => [...prev, ...addedIds]);
-      if (!silent) fireToast(addedIds.length+"曲をLearningに追加しました ✓");/* v578: 成功通知をトースト化(操作を止めない・3秒) */
+      if (!silent) fireToast(addedIds.length+"曲をLearningに追加しました！");/* v578: 成功通知をトースト化(操作を止めない・3秒) / v620: 末尾を✓→！に(他の追加系と揃える) */
     }
   };
 
