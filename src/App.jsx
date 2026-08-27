@@ -4917,6 +4917,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 const AuthPage = ({ onLogin }) => {
   const SANS = "'Noto Sans JP', sans-serif";
   const [mode, setMode] = useState("login"); // "login" | "signup"
+  const [resetMode, setResetMode] = useState(false); // v623: パスワードお忘れモード(同一画面・パスワード欄を隠す)。true時はリセット送信画面。
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -4960,42 +4961,63 @@ const AuthPage = ({ onLogin }) => {
           <div style={{fontSize:22,fontWeight:"bold",color:"#EDE6D6",fontFamily:SANS,letterSpacing:2}}>Repertia</div>
           <div style={{fontSize:12,color:"#94A3BE",fontFamily:SANS,marginTop:4}}>クラシック音楽レパートリー管理</div>
         </div>
-        <div style={{display:"flex",gap:8,marginBottom:24}}>
-          {[["login","ログイン"],["signup","新規登録"]].map(([m,label])=>(
-            <button key={m} onClick={()=>{setMode(m);setError("");setMessage("");}}
-              style={{flex:1,padding:"8px",border:"1.5px solid "+(mode===m?"#0F1A33":"#1E2A45"),
-                borderRadius:6,background:mode===m?"#0F1A33":"white",
-                color:mode===m?"#C8A860":"#94A3BE",fontFamily:SANS,fontSize:13,cursor:"pointer"}}>
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* v623 ① 切替リンク型: タブ(両方表示)をやめ、片方だけ表示+下に控えめな切替リンク。
+             ガタつき対策(b): ロゴ・入力欄・メインボタンの位置は固定し、中身(パスワード欄の有無・文言・リンク)だけ差し替える。 */}
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
             placeholder="メールアドレス" style={inpS}/>
+          {/* v623 ② お忘れモード時はパスワード欄を隠す(リセットに不要・モードが変わったと体で分かる) */}
+          {!resetMode && (
           <div style={{position:"relative"}}>
             <input type={showPw?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)}
               placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:52}}
               onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/>
             <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
           </div>
+          )}
         </div>
-        {mode==="login" && (
+        {/* お忘れリンク: loginモードかつ非リセット時のみ。押すとリセットモードへ(画面遷移しない・送信はメインボタンで) */}
+        {mode==="login" && !resetMode && (
           <div style={{textAlign:"right",marginTop:8}}>
-            <button onClick={handleResetPassword} disabled={loading}
+            <button onClick={()=>{setResetMode(true);setError("");setMessage("");}} disabled={loading}
               style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
               パスワードをお忘れですか？
             </button>
           </div>
         )}
+        {/* リセットモード時の案内+戻るリンク */}
+        {resetMode && (
+          <div style={{marginTop:8}}>
+            <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:4}}>登録メールアドレスに再設定リンクを送ります。</div>
+            <button onClick={()=>{setResetMode(false);setError("");setMessage("");}} disabled={loading}
+              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              ← ログインに戻る
+            </button>
+          </div>
+        )}
         {error && <div style={{marginTop:12,fontSize:12,color:"#C0405A",fontFamily:SANS}}>{error}</div>}
         {message && <div style={{marginTop:12,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
-        <button onClick={handleSubmit} disabled={loading}
+        {/* メインボタン: 位置固定・文言だけモードで差し替え(③処理中=送信中…はリセット時) */}
+        <button onClick={resetMode?handleResetPassword:handleSubmit} disabled={loading}
           style={{width:"100%",marginTop:20,padding:"11px",background:"#0F1A33",border:"none",
             color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer",
             opacity:loading?0.6:1}}>
-          {loading?"処理中...":(mode==="login"?"ログイン":"アカウント作成")}
+          {resetMode
+            ? (loading?"送信中…":"再設定メールを送る")
+            : (loading?"処理中…":(mode==="login"?"ログイン":"アカウント作成"))}
         </button>
+        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。リセットモード時は出さない(戻るリンクがあるため) */}
+        {!resetMode && (
+          <div style={{textAlign:"center",marginTop:16}}>
+            <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
+              {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
+            </span>
+            <button onClick={()=>{setMode(mode==="login"?"signup":"login");setError("");setMessage("");}}
+              style={{background:"none",border:"none",color:"#C8A860",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              {mode==="login"?"新規登録":"ログイン"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
