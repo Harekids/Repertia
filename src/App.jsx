@@ -5010,10 +5010,12 @@ const AuthPage = ({ onLogin }) => {
             : (loading?(mode==="login"?"ログイン中…":"作成中…"):(mode==="login"?"ログイン":"アカウント作成"))}
           {/* v625: 処理中文言=ログイン中…/作成中…に出し分け(企画確定・無機質な「処理中…」をやめる)。リセットは送信中…。 */}
         </button>
-        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。リセットモード時は出さない(戻るリンクがあるため)。高さ固定のため常に枠を確保 */}
-        <div style={{textAlign:"center",marginTop:16,minHeight:16}}>
+        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。リセットモード時は出さない(戻るリンクがあるため)。
+             v627fix ガタつき真因: この切替リンクがリセット時に消えて高さが減っていた(minHeight16では不足)。
+             リンク実高さ(テキスト1行分)を確保して、モードで高さが変わらないようにする。 */}
+        <div style={{textAlign:"center",marginTop:16,minHeight:17,display:"flex",alignItems:"center",justifyContent:"center"}}>
           {!resetMode && (
-            <>
+            <div>
               <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
                 {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
               </span>
@@ -5021,7 +5023,7 @@ const AuthPage = ({ onLogin }) => {
                 style={{background:"none",border:"none",color:"#C8A860",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
                 {mode==="login"?"新規登録":"ログイン"}
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
