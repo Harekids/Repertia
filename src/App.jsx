@@ -2201,14 +2201,14 @@ const PrintPage = (props) => {
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
                   <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))}
                     onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
-                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("保存しました"); }/* v619(企画B): 外れた時に変わっていれば1回だけトースト。1文字ごとには出さない=変更確定の区切り。 */}
+                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("表示名を変更しました"); }/* v619(企画B)→v620(企画A確定): 外れた時に変わっていれば1回だけ「表示名を変更しました」(！なし・Account操作は淡々と統一)。 */}
                     placeholder="" style={{...inpS,width:"100%"}}/>
                 </div>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレス</div>
                   <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))}
                     onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
-                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("保存しました"); }/* v619(企画B): 外れた時に変わっていれば1回だけトースト。 */}
+                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("メールアドレスを変更しました"); }/* v619(企画B)→v620(企画A確定): 外れた時に変わっていれば1回だけ「メールアドレスを変更しました」(！なし)。 */}
                     placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
                 </div>
               </div>
