@@ -1024,7 +1024,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
               <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(3, 1fr)":"repeat(6, 1fr)",gap:8,marginBottom:8,alignItems:"start"}}>
                 <div>
                   {/* v272: 時代（Add Pieceと同じERA_ORDER・同じ挙動） */}
-                  <div style={fLabel}>時代</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行の高さを固定(日本語と英字Lv./Pop.で行高が違い下のボックス開始位置がずれる真因を解消) */}>時代</div>
                   {/* v401 案B: romantic固定を廃止。作曲年からの自動補完(eraFromYear)に任せる。
                        未編集・era空のときは「ー」を表示＝作曲年入力で埋まる。手で選べば上書き。 */}
                   {/* v436 B-Step2③: 曲編集の時代をDropdown化（AddPieceと統一）。onChangeでsetEraEditedDraft(true)維持。 */}
@@ -1041,13 +1041,13 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   )}
                 </div>
                 <div>
-                  <div style={fLabel}>作曲年</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行高さ固定 */}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="ー"
                     style={{...fInput,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 高さheight:30に加え、縦padding除去+lineHeight30で文字を縦中央に(Dropdownはflex中央・inputはpadding依存でずれていた)。fontSizeもDropdownと同じ12に。 */} />
                 </div>
                 <div>
-                  <div style={fLabel}>調性</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行高さ固定 */}>調性</div>
                   {/* v436 B-Step2③: 曲編集の調性をKEYS Dropdownに統一（旧テキストinputは温存）。表記ゆれ防止。 */}
                   <Dropdown isMobile={isMobile} value={draft.key||""} onChange={v=>setDraft({...draft,key:v})}
                     options={KEYS.map(k=>({value:k, label:k}))} placeholder="ー"
@@ -1058,7 +1058,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   )}
                 </div>
                 <div>
-                  <div style={fLabel}>演奏時間</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行高さ固定 */}>演奏時間</div>
                   <input
                     defaultValue={(draft.duration||draft.durationSecs) ? ((draft.duration||0)+"分"+(draft.durationSecs>0?(draft.durationSecs+"秒"):"")) : ""}
                     onBlur={e=>{
@@ -1079,11 +1079,11 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可)。v359: 「グレー＝入力できない」ルールでfInputDisabledを参照。 */}
                 <div>
-                  <div style={fLabel}>Lv.</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行高さ固定=Lv./Pop.が上にずれる真因解消 */}>Lv.</div>
                   <input value="育成中" disabled readOnly style={{...fInputDisabled,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 文字縦中央+fontSize12 */} />
                 </div>
                 <div>
-                  <div style={fLabel}>Pop.</div>
+                  <div style={{...fLabel,height:14,lineHeight:"14px"}/* v631b: ラベル行高さ固定 */}>Pop.</div>
                   <input value="育成中" disabled readOnly style={{...fInputDisabled,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 文字縦中央+fontSize12=Lv./Pop.ずれ解消 */} />
                 </div>
               </div>
