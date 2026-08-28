@@ -1044,7 +1044,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                   <div style={fLabel}>作曲年</div>
                   <input value={draft.yearText||""} onChange={e=>setDraft({...draft,yearText:e.target.value})}
                     placeholder="ー"
-                    style={fInput} />
+                    style={{...fInput,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 高さheight:30に加え、縦padding除去+lineHeight30で文字を縦中央に(Dropdownはflex中央・inputはpadding依存でずれていた)。fontSizeもDropdownと同じ12に。 */} />
                 </div>
                 <div>
                   <div style={fLabel}>調性</div>
@@ -1075,16 +1075,16 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
                       e.target.value=m+"分"+(s>0?(s+"秒"):"");
                     }}
                     placeholder="ー"
-                    style={fInput} />
+                    style={{...fInput,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 文字縦中央+fontSize12でDropdownと揃える */} />
                 </div>
                 {/* Lv.・Pop.: 育成中(入力不可)。v359: 「グレー＝入力できない」ルールでfInputDisabledを参照。 */}
                 <div>
                   <div style={fLabel}>Lv.</div>
-                  <input value="育成中" disabled readOnly style={fInputDisabled} />
+                  <input value="育成中" disabled readOnly style={{...fInputDisabled,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 文字縦中央+fontSize12 */} />
                 </div>
                 <div>
                   <div style={fLabel}>Pop.</div>
-                  <input value="育成中" disabled readOnly style={fInputDisabled} />
+                  <input value="育成中" disabled readOnly style={{...fInputDisabled,height:30,padding:"0 8px",lineHeight:"30px",fontSize:12}/* v629b: 文字縦中央+fontSize12=Lv./Pop.ずれ解消 */} />
                 </div>
               </div>
               {/* v357 順序: 3行目リンク → 4行目キーワード → 5行目メモ */}
