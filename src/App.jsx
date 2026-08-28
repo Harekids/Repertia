@@ -5010,21 +5010,17 @@ const AuthPage = ({ onLogin }) => {
             : (loading?(mode==="login"?"ログイン中…":"作成中…"):(mode==="login"?"ログイン":"アカウント作成"))}
           {/* v625: 処理中文言=ログイン中…/作成中…に出し分け(企画確定・無機質な「処理中…」をやめる)。リセットは送信中…。 */}
         </button>
-        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。リセットモード時は出さない(戻るリンクがあるため)。
-             v627fix ガタつき真因: この切替リンクがリセット時に消えて高さが減っていた(minHeight16では不足)。
-             リンク実高さ(テキスト1行分)を確保して、モードで高さが変わらないようにする。 */}
-        <div style={{textAlign:"center",marginTop:16,minHeight:17,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          {!resetMode && (
-            <div>
-              <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
-                {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
-              </span>
-              <button onClick={()=>{setMode(mode==="login"?"signup":"login");setError("");setMessage("");}}
-                style={{background:"none",border:"none",color:"#C8A860",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
-                {mode==="login"?"新規登録":"ログイン"}
-              </button>
-            </div>
-          )}
+        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。
+             v632fix ガタつき最終解決: リセット時に{!resetMode&&}で中身を消すとテキスト高さ(1〜2行)が減る。minHeight固定では行数に追従できない。
+             →パスワード欄と同じくvisibility:hiddenで中身を残す(場所=高さを保持)。リセット時はリンクを押せないようpointerEvents:noneも付ける。これで1pxも動かない。 */}
+        <div style={{textAlign:"center",marginTop:16,visibility:resetMode?"hidden":"visible",pointerEvents:resetMode?"none":"auto"}}>
+          <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
+            {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
+          </span>
+          <button onClick={()=>{setMode(mode==="login"?"signup":"login");setError("");setMessage("");}} tabIndex={resetMode?-1:0}
+            style={{background:"none",border:"none",color:"#C8A860",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+            {mode==="login"?"新規登録":"ログイン"}
+          </button>
         </div>
       </div>
     </div>
