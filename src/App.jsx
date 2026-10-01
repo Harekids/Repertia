@@ -56,7 +56,7 @@ const FontLoader = () => {
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Parisienne&family=Cormorant+Garamond:ital@1&display=swap";/* v636: ログイン題字用Parisienne・タグライン用Cormorant Garamond(斜体)を追加 */
+    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Parisienne:wght@400&display=swap";/* v637: ログイン題字用Parisienneを明示ウェイト付きで読込。タグライン撤去に伴いCormorant Garamondは外した(URL簡素化=PCで題字フォントが適用されない問題への対策)。_old v636: ...&family=Parisienne&family=Cormorant+Garamond:ital@1&display=swap */
     document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
@@ -4971,7 +4971,8 @@ const AuthPage = ({ onLogin }) => {
              _old v633: 題字=SANS22px/#EDE6D6/letterSpacing2・サブ「クラシック音楽レパートリー管理」12px/#94A3BE */}
         <div style={{textAlign:"center",marginBottom:30}}>
           <div style={{fontFamily:"'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>
-          <div style={{fontFamily:"'Cormorant Garamond', serif",fontStyle:"italic",fontSize:14,color:"#B9A66B",marginTop:1,letterSpacing:1.5}}>Pieces make history.</div>
+          {/* v637: タグライン「Pieces make history.」は一旦ログイン画面から外す（位置が定まらない／単体ではアプリ内容が伝わらないためYuko判断）。コピー自体は温存=将来Portfolio/LP等で使用候補。{false&&}で無効化し消さない原則を守る。 */}
+          {false && <div style={{fontFamily:"'Cormorant Garamond', serif",fontStyle:"italic",fontSize:14,color:"#B9A66B",marginTop:1,letterSpacing:1.5}}>Pieces make history.</div>}
         </div>
         {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
              中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
@@ -5021,9 +5022,10 @@ const AuthPage = ({ onLogin }) => {
           </div>
         </div>
         {/* メインボタン: 固定枠の下=常に同じ位置。文言だけモードで差し替え(③処理中=送信中…はリセット時) */}
+        {/* v637: ボタン配色を逆転(背景金#C8A860+紺文字#1A1206+太字)。入力欄が白系になり、従来の紺背景+金文字は沈んで押せる感が弱かったため。サイトのタブ選択中(金塗り+紺文字)とも統一。Yuko判断。_old v636: background#0F1A33・color#C8A860・fontWeight無し */}
         <button onClick={resetMode?handleResetPassword:handleSubmit} disabled={loading}
-          style={{width:"100%",padding:"11px",background:"#0F1A33",border:"none",
-            color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer",
+          style={{width:"100%",padding:"11px",background:"#C8A860",border:"none",
+            color:"#1A1206",borderRadius:6,fontSize:14,fontWeight:700,fontFamily:SANS,cursor:"pointer",
             opacity:loading?0.6:1}}>
           {resetMode
             ? (loading?"送信中…":"再設定メールを送る")
