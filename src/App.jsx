@@ -2949,11 +2949,17 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
   const isMobile = useIsMobile(640); // v341: スマホのみヘッダー再配置（PCは現状維持）
   const pool = learning ? pieces.filter(p=>p.learning) : pieces.filter(p=>!p.learning);
   const total = pool.length;
-  if (total===0) return null;
-  const counts = ERA_ORDER.map(k=>({key:k, ...ERAS[k], count:pool.filter(p=>p.era===k).length})).filter(d=>d.count>0);
+  // v634: 0件でも return null しない（新規ユーザーがメニューを失い曲を追加できなくなるバグ修正）
+  // if (total===0) return null;  // _old v633: 0件時にEraBarごと(=filterBar含む)消えていた
+  const isEmpty = total===0;  // v634: 0件フラグ
+  // v634: 常に5時代を表示（.filter(d=>d.count>0)を外す）。0の時代も「Mo 0」のように出す。Yuko判断。
+  const counts = ERA_ORDER.map(k=>({key:k, ...ERAS[k], count:pool.filter(p=>p.era===k).length}));
+  // const counts = ERA_ORDER.map(k=>({key:k, ...ERAS[k], count:pool.filter(p=>p.era===k).length})).filter(d=>d.count>0);  // _old v633
+  // v634: グラデ(色帯)は従来どおり count>0 の時代だけで計算（幅0の時代を混ぜると端点がズレるため）。legend表示は5時代。
+  const gradCounts = counts.filter(d=>d.count>0);
   const stops = [];
   let pct = 0;
-  counts.forEach((d,i)=>{
+  gradCounts.forEach((d,i)=>{
     const w = d.count/total*100;
     const s = Math.max(0, pct-4).toFixed(1);
     const e = Math.min(100, pct+w+4).toFixed(1);
@@ -2962,8 +2968,10 @@ const EraBar = ({pieces, learning=false, filterBar=null}) => {
     stops.push(d.color+" "+e+"%");
     pct += w;
   });
-  if (stops.length>0) stops[stops.length-1] = counts[counts.length-1].color+" 100%";
-  const grad = "linear-gradient(to right, "+stops.join(", ")+")";
+  if (stops.length>0) stops[stops.length-1] = gradCounts[gradCounts.length-1].color+" 100%";  // v634: counts→gradCounts
+  // v634: 0件時は割合が計算不能（分母0）。薄いグレー1本で「まだデータなし」を正直に表現。曲が入ると色づく。Yuko判断。
+  const grad = isEmpty ? "#2A3650" : "linear-gradient(to right, "+stops.join(", ")+")";
+  // const grad = "linear-gradient(to right, "+stops.join(", ")+")";  // _old v633
   // 部品：タイトル＋件数 / 凡例（時代内訳）。PC/スマホで置き場所だけ変える。
   const titleBlock = (
     <div style={{display:"flex",alignItems:"baseline",gap:8}}>
@@ -3412,7 +3420,8 @@ const ManagePage = (props) => {
               {learningPoolFiltered.length===0 ? (
                 // v277: 「リストが空」と「検索結果がゼロ」は別の状態。同じメッセージを出さない
                 pieces.filter(p=>p.learning).length===0 ? (
-                  <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。上で曲を探して追加してください。</div>
+                  // v634: 旧「上で曲を探して追加して」→「右上のメニュー（≡）から曲を追加して」に変更（0件時もメニュー表示されるようEraBar修正済）。Yuko判断
+                  <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだLearningの曲がありません。右上のメニュー（≡）から曲を追加してください。</div>
                 ) : (
                   <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>該当する曲はありません。</div>
                 )
@@ -3533,7 +3542,8 @@ const ManagePage = (props) => {
           ) : poolFiltered.length===0 ? (
             // v277: LPと同じ判断。0件で真っ白にせず、状態を分けて伝える
             pieces.filter(p=>!p.learning).length===0 ? (
-              <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだRepertoireの曲がありません。上で曲を追加してください。</div>
+              // v634: 旧「上で曲を追加して」→「右上のメニュー（≡）から曲を追加して」に変更。Yuko判断
+              <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>まだRepertoireの曲がありません。右上のメニュー（≡）から曲を追加してください。</div>
             ) : (
               <div style={{textAlign:"center",color:"#5A6B8C",padding:"24px",fontSize:12,fontFamily:SANS}}>該当する曲はありません。</div>
             )
