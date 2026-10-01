@@ -4926,6 +4926,7 @@ const EventsPage = ({events, setEvents, FONT, SANS, allPool, pieces, learningIds
 // ── Auth Component ────────────────────────────────────────────────────────────
 const AuthPage = ({ onLogin }) => {
   const SANS = "'Noto Sans JP', sans-serif";
+  const isMobile = useIsMobile(640); // v638: 入力欄フォントをスマホ16px(iOS自動ズーム防止)/PC14px に出し分けるため
   const [mode, setMode] = useState("login"); // "login" | "signup"
   const [resetMode, setResetMode] = useState(false); // v623: パスワードお忘れモード(同一画面・パスワード欄を隠す)。true時はリセット送信画面。
   const [email, setEmail] = useState("");
@@ -4936,8 +4937,8 @@ const AuthPage = ({ onLogin }) => {
   const [showPw, setShowPw] = useState(false);
 
   const inpS = { width:"100%", padding:"8px 12px", border:"1px solid #D8DEE9",
-    borderRadius:6, fontSize:16, fontFamily:SANS, color:"#1A2A4A",
-    background:"#F5F7FA", boxSizing:"border-box", outline:"none" };/* v636: ログイン画面刷新。白系#F5F7FA+紺文字#1A2A4A+枠#D8DEE9。fontSize16(iOS自動ズーム防止)。padding縦10→8でスリム。Yuko判断。_old v633: bg#15233F・文字#EDE6D6・14px・枠#1E2A45 */
+    borderRadius:6, fontSize:isMobile?16:14, fontFamily:SANS, color:"#1A2A4A",
+    background:"#F5F7FA", boxSizing:"border-box", outline:"none" };/* v638: fontSizeをスマホ16(iOS自動ズーム防止)/PC14に出し分け(PCは拡大が無いため14でスリムに。Yuko判断)。 v636: 白系#F5F7FA+紺文字#1A2A4A+枠#D8DEE9・padding縦8。_old v633: bg#15233F・文字#EDE6D6・14px・枠#1E2A45 */
 
   const handleSubmit = async () => {
     setLoading(true); setError(""); setMessage("");
@@ -4969,6 +4970,8 @@ const AuthPage = ({ onLogin }) => {
       <div style={{background:"#15233F",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
         {/* v636: ログイン画面刷新。題字=Parisienne(筆記体)・金/大きく、タグライン=英語「Pieces make history.」(Cormorant斜体)を題字に近接。Yuko判断。
              _old v633: 題字=SANS22px/#EDE6D6/letterSpacing2・サブ「クラシック音楽レパートリー管理」12px/#94A3BE */}
+        {/* v638: ログイン入力欄のplaceholderを薄く（グローバルの#8A94A8より薄い#BAC3D1）。詳細度を上げるため専用class指定。 */}
+        <style>{".rp-auth-input::placeholder{color:#BAC3D1;opacity:1;}"}</style>
         <div style={{textAlign:"center",marginBottom:30}}>
           <div style={{fontFamily:"'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>
           {/* v637: タグライン「Pieces make history.」は一旦ログイン画面から外す（位置が定まらない／単体ではアプリ内容が伝わらないためYuko判断）。コピー自体は温存=将来Portfolio/LP等で使用候補。{false&&}で無効化し消さない原則を守る。 */}
@@ -4980,12 +4983,12 @@ const AuthPage = ({ onLogin }) => {
         <div style={{minHeight:160,display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             {/* v636: placeholderを実例アドレスに（英語圏ユーザーにも用途が一目で伝わる）。_old: placeholder="メールアドレス" */}
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+            <input type="email" className="rp-auth-input" value={email} onChange={e=>setEmail(e.target.value)}
               placeholder="example@email.com" style={inpS}/>
             {/* v626 ② お忘れモード時: パスワード欄を消さず visibility:hidden で隠す(場所は保持)。
                  →消す(display:none)と高さが減ってガタつく。隠すだけなら高さが1pxも変わらない=確実なガタつき防止。企画「パスワード欄を隠す」も満たす。 */}
             <div style={{position:"relative",visibility:resetMode?"hidden":"visible"}}>
-              <input type={showPw?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)}
+              <input type={showPw?"text":"password"} className="rp-auth-input" value={password} onChange={e=>setPassword(e.target.value)}
                 placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:44}}
                 onKeyDown={e=>e.key==="Enter"&&handleSubmit()} tabIndex={resetMode?-1:0}/>
               {/* v636: 表示/隠すテキスト→目アイコン(SVG)。サイト内のパスワード変更欄(pwShow)と同一SVG・同一流儀に統一。showPw時は斜線入り。_old: {showPw?"隠す":"表示"}のテキストボタン */}
