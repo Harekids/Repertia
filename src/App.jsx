@@ -56,9 +56,14 @@ const FontLoader = () => {
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Parisienne:wght@400&display=swap";/* v637: ログイン題字用Parisienneを明示ウェイト付きで読込。タグライン撤去に伴いCormorant Garamondは外した(URL簡素化=PCで題字フォントが適用されない問題への対策)。_old v636: ...&family=Parisienne&family=Cormorant+Garamond:ital@1&display=swap */
+    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap";/* v639: 本文系フォント(Montserrat/Zen Kaku)はlinkで読込。題字Parisienneは下の@font-face(RepertiaScript)に分離=local()を使わず必ずWeb版を使わせPC環境のローカル同名フォント誤用を防ぐ。_old v637: ...&family=Parisienne:wght@400&display=swap */
     document.head.appendChild(link);
-    return () => document.head.removeChild(link);
+    // v639: 題字用Parisienneを専用名「RepertiaScript」で@font-face定義。srcにlocal()を書かないため、PCにParisienneがインストール済みでも必ずGoogle FontsのWeb版が使われる(PCだけ別フォントになる問題の根本対策。スマホ/タブレット○・PC×=そのPCのローカル同名フォント誤用が原因と特定)。
+    const face = document.createElement("style");
+    face.setAttribute("data-repertia-font","1");
+    face.textContent = "@font-face{font-family:'RepertiaScript';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/parisienne/v14/E21i_d3kivvAkxhLEVZpcy8.ttf) format('truetype');}";
+    document.head.appendChild(face);
+    return () => { document.head.removeChild(link); document.head.removeChild(face); };
   }, []);
   return null;
 };
@@ -4973,7 +4978,7 @@ const AuthPage = ({ onLogin }) => {
         {/* v638: ログイン入力欄のplaceholderを薄く（グローバルの#8A94A8より薄い#BAC3D1）。詳細度を上げるため専用class指定。 */}
         <style>{".rp-auth-input::placeholder{color:#BAC3D1;opacity:1;}"}</style>
         <div style={{textAlign:"center",marginBottom:30}}>
-          <div style={{fontFamily:"'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>
+          <div style={{fontFamily:"'RepertiaScript', 'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>{/* v639: 'Parisienne'→'RepertiaScript'(local非使用のWeb版専用名)。フォールバックで'Parisienne'とcursiveも残す */}
           {/* v637: タグライン「Pieces make history.」は一旦ログイン画面から外す（位置が定まらない／単体ではアプリ内容が伝わらないためYuko判断）。コピー自体は温存=将来Portfolio/LP等で使用候補。{false&&}で無効化し消さない原則を守る。 */}
           {false && <div style={{fontFamily:"'Cormorant Garamond', serif",fontStyle:"italic",fontSize:14,color:"#B9A66B",marginTop:1,letterSpacing:1.5}}>Pieces make history.</div>}
         </div>
