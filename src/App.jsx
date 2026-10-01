@@ -56,7 +56,7 @@ const FontLoader = () => {
   useEffect(() => {
     const link = document.createElement("link");
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Parisienne&family=Cormorant+Garamond:ital@1&display=swap";/* v636: ログイン題字用Parisienne・タグライン用Cormorant Garamond(斜体)を追加 */
     document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
@@ -4935,9 +4935,9 @@ const AuthPage = ({ onLogin }) => {
   const [error, setError] = useState("");
   const [showPw, setShowPw] = useState(false);
 
-  const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #1E2A45",
-    borderRadius:6, fontSize:14, fontFamily:SANS, color:"#EDE6D6",
-    background:"#15233F", boxSizing:"border-box", outline:"none" };
+  const inpS = { width:"100%", padding:"8px 12px", border:"1px solid #D8DEE9",
+    borderRadius:6, fontSize:16, fontFamily:SANS, color:"#1A2A4A",
+    background:"#F5F7FA", boxSizing:"border-box", outline:"none" };/* v636: ログイン画面刷新。白系#F5F7FA+紺文字#1A2A4A+枠#D8DEE9。fontSize16(iOS自動ズーム防止)。padding縦10→8でスリム。Yuko判断。_old v633: bg#15233F・文字#EDE6D6・14px・枠#1E2A45 */
 
   const handleSubmit = async () => {
     setLoading(true); setError(""); setMessage("");
@@ -4967,24 +4967,34 @@ const AuthPage = ({ onLogin }) => {
   return (
     <div style={{height:"100vh",background:"#0F1A33",display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div style={{background:"#15233F",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <div style={{fontSize:22,fontWeight:"bold",color:"#EDE6D6",fontFamily:SANS,letterSpacing:2}}>Repertia</div>
-          <div style={{fontSize:12,color:"#94A3BE",fontFamily:SANS,marginTop:4}}>クラシック音楽レパートリー管理</div>
+        {/* v636: ログイン画面刷新。題字=Parisienne(筆記体)・金/大きく、タグライン=英語「Pieces make history.」(Cormorant斜体)を題字に近接。Yuko判断。
+             _old v633: 題字=SANS22px/#EDE6D6/letterSpacing2・サブ「クラシック音楽レパートリー管理」12px/#94A3BE */}
+        <div style={{textAlign:"center",marginBottom:30}}>
+          <div style={{fontFamily:"'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>
+          <div style={{fontFamily:"'Cormorant Garamond', serif",fontStyle:"italic",fontSize:14,color:"#B9A66B",marginTop:1,letterSpacing:1.5}}>Pieces make history.</div>
         </div>
         {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
              中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
              3モード(login/signup/reset)で最も背が高いのはlogin(メール+パスワード+お忘れリンク)。それに合わせて固定。 */}
         <div style={{minHeight:160,display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {/* v636: placeholderを実例アドレスに（英語圏ユーザーにも用途が一目で伝わる）。_old: placeholder="メールアドレス" */}
             <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
-              placeholder="メールアドレス" style={inpS}/>
+              placeholder="example@email.com" style={inpS}/>
             {/* v626 ② お忘れモード時: パスワード欄を消さず visibility:hidden で隠す(場所は保持)。
                  →消す(display:none)と高さが減ってガタつく。隠すだけなら高さが1pxも変わらない=確実なガタつき防止。企画「パスワード欄を隠す」も満たす。 */}
             <div style={{position:"relative",visibility:resetMode?"hidden":"visible"}}>
               <input type={showPw?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)}
-                placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:52}}
+                placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:44}}
                 onKeyDown={e=>e.key==="Enter"&&handleSubmit()} tabIndex={resetMode?-1:0}/>
-              <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
+              {/* v636: 表示/隠すテキスト→目アイコン(SVG)。サイト内のパスワード変更欄(pwShow)と同一SVG・同一流儀に統一。showPw時は斜線入り。_old: {showPw?"隠す":"表示"}のテキストボタン */}
+              <button onClick={()=>setShowPw(!showPw)} title={showPw?"隠す":"表示"} aria-label={showPw?"パスワードを隠す":"パスワードを表示"} tabIndex={resetMode?-1:0} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+                {showPw ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                )}
+              </button>
             </div>
           </div>
           {/* 補助行(固定枠内): お忘れリンク / リセット案内+戻る / エラー・メッセージ。ここが増減してもminHeightで吸収。 */}
