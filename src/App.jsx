@@ -5130,6 +5130,9 @@ export default function App() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === "PASSWORD_RECOVERY") setRecovery(true); // リセットメールのリンク経由
+      // v635: ログイン成功時は必ず初期ページ(Library=Repertoire)に戻す。pageStateはログインセッションより上位で保持されるため、
+      //   ログアウト時のページ(例:Portfolio)が残り、再ログイン時にそこが開いてしまうバグの修正。Yuko判断(B=ログイン時リセット)。
+      if (_event === "SIGNED_IN") setPage("manage");
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
