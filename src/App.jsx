@@ -4949,7 +4949,15 @@ const AuthPage = ({ onLogin }) => {
     setLoading(true); setError(""); setMessage("");
     if (mode === "signup") {
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) setError(error.message);
+      if (error) {
+        // v643: Supabaseの英語エラーを日本語化(Yuko)。内容で振り分け、未知は汎用メッセージ。
+        const m = (error.message || "").toLowerCase();
+        if (m.includes("password")) setError("パスワードは6文字以上で入力してください。");
+        else if (m.includes("email") && (m.includes("invalid") || m.includes("valid"))) setError("メールアドレスの形式が正しくありません。");
+        else if (m.includes("already") || m.includes("registered") || m.includes("exists")) setError("このメールアドレスは登録手続き中か、既に使われています。");
+        else if (m.includes("rate") || m.includes("too many") || m.includes("seconds")) setError("しばらく時間をおいてから、もう一度お試しください。");
+        else setError("アカウントを作成できませんでした。入力内容をご確認ください。");
+      }
       else setMessage("確認メールを送信しました。メールをご確認ください。");
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -5005,7 +5013,7 @@ const AuthPage = ({ onLogin }) => {
         </div>
         {/* v642: 金ボタン。入力欄とボタンの間に余白(marginTop18)。配色は金背景+紺文字+太字(v637)。 */}
         <button onClick={resetMode?handleResetPassword:handleSubmit} disabled={loading}
-          style={{width:"100%",marginTop:18,padding:"11px",background:"#C8A860",border:"none",
+          style={{width:"100%",marginTop:24,padding:"11px",background:"#C8A860",border:"none",/* v643: PW欄との間を18→24に拡大(Yuko) */
             color:"#1A1206",borderRadius:6,fontSize:14,fontWeight:700,fontFamily:SANS,cursor:"pointer",
             opacity:loading?0.6:1}}>
           {resetMode
@@ -5017,7 +5025,8 @@ const AuthPage = ({ onLogin }) => {
           {error && <div style={{fontSize:12,color:"#C0405A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{error}</div>}
           {message && <div style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{message}</div>}
         </div>
-        {/* v642: 補助リンク=カード下部にまとめる。1行目:新規登録への切替(お忘れモード時はvisibility:hiddenで隠し高さ保持)。2行目:パスワードを再設定する→ / (お忘れ時)←ログインに戻る。 */}
+        {/* v643: 補助リンク2行。両行とも常に要素を置き、表示だけ出し分け(visibility)=どのモードでも高さ一定でガタつき無し(①解決)。2行の色・サイズ・行間を統一(③解決: 文=#7A8FA8/リンク=金#C8A860、fontSize11、行間marginTop6)。 */}
+        {/* 1行目: 新規登録⇔ログインの切替。お忘れモード時は隠す(高さ保持)。 */}
         <div style={{textAlign:"center",marginTop:4,visibility:resetMode?"hidden":"visible",pointerEvents:resetMode?"none":"auto"}}>
           <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
             {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
@@ -5027,17 +5036,16 @@ const AuthPage = ({ onLogin }) => {
             {mode==="login"?"新規登録":"ログイン"}
           </button>
         </div>
-        {/* v642: 再設定リンク行。通常時は「パスワードを再設定する →」(お忘れですか?から変更=忘れていない人も押しやすい能動表現。Yuko判断)。お忘れモード時は「← ログインに戻る」。新規登録モード時は非表示。案内文「登録メールアドレスに…」は削除(ボタン文言が用途を語るため不要)。 */}
-        <div style={{textAlign:"center",marginTop:8,minHeight:16}}>
-          {mode==="login" && !resetMode && (
-            <button onClick={()=>{setResetMode(true);setError("");setMessage("");}} disabled={loading}
-              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+        {/* 2行目: 通常時「パスワードを再設定する →」/お忘れ時「← ログインに戻る」。新規登録モードでは visibility:hidden で場所だけ保持(=消えて縮まない。①ガタつき解消)。色#7A8FA8で1行目と統一(③)。 */}
+        <div style={{textAlign:"center",marginTop:6,visibility:(mode==="signup"&&!resetMode)?"hidden":"visible",pointerEvents:(mode==="signup"&&!resetMode)?"none":"auto"}}>
+          {!resetMode ? (
+            <button onClick={()=>{setResetMode(true);setError("");setMessage("");}} disabled={loading} tabIndex={(mode==="signup")?-1:0}
+              style={{background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
               パスワードを再設定する →
             </button>
-          )}
-          {resetMode && (
+          ) : (
             <button onClick={()=>{setResetMode(false);setError("");setMessage("");}} disabled={loading}
-              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              style={{background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
               ← ログインに戻る
             </button>
           )}
