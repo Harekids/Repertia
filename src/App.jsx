@@ -1980,6 +1980,7 @@ const NOTATION_STYLES = {
 const PrintPage = (props) => {
   const {allPool, pieces} = props;
   const {profile, setProfile, events} = props;
+  const {user} = props; // v645: 実際の認証メール(user.email)をAccountの現在メール表示・判定に使う
   const isMobile = useIsMobile(640); // v441: 学歴status Dropdown等がスコープ先頭でisMobileを参照するため定義位置を先頭へ移動（旧位置は後方2300行台にあり参照より後でクラッシュ＝真っ紺の原因）
   const eduComposingRef = React.useRef(false); // v451: 学歴ステータス自由入力のIME変換中フラグ（⑦のtypeComposingRefは別コンポーネントスコープのため学歴用に新設。学歴は複数行だがフォーカスは常に1行なので単一refで足りる）
   const acctFocusValRef = React.useRef(""); // v619: Account表示名/メールのonBlur判定用。フォーカスした時点の値を覚え、外れた時に変わっていれば1回だけトースト(企画B案)。
@@ -2028,7 +2029,7 @@ const PrintPage = (props) => {
     const v = (emailNew||"").trim();
     if (!v) { setEmailErr("新しいメールアドレスを入力してください。"); return; }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setEmailErr("メールアドレスの形式が正しくありません。"); return; }
-    if (v === (profile.loginEmail||"")) { setEmailErr("現在のメールアドレスと同じです。"); return; }
+    if (v === ((user?.email)||profile.loginEmail||"")) { setEmailErr("現在のメールアドレスと同じです。"); return; }/* v645: 実際の認証メール(user.email)と比較 */
     setEmailLoading(true);
     const { error } = await supabase.auth.updateUser({ email: v });
     if (error) {
@@ -2244,7 +2245,7 @@ const PrintPage = (props) => {
                   {/* v644: メール変更を安全なフローに。現在のアドレスを読み取り表示し、変更は開閉式(新アドレス入力→確認メール送信)。_old: 直接編集するだけで認証メール未変更だった */}
                   {!emailOpen ? (
                     <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <div style={{...inpS,width:"100%",color:"#C5CCD8",display:"flex",alignItems:"center",minHeight:20}}>{profile.loginEmail||"—"}</div>
+                      <div style={{...inpS,width:"100%",color:"#C5CCD8",display:"flex",alignItems:"center",minHeight:20}}>{user?.email||profile.loginEmail||"—"}</div>{/* v645: 実際の認証メール(user.email)を表示。profile.loginEmailは旧プロフィール項目でauth側とズレるためフォールバックのみ */}
                       <button onClick={()=>{setEmailOpen(true);setEmailNew("");setEmailErr("");}} style={{alignSelf:"flex-start",background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>メールアドレスを変更する</button>
                     </div>
                   ) : (
@@ -6070,7 +6071,7 @@ function MainApp({ user, handleLogout, pageState, setPage }) {
           dashChart={dashChart} setDashChart={setDashChart}
           events={events}
         />}
-        {page==="print"  && <PrintPage handleLogout={handleLogout} allPool={allPool} pieces={pieces} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
+        {page==="print"  && <PrintPage user={user}/* v645: Accountで実際の認証メール(user.email)を表示・判定するため渡す */ handleLogout={handleLogout} allPool={allPool} pieces={pieces} profile={profile} setProfile={setProfile} events={events} portfolioTab={portfolioTab} setPortfolioTab={setPortfolioTab} addListItem={addListItem} updateListItem={updateListItem} removeListItem={removeListItem} handlePhoto={handlePhoto} photoInputRef={photoInputRef} generateBio={generateBio} inpS={inpS} lblS={lblS} secTitle={secTitle} addBtn={addBtn} printSection={printSection} saveProfile={saveProfile} profileSaveMsg={profileSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} scratchItems={scratchItems} setScratchItems={setScratchItems} />}
         {page==="events" && <EventsPage events={events} setEvents={setEvents} FONT={FONT} SANS={SANS} allPool={allPool} pieces={pieces} learningIds={learningIds} addPiecesFromProgram={addPiecesFromProgram} registerEventToHistory={registerEventToHistory} saveEvents={saveEvents} eventsSaveMsg={eventsSaveMsg} documents={documents} setDocuments={setDocuments} saveDocuments={saveDocuments} docSaveMsg={docSaveMsg} setDocSaveMsg={setDocSaveMsg} registerNavGuard={registerNavGuard} />}
       </div>
       </div>
