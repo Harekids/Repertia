@@ -5025,8 +5025,7 @@ const AuthPage = ({ onLogin }) => {
                 </button>
               </div>
             )}
-            {error && <div style={{marginTop:8,fontSize:12,color:"#C0405A",fontFamily:SANS}}>{error}</div>}
-            {message && <div style={{marginTop:8,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
+            {/* v641: エラー/成功メッセージは固定枠内から外し、ボタンの下に移動（全認証画面でボタン下に統一）。_old: ここにmarginTop8でerror/messageを表示していた */}
           </div>
         </div>
         {/* メインボタン: 固定枠の下=常に同じ位置。文言だけモードで差し替え(③処理中=送信中…はリセット時) */}
@@ -5040,6 +5039,9 @@ const AuthPage = ({ onLogin }) => {
             : (loading?(mode==="login"?"ログイン中…":"作成中…"):(mode==="login"?"ログイン":"アカウント作成"))}
           {/* v625: 処理中文言=ログイン中…/作成中…に出し分け(企画確定・無機質な「処理中…」をやめる)。リセットは送信中…。 */}
         </button>
+        {/* v641: エラー/成功メッセージをボタンの下に統一配置（SetNewPasswordPageと揃える）。marginTop14でボタンと適度に離す。色は従来通り(赤#C0405A/緑#2A7A3A)。 */}
+        {error && <div style={{marginTop:14,fontSize:12,color:"#C0405A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{error}</div>}
+        {message && <div style={{marginTop:14,fontSize:12,color:"#2A7A3A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{message}</div>}
         {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。
              v632fix ガタつき最終解決: リセット時に{!resetMode&&}で中身を消すとテキスト高さ(1〜2行)が減る。minHeight固定では行数に追従できない。
              →パスワード欄と同じくvisibility:hiddenで中身を残す(場所=高さを保持)。リセット時はリンクを押せないようpointerEvents:noneも付ける。これで1pxも動かない。 */}
@@ -5140,8 +5142,9 @@ const SetNewPasswordPage = ({ onDone }) => {
             ログイン画面へ
           </button>
         )}
-        {error && <div style={{marginTop:12,fontSize:12,color:"#C0405A",fontFamily:SANS}}>{error}</div>}
-        {message && <div style={{marginTop:12,fontSize:12,color:"#2A7A3A",fontFamily:SANS}}>{message}</div>}
+        {/* v641: メッセージ余白・中央寄せ・行間をAuthPageと統一(ボタン下・marginTop14・textAlign center)。色は従来通り。 */}
+        {error && <div style={{marginTop:14,fontSize:12,color:"#C0405A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{error}</div>}
+        {message && <div style={{marginTop:14,fontSize:12,color:"#2A7A3A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{message}</div>}
       </div>
     </div>
   );
