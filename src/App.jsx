@@ -1991,6 +1991,11 @@ const PrintPage = (props) => {
   const [pwErr, setPwErr] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
   const [pwShow, setPwShow] = useState(false);
+  // v644: メールアドレス変更(安全なフロー)。開閉式・新メール入力→supabase.auth.updateUser({email})で確認メール送信。_old: profile.loginEmailを書き換えるだけで認証メール未変更だった(見た目だけ)。
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailNew, setEmailNew] = useState("");
+  const [emailErr, setEmailErr] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
   const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
   const [natOpen, setNatOpen] = useState(false); // v597: 国籍コンボの候補開閉。▼で開く/選択・外クリックで閉じる。フォーカス問題回避のためField外のPrintPageスコープに置く。
   const [snsTypeOpenId, setSnsTypeOpenId] = useState(null); // v606: SNS種類コンボ(国籍方式)。開いている行のidを持つ(複数行のうち1つだけ開く)。null=全閉じ。
@@ -2017,6 +2022,31 @@ const PrintPage = (props) => {
     document.addEventListener('mousedown', onDocDown);
     return () => document.removeEventListener('mousedown', onDocDown);
   }, [snsTypeOpenId]);
+  // v644: メールアドレス変更。updateUser({email})→新アドレスに確認メールが自動送信される。確認リンクを踏むまで実際のログインメールは変わらない(安全)。
+  const handleChangeEmail = async () => {
+    setEmailErr("");
+    const v = (emailNew||"").trim();
+    if (!v) { setEmailErr("新しいメールアドレスを入力してください。"); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setEmailErr("メールアドレスの形式が正しくありません。"); return; }
+    if (v === (profile.loginEmail||"")) { setEmailErr("現在のメールアドレスと同じです。"); return; }
+    setEmailLoading(true);
+    const { error } = await supabase.auth.updateUser({ email: v });
+    if (error) {
+      const m = (error.message||"").toLowerCase();
+      if (m.includes("reauth") || m.includes("session") || m.includes("recent") || m.includes("again")) {
+        setEmailErr("セキュリティのため、一度ログインし直してから変更してください。");
+      } else if (m.includes("already") || m.includes("registered") || m.includes("exists")) {
+        setEmailErr("このメールアドレスは既に使われています。");
+      } else {
+        setEmailErr("変更に失敗しました: " + error.message);
+      }
+      setEmailLoading(false);
+      return;
+    }
+    // 成功: 確認メールを新アドレスに送信済み。確認を踏むまでは未確定。
+    fireToast("新しいアドレスに確認メールを送りました。確認してください");
+    setEmailOpen(false); setEmailNew(""); setEmailLoading(false);
+  };
   const handleChangePassword = async () => {
     setPwErr(""); setPwMsg("");
     if (pwNew.length < 6) { setPwErr("6文字以上にしてください"); return; }
@@ -2211,10 +2241,23 @@ const PrintPage = (props) => {
                 </div>
                 <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
                   <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレス</div>
-                  <input value={profile.loginEmail||""} onChange={e=>setProfile(p=>({...p,loginEmail:e.target.value}))}
-                    onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
-                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("メールアドレスを変更しました"); }/* v619(企画B)→v620(企画A確定): 外れた時に変わっていれば1回だけ「メールアドレスを変更しました」(！なし)。 */}
-                    placeholder="email@example.com" style={{...inpS,width:"100%"}}/>
+                  {/* v644: メール変更を安全なフローに。現在のアドレスを読み取り表示し、変更は開閉式(新アドレス入力→確認メール送信)。_old: 直接編集するだけで認証メール未変更だった */}
+                  {!emailOpen ? (
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <div style={{...inpS,width:"100%",color:"#C5CCD8",display:"flex",alignItems:"center",minHeight:20}}>{profile.loginEmail||"—"}</div>
+                      <button onClick={()=>{setEmailOpen(true);setEmailNew("");setEmailErr("");}} style={{alignSelf:"flex-start",background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>メールアドレスを変更する</button>
+                    </div>
+                  ) : (
+                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                      <input type="email" value={emailNew} onChange={e=>setEmailNew(e.target.value)} placeholder="新しいメールアドレス" style={{...inpS,width:"100%"}}/>
+                      <div style={{display:"flex",flexDirection:"row",gap:isMobile?10:16,alignItems:"center",justifyContent:"flex-end"}}>
+                        <button onClick={()=>{setEmailOpen(false);setEmailNew("");setEmailErr("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
+                        <button onClick={handleChangeEmail} disabled={emailLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:emailLoading?0.6:1,flexShrink:0}}>{emailLoading?"送信中...":"確認メールを送る"}</button>
+                      </div>
+                      {emailErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{emailErr}</div>}
+                      <div style={{fontSize:10,color:"#7A8FA8",fontFamily:FONT,lineHeight:1.6}}>新しいアドレスに確認メールを送ります。メール内のリンクを開くと変更が完了します。</div>
+                    </div>
+                  )}
                 </div>
               </div>
               {/* ログインパスワード(単独行) v616(企画確定A): ラベル「ログインパスワード」を追加し表示名/ログイン用メールと同じ「ラベル+中身」構造に揃える。
