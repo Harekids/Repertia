@@ -5060,6 +5060,7 @@ const AuthPage = ({ onLogin }) => {
 // ── v156: パスワード再設定画面（リセットメールのリンクから来た時） ──
 const SetNewPasswordPage = ({ onDone }) => {
   const SANS = "'Noto Sans JP', sans-serif";
+  const isMobile = useIsMobile(640); // v640: 入力欄フォントをスマホ16/PC14に出し分け(AuthPageと統一)
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -5067,10 +5068,12 @@ const SetNewPasswordPage = ({ onDone }) => {
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [showPw, setShowPw] = useState(false);
+  const [showPw2, setShowPw2] = useState(false); // v640: 確認用パスワードの表示切替(両欄に目アイコン。Yuko判断B)
 
-  const inpS = { width:"100%", padding:"10px 12px", border:"1px solid #1E2A45",
-    borderRadius:6, fontSize:14, fontFamily:SANS, color:"#EDE6D6",
-    background:"#15233F", boxSizing:"border-box", outline:"none" };
+  // v640: ログイン画面(AuthPage)と完全に同一トーンに統一。白系#F5F7FA+紺文字#1A2A4A+枠#D8DEE9・fontSizeスマホ16/PC14・padding縦8。_old v633: bg#15233F・文字#EDE6D6・14px・枠#1E2A45
+  const inpS = { width:"100%", padding:"8px 12px", border:"1px solid #D8DEE9",
+    borderRadius:6, fontSize:isMobile?16:14, fontFamily:SANS, color:"#1A2A4A",
+    background:"#F5F7FA", boxSizing:"border-box", outline:"none" };
 
   const handleSetNewPassword = async () => {
     setError(""); setMessage("");
@@ -5087,31 +5090,53 @@ const SetNewPasswordPage = ({ onDone }) => {
 
   return (
     <div style={{height:"100vh",background:"#0F1A33",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      {/* v640: ログイン入力欄のplaceholderを薄く(AuthPageと統一)。 */}
+      <style>{".rp-auth-input::placeholder{color:#BAC3D1;opacity:1;}"}</style>
       <div style={{background:"#15233F",borderRadius:12,padding:"40px 36px",width:"100%",maxWidth:400,boxShadow:"0 4px 24px rgba(0,0,0,0.08)"}}>
+        {/* v640: 題字をAuthPageと同一(RepertiaScript/金/46px)に統一。サブタイトルは機能説明なので残す。_old v633: SANS22px/#EDE6D6/letterSpacing2 */}
         <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{fontSize:22,fontWeight:"bold",color:"#EDE6D6",fontFamily:SANS,letterSpacing:2}}>Repertia</div>
+          <div style={{fontFamily:"'RepertiaScript', 'Parisienne', cursive",fontSize:46,color:"#C8A860",lineHeight:1.05}}>Repertia</div>
           <div style={{fontSize:13,color:"#A8B4C8",fontFamily:SANS,marginTop:8}}>新しいパスワードを設定</div>
         </div>
         {!done ? (
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{position:"relative"}}>
-              <input type={showPw?"text":"password"} value={newPassword} onChange={e=>setNewPassword(e.target.value)}
-                placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:52}}/>
-              <button onClick={()=>setShowPw(!showPw)} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",fontSize:11,fontFamily:SANS,cursor:"pointer",padding:0}}>{showPw?"隠す":"表示"}</button>
+              <input type={showPw?"text":"password"} className="rp-auth-input" value={newPassword} onChange={e=>setNewPassword(e.target.value)}
+                placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:44}}/>
+              {/* v640: 表示/隠すテキスト→目アイコン(SVG)。AuthPageと同一流儀。 */}
+              <button onClick={()=>setShowPw(!showPw)} title={showPw?"隠す":"表示"} aria-label={showPw?"パスワードを隠す":"パスワードを表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+                {showPw ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                )}
+              </button>
             </div>
-            <input type={showPw?"text":"password"} value={confirm} onChange={e=>setConfirm(e.target.value)}
-              placeholder="新しいパスワード（確認）" style={inpS}
-              onKeyDown={e=>e.key==="Enter"&&handleSetNewPassword()}/>
+            <div style={{position:"relative"}}>
+              <input type={showPw2?"text":"password"} className="rp-auth-input" value={confirm} onChange={e=>setConfirm(e.target.value)}
+                placeholder="新しいパスワード（確認）" style={{...inpS,paddingRight:44}}
+                onKeyDown={e=>e.key==="Enter"&&handleSetNewPassword()}/>
+              {/* v640: 確認用パスワードにも目アイコン追加(Yuko判断B)。 */}
+              <button onClick={()=>setShowPw2(!showPw2)} title={showPw2?"隠す":"表示"} aria-label={showPw2?"パスワードを隠す":"パスワードを表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+                {showPw2 ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                )}
+              </button>
+            </div>
+            {/* v640: ボタン配色をAuthPageと統一(金背景+紺文字+太字)。_old v633: background#0F1A33・color#C8A860 */}
             <button onClick={handleSetNewPassword} disabled={loading}
-              style={{width:"100%",marginTop:8,padding:"11px",background:"#0F1A33",border:"none",
-                color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer",opacity:loading?0.6:1}}>
+              style={{width:"100%",marginTop:8,padding:"11px",background:"#C8A860",border:"none",
+                color:"#1A1206",borderRadius:6,fontSize:14,fontWeight:700,fontFamily:SANS,cursor:"pointer",opacity:loading?0.6:1}}>
               {loading?"処理中...":"パスワードを更新する"}
             </button>
           </div>
         ) : (
+          /* v640: 完了後ボタンも金背景+紺文字+太字に統一。_old v633: background#0F1A33・color#C8A860 */
           <button onClick={onDone}
-            style={{width:"100%",padding:"11px",background:"#0F1A33",border:"none",
-              color:"#C8A860",borderRadius:6,fontSize:14,fontFamily:SANS,cursor:"pointer"}}>
+            style={{width:"100%",padding:"11px",background:"#C8A860",border:"none",
+              color:"#1A1206",borderRadius:6,fontSize:14,fontWeight:700,fontFamily:SANS,cursor:"pointer"}}>
             ログイン画面へ
           </button>
         )}
