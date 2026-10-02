@@ -4966,7 +4966,7 @@ const AuthPage = ({ onLogin }) => {
       redirectTo: window.location.origin + "/reset-password"
     });
     if (error) setError("送信に失敗しました: " + error.message);
-    else setMessage("パスワード再設定メールを送りました。メールボックスをご確認ください（迷惑メールフォルダもご確認ください）。");
+    else setMessage("登録アドレスに再設定メールを送りました。ご確認ください。");/* v642: 文言簡潔化(Yuko)。「登録アドレスに」で登録済みなら届くことを示す。迷惑フォルダ注記は削除(未登録アドレスの場合、来ないメールを探し続けさせないため)。_old: パスワード再設定メールを送りました。メールボックスを…（迷惑メールフォルダも…） */
     setLoading(false);
   };
 
@@ -4982,70 +4982,43 @@ const AuthPage = ({ onLogin }) => {
           {/* v637: タグライン「Pieces make history.」は一旦ログイン画面から外す（位置が定まらない／単体ではアプリ内容が伝わらないためYuko判断）。コピー自体は温存=将来Portfolio/LP等で使用候補。{false&&}で無効化し消さない原則を守る。 */}
           {false && <div style={{fontFamily:"'Cormorant Garamond', serif",fontStyle:"italic",fontSize:14,color:"#B9A66B",marginTop:1,letterSpacing:1.5}}>Pieces make history.</div>}
         </div>
-        {/* v623 ① 切替リンク型 + v624 ガタつき対策: メインボタンより上を固定高さ(minHeight)コンテナに入れ、
-             中身(パスワード欄/リンク/案内/エラー)が増減してもカード高さ=ボタン位置が動かないようにする。
-             3モード(login/signup/reset)で最も背が高いのはlogin(メール+パスワード+お忘れリンク)。それに合わせて固定。 */}
-        <div style={{minHeight:160,display:"flex",flexDirection:"column"}}>
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            {/* v636: placeholderを実例アドレスに（英語圏ユーザーにも用途が一目で伝わる）。_old: placeholder="メールアドレス" */}
-            <input type="email" className="rp-auth-input" value={email} onChange={e=>setEmail(e.target.value)}
-              placeholder="example@email.com" style={inpS}/>
-            {/* v626 ② お忘れモード時: パスワード欄を消さず visibility:hidden で隠す(場所は保持)。
-                 →消す(display:none)と高さが減ってガタつく。隠すだけなら高さが1pxも変わらない=確実なガタつき防止。企画「パスワード欄を隠す」も満たす。 */}
-            <div style={{position:"relative",visibility:resetMode?"hidden":"visible"}}>
-              <input type={showPw?"text":"password"} className="rp-auth-input" value={password} onChange={e=>setPassword(e.target.value)}
-                placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:44}}
-                onKeyDown={e=>e.key==="Enter"&&handleSubmit()} tabIndex={resetMode?-1:0}/>
-              {/* v636: 表示/隠すテキスト→目アイコン(SVG)。サイト内のパスワード変更欄(pwShow)と同一SVG・同一流儀に統一。showPw時は斜線入り。_old: {showPw?"隠す":"表示"}のテキストボタン */}
-              <button onClick={()=>setShowPw(!showPw)} title={showPw?"隠す":"表示"} aria-label={showPw?"パスワードを隠す":"パスワードを表示"} tabIndex={resetMode?-1:0} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
-                {showPw ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
-                )}
-              </button>
-            </div>
-          </div>
-          {/* 補助行(固定枠内): お忘れリンク / リセット案内+戻る / エラー・メッセージ。ここが増減してもminHeightで吸収。 */}
-          <div style={{marginTop:8,flex:1}}>
-            {mode==="login" && !resetMode && (
-              <div style={{textAlign:"right"}}>
-                <button onClick={()=>{setResetMode(true);setError("");setMessage("");}} disabled={loading}
-                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
-                  パスワードをお忘れですか？
-                </button>
-              </div>
-            )}
-            {resetMode && (
-              <div>
-                <div style={{fontSize:11,color:"#94A3BE",fontFamily:SANS,marginBottom:4}}>登録メールアドレスに再設定リンクを送ります。</div>
-                <button onClick={()=>{setResetMode(false);setError("");setMessage("");}} disabled={loading}
-                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
-                  ← ログインに戻る
-                </button>
-              </div>
-            )}
-            {/* v641: エラー/成功メッセージは固定枠内から外し、ボタンの下に移動（全認証画面でボタン下に統一）。_old: ここにmarginTop8でerror/messageを表示していた */}
+        {/* v642: ログイン画面を固定レイアウトに再設計(Yuko)。上から 入力欄 / 金ボタン / メッセージ枠(固定・常時確保でガタつき無し) / 補助リンク(新規登録・再設定/戻る)。
+             旧minHeight固定枠+隠れリンク方式をやめ、各部をシンプルに固定。お忘れモードはPW欄をvisibility:hiddenで隠し高さ保持(ガタつき防止は踏襲)。 */}
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          {/* v636: placeholderを実例アドレスに(英語圏ユーザーにも用途が伝わる)。_old: placeholder="メールアドレス" */}
+          <input type="email" className="rp-auth-input" value={email} onChange={e=>setEmail(e.target.value)}
+            placeholder="example@email.com" style={inpS}/>
+          {/* v626 お忘れモード時: PW欄をvisibility:hiddenで隠す(場所=高さ保持でガタつき防止)。 */}
+          <div style={{position:"relative",visibility:resetMode?"hidden":"visible"}}>
+            <input type={showPw?"text":"password"} className="rp-auth-input" value={password} onChange={e=>setPassword(e.target.value)}
+              placeholder="パスワード（6文字以上）" style={{...inpS,paddingRight:44}}
+              onKeyDown={e=>e.key==="Enter"&&handleSubmit()} tabIndex={resetMode?-1:0}/>
+            {/* v636: 目アイコン(SVG)。showPw時は斜線入り。サイト内と同一流儀。 */}
+            <button onClick={()=>setShowPw(!showPw)} title={showPw?"隠す":"表示"} aria-label={showPw?"パスワードを隠す":"パスワードを表示"} tabIndex={resetMode?-1:0} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+              {showPw ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
+              )}
+            </button>
           </div>
         </div>
-        {/* メインボタン: 固定枠の下=常に同じ位置。文言だけモードで差し替え(③処理中=送信中…はリセット時) */}
-        {/* v637: ボタン配色を逆転(背景金#C8A860+紺文字#1A1206+太字)。入力欄が白系になり、従来の紺背景+金文字は沈んで押せる感が弱かったため。サイトのタブ選択中(金塗り+紺文字)とも統一。Yuko判断。_old v636: background#0F1A33・color#C8A860・fontWeight無し */}
+        {/* v642: 金ボタン。入力欄とボタンの間に余白(marginTop18)。配色は金背景+紺文字+太字(v637)。 */}
         <button onClick={resetMode?handleResetPassword:handleSubmit} disabled={loading}
-          style={{width:"100%",padding:"11px",background:"#C8A860",border:"none",
+          style={{width:"100%",marginTop:18,padding:"11px",background:"#C8A860",border:"none",
             color:"#1A1206",borderRadius:6,fontSize:14,fontWeight:700,fontFamily:SANS,cursor:"pointer",
             opacity:loading?0.6:1}}>
           {resetMode
             ? (loading?"送信中…":"再設定メールを送る")
             : (loading?(mode==="login"?"ログイン中…":"作成中…"):(mode==="login"?"ログイン":"アカウント作成"))}
-          {/* v625: 処理中文言=ログイン中…/作成中…に出し分け(企画確定・無機質な「処理中…」をやめる)。リセットは送信中…。 */}
         </button>
-        {/* v641: エラー/成功メッセージをボタンの下に統一配置（SetNewPasswordPageと揃える）。marginTop14でボタンと適度に離す。色は従来通り(赤#C0405A/緑#2A7A3A)。 */}
-        {error && <div style={{marginTop:14,fontSize:12,color:"#C0405A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{error}</div>}
-        {message && <div style={{marginTop:14,fontSize:12,color:"#2A7A3A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{message}</div>}
-        {/* v623 ① 切替リンク(控えめ): ログイン⇔新規登録。
-             v632fix ガタつき最終解決: リセット時に{!resetMode&&}で中身を消すとテキスト高さ(1〜2行)が減る。minHeight固定では行数に追従できない。
-             →パスワード欄と同じくvisibility:hiddenで中身を残す(場所=高さを保持)。リセット時はリンクを押せないようpointerEvents:noneも付ける。これで1pxも動かない。 */}
-        <div style={{textAlign:"center",marginTop:16,visibility:resetMode?"hidden":"visible",pointerEvents:resetMode?"none":"auto"}}>
+        {/* v642: メッセージ枠=金ボタンの直下に固定スペース(最小2行分≒minHeight40)を常時確保。中身の有無でカード高さが変わらない=ガタつき無し。色は従来通り(赤#C0405A/緑#2A7A3A)。 */}
+        <div style={{minHeight:40,marginTop:12,display:"flex",alignItems:"flex-start",justifyContent:"center"}}>
+          {error && <div style={{fontSize:12,color:"#C0405A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{error}</div>}
+          {message && <div style={{fontSize:12,color:"#2A7A3A",fontFamily:SANS,textAlign:"center",lineHeight:1.6}}>{message}</div>}
+        </div>
+        {/* v642: 補助リンク=カード下部にまとめる。1行目:新規登録への切替(お忘れモード時はvisibility:hiddenで隠し高さ保持)。2行目:パスワードを再設定する→ / (お忘れ時)←ログインに戻る。 */}
+        <div style={{textAlign:"center",marginTop:4,visibility:resetMode?"hidden":"visible",pointerEvents:resetMode?"none":"auto"}}>
           <span style={{fontSize:11,color:"#7A8FA8",fontFamily:SANS}}>
             {mode==="login"?"アカウントをお持ちでない方は ":"アカウントをお持ちの方は "}
           </span>
@@ -5053,6 +5026,21 @@ const AuthPage = ({ onLogin }) => {
             style={{background:"none",border:"none",color:"#C8A860",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
             {mode==="login"?"新規登録":"ログイン"}
           </button>
+        </div>
+        {/* v642: 再設定リンク行。通常時は「パスワードを再設定する →」(お忘れですか?から変更=忘れていない人も押しやすい能動表現。Yuko判断)。お忘れモード時は「← ログインに戻る」。新規登録モード時は非表示。案内文「登録メールアドレスに…」は削除(ボタン文言が用途を語るため不要)。 */}
+        <div style={{textAlign:"center",marginTop:8,minHeight:16}}>
+          {mode==="login" && !resetMode && (
+            <button onClick={()=>{setResetMode(true);setError("");setMessage("");}} disabled={loading}
+              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              パスワードを再設定する →
+            </button>
+          )}
+          {resetMode && (
+            <button onClick={()=>{setResetMode(false);setError("");setMessage("");}} disabled={loading}
+              style={{background:"none",border:"none",color:"#94A3BE",fontSize:11,fontFamily:SANS,cursor:"pointer",textDecoration:"underline",padding:0}}>
+              ← ログインに戻る
+            </button>
+          )}
         </div>
       </div>
     </div>
