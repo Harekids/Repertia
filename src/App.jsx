@@ -72,6 +72,8 @@ const FontLoader = () => {
 //   ログイン画面のSANS（別定義）・配色（紺）・太さ（600）は今回対象外。
 const SANS = "-apple-system, BlinkMacSystemFont, sans-serif";
 const FONT = "'Montserrat','Zen Kaku Gothic New','Noto Sans JP',sans-serif";
+// v646: お問い合わせ窓口アドレス。ここ1箇所を変えれば全箇所に反映(将来 info@repertia.com 等への格上げが1行で済む)。
+const CONTACT_EMAIL = "repertia.app@gmail.com";
 
 // ── Repertiaフォーム共通土台（v354・案A）───────────────────────────────────────
 // 全フォーム（AddEvent/イベント編集/ピース編集/AddPiece/検索カード）の入力欄・ラベル・
@@ -2083,6 +2085,8 @@ const PrintPage = (props) => {
   const [showBioPanel, setShowBioPanel] = useState(false);
   const [hamPfOpen, setHamPfOpen] = useState(false); // v196: Portfolioの三線メニュー
   const hamPfRef = useCloseOnOutsideClick(hamPfOpen, () => setHamPfOpen(false)); // v276
+  const [hamAcctOpen, setHamAcctOpen] = useState(false); // v646: Accountの三線メニュー(お問い合わせ・ログアウト等を集約)
+  const hamAcctRef = useCloseOnOutsideClick(hamAcctOpen, () => setHamAcctOpen(false)); // v646
   const [scratchDragId, setScratchDragId] = useState(null);
   const [scratchOverId, setScratchOverId] = useState(null);
   const onScratchDragEnd = () => {
@@ -2222,10 +2226,26 @@ const PrintPage = (props) => {
             {/* ── アカウント情報 ── */}
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:13,marginBottom:40,marginTop:19}}>
               <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>Account</span>
-              <button onClick={handleLogout}
-                style={{background:"none",border:"none",color:"#9A8868",cursor:"pointer",fontSize:12,fontFamily:FONT,padding:0,letterSpacing:"0.03em"}}>
-                ログアウト
-              </button>
+              {/* v646: 右上を三線メニュー(≡)に。お問い合わせ・ログアウトを集約(将来は規約・退会もここへ)。Biographyの≡と同じ流儀。_old: ログアウト単独のテキストボタン */}
+              <div style={{position:"relative"}} ref={hamAcctRef}>
+                <button onClick={()=>setHamAcctOpen(v=>!v)} title="メニュー"
+                  style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
+                  ≡
+                </button>
+                {hamAcctOpen && (
+                  <div style={{position:"absolute",right:0,top:"110%",background:"#1C2E4A",border:"1px solid #2A3F6A",borderRadius:6,zIndex:50,minWidth:170,boxShadow:"0 4px 12px rgba(0,0,0,0.3)"}}>
+                    <a href={"mailto:"+CONTACT_EMAIL} onClick={()=>setHamAcctOpen(false)}
+                      style={{display:"block",width:"100%",textAlign:"left",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT,textDecoration:"none",boxSizing:"border-box"}}>
+                      お問い合わせ
+                    </a>
+                    <div style={{borderTop:"1px solid #2A3F6A"}}/>
+                    <button onClick={()=>{setHamAcctOpen(false);handleLogout();}}
+                      style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",color:"#EDE6D6",padding:"10px 14px",cursor:"pointer",fontSize:12,fontFamily:FONT}}>
+                      ログアウト
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             {/* v612 Account整理(企画): PC=表示名+ログイン用メールを1行横並び(Biographyと同じ「PC列/スマホ縦」)。パスワードは単独行。
                  入力欄はボックス(inpS)のまま。①「変更を保存」は金背景+白・細文字に統一。旧共用UIは下記{false&&}温存。
