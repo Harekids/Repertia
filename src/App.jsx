@@ -2259,14 +2259,14 @@ const PrintPage = (props) => {
                 {!nameEditOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>表示名</div>
+                      <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:4}}>表示名</div>
                       <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT}}>{profile.displayName||"—"}</div>
                     </div>
                     <button onClick={()=>setNameEditOpen(true)} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
                   </div>
                 ) : (
                   <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
+                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
                     <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,width:"100%"}}/>
                     <div style={{display:"flex",justifyContent:"flex-end",gap:isMobile?10:16}}>
                       <button onClick={()=>setNameEditOpen(false)} style={{background:"#C8A860",border:"none",color:"#1A1206",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontWeight:500,fontFamily:FONT}}>完了</button>
@@ -2280,14 +2280,14 @@ const PrintPage = (props) => {
                 {!emailOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>ログイン用メールアドレス</div>
+                      <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:4}}>ログイン用メールアドレス</div>
                       <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis"}/* v647: メアドを濃い文字に(旧#C5CCD8は薄すぎ) */}>{user?.email||profile.loginEmail||"—"}</div>
                     </div>
                     <button onClick={()=>{setEmailOpen(true);setEmailNew("");setEmailErr("");}} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
                   </div>
                 ) : (
                   <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレスの変更</div>
+                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレスの変更</div>
                     <input type="email" value={emailNew} onChange={e=>setEmailNew(e.target.value)} placeholder="新しいメールアドレス" style={{...inpS,width:"100%"}}/>
                     <div style={{display:"flex",justifyContent:"flex-end",gap:isMobile?10:16}}>
                       <button onClick={()=>{setEmailOpen(false);setEmailNew("");setEmailErr("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>キャンセル</button>
@@ -2304,14 +2304,14 @@ const PrintPage = (props) => {
                 {!pwOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
-                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>ログインパスワード</div>
+                      <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:4}}>ログインパスワード</div>
                       <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT,letterSpacing:2}}>••••••••</div>
                     </div>
                     <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
                   </div>
                 ) : (
                   <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログインパスワードの変更</div>
+                    <div style={{fontSize:10,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログインパスワードの変更</div>
                     <div style={{position:"relative"}}>
                       <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:40,width:"100%"}}/>
                       <button onClick={()=>setPwShow(!pwShow)} title={pwShow?"隠す":"表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
@@ -2461,7 +2461,7 @@ const PrintPage = (props) => {
             {(() => {
               // 下線入力欄の共通スタイル(グレー破線)
               const uLine = {
-                background:"transparent", border:"none", borderBottom:"1px solid #8A97AD",/* v647: 破線dashed→実線solid(Accountと世界観統一) */
+                background:"transparent", border:"none", borderBottom:"1px solid #26334d",/* v647: 破線dashed→実線solid＋下線色をAccountに統一(#8A97AD→#26334d) */
                 color:"#EDE6D6", padding:"5px 2px 5px 10px", fontFamily:FONT, fontSize:14,
                 width:"100%", boxSizing:"border-box", outline:"none"
               };
@@ -2586,7 +2586,7 @@ const PrintPage = (props) => {
                 <div key={c.id} style={{display:"flex",alignItems:"flex-end",gap:8}}>
                   <input value={c.text||""} onChange={e=>updateListItem("careers",c.id,{text:e.target.value})}
                     placeholder={idx===0?"3歳より◯◯音楽教室で△△氏に師事":(idx===1?"2010年　◯◯音楽大学　入学":"")}/* v607: 例文は1・2行目だけ。3行目以降(idx>=2)は空欄(書き方は最初の2行で伝わる)。 */
-                    style={{background:"transparent",border:"none",borderBottom:"1px solid #8A97AD",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
+                    style={{background:"transparent",border:"none",borderBottom:"1px solid #26334d",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
                   <button type="button" onClick={()=>removeListItem("careers",c.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
                 </div>
               ))}
@@ -5239,6 +5239,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [pageState, setPage] = useState("manage");
   const [recovery, setRecovery] = useState(false); // パスワード再設定リンクから来た状態
+  const prevUserIdRef = React.useRef(null); // v647: 「未ログイン→ログイン」の瞬間だけLibraryに戻すための前回user判定。他サイト往復でSIGNED_INが再発火してもページを保つ。
 
   useEffect(() => {
     // A/②: ブラウザ標準の白背景・両脇の白い線を消す（body/html/#root を紺に、枠線を除去）
@@ -5257,14 +5258,19 @@ export default function App() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      const u = session?.user ?? null;
+      prevUserIdRef.current = u?.id ?? null; // v647: 初回のセッション復元はログインとみなさない(ページを保つ)
+      setUser(u);
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === "PASSWORD_RECOVERY") setRecovery(true); // リセットメールのリンク経由
-      // v635: ログイン成功時は必ず初期ページ(Library=Repertoire)に戻す。pageStateはログインセッションより上位で保持されるため、
-      //   ログアウト時のページ(例:Portfolio)が残り、再ログイン時にそこが開いてしまうバグの修正。Yuko判断(B=ログイン時リセット)。
-      if (_event === "SIGNED_IN") setPage("manage");
+      // v635/v647: 「未ログイン→ログイン」に実際に切り替わった瞬間だけ初期ページ(Library)に戻す。
+      //   v635は_event==="SIGNED_IN"で毎回リセットしていたが、他サイトへ行って戻るとSupabaseが既存セッションに対しSIGNED_INを
+      //   再発火させ、開いていたページ(例:Portfolio)が勝手にLibraryに戻るバグになっていた。前回userIdと比較し null→値 の遷移に限定する。
+      const nextId = session?.user?.id ?? null;
+      if (nextId && !prevUserIdRef.current) setPage("manage");
+      prevUserIdRef.current = nextId;
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
