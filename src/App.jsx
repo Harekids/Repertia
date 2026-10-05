@@ -1999,6 +1999,7 @@ const PrintPage = (props) => {
   const [emailNew, setEmailNew] = useState("");
   const [emailErr, setEmailErr] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
+  const [nameEditOpen, setNameEditOpen] = useState(false); // v647: 表示名も「変更」ボタンで開く統一UIに
   const [showProfileDetail, setShowProfileDetail] = useState(false); // v165: プロフィール詳細の開閉（普段は畳む）
   const [natOpen, setNatOpen] = useState(false); // v597: 国籍コンボの候補開閉。▼で開く/選択・外クリックで閉じる。フォーカス問題回避のためField外のPrintPageスコープに置く。
   const [snsTypeOpenId, setSnsTypeOpenId] = useState(null); // v606: SNS種類コンボ(国籍方式)。開いている行のidを持つ(複数行のうち1つだけ開く)。null=全閉じ。
@@ -2223,10 +2224,10 @@ const PrintPage = (props) => {
           <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px 140px",boxSizing:"border-box"}}>
 
 
-            {/* ── アカウント情報 ── */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:13,marginBottom:40,marginTop:19}}>
+            {/* ── アカウント情報 ── v647: 統一デザイン。見出し下=エラバーと同サイズのグレー帯(height10/radius5)。各項目=ラベル+現在値+[変更]、薄い実線で区切り。開閉は既存ロジック(nameEditOpen/emailOpen/pwOpen)流用。メアドは濃い文字(#EDE6D6)。 */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:19}}>
               <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>Account</span>
-              {/* v646: 右上を三線メニュー(≡)に。お問い合わせ・ログアウトを集約(将来は規約・退会もここへ)。Biographyの≡と同じ流儀。_old: ログアウト単独のテキストボタン */}
+              {/* 右上=三線メニュー(≡): お問い合わせ・ログアウト集約 */}
               <div style={{position:"relative"}} ref={hamAcctRef}>
                 <button onClick={()=>setHamAcctOpen(v=>!v)} title="メニュー"
                   style={{background:"none",border:"none",color:"#94A3BE",fontSize:16,cursor:"pointer",padding:"3px 5px",lineHeight:1,width:28,height:28,display:"inline-flex",alignItems:"center",justifyContent:"center"}}>
@@ -2247,72 +2248,93 @@ const PrintPage = (props) => {
                 )}
               </div>
             </div>
-            {/* v612 Account整理(企画): PC=表示名+ログイン用メールを1行横並び(Biographyと同じ「PC列/スマホ縦」)。パスワードは単独行。
-                 入力欄はボックス(inpS)のまま。①「変更を保存」は金背景+白・細文字に統一。旧共用UIは下記{false&&}温存。
-                 v615: Biographyと同じ左右インデント(PC24/スマホ12)で囲む・ボックス間gapもBiographyと同じ24に統一。 */}
-            <div style={{display:"flex",flexDirection:"column",gap:28,marginBottom:56,paddingLeft:isMobile?12:24,paddingRight:isMobile?12:24}}>
-              {/* 表示名 + ログイン用メール(PC横並び/スマホ縦積み) */}
-              <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:"flex-start"}/* v615: gapをBiographyと同じ(PC24/スマホ18)に。 */}>
-                <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
-                  <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
-                  <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))}
-                    onFocus={e=>{acctFocusValRef.current=e.target.value;}/* v619: フォーカス時の値を記録 */}
-                    onBlur={e=>{ if(e.target.value!==acctFocusValRef.current) fireToast("表示名を変更しました"); }/* v619(企画B)→v620(企画A確定): 外れた時に変わっていれば1回だけ「表示名を変更しました」(！なし・Account操作は淡々と統一)。 */}
-                    placeholder="" style={{...inpS,width:"100%"}}/>
-                </div>
-                <div style={{flex:isMobile?"none":"1 1 0",width:isMobile?"100%":"auto",display:"flex",flexDirection:"column",gap:6}}>
-                  <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレス</div>
-                  {/* v644: メール変更を安全なフローに。現在のアドレスを読み取り表示し、変更は開閉式(新アドレス入力→確認メール送信)。_old: 直接編集するだけで認証メール未変更だった */}
-                  {!emailOpen ? (
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <div style={{...inpS,width:"100%",color:"#C5CCD8",display:"flex",alignItems:"center",minHeight:20}}>{user?.email||profile.loginEmail||"—"}</div>{/* v645: 実際の認証メール(user.email)を表示。profile.loginEmailは旧プロフィール項目でauth側とズレるためフォールバックのみ */}
-                      <button onClick={()=>{setEmailOpen(true);setEmailNew("");setEmailErr("");}} style={{alignSelf:"flex-start",background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>メールアドレスを変更する</button>
+            {/* v647: 見出し下の区切り=エラバーと同サイズのグレー帯(height10/radius5/幅いっぱい)。セクションの頭を強調し、下の項目の薄い実線と階層差をつける。Yuko判断(色はグレー#4A5A7A・臙脂はバロック色と被るため不採用)。 */}
+            <div style={{height:10,borderRadius:5,background:"#4A5A7A",marginBottom:28}}/>
+
+            {/* v647: Account項目群。各行=ラベル+現在値+[変更]、薄い実線(1px #26334d)で区切り。開閉時は同じ土台の中で入力欄に切り替わる。 */}
+            <div style={{display:"flex",flexDirection:"column",paddingLeft:isMobile?12:24,paddingRight:isMobile?12:24}}>
+
+              {/* ── 表示名 ── */}
+              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+                {!nameEditOpen ? (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+                    <div style={{minWidth:0}}>
+                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>表示名</div>
+                      <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT}}>{profile.displayName||"—"}</div>
                     </div>
-                  ) : (
-                    <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                      <input type="email" value={emailNew} onChange={e=>setEmailNew(e.target.value)} placeholder="新しいメールアドレス" style={{...inpS,width:"100%"}}/>
-                      <div style={{display:"flex",flexDirection:"row",gap:isMobile?10:16,alignItems:"center",justifyContent:"flex-end"}}>
-                        <button onClick={()=>{setEmailOpen(false);setEmailNew("");setEmailErr("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
-                        <button onClick={handleChangeEmail} disabled={emailLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:emailLoading?0.6:1,flexShrink:0}}>{emailLoading?"送信中...":"確認メールを送る"}</button>
-                      </div>
-                      {emailErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{emailErr}</div>}
-                      <div style={{fontSize:10,color:"#7A8FA8",fontFamily:FONT,lineHeight:1.6}}>新しいアドレスに確認メールを送ります。メール内のリンクを開くと変更が完了します。</div>
+                    <button onClick={()=>setNameEditOpen(true)} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
+                  </div>
+                ) : (
+                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>表示名</div>
+                    <input value={profile.displayName||""} onChange={e=>setProfile(p=>({...p,displayName:e.target.value}))} placeholder="" style={{...inpS,width:"100%"}}/>
+                    <div style={{display:"flex",justifyContent:"flex-end",gap:isMobile?10:16}}>
+                      <button onClick={()=>setNameEditOpen(false)} style={{background:"#C8A860",border:"none",color:"#1A1206",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontWeight:500,fontFamily:FONT}}>完了</button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-              {/* ログインパスワード(単独行) v616(企画確定A): ラベル「ログインパスワード」を追加し表示名/ログイン用メールと同じ「ラベル+中身」構造に揃える。
-                   ボタン=「パスワードを変更する」(目的語を残し単体で意味完結)。 */}
-              <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログインパスワード</div>
-                <div style={{maxWidth:pwOpen?760:360}/* v612: 展開時は1行に4要素並ぶため幅を広げる(閉じてる時は360)。 */}>
-                  {!pwOpen ? (
-                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>パスワードを変更する</button>
-                  ) : (
-                    <div style={{display:"flex",flexDirection:"column",gap:8}/* v612 パスワード展開: 入力2つ＋ボタン2つを1行に横並び(企画)。 */}>
-                      <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:isMobile?18:24,alignItems:isMobile?"stretch":"center",flexWrap:"wrap"}/* v615: ボックス間gapをBiographyと同じ(PC24/スマホ18)に統一。並び順=新パスワード/確認/キャンセル/変更を保存(企画)。 */}>
-                        <div style={{position:"relative",flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":140}}>
-                          <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:40,width:"100%"}}/>
-                          <button onClick={()=>setPwShow(!pwShow)} title={pwShow?"隠す":"表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
-                            {pwShow ? (
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
-                            ) : (
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
-                            )}
-                          </button>
-                        </div>
-                        <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認用）" style={{...inpS,flex:isMobile?"none":"1 1 0",minWidth:isMobile?"auto":120,width:isMobile?"100%":"auto"}}/>
-                        <div style={{display:"flex",flexDirection:"row",gap:isMobile?10:24,alignItems:"center",flexShrink:0,width:isMobile?"100%":"auto",justifyContent:"flex-end"}/* v616(企画): ボタン2つ(キャンセル左・変更を保存右)。右寄せ=「パスワード欄内の操作」と一致(中央だとページ全体保存に見える)。PCも結果的に右で一貫。 */}>
-                          <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,flexShrink:0}}>キャンセル</button>
-                          <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#FFFFFF",padding:"5px 14px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT,fontWeight:400,opacity:pwLoading?0.6:1,flexShrink:0}/* v612 ①: 金背景+白・細文字 */}>{pwLoading?"処理中...":"変更を保存"}</button>
-                        </div>
-                      </div>
-                      {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{pwErr}</div>}
+
+              {/* ── ログイン用メールアドレス ── */}
+              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+                {!emailOpen ? (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+                    <div style={{minWidth:0}}>
+                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>ログイン用メールアドレス</div>
+                      <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT,overflow:"hidden",textOverflow:"ellipsis"}/* v647: メアドを濃い文字に(旧#C5CCD8は薄すぎ) */}>{user?.email||profile.loginEmail||"—"}</div>
                     </div>
-                  )}
-                  {/* v612: 緑の「パスワードを変更しました。」テキストは削除(トーストを出すので不要・企画)。旧pwMsg表示は封印。 */}
-                  {false && pwMsg && <div style={{fontSize:11,color:"#2A7A3A",fontFamily:FONT,marginTop:6}}>{pwMsg}</div>}
-                </div>
+                    <button onClick={()=>{setEmailOpen(true);setEmailNew("");setEmailErr("");}} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
+                  </div>
+                ) : (
+                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログイン用メールアドレスの変更</div>
+                    <input type="email" value={emailNew} onChange={e=>setEmailNew(e.target.value)} placeholder="新しいメールアドレス" style={{...inpS,width:"100%"}}/>
+                    <div style={{display:"flex",justifyContent:"flex-end",gap:isMobile?10:16}}>
+                      <button onClick={()=>{setEmailOpen(false);setEmailNew("");setEmailErr("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>キャンセル</button>
+                      <button onClick={handleChangeEmail} disabled={emailLoading} style={{background:"#C8A860",border:"none",color:"#1A1206",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontWeight:500,fontFamily:FONT,opacity:emailLoading?0.6:1}}>{emailLoading?"送信中...":"確認メールを送る"}</button>
+                    </div>
+                    {emailErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{emailErr}</div>}
+                    <div style={{fontSize:10,color:"#7A8FA8",fontFamily:FONT,lineHeight:1.6}}>新しいアドレスに確認メールを送ります。メール内のリンクを開くと変更が完了します。</div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── ログインパスワード ── */}
+              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+                {!pwOpen ? (
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+                    <div style={{minWidth:0}}>
+                      <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em",marginBottom:6}}>ログインパスワード</div>
+                      <div style={{fontSize:15,color:"#EDE6D6",fontFamily:FONT,letterSpacing:2}}>••••••••</div>
+                    </div>
+                    <button onClick={()=>{setPwOpen(true);setPwErr("");setPwMsg("");}} style={{flexShrink:0,background:"none",border:"1px solid #C8A860",color:"#C8A860",padding:"6px 18px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>変更</button>
+                  </div>
+                ) : (
+                  <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                    <div style={{fontSize:isMobile?10:11,color:"#94A3BE",fontFamily:FONT,letterSpacing:"0.03em"}}>ログインパスワードの変更</div>
+                    <div style={{position:"relative"}}>
+                      <input type={pwShow?"text":"password"} value={pwNew} onChange={e=>setPwNew(e.target.value)} placeholder="新しいパスワード（6文字以上）" style={{...inpS,paddingRight:40,width:"100%"}}/>
+                      <button onClick={()=>setPwShow(!pwShow)} title={pwShow?"隠す":"表示"} style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:"#7A8FA8",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
+                        {pwShow ? (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" opacity="0.9"/><circle cx="12" cy="12" r="2.5"/><line x1="3" y1="21" x2="21" y2="3" opacity="0.85"/></svg>
+                        ) : (
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                        )}
+                      </button>
+                    </div>
+                    <input type={pwShow?"text":"password"} value={pwConfirm} onChange={e=>setPwConfirm(e.target.value)} placeholder="新しいパスワード（確認用）" style={{...inpS,width:"100%"}}/>
+                    <div style={{display:"flex",justifyContent:"flex-end",gap:isMobile?10:16}}>
+                      <button onClick={()=>{setPwOpen(false);setPwNew("");setPwConfirm("");setPwErr("");setPwMsg("");}} style={{background:"none",border:"1px solid #C8CEDB",color:"#A8B4C8",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:FONT}}>キャンセル</button>
+                      <button onClick={handleChangePassword} disabled={pwLoading} style={{background:"#C8A860",border:"none",color:"#1A1206",padding:"6px 16px",borderRadius:4,cursor:"pointer",fontSize:12,fontWeight:500,fontFamily:FONT,opacity:pwLoading?0.6:1}}>{pwLoading?"処理中...":"変更を保存"}</button>
+                    </div>
+                    {pwErr && <div style={{fontSize:11,color:"#C0405A",fontFamily:FONT}}>{pwErr}</div>}
+                  </div>
+                )}
+              </div>
+
+              {/* v647: お問い合わせを下に控えめ表示(PCでもアドレスが見える・コピーできる)。mailtoは≡メニュー側にもあり。 */}
+              <div style={{marginTop:8,fontSize:12,color:"#7A8FA8",fontFamily:FONT}}>
+                お問い合わせ：<a href={"mailto:"+CONTACT_EMAIL} style={{color:"#A9B6CC",textDecoration:"none"}}>{CONTACT_EMAIL}</a>
               </div>
             </div>
 
@@ -2399,9 +2421,9 @@ const PrintPage = (props) => {
                 </button>
               </div>
             )}
-            {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） ── */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"2px solid #4A5A7A",paddingBottom:7,marginBottom:40,marginTop:19}}>
-              <div onClick={()=>setShowProfileDetail(v=>!v)}
+            {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） v647: 見出し下をAccountと同じグレー帯(height10/radius5)に・閉じる時に「保存しました ✓」トースト ── */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:19}}>
+              <div onClick={()=>{ const wasOpen=showProfileDetail; setShowProfileDetail(v=>!v); if(wasOpen) fireToast("保存しました ✓"); }/* v647: 開→閉じる時に保存トースト(自動保存済みの確認・区切り。Yuko) */}
                 style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
                 <span>Biography</span>
                 <span style={{fontSize:10,color:"#7A8FA8"}}>{showProfileDetail?"▲":"▼"}</span>
@@ -2428,6 +2450,8 @@ const PrintPage = (props) => {
                 )}
               </div>
             </div>
+            {/* v647: Biography見出し下の帯=Accountと同サイズのグレー帯で階層統一 */}
+            <div style={{height:10,borderRadius:5,background:"#4A5A7A",marginBottom:28}}/>
             {showProfileDetail && (<React.Fragment>
             {/* v593 下線方式・本実装(企画確定B=グレー破線dashed)。試作プレビューは削除。
                  配置(企画): 1行目 氏名(日)/氏名(英)/生年月日 ・ 2行目 国籍/郵便番号/住所 ・ 3行目 電話/連絡先メール。
@@ -2437,7 +2461,7 @@ const PrintPage = (props) => {
             {(() => {
               // 下線入力欄の共通スタイル(グレー破線)
               const uLine = {
-                background:"transparent", border:"none", borderBottom:"1px dashed #8A97AD",
+                background:"transparent", border:"none", borderBottom:"1px solid #8A97AD",/* v647: 破線dashed→実線solid(Accountと世界観統一) */
                 color:"#EDE6D6", padding:"5px 2px 5px 10px", fontFamily:FONT, fontSize:14,
                 width:"100%", boxSizing:"border-box", outline:"none"
               };
@@ -2562,7 +2586,7 @@ const PrintPage = (props) => {
                 <div key={c.id} style={{display:"flex",alignItems:"flex-end",gap:8}}>
                   <input value={c.text||""} onChange={e=>updateListItem("careers",c.id,{text:e.target.value})}
                     placeholder={idx===0?"3歳より◯◯音楽教室で△△氏に師事":(idx===1?"2010年　◯◯音楽大学　入学":"")}/* v607: 例文は1・2行目だけ。3行目以降(idx>=2)は空欄(書き方は最初の2行で伝わる)。 */
-                    style={{background:"transparent",border:"none",borderBottom:"1px dashed #8A97AD",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
+                    style={{background:"transparent",border:"none",borderBottom:"1px solid #8A97AD",color:"#EDE6D6",padding:"5px 2px 5px 10px",fontFamily:FONT,fontSize:14,width:"100%",boxSizing:"border-box",outline:"none"}}/>
                   <button type="button" onClick={()=>removeListItem("careers",c.id)} title="削除" style={{background:"none",border:"none",color:"#C0A090",cursor:"pointer",fontSize:12,padding:"0 2px 6px",flexShrink:0}}>✕</button>
                 </div>
               ))}
