@@ -2255,7 +2255,7 @@ const PrintPage = (props) => {
             <div style={{display:"flex",flexDirection:"column",paddingLeft:isMobile?12:24,paddingRight:isMobile?12:24}}>
 
               {/* ── 表示名 ── */}
-              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+              <div style={{paddingBottom:8,marginBottom:20,borderBottom:"1px solid #26334d"}}>
                 {!nameEditOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
@@ -2276,7 +2276,7 @@ const PrintPage = (props) => {
               </div>
 
               {/* ── ログイン用メールアドレス ── */}
-              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+              <div style={{paddingBottom:8,marginBottom:20,borderBottom:"1px solid #26334d"}}>
                 {!emailOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
@@ -2300,7 +2300,7 @@ const PrintPage = (props) => {
               </div>
 
               {/* ── ログインパスワード ── */}
-              <div style={{paddingBottom:20,marginBottom:20,borderBottom:"1px solid #26334d"}}>
+              <div style={{paddingBottom:8,marginBottom:20,borderBottom:"1px solid #26334d"}}>
                 {!pwOpen ? (
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
                     <div style={{minWidth:0}}>
@@ -2422,7 +2422,8 @@ const PrintPage = (props) => {
               </div>
             )}
             {/* ── プロフィール詳細（v165: 畳む・使う人だけ開く） v647: 見出し下をAccountと同じグレー帯(height10/radius5)に・閉じる時に「保存しました ✓」トースト ── */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:19}}>
+            {/* v647: お問い合わせとBiographyの間隔を約2.5倍に(marginTop 19→48) */}
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:48}}>
               <div onClick={()=>{ const wasOpen=showProfileDetail; setShowProfileDetail(v=>!v); if(wasOpen) fireToast("保存しました ✓"); }/* v647: 開→閉じる時に保存トースト(自動保存済みの確認・区切り。Yuko) */}
                 style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em",cursor:"pointer",display:"flex",alignItems:"center",gap:8,userSelect:"none"}}>
                 <span>Biography</span>
