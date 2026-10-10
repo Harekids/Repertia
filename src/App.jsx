@@ -207,6 +207,14 @@ const InfoTip = ({ lines, isMobile }) => {
 };
 const FORMS = ["ソナタ","組曲","変奏曲","バラード","スケルツォ","夜想曲","即興曲","練習曲","前奏曲","幻想曲","舞曲","協奏曲","小品","その他"];
 
+// v648: 作曲年の「表示だけ」整形。データ(yearText)は半角ハイフンのまま保存／入力もそのまま。
+//   表示の瞬間だけ「YYYY-YYYY」の年レンジをenダッシュ「YYYY–YYYY」に見せて上品に(総合企画:案2)。
+//   4桁-4桁の年レンジにだけ作用。単年・不明・その他の表記には一切触れない(確実安全)。
+const prettyYear = (v) => {
+  const s = String(v == null ? "" : v);
+  return /^\d{4}-\d{4}$/.test(s) ? s.replace("-", "–") : s;
+};
+
 // Composer birth years for born-year sorting
 const COMPOSER_BORN = {
   "J.S.バッハ":1685, "バッハ":1685, "Bach":1685,
@@ -800,7 +808,7 @@ const PieceCardUnified = ({ p, expanded, onToggleExpand, inProgram, canAdd, onAd
 
   // v350 ②③: スマホ閉じカード2行目＝作曲家 / 作曲 YYYY(-YYYY) / 調号 / 演奏時間。
   //   「作曲」前置で生没年との誤読を防ぐ（③）。範囲はそのまま・「年」は付けない。空の項目は出さない（/ が増えすぎないよう）。
-  const composeYearStr = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
+  const composeYearStr = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+prettyYear(p.yearText||p.year);
   const keyStr = (p.key && p.key!=="ー") ? p.key : "";
   const durStr = fmtDuration(p.duration, p.durationSecs);
   const line2Parts = [p.composer, composeYearStr, keyStr, durStr].filter(x=>x && String(x).trim()!=="");
@@ -3470,7 +3478,7 @@ const ManagePage = (props) => {
               const indentTitle = isMobile ? 0 : "1.4em"; // v374: 曲名をさらに0.5文字左へ（1.9→1.4em）
               const indentLine2 = isMobile ? 0 : "2em"; // v373: 作曲家行は基準どおり
               // 2行目表記をスマホピースカードに合わせる（作曲家 / 作曲 年 / 調号 / 演奏時間）
-              const cComposeYear = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+(p.yearText||p.year);
+              const cComposeYear = (p.yearText==="不明"||(p.year||0)===0) ? "" : "作曲 "+prettyYear(p.yearText||p.year);
               const cKey = (p.key && p.key!=="ー") ? p.key : "";
               const cDur = fmtDuration(p.duration, p.durationSecs);
               const cLine2 = [p.composer, cComposeYear, cKey, cDur].filter(x=>x && String(x).trim()!=="").join(" / ");
