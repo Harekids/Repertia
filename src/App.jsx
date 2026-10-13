@@ -2229,11 +2229,11 @@ const PrintPage = (props) => {
       {/* ── PROFILE ── */}
       {portfolioTab==="profile" && (
         <div style={{flex:1,overflowY:"auto",overflowX:"hidden"}}>
-          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"28px 28px 140px",boxSizing:"border-box"}}>
+          <div style={{maxWidth:CONTENT_W,margin:"0 auto",padding:"40px 28px 140px",boxSizing:"border-box"}/* v649: 上paddingをLibrary/Learning/Repertoireと同じ40pxに揃える(ページ移動で見出しが動かないように) */}>
 
 
             {/* ── アカウント情報 ── v647: 統一デザイン。見出し下=エラバーと同サイズのグレー帯(height10/radius5)。各項目=ラベル+現在値+[変更]、薄い実線で区切り。開閉は既存ロジック(nameEditOpen/emailOpen/pwOpen)流用。メアドは濃い文字(#EDE6D6)。 */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:19}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,marginTop:0}/* v649: 他ページの見出しは上marginなし。コンテナ40pxと合わせAccount見出しを他ページと同じ高さに */}>
               <span style={{fontSize:15,fontWeight:600,color:"#EDE6D6",fontFamily:FONT,letterSpacing:"0.05em"}}>Account</span>
               {/* 右上=三線メニュー(≡): お問い合わせ・ログアウト集約 */}
               <div style={{position:"relative"}} ref={hamAcctRef}>
